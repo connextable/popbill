@@ -1,0 +1,26 @@
+{
+  "cSpell.numSuggestions": 0,
+  "cSpell.customDictionaries": {
+    "words": {
+      "name": "Workspace",
+      "path": "${workspaceRoot}/.vscode/words.txt",
+      "addWords": true,
+      "scope": "workspace"
+    },
+    "custom": true,
+    "internal-terms": false
+  },
+  "[json][jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features",
+  },
+  "[typescript][javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.formatOnPaste": false,
+    "editor.formatOnSave": false,
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+  },
+  "eslint.format.enable": true,
+  "eslint.useFlatConfig": true
+}
