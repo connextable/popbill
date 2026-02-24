@@ -2,12 +2,20 @@
   "name": "popbill-ts",
   "version": "1.0.0",
   "description": "Popbill API SDK for TypeScript. see www.popbill.com",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "type": "module",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
   "license": "MIT",
   "author": {
     "name": "Jinyong Park",
-    "email": "dev.jinyongp@gmail.com"
+    "email": "dev.jinyongp@gmail.com",
+    "url": "https://github.com/jinyongp"
   },
   "contributors": [
     {
@@ -41,6 +49,20 @@
     "api",
     "sdk"
   ],
+  "scripts": {
+    "build": "tsdown",
+    "lint": "eslint"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@stylistic/eslint-plugin": "5.9.0",
+    "eslint": "10.0.2",
+    "globals": "17.3.0",
+    "jiti": "2.6.1",
+    "tsdown": "0.20.3",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.56.1"
+  },
   "engines": {
     "node": ">=20"
   },
