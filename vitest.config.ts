@@ -5,6 +5,9 @@ export default defineConfig({
     watch: false,
     globals: true,
     environment: 'node',
+    setupFiles: [
+      'dotenv/config',
+    ],
     alias: {
       '@/': new URL('./src/', import.meta.url).pathname,
     },

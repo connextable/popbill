@@ -40,9 +40,6 @@
     /// Output Formatting
     "noErrorTruncation": true
   },
-  "include": [
-    "**/*.ts"
-  ],
   "exclude": [
     "node_modules",
     "dist"

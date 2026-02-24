@@ -1,3 +1,4 @@
-export function foo() {
-  return 'foo'
-}
+export { createPopbillClient } from './client'
+
+export type * from './client'
+export type * from './services'

@@ -53,12 +53,14 @@
     "build": "tsdown",
     "test": "vitest",
     "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@stylistic/eslint-plugin": "5.9.0",
     "@types/node": "^20",
+    "dotenv": "17.3.1",
     "eslint": "10.0.2",
     "globals": "17.3.0",
     "jiti": "2.6.1",
