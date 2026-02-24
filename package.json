@@ -1,8 +1,14 @@
 {
-  "name": "popbill",
-  "version": "1.62.0",
-  "description": "Popbill API SDK for node. see www.popbill.com",
-  "author": "Kim Seongjun <pallet027@gmail.com>",
+  "name": "popbill-ts",
+  "version": "1.0.0",
+  "description": "Popbill API SDK for TypeScript. see www.popbill.com",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "MIT",
+  "author": {
+    "name": "Jinyong Park",
+    "email": "dev.jinyongp@gmail.com"
+  },
   "contributors": [
     {
       "name": "Kim Seongjun",
@@ -13,20 +19,12 @@
       "email": "code@linkhubcorp.com"
     }
   ],
-  "main": "index.js",
-  "engines": {
-    "node": ">= 0.10.0"
-  },
-  "dependencies": {
-    "linkhub": "^1.8.2",
-    "popbill": "file:"
-  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/linkhub-sdk/node-popbill.git"
+    "url": "https://github.com/connextable/node-popbill.git"
   },
   "bugs": {
-    "url": "https://github.com/linkhub-sdk/node-popbill/issues"
+    "url": "https://github.com/connextable/node-popbill/issues"
   },
   "keywords": [
     "popbill",
@@ -43,7 +41,8 @@
     "api",
     "sdk"
   ],
-  "preferGlobal": true,
-  "subdomain": "popbill",
-  "license": "MIT"
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.30.2+sha512.36cdc707e7b7940a988c9c1ecf88d084f8514b5c3f085f53a2e244c2921d3b2545bc20dd4ebe1fc245feec463bb298aecea7a63ed1f7680b877dc6379d8d0cb4"
 }
