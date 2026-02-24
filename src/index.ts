@@ -1,1 +1,3 @@
-console.log('Hello, Popbill API SDK for TypeScript!')
+export function foo() {
+  return 'foo'
+}

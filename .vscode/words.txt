@@ -2,6 +2,7 @@ accountcheck
 bizinfocheck
 cashbill
 closedown
+connextable
 hometax
 kakao
 linkhub

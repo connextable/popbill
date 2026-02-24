@@ -1,5 +1,5 @@
 {
-  "name": "popbill-ts",
+  "name": "@connextable/popbill",
   "version": "1.0.0",
   "description": "Popbill API SDK for TypeScript. see www.popbill.com",
   "type": "module",
@@ -51,6 +51,7 @@
   ],
   "scripts": {
     "build": "tsdown",
+    "test": "vitest",
     "lint": "eslint",
     "typecheck": "tsc --noEmit"
   },
@@ -62,10 +63,12 @@
     "jiti": "2.6.1",
     "tsdown": "0.20.3",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.56.1"
+    "typescript-eslint": "8.56.1",
+    "vitest": "4.0.18"
   },
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "pnpm@10.30.2+sha512.36cdc707e7b7940a988c9c1ecf88d084f8514b5c3f085f53a2e244c2921d3b2545bc20dd4ebe1fc245feec463bb298aecea7a63ed1f7680b877dc6379d8d0cb4"
+  "packageManager": "pnpm@10.30.2+sha512.36cdc707e7b7940a988c9c1ecf88d084f8514b5c3f085f53a2e244c2921d3b2545bc20dd4ebe1fc245feec463bb298aecea7a63ed1f7680b877dc6379d8d0cb4",
+  "sideEffects": false
 }
