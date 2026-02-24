@@ -16,6 +16,7 @@ export default defineConfig(
   stylistic.configs.recommended,
   {
     rules: {
+      'object-shorthand': ['error'],
       '@typescript-eslint/no-unused-vars': ['error', {
         args: 'all',
         caughtErrors: 'all',
