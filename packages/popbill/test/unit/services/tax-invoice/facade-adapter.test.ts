@@ -634,6 +634,85 @@ describe('tax-invoice facade adapter', () => {
     expect(getURL).toHaveBeenCalledWith(BUSINESS_NUMBER, 'TBOX', undefined)
   })
 
+  test('normalizes closeDownStateCodes to undefined when values are not numeric', async () => {
+    const search = vi.fn(async (..._args: unknown[]) => SEARCH_RESPONSE)
+    const service = createTaxInvoiceService({
+      compatTaxInvoiceService: createCompatServiceStub({ search }),
+    })
+
+    await service.searchInvoices({
+      businessNumber: BUSINESS_NUMBER,
+      invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+      searchDateType: 'R',
+      startDate: '20260201',
+      endDate: '20260228',
+      invoiceStateCodes: ['100'],
+      invoiceTypeCodes: ['N'],
+      taxationTypeCodes: ['T'],
+      lateIssueOnly: null,
+      sortOrder: 'D',
+      pageNumber: 1,
+      pageSize: 500,
+      closeDownStateCodes: ['N'],
+    }, REQUEST_OPTIONS)
+
+    expect(search).toHaveBeenCalledTimes(1)
+    const firstCallArgs = search.mock.calls[0] as unknown[] | undefined
+    expect(firstCallArgs?.[20]).toBeUndefined()
+  })
+
+  test('keeps closeDownStateCodes undefined when the option is omitted', async () => {
+    const search = vi.fn(async (..._args: unknown[]) => SEARCH_RESPONSE)
+    const service = createTaxInvoiceService({
+      compatTaxInvoiceService: createCompatServiceStub({ search }),
+    })
+
+    await service.searchInvoices({
+      businessNumber: BUSINESS_NUMBER,
+      invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+      searchDateType: 'R',
+      startDate: '20260201',
+      endDate: '20260228',
+      invoiceStateCodes: ['100'],
+      invoiceTypeCodes: ['N'],
+      taxationTypeCodes: ['T'],
+      lateIssueOnly: null,
+      sortOrder: 'D',
+      pageNumber: 1,
+      pageSize: 500,
+    }, REQUEST_OPTIONS)
+
+    expect(search).toHaveBeenCalledTimes(1)
+    const firstCallArgs = search.mock.calls[0] as unknown[] | undefined
+    expect(firstCallArgs?.[20]).toBeUndefined()
+  })
+
+  test('normalizes compat error even when onError is not provided', async () => {
+    const validationError = createInputValidationError('invalid businessNumber', {
+      stage: PopbillErrorStage.ValidateInput,
+    })
+    const getInfo = vi.fn(async () => {
+      throw validationError
+    })
+    const service = createTaxInvoiceService({
+      compatTaxInvoiceService: createCompatServiceStub({ getInfo }),
+    })
+
+    await expect(
+      service.getInvoiceInfo({
+        businessNumber: BUSINESS_NUMBER,
+        invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+        invoiceManagementKey: INVOICE_MANAGEMENT_KEY,
+      }, { userId: USER_ID }),
+    ).rejects.toMatchObject({
+      code: -99999999,
+      message: 'invalid businessNumber',
+      type: PopbillErrorType.InputValidation,
+      stage: PopbillErrorStage.ValidateInput,
+      operation: 'taxInvoice.getInvoiceInfo',
+    })
+  })
+
   test('normalizes compat error and preserves original error when onError throws', async () => {
     const validationError = createInputValidationError('invalid businessNumber', {
       stage: PopbillErrorStage.ValidateInput,
