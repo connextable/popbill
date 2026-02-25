@@ -1,11 +1,12 @@
-import { PopbillErrorStage, PopbillErrorType, createPopbillClient, type TaxInvoiceInfo } from '@/index'
+import { PopbillErrorStage, PopbillErrorType, createPopbillClient } from '@/index'
+import type { TaxInvoiceInfo } from '@/services/tax-invoice/types'
 
-describe('tax-invoice getInfo', () => {
+describe('tax-invoice getInvoiceInfo', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
   })
 
-  test('requests token then calls getInfo endpoint', async () => {
+  test('requests token then calls getInvoiceInfo endpoint', async () => {
     const tokenResponse = {
       session_token: 'session-token',
       expiration: '2099-01-01T00:00:00Z',
@@ -50,9 +51,9 @@ describe('tax-invoice getInfo', () => {
       useLocalTime: true,
     })
 
-    const response = await client.services.taxInvoice.getInfo({
+    const response = await client.services.taxInvoice.getInvoiceInfo({
       businessNumber: '1234567890',
-      invoiceKeyType: 'SELL',
+      invoiceDocumentKeyType: 'SELL',
       invoiceManagementKey: '20260224-001',
     })
 
@@ -133,9 +134,9 @@ describe('tax-invoice getInfo', () => {
       acceptLanguage: 'en-US',
     })
 
-    await client.services.taxInvoice.getInfo({
+    await client.services.taxInvoice.getInvoiceInfo({
       businessNumber: '1234567890',
-      invoiceKeyType: 'SELL',
+      invoiceDocumentKeyType: 'SELL',
       invoiceManagementKey: '20260224-001',
     })
 
@@ -157,15 +158,16 @@ describe('tax-invoice getInfo', () => {
     })
 
     await expect(
-      client.services.taxInvoice.getInfo({
+      client.services.taxInvoice.getInvoiceInfo({
         businessNumber: '',
-        invoiceKeyType: 'SELL',
+        invoiceDocumentKeyType: 'SELL',
         invoiceManagementKey: 'MGT-1',
       }),
     ).rejects.toMatchObject({
       code: -99999999,
       type: PopbillErrorType.InputValidation,
       stage: PopbillErrorStage.ValidateInput,
+      operation: 'taxInvoice.getInvoiceInfo',
     })
 
     expect(onError).toHaveBeenCalledTimes(1)
@@ -173,7 +175,7 @@ describe('tax-invoice getInfo', () => {
       code: -99999999,
       type: PopbillErrorType.InputValidation,
       stage: PopbillErrorStage.ValidateInput,
-      operation: 'taxInvoice.getInfo',
+      operation: 'taxInvoice.getInvoiceInfo',
     }))
     expect(fetchMock).not.toHaveBeenCalled()
   })
@@ -197,9 +199,9 @@ describe('tax-invoice getInfo', () => {
     })
 
     await expect(
-      client.services.taxInvoice.getInfo({
+      client.services.taxInvoice.getInvoiceInfo({
         businessNumber: '1234567890',
-        invoiceKeyType: 'SELL',
+        invoiceDocumentKeyType: 'SELL',
         invoiceManagementKey: 'MGT-1',
       }),
     ).rejects.toMatchObject({
@@ -207,7 +209,7 @@ describe('tax-invoice getInfo', () => {
       message: 'Authentication denied',
       type: PopbillErrorType.ApiResponse,
       stage: PopbillErrorStage.IssueToken,
-      operation: 'taxInvoice.getInfo',
+      operation: 'taxInvoice.getInvoiceInfo',
       status: 401,
     })
 
@@ -216,6 +218,7 @@ describe('tax-invoice getInfo', () => {
       code: -11000000,
       type: PopbillErrorType.ApiResponse,
       stage: PopbillErrorStage.IssueToken,
+      operation: 'taxInvoice.getInvoiceInfo',
     }))
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })

@@ -13,20 +13,19 @@ const hasConfiguredManagementKey = invoiceManagementKey !== 'REPLACE_WITH_PARTNE
 const isRunnable = shouldRunIntegration && Boolean(linkId && secretKey && businessNumber && hasConfiguredManagementKey)
 const testable = isRunnable ? test : test.skip
 
-describe('integration tax-invoice getInfo', () => {
-  testable('calls popbill getInfo API using fixed keyType and partner-assigned mgtKey', async () => {
+describe('integration tax-invoice getInvoiceInfo', () => {
+  testable('calls popbill getInvoiceInfo API using fixed keyType and partner-assigned key', async () => {
     const client = createPopbillClient({
       linkId: linkId as string,
       secretKey: secretKey as string,
       isTest: true,
     })
 
-    const response = await client.services.taxInvoice.getInfo({
+    const response = await client.services.taxInvoice.getInvoiceInfo({
       businessNumber: businessNumber as string,
-      invoiceKeyType,
+      invoiceDocumentKeyType: invoiceKeyType,
       invoiceManagementKey,
-      userId,
-    })
+    }, { userId })
 
     expect(typeof response.stateCode).toBe('number')
   })

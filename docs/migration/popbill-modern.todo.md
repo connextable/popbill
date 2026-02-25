@@ -58,3 +58,9 @@
 - Every endpoint migration must update `status`, `updated_at`, and `notes` in the same commit.
 - Raw API request/response types must be defined in `@connextable/popbill-spec`.
 - Breaking change (2026-02-25): `@connextable/popbill-spec/tax-invoice/get-info` export is removed. Use `@connextable/popbill-spec/tax-invoice/shims`.
+
+## Notes
+- 2026-02-26: `@connextable/popbill` TaxInvoice facade v2 초안 반영.
+  - compat 기반 런타임 브리지(`@connextable/popbill-compat/factory`) 연결.
+  - modern 공개 메서드 46개를 `input, options?` 시그니처로 통일.
+  - 네이밍 규칙(`get*`, `check*`) 및 공개 메서드 집합 상수/테스트 추가.

@@ -7,13 +7,13 @@ describe('createPopbillClient', () => {
     expect('TokenBuilder' in sdk).toBe(false)
   })
 
-  test('creates taxInvoice getInfo service', () => {
+  test('creates taxInvoice getInvoiceInfo service', () => {
     const client = sdk.createPopbillClient({
       linkId: 'TEST_LINK_ID',
       secretKey: Buffer.from('secret').toString('base64'),
       isTest: true,
     })
 
-    expect(typeof client.services.taxInvoice.getInfo).toBe('function')
+    expect(typeof client.services.taxInvoice.getInvoiceInfo).toBe('function')
   })
 })

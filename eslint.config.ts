@@ -41,6 +41,9 @@ export default defineConfig(
       'vitest/consistent-vitest-vi': ['error', {
         fn: 'vi',
       }],
+      // type-aware parser 설정 없이도 test lint가 동작하도록 비활성화
+      'vitest/valid-title': 'off',
+      'vitest/no-standalone-expect': 'off',
     },
     settings: {
       vitest: {

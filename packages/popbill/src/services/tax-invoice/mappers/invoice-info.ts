@@ -1,7 +1,10 @@
-import { toBoolean } from '@/utils/cast'
+import { toBoolean } from '@connextable/popbill-core'
 import type { TaxInvoiceGetInfoApiResponse } from '@connextable/popbill-spec'
-import type { TaxInvoiceInfo } from './type'
+import type { TaxInvoiceInfo } from '@/services/tax-invoice/types'
 
+/**
+ * compat `getInfo` 응답을 modern TaxInvoiceInfo로 변환합니다.
+ */
 export function mapTaxInvoiceInfo(response: TaxInvoiceGetInfoApiResponse): TaxInvoiceInfo {
   return {
     itemKey: response.itemKey,

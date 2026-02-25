@@ -1,4 +1,4 @@
-import { isBlank, isValidDate8 } from '@/utils/validation'
+import { isBlank, isValidDate8 } from '@connextable/popbill-core'
 
 describe('validation utils', () => {
   test('validates yyyyMMdd date format', () => {

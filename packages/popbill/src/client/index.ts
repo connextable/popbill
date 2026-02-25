@@ -1,11 +1,10 @@
 import type { PopbillClient, PopbillClientConfig } from './types'
-import { createTaxInvoiceService } from '../services/tax-invoice'
-import { createLinkhubAuthClient, createTokenProvider, LinkhubAuthScope } from '../internal/linkhub'
-import { createPopbillRequestClient } from '../internal/popbill'
-import type { PopbillApiError } from '../errors'
-import { normalizeOptionalString } from '@/utils/string'
+import { createTaxInvoiceService } from '@/services/tax-invoice'
+import { createCompatTaxInvoiceService } from '@/internal/compat'
+import type { PopbillApiError } from '@/errors'
+import { normalizeOptionalString, normalizeRequiredString } from '@connextable/popbill-core'
 
-const DEFAULT_REQUEST_TIMEOUT_MS = 180_000
+const DEFAULT_REQUEST_TIMEOUT_MILLISECONDS = 180_000
 const DEFAULT_ACCEPT_ENCODING = 'gzip'
 
 interface ResolvedPopbillClientConfig {
@@ -18,63 +17,20 @@ interface ResolvedPopbillClientConfig {
   ipRestrictOnOff: boolean
   acceptEncoding: string | null
   acceptLanguage?: string
-  requestTimeoutMs: number
-  onError: (error: PopbillApiError) => void
+  requestTimeoutMilliseconds: number
+  onError?: (error: PopbillApiError) => void
 }
 
-function noopErrorHandler(_error: PopbillApiError): void {}
-
+/**
+ * modern Popbill client를 생성합니다.
+ */
 export function createPopbillClient(config: PopbillClientConfig): PopbillClient {
-  if (config.linkId.trim().length === 0) {
-    throw new Error('linkId는 필수입니다.')
-  }
-
-  if (config.secretKey.trim().length === 0) {
-    throw new Error('secretKey는 필수입니다.')
-  }
-
-  const normalizedConfig: ResolvedPopbillClientConfig = {
-    linkId: config.linkId,
-    secretKey: config.secretKey,
-    isTest: config.isTest ?? false,
-    useStaticIp: config.useStaticIp ?? false,
-    useGaIp: config.useGaIp ?? false,
-    useLocalTime: config.useLocalTime ?? true,
-    ipRestrictOnOff: config.ipRestrictOnOff ?? true,
-    acceptEncoding: config.acceptEncoding === undefined ? DEFAULT_ACCEPT_ENCODING : config.acceptEncoding,
-    acceptLanguage: normalizeOptionalString(config.acceptLanguage),
-    requestTimeoutMs: config.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS,
-    onError: config.onError ?? noopErrorHandler,
-  }
-
-  const authClient = createLinkhubAuthClient({
-    linkId: normalizedConfig.linkId,
-    secretKey: normalizedConfig.secretKey,
-    useStaticIp: normalizedConfig.useStaticIp,
-    useGaIp: normalizedConfig.useGaIp,
-    useLocalTime: normalizedConfig.useLocalTime,
-    timeoutMs: normalizedConfig.requestTimeoutMs,
-  })
-
-  const tokenProvider = createTokenProvider({
-    authClient,
-    serviceId: normalizedConfig.isTest ? 'POPBILL_TEST' : 'POPBILL',
-    scopes: [LinkhubAuthScope.Member, LinkhubAuthScope.TaxInvoice],
-    forwardedIp: normalizedConfig.ipRestrictOnOff ? undefined : '*',
-  })
-
-  const apiBaseUrl = resolveApiBaseUrl(normalizedConfig)
-  const requestClient = createPopbillRequestClient({
-    apiBaseUrl,
-    timeoutMs: normalizedConfig.requestTimeoutMs,
-    tokenProvider,
-    acceptEncoding: normalizedConfig.acceptEncoding,
-    acceptLanguage: normalizedConfig.acceptLanguage,
-  })
+  const normalizedConfig = normalizeClientConfiguration(config)
+  const compatTaxInvoiceService = createCompatTaxInvoiceService(normalizedConfig)
 
   const taxInvoiceService = createTaxInvoiceService({
-    requestClient,
-    defaultErrorHandler: normalizedConfig.onError,
+    compatTaxInvoiceService,
+    onError: normalizedConfig.onError,
   })
 
   return {
@@ -84,22 +40,24 @@ export function createPopbillClient(config: PopbillClientConfig): PopbillClient 
   }
 }
 
-function resolveApiBaseUrl(
-  config: Pick<ResolvedPopbillClientConfig, 'isTest' | 'useGaIp' | 'useStaticIp'>,
-): string {
-  if (config.useGaIp) {
-    return config.isTest
-      ? 'https://ga-popbill-test.linkhub.co.kr'
-      : 'https://ga-popbill.linkhub.co.kr'
-  }
+/**
+ * 입력 설정을 런타임 안전성 기준으로 정규화합니다.
+ */
+function normalizeClientConfiguration(config: PopbillClientConfig): ResolvedPopbillClientConfig {
+  const linkId = normalizeRequiredString(config.linkId, 'linkId는 필수입니다.')
+  const secretKey = normalizeRequiredString(config.secretKey, 'secretKey는 필수입니다.')
 
-  if (config.useStaticIp) {
-    return config.isTest
-      ? 'https://static-popbill-test.linkhub.co.kr'
-      : 'https://static-popbill.linkhub.co.kr'
+  return {
+    linkId,
+    secretKey,
+    isTest: config.isTest ?? false,
+    useStaticIp: config.useStaticIp ?? false,
+    useGaIp: config.useGaIp ?? false,
+    useLocalTime: config.useLocalTime ?? true,
+    ipRestrictOnOff: config.ipRestrictOnOff ?? true,
+    acceptEncoding: config.acceptEncoding === undefined ? DEFAULT_ACCEPT_ENCODING : config.acceptEncoding,
+    acceptLanguage: normalizeOptionalString(config.acceptLanguage),
+    requestTimeoutMilliseconds: config.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MILLISECONDS,
+    onError: config.onError,
   }
-
-  return config.isTest
-    ? 'https://popbill-test.linkhub.co.kr'
-    : 'https://popbill.linkhub.co.kr'
 }

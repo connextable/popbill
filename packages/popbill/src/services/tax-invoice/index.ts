@@ -1,2 +1,3 @@
 export * from './service'
-export * from './api'
+export * from './methods'
+export type * from './types'

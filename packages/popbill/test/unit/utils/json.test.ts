@@ -1,4 +1,4 @@
-import { stringifyWithoutEmptyValues } from '@/utils/json'
+import { stringifyWithoutEmptyValues } from '@connextable/popbill-core'
 
 describe('stringifyWithoutEmptyValues', () => {
   test('removes null, empty string, undefined values', () => {

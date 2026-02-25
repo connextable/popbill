@@ -1,5 +1,5 @@
 import type { PopbillApiError } from '@/errors'
-import type { TaxInvoiceService } from '@/services/tax-invoice/type'
+import type { TaxInvoiceService } from '@/services/tax-invoice/types'
 
 export interface PopbillClientConfig {
   linkId: string

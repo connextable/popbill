@@ -12,11 +12,8 @@
       "@connextable/popbill-spec/*": [
         "../popbill-spec/src/*"
       ],
-      "@connextable/popbill-core": [
-        "../popbill-core/src/index.ts"
-      ],
-      "@connextable/popbill-core/*": [
-        "../popbill-core/src/*"
+      "@connextable/popbill-compat/factory": [
+        "../popbill-compat/dist/factory/index.d.mts"
       ]
     },
     "types": [

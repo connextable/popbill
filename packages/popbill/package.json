@@ -60,6 +60,7 @@
     "clean": "del node_modules dist"
   },
   "dependencies": {
+    "@connextable/popbill-compat": "workspace:*",
     "@connextable/popbill-core": "workspace:*",
     "@connextable/popbill-spec": "workspace:*"
   },

@@ -53,6 +53,9 @@ importers:
 
   packages/popbill:
     dependencies:
+      '@connextable/popbill-compat':
+        specifier: workspace:*
+        version: link:../popbill-compat
       '@connextable/popbill-core':
         specifier: workspace:*
         version: link:../popbill-core
