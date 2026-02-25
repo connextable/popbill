@@ -943,7 +943,6 @@ BaseService.addMethod(CashbillService.prototype, 'revokeRegistIssue', function(C
 })
 
 /**
- * @deprecated
  * @param CorpNum
  * @param mgtKey
  * @param orgConfirmNum

@@ -89,13 +89,6 @@ export interface TaxInvoiceMgtKeyTypeMap {
 export type TaxInvoiceMgtKeyType = TaxInvoiceMgtKeyTypeMap[keyof TaxInvoiceMgtKeyTypeMap]
 
 /**
- * 문서번호 유형(raw).
- *
- * @deprecated `TaxInvoiceMgtKeyType` 사용 권장.
- */
-export type TaxInvoiceKeyType = TaxInvoiceMgtKeyType
-
-/**
  * 과세 형태(raw).
  *
  * - `과세`: 일반 과세

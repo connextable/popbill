@@ -18,9 +18,9 @@ export type TaxInvoiceRegistTaxCert2ApiRequestPath = never
 export type TaxInvoiceRegistTaxCert2ApiRequestQuery = never
 
 /**
- * RegistTaxCert2 API body - FLE 필드명(raw).
+ * RegistTaxCert2 API body(raw).
  */
-export interface TaxInvoiceRegistTaxCert2ApiRequestBodyFLE {
+export interface TaxInvoiceRegistTaxCert2ApiRequestBody {
   /**
    * 공동인증서 PFX 파일.
    *
@@ -35,46 +35,6 @@ export interface TaxInvoiceRegistTaxCert2ApiRequestBodyFLE {
    */
   password: string
 }
-
-/**
- * RegistTaxCert2 API body - legacy 필드명(raw).
- */
-export interface TaxInvoiceRegistTaxCert2ApiRequestBodyLegacy {
-  /**
-   * 공동인증서 PFX 파일.
-   *
-   * @deprecated `pfx` 사용 권장.
-   */
-  certFilePath: string
-
-  /**
-   * 공동인증서 PFX 파일 비밀번호.
-   *
-   * @deprecated `password` 사용 권장.
-   */
-  certPassword: string
-}
-
-/**
- * RegistTaxCert2 API body 타입 매핑(raw).
- */
-export interface TaxInvoiceRegistTaxCert2ApiRequestBodyMap {
-  /**
-   * FLE 필드명 형식.
-   */
-  Fle: TaxInvoiceRegistTaxCert2ApiRequestBodyFLE
-
-  /**
-   * legacy 필드명 형식.
-   */
-  Legacy: TaxInvoiceRegistTaxCert2ApiRequestBodyLegacy
-}
-
-/**
- * RegistTaxCert2 API body(raw).
- */
-export type TaxInvoiceRegistTaxCert2ApiRequestBody
-  = TaxInvoiceRegistTaxCert2ApiRequestBodyMap[keyof TaxInvoiceRegistTaxCert2ApiRequestBodyMap]
 
 /**
  * RegistTaxCert2 API 요청(raw).

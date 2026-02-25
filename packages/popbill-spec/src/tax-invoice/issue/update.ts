@@ -64,17 +64,6 @@ export type TaxInvoiceUpdateApiRequestBody = TaxInvoiceApiModel & {
 
   /**
    * 거래명세서 문서번호.
-   *
-   * 미입력 시 세금계산서 문서번호와 동일하게 할당된다.
-   *
-   * @deprecated `dealInvoiceMgtKey` 사용 권장.
-   */
-  dealInvoiceKey?: string
-
-  /**
-   * 거래명세서 문서번호.
-   *
-   * 최신 SDK camelCase 명칭으로 `dealInvoiceKey`와 동일한 의미다.
    */
   dealInvoiceMgtKey?: string
 }

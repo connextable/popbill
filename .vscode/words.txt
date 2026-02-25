@@ -16,6 +16,7 @@ ntsconfirm
 ntsresult
 ntssend
 opyn
+PDFURL
 popbill
 regist
 retriable

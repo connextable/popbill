@@ -6,7 +6,6 @@ import type {
   TaxInvoiceGetInfoApiResponse,
   TaxInvoiceIssueApiResponse,
   TaxInvoiceSearchApiResponse,
-  TaxInvoiceGetViewUrlApiResponse,
   TaxInvoiceGetTaxCertInfoApiResponse,
 } from '@connextable/popbill-spec'
 
@@ -104,7 +103,17 @@ describe('compat exports', () => {
       '1234567890',
       'SELL',
       'MGT-KEY-001',
-      (response: TaxInvoiceGetViewUrlApiResponse) => {
+      (response: string) => {
+        void response
+      },
+      (error: unknown) => {
+        void error
+      },
+    )
+    expectTypeOf(callbackService.getURL).toBeCallableWith(
+      '1234567890',
+      'TBOX',
+      (response: string) => {
         void response
       },
       (error: unknown) => {
@@ -124,7 +133,8 @@ describe('compat exports', () => {
     expectTypeOf(promiseService.getInfo).returns.toEqualTypeOf<Promise<TaxInvoiceGetInfoApiResponse>>()
     expectTypeOf(promiseService.issue).returns.toEqualTypeOf<Promise<TaxInvoiceIssueApiResponse>>()
     expectTypeOf(promiseService.search).returns.toEqualTypeOf<Promise<TaxInvoiceSearchApiResponse>>()
-    expectTypeOf(promiseService.getViewURL).returns.toEqualTypeOf<Promise<TaxInvoiceGetViewUrlApiResponse>>()
+    expectTypeOf(promiseService.getViewURL).returns.toEqualTypeOf<Promise<string>>()
+    expectTypeOf(promiseService.getURL).returns.toEqualTypeOf<Promise<string>>()
     expectTypeOf(promiseService.getTaxCertInfo).returns.toEqualTypeOf<Promise<TaxInvoiceGetTaxCertInfoApiResponse>>()
   })
 })

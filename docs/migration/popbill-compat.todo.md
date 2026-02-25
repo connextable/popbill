@@ -9,7 +9,7 @@
 ## Service Checklist
 | service | method_count | status | owner | updated_at | notes |
 |---|---:|---|---|---|---|
-| TaxinvoiceService | 56 | IN_PROGRESS | TBD | 2026-02-25 | Callback/Promise typed scaffold connected to `@connextable/popbill-spec`, runtime remains NotImplemented. |
+| TaxinvoiceService | 56 | IN_PROGRESS | TBD | 2026-02-25 | Callback/Promise typed scaffold connected to `@connextable/popbill-spec`; runtime implemented for `issue`, `cancelIssue`, `getURL`, and 7 view URL methods. Method-surface regression test added. |
 | StatementService | 35 | IN_PROGRESS | TBD | 2026-02-25 | Service skeleton added with callback/promise stubs. |
 | CashbillService | 33 | IN_PROGRESS | TBD | 2026-02-25 | Service skeleton added with callback/promise stubs. |
 | MessageService | 27 | IN_PROGRESS | TBD | 2026-02-25 | Service skeleton added with callback/promise stubs. |
@@ -25,8 +25,8 @@
 ## TaxinvoiceService Method Checklist
 | service | method | scope | status | owner | updated_at | notes |
 |---|---|---|---|---|---|---|
-| TaxinvoiceService | getChargeInfo | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | `@deprecated` typed scaffold only. |
-| TaxinvoiceService | getUnitCost | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | `@deprecated` typed scaffold only. |
+| TaxinvoiceService | getChargeInfo | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
+| TaxinvoiceService | getUnitCost | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
 | TaxinvoiceService | getCertificateExpireDate | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
 | TaxinvoiceService | getTaxCertInfo | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
 | TaxinvoiceService | checkMgtKeyInUse | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
@@ -44,10 +44,10 @@
 | TaxinvoiceService | deleteFile | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
 | TaxinvoiceService | send | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
 | TaxinvoiceService | cancelSend | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
-| TaxinvoiceService | accept | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | `@deprecated` typed scaffold only. |
-| TaxinvoiceService | deny | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | `@deprecated` typed scaffold only. |
-| TaxinvoiceService | issue | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
-| TaxinvoiceService | cancelIssue | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
+| TaxinvoiceService | accept | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
+| TaxinvoiceService | deny | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
+| TaxinvoiceService | issue | DOC_BASED | DONE | TBD | 2026-02-25 | Runtime mapping implemented with legacy overload parsing (`ISSUE`). |
+| TaxinvoiceService | cancelIssue | DOC_BASED | DONE | TBD | 2026-02-25 | Runtime mapping implemented (`CANCELISSUE`). |
 | TaxinvoiceService | registRequest | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
 | TaxinvoiceService | request | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
 | TaxinvoiceService | cancelRequest | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
@@ -57,17 +57,17 @@
 | TaxinvoiceService | sendEmail | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
 | TaxinvoiceService | sendSMS | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
 | TaxinvoiceService | sendFAX | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
-| TaxinvoiceService | getURL | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | `@deprecated` typed scaffold only. |
-| TaxinvoiceService | getPopUpURL | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
-| TaxinvoiceService | getViewURL | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
-| TaxinvoiceService | getPrintURL | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
-| TaxinvoiceService | getPDFURL | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
-| TaxinvoiceService | getOldPrintURL | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | `@deprecated` typed scaffold only. |
-| TaxinvoiceService | getMassPrintURL | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
-| TaxinvoiceService | getEPrintURL | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
-| TaxinvoiceService | getMailURL | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
-| TaxinvoiceService | getEmailPublicKeys | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | `@deprecated` typed scaffold only. |
-| TaxinvoiceService | getPDF | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | `@deprecated` typed scaffold only. |
+| TaxinvoiceService | getURL | LEGACY_ONLY | DONE | TBD | 2026-02-25 | Runtime mapping implemented (`GET /Taxinvoice?TG={TOGO}`) with legacy overload parsing and `string` URL 반환. |
+| TaxinvoiceService | getPopUpURL | DOC_BASED | DONE | TBD | 2026-02-25 | Runtime mapping implemented (`?TG=POPUP`), returns legacy `string` URL. |
+| TaxinvoiceService | getViewURL | DOC_BASED | DONE | TBD | 2026-02-25 | Runtime mapping implemented (`?TG=VIEW`), returns legacy `string` URL. |
+| TaxinvoiceService | getPrintURL | DOC_BASED | DONE | TBD | 2026-02-25 | Runtime mapping implemented (`?TG=PRINT`), returns legacy `string` URL. |
+| TaxinvoiceService | getPDFURL | DOC_BASED | DONE | TBD | 2026-02-25 | Runtime mapping implemented (`?TG=PDF`), returns legacy `string` URL. |
+| TaxinvoiceService | getOldPrintURL | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
+| TaxinvoiceService | getMassPrintURL | DOC_BASED | DONE | TBD | 2026-02-25 | Runtime mapping implemented (`POST /Taxinvoice/{MgtKeyType}?Print`), returns legacy `string` URL. |
+| TaxinvoiceService | getEPrintURL | DOC_BASED | DONE | TBD | 2026-02-25 | Runtime mapping implemented (`?TG=EPRINT`), returns legacy `string` URL. |
+| TaxinvoiceService | getMailURL | DOC_BASED | DONE | TBD | 2026-02-25 | Runtime mapping implemented (`?TG=MAIL`), returns legacy `string` URL. |
+| TaxinvoiceService | getEmailPublicKeys | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
+| TaxinvoiceService | getPDF | LEGACY_ONLY | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
 | TaxinvoiceService | search | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
 | TaxinvoiceService | registIssue | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |
 | TaxinvoiceService | bulkSubmit | DOC_BASED | IN_PROGRESS | TBD | 2026-02-25 | Typed scaffold only. |

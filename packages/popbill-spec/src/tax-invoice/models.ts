@@ -26,9 +26,11 @@ import type { TaxInvoiceNtsResultCode, TaxInvoiceStateCode } from './response-co
  */
 export interface TaxInvoiceDetailApiModel {
   /**
-   * 일련번호
+   * 일련번호.
+   *
+   * detailList 항목에서 필수 입력값.
    */
-  serialNum?: number
+  serialNum: number
 
   /**
    * 거래일자
@@ -76,9 +78,11 @@ export interface TaxInvoiceDetailApiModel {
  */
 export interface TaxInvoiceAdditionalContactApiModel {
   /**
-   * 일련번호
+   * 일련번호.
+   *
+   * addContactList 항목에서 필수 입력값.
    */
-  serialNum?: number
+  serialNum: number
 
   /**
    * 담당자명
@@ -86,9 +90,11 @@ export interface TaxInvoiceAdditionalContactApiModel {
   contactName?: string
 
   /**
-   * 이메일주소
+   * 이메일주소.
+   *
+   * addContactList 항목에서 필수 입력값.
    */
-  email?: string
+  email: string
 }
 
 /**
@@ -494,13 +500,6 @@ export interface TaxInvoiceApiModel {
    * 수정세금계산서 작성시 원본세금계산서의 국세청승인번호
    */
   orgNTSConfirmNum?: string
-
-  /**
-   * 수정세금계산서 작성시 원본세금계산서의 국세청승인번호
-   *
-   * @deprecated `orgNTSConfirmNum` 사용 권장.
-   */
-  originalTaxinvoiceKey?: string
 
   /**
    * 기재상 일련번호
@@ -946,11 +945,6 @@ export interface TaxInvoiceIssueResponseApiModel extends TaxInvoiceApiResponseBa
   ntsConfirmNum?: string
 
   /**
-   * 국세청승인번호
-   */
-  ntsconfirmNum?: string
-
-  /**
    * 발행일시
    */
   issueDT?: string
@@ -1104,13 +1098,6 @@ export interface TaxInvoiceTaxCertInfoApiModel {
    * 인증서 정책 OID
    */
   OID?: string
-
-  /**
-   * 인증서 정책 OID
-   *
-   * @deprecated `OID` 사용 권장.
-   */
-  oid?: string
 
   /**
    * 등록 담당자 성명

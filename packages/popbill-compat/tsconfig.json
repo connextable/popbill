@@ -13,10 +13,10 @@
         "../popbill-spec/src/*"
       ],
       "@connextable/popbill-core": [
-        "../popbill-core/src/index.ts"
+        "../popbill-core/dist/index.d.mts"
       ],
       "@connextable/popbill-core/*": [
-        "../popbill-core/src/*"
+        "../popbill-core/dist/*"
       ]
     },
     "types": [

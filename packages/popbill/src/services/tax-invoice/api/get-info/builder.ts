@@ -3,7 +3,7 @@ import { isBlank } from '@/utils/validation'
 import { createInputValidationError, normalizePopbillError, type PopbillApiError } from '@/errors'
 import type { CreateGetTaxInvoiceInfoInput, TaxInvoiceGetInfoInput, TaxInvoiceInfo } from './type'
 import type { TaxInvoiceGetInfoApiResponse } from '@connextable/popbill-spec'
-import type { TaxInvoiceKeyType } from '@connextable/popbill-spec'
+import type { TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
 import { mapTaxInvoiceInfo } from './mapper'
 
 const OPERATION_NAME = 'taxInvoice.getInfo' as const
@@ -54,7 +54,7 @@ function validateGetInfoRequest(request: TaxInvoiceGetInfoInput): void {
   }
 }
 
-function isTaxInvoiceKeyType(value: string): value is TaxInvoiceKeyType {
+function isTaxInvoiceKeyType(value: string): value is TaxInvoiceMgtKeyType {
   return value === 'SELL' || value === 'BUY' || value === 'TRUSTEE'
 }
 

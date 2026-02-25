@@ -1,10 +1,10 @@
 import type { PopbillApiError } from '@/errors'
 import type { PopbillRequestClient } from '@/internal/popbill'
-import type { CloseDownState, IssueType, PurposeType, TaxInvoiceKeyType, TaxType } from '@connextable/popbill-spec'
+import type { CloseDownState, IssueType, PurposeType, TaxInvoiceMgtKeyType, TaxType } from '@connextable/popbill-spec'
 
 export interface TaxInvoiceGetInfoInput {
   businessNumber: string
-  invoiceKeyType: TaxInvoiceKeyType
+  invoiceKeyType: TaxInvoiceMgtKeyType
   invoiceManagementKey: string
   userId?: string
 }

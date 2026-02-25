@@ -1,12 +1,12 @@
 import { createPopbillClient } from '@/index'
-import type { TaxInvoiceKeyType } from '@connextable/popbill-spec'
+import type { TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
 
 const linkId = process.env.POPBILL_LINK_ID?.trim()
 const secretKey = process.env.POPBILL_SECRET_KEY?.trim()
 const businessNumber = process.env.POPBILL_CORP_NUM?.trim()
 const userId = process.env.POPBILL_USER_ID?.trim()
 const shouldRunIntegration = process.env.POPBILL_RUN_INTEGRATION_TESTS === 'true'
-const invoiceKeyType: TaxInvoiceKeyType = 'SELL'
+const invoiceKeyType: TaxInvoiceMgtKeyType = 'SELL'
 const invoiceManagementKey = 'REPLACE_WITH_PARTNER_ASSIGNED_MGT_KEY'
 const hasConfiguredManagementKey = invoiceManagementKey !== 'REPLACE_WITH_PARTNER_ASSIGNED_MGT_KEY'
 
