@@ -37,28 +37,18 @@ describe('taxinvoice legacy method surface', () => {
     expect(promiseService).not.toHaveProperty('requestIssue')
   })
 
-  test('registIssue is currently stubbed for callback and promise', async () => {
+  test('non-required compatibility method remains stubbed for callback and promise', async () => {
     const onSuccess = vi.fn()
     const onError = vi.fn()
 
-    compat.TaxinvoiceService().registIssue(
-      '1234567890',
-      {} as never,
-      false,
-      false,
-      '',
-      '',
-      '',
-      onSuccess,
-      onError,
-    )
+    compat.TaxinvoiceService().getChargeInfo('1234567890', onSuccess, onError)
 
     expect(onSuccess).not.toHaveBeenCalled()
     expect(onError).toHaveBeenCalledTimes(1)
     expect(onError).toHaveBeenCalledWith(expect.any(NotImplementedError))
 
     await expect(
-      promiseCompat.TaxinvoiceService().registIssue('1234567890', {} as never),
+      promiseCompat.TaxinvoiceService().getChargeInfo('1234567890'),
     ).rejects.toBeInstanceOf(NotImplementedError)
   })
 })

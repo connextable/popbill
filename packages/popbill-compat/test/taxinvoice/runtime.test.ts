@@ -188,6 +188,146 @@ describe('taxinvoice runtime methods', () => {
     })
   })
 
+  test('registIssue callback maps legacy optional arguments to ISSUE request body', async () => {
+    const issueResponse = {
+      code: 1,
+      message: 'issued',
+      ntsConfirmNum: '20260225-0900',
+    }
+    const fetchMock = stubFetchResponses(
+      toJsonResponse(createTokenResponseBody()),
+      toJsonResponse(issueResponse),
+    )
+
+    await new Promise<void>((resolve, reject) => {
+      compat.TaxinvoiceService().registIssue(
+        '1234567890',
+        { issueType: '정발행' } as never,
+        true,
+        true,
+        '즉시발행 메모',
+        '안내 제목',
+        'DEAL-001',
+        'regist-user',
+        () => resolve(),
+        (error: unknown) => reject(error),
+      )
+    })
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expectTaxinvoiceRequestPath(fetchMock, '/Taxinvoice')
+
+    const requestInit = getTaxinvoiceRequestInit(fetchMock)
+    const requestHeaders = requestInit.headers as Record<string, string>
+    expect(requestHeaders['X-HTTP-Method-Override']).toBe('ISSUE')
+    expect(requestHeaders['x-pb-userid']).toBe('regist-user')
+    expect(JSON.parse(requestInit.body as string)).toMatchObject({
+      issueType: '정발행',
+      writeSpecification: true,
+      forceIssue: true,
+      memo: '즉시발행 메모',
+      emailSubject: '안내 제목',
+      dealInvoiceMgtKey: 'DEAL-001',
+    })
+  })
+
+  test('promise getInfo calls info endpoint and returns response object', async () => {
+    const fetchMock = stubFetchResponses(
+      toJsonResponse(createTokenResponseBody()),
+      toJsonResponse({
+        itemKey: '025102114360700001',
+        stateCode: 300,
+      }),
+    )
+
+    const response = await promiseCompat.TaxinvoiceService().getInfo('1234567890', 'SELL', 'MGT-INFO', 'info-user')
+
+    expect(response).toMatchObject({
+      itemKey: '025102114360700001',
+      stateCode: 300,
+    })
+    expectTaxinvoiceRequestPath(fetchMock, '/Taxinvoice/SELL/MGT-INFO')
+    const requestHeaders = getTaxinvoiceRequestInit(fetchMock).headers as Record<string, string>
+    expect(requestHeaders['x-pb-userid']).toBe('info-user')
+  })
+
+  test('callback search builds query string with legacy parameters', async () => {
+    const fetchMock = stubFetchResponses(
+      toJsonResponse(createTokenResponseBody()),
+      toJsonResponse({
+        code: 1,
+        total: 1,
+        perPage: 500,
+        pageNum: 1,
+        pageCount: 1,
+        list: [],
+      }),
+    )
+
+    await new Promise<void>((resolve, reject) => {
+      compat.TaxinvoiceService().search(
+        '1234567890',
+        'SELL',
+        'W',
+        '20260101',
+        '20260131',
+        ['3**'],
+        ['N'],
+        ['T'],
+        null,
+        'D',
+        1,
+        100,
+        'S',
+        '1',
+        '0001',
+        '거래처',
+        '1',
+        'search-user',
+        ['N'],
+        ['P'],
+        [0],
+        'MGT-SEARCH',
+        () => resolve(),
+        (error: unknown) => reject(error),
+      )
+    })
+
+    const requestUrl = String(fetchMock.mock.calls[1]?.[0])
+    expect(requestUrl).toContain('/Taxinvoice/SELL?')
+    expect(requestUrl).toContain('DType=W')
+    expect(requestUrl).toContain('SDate=20260101')
+    expect(requestUrl).toContain('EDate=20260131')
+    expect(requestUrl).toContain('TaxRegIDType=S')
+    expect(requestUrl).toContain('TaxRegIDYN=1')
+    expect(requestUrl).toContain('TaxRegID=0001')
+    expect(requestUrl).toContain('InterOPYN=1')
+    expect(requestUrl).toContain('MgtKey=MGT-SEARCH')
+
+    const requestHeaders = getTaxinvoiceRequestInit(fetchMock).headers as Record<string, string>
+    expect(requestHeaders['x-pb-userid']).toBe('search-user')
+  })
+
+  test('promise getSealURL and getCertificateExpireDate call ETC/CERT endpoints', async () => {
+    const sealFetchMock = stubFetchResponses(
+      toJsonResponse(createTokenResponseBody()),
+      toJsonResponse({ url: 'https://example.com/seal' }),
+    )
+
+    const seal = await promiseCompat.TaxinvoiceService().getSealURL('1234567890', 'seal-user')
+    expect(seal).toMatchObject({ url: 'https://example.com/seal' })
+    expectTaxinvoiceRequestPath(sealFetchMock, '/Member?TG=SEAL')
+
+    const certFetchMock = stubFetchResponses(
+      toJsonResponse({ certificateExpiration: '20260706145209' }),
+    )
+
+    const expiration = await promiseCompat.TaxinvoiceService().getCertificateExpireDate('1234567890', 'cert-user')
+    expect(typeof expiration).toBe('string')
+    expect(expiration.length).toBeGreaterThan(0)
+    expect(String(certFetchMock.mock.calls[0]?.[0])).toContain('/Taxinvoice?cfg=CERT')
+  })
+
   test('callback and promise URL methods return string URL', async () => {
     const callbackFetchMock = stubFetchResponses(
       toJsonResponse(createTokenResponseBody()),

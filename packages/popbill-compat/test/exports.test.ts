@@ -34,7 +34,7 @@ describe('compat exports', () => {
   test('callback stub calls error callback when provided', () => {
     const onSuccess = vi.fn()
     const onError = vi.fn()
-    compat.TaxinvoiceService().getInfo('1234567890', 'SELL', 'MGT-KEY-001', onSuccess, onError)
+    compat.TaxinvoiceService().getChargeInfo('1234567890', onSuccess, onError)
 
     expect(onSuccess).not.toHaveBeenCalled()
     expect(onError).toHaveBeenCalledTimes(1)
@@ -43,12 +43,12 @@ describe('compat exports', () => {
 
   test('callback stub throws when no callback exists', () => {
     expect(() => {
-      compat.TaxinvoiceService().getInfo('1234567890', 'SELL', 'MGT-KEY-001')
+      compat.TaxinvoiceService().getChargeInfo('1234567890')
     }).toThrow(NotImplementedError)
   })
 
   test('promise subpath returns rejected promise with NotImplementedError', async () => {
-    await expect(promiseCompat.TaxinvoiceService().getInfo('1234567890', 'SELL', 'MGT-KEY-001')).rejects.toBeInstanceOf(
+    await expect(promiseCompat.TaxinvoiceService().getChargeInfo('1234567890')).rejects.toBeInstanceOf(
       NotImplementedError,
     )
   })
