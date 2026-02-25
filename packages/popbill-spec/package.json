@@ -15,8 +15,6 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "test": "vitest run --passWithNoTests",
-    "test:integration": "vitest run --passWithNoTests",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "typecheck": "tsc --noEmit",
