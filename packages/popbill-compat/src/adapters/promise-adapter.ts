@@ -1,25 +1,25 @@
 import { NotImplementedError } from '../errors'
 
-export type PromiseService = Record<string, (...args: unknown[]) => Promise<unknown>>
+export type PromiseService = Record<string, (...args: any[]) => Promise<any>>
 
 export function createPromiseServiceStub(serviceName: string): PromiseService {
   return createTypedPromiseServiceStub<PromiseService>(serviceName, [])
 }
 
-function createPromiseMethod(serviceName: string, methodName: string): (...args: unknown[]) => Promise<never> {
+function createPromiseMethod(serviceName: string, methods: string): (...args: unknown[]) => Promise<never> {
   return async (..._args: unknown[]) => {
-    throw new NotImplementedError(`${serviceName}.${methodName}`)
+    throw new NotImplementedError(`${serviceName}.${methods}`)
   }
 }
 
 export function createTypedPromiseServiceStub<Methods extends object>(
   serviceName: string,
-  methodNames: readonly (Extract<keyof Methods, string>)[],
+  methods: readonly (Extract<keyof Methods, string>)[],
 ): Methods {
   const target: Record<string, (...args: unknown[]) => Promise<unknown>> = {}
 
-  for (const methodName of methodNames) {
-    target[methodName] = createPromiseMethod(serviceName, methodName)
+  for (const method of methods) {
+    target[method] = createPromiseMethod(serviceName, method)
   }
 
   return new Proxy(target, {

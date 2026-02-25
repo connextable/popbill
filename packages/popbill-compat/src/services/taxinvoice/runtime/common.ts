@@ -18,7 +18,17 @@ import type { TaxinvoiceRuntimeContext } from './context'
 
 export const SERVICE_NAME = 'TaxinvoiceService'
 
-export type TaxinvoiceRuntimeMethodName = 'issue' | 'cancelIssue' | 'getURL' | 'getPopUpURL' | 'getViewURL' | 'getPrintURL' | 'getPDFURL' | 'getMassPrintURL' | 'getEPrintURL' | 'getMailURL'
+export type TaxinvoiceRuntimeMethods
+  = | 'issue'
+    | 'cancelIssue'
+    | 'getURL'
+    | 'getPopUpURL'
+    | 'getViewURL'
+    | 'getPrintURL'
+    | 'getEPrintURL'
+    | 'getMassPrintURL'
+    | 'getMailURL'
+    | 'getPDFURL'
 
 export interface ParsedLegacyUserIdCallbacks<T> {
   userId: string
@@ -68,20 +78,20 @@ export function asErrorCallback(candidate: unknown): LegacyErrorCallback | undef
 
 export function handleCallbackError(
   context: TaxinvoiceRuntimeContext,
-  methodName: TaxinvoiceRuntimeMethodName,
+  methods: TaxinvoiceRuntimeMethods,
   error: unknown,
   errorCallback: LegacyErrorCallback | undefined,
 ): void {
-  const runtimeError = toCompatRuntimeError(error, `${SERVICE_NAME}.${methodName}`)
+  const runtimeError = toCompatRuntimeError(error, `${SERVICE_NAME}.${methods}`)
   dispatchCallbackError(runtimeError, errorCallback, context.defaultErrorHandler)
 }
 
 export function throwPromiseError(
   context: TaxinvoiceRuntimeContext,
-  methodName: TaxinvoiceRuntimeMethodName,
+  methods: TaxinvoiceRuntimeMethods,
   error: unknown,
 ): never {
-  const runtimeError = toCompatRuntimeError(error, `${SERVICE_NAME}.${methodName}`)
+  const runtimeError = toCompatRuntimeError(error, `${SERVICE_NAME}.${methods}`)
   context.defaultErrorHandler?.(runtimeError)
   throw runtimeError
 }

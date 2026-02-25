@@ -1,4 +1,3 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import * as compat from '@/index'
 import * as promiseCompat from '@/promise/index'
 import type { TaxInvoiceIssueApiResponse } from '@connextable/popbill-spec'
@@ -72,9 +71,7 @@ describe('taxinvoice runtime methods', () => {
       toJsonResponse(createTokenResponseBody()),
       toJsonResponse(issueResponse),
     )
-    const service = compat.TaxinvoiceService() as unknown as {
-      issue: (...args: unknown[]) => void
-    }
+    const service = compat.TaxinvoiceService()
 
     const resolved = await new Promise<TaxInvoiceIssueApiResponse>((resolve, reject) => {
       service.issue(
@@ -106,9 +103,7 @@ describe('taxinvoice runtime methods', () => {
       toJsonResponse(createTokenResponseBody()),
       toJsonResponse(issueResponse),
     )
-    const service = compat.TaxinvoiceService() as unknown as {
-      issue: (...args: unknown[]) => void
-    }
+    const service = compat.TaxinvoiceService()
 
     await new Promise<void>((resolve, reject) => {
       service.issue(
@@ -140,9 +135,7 @@ describe('taxinvoice runtime methods', () => {
       toJsonResponse(createTokenResponseBody()),
       toJsonResponse(issueResponse),
     )
-    const service = compat.TaxinvoiceService() as unknown as {
-      issue: (...args: unknown[]) => void
-    }
+    const service = compat.TaxinvoiceService()
 
     await new Promise<void>((resolve, reject) => {
       service.issue(
@@ -318,10 +311,12 @@ describe('taxinvoice runtime methods', () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
 
+    // @ts-expect-error runtime validation case for non-TS caller
+    const emptyTogo: import('@connextable/popbill-spec').TaxInvoiceGetUrlTogo = ''
     const missingTogoError = await new Promise<unknown>((resolve) => {
-      ;(compat.TaxinvoiceService().getURL as (...args: unknown[]) => void)(
+      compat.TaxinvoiceService().getURL(
         '1234567890',
-        '',
+        emptyTogo,
         () => resolve(new Error('unexpected success')),
         (error: unknown) => resolve(error),
       )
@@ -332,10 +327,12 @@ describe('taxinvoice runtime methods', () => {
       message: '접근 메뉴가 입력되지 않았습니다.',
     })
 
+    // @ts-expect-error runtime validation case for non-TS caller
+    const invalidTogo: import('@connextable/popbill-spec').TaxInvoiceGetUrlTogo = 'INVALID'
     const invalidTogoError = await new Promise<unknown>((resolve) => {
-      ;(compat.TaxinvoiceService().getURL as (...args: unknown[]) => void)(
+      compat.TaxinvoiceService().getURL(
         '1234567890',
-        'INVALID',
+        invalidTogo,
         () => resolve(new Error('unexpected success')),
         (error: unknown) => resolve(error),
       )
@@ -347,7 +344,7 @@ describe('taxinvoice runtime methods', () => {
     })
 
     await expect(
-      (promiseCompat.TaxinvoiceService().getURL as (...args: unknown[]) => Promise<string>)('1234567890', 'INVALID'),
+      promiseCompat.TaxinvoiceService().getURL('1234567890', invalidTogo),
     ).rejects.toMatchObject({
       code: -99999999,
       message: '접근 메뉴가 올바르지 않습니다.',

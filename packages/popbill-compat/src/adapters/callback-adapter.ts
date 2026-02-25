@@ -1,6 +1,6 @@
 import { NotImplementedError } from '../errors'
 
-export type CallbackService = Record<string, (...args: unknown[]) => unknown>
+export type CallbackService = Record<string, (...args: any[]) => any>
 
 type ErrorCallback = (error: unknown) => void
 
@@ -23,9 +23,9 @@ export function createCallbackServiceStub(serviceName: string): CallbackService 
   return createTypedCallbackServiceStub<CallbackService>(serviceName, [])
 }
 
-function createCallbackMethod(serviceName: string, methodName: string): (...args: unknown[]) => unknown {
+function createCallbackMethod(serviceName: string, methods: string): (...args: unknown[]) => unknown {
   return (...args: unknown[]) => {
-    const error = new NotImplementedError(`${serviceName}.${methodName}`)
+    const error = new NotImplementedError(`${serviceName}.${methods}`)
     const errorCallback = resolveErrorCallback(args)
 
     if (errorCallback) {
@@ -39,12 +39,12 @@ function createCallbackMethod(serviceName: string, methodName: string): (...args
 
 export function createTypedCallbackServiceStub<Methods extends object>(
   serviceName: string,
-  methodNames: readonly (Extract<keyof Methods, string>)[],
+  methods: readonly (Extract<keyof Methods, string>)[],
 ): Methods {
   const target: Record<string, (...args: unknown[]) => unknown> = {}
 
-  for (const methodName of methodNames) {
-    target[methodName] = createCallbackMethod(serviceName, methodName)
+  for (const method of methods) {
+    target[method] = createCallbackMethod(serviceName, method)
   }
 
   return new Proxy(target, {

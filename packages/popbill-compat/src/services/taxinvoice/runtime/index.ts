@@ -12,7 +12,7 @@ import {
   handleCallbackError,
   parseLegacyUserIdAndCallbacks,
   throwPromiseError,
-  type TaxinvoiceRuntimeMethodName,
+  type TaxinvoiceRuntimeMethods,
 } from './common'
 import { createTaxinvoiceRuntimeContext } from './context'
 import { requestCancelIssue } from './methods/cancel-issue'
@@ -28,10 +28,8 @@ import { requestIssue } from './methods/issue'
 import { parseIssueCallbackArgs, parseIssuePromiseArgs } from './parsers/issue'
 import { parseGetUrlCallbackArgs, parseUrlMethodCallbackArgs } from './parsers/url'
 
-type TaxinvoiceRuntimeMethodNames = TaxinvoiceRuntimeMethodName
-
-type TaxinvoiceRuntimeCallbackMethods = Pick<TaxinvoiceCallbackService, TaxinvoiceRuntimeMethodNames>
-type TaxinvoiceRuntimePromiseMethods = Pick<TaxinvoicePromiseService, TaxinvoiceRuntimeMethodNames>
+type TaxinvoiceRuntimeCallbackMethods = Pick<TaxinvoiceCallbackService, TaxinvoiceRuntimeMethods>
+type TaxinvoiceRuntimePromiseMethods = Pick<TaxinvoicePromiseService, TaxinvoiceRuntimeMethods>
 
 export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
   callback: TaxinvoiceRuntimeCallbackMethods

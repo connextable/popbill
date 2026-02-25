@@ -1,6 +1,7 @@
 import { getConfiguration, setConfiguration, type CompatConfig } from '../config'
 import { MgtKeyType, MessageType, KakaoType } from '../constants'
 import type { PromiseService } from '../adapters/promise-adapter'
+import { createSingleton } from '../internal/singleton'
 import {
   type TaxinvoicePromiseService,
   createAccountCheckPromiseService,
@@ -17,71 +18,95 @@ import {
   createTaxinvoicePromiseService,
 } from '../services'
 
-const serviceCache = new Map<string, PromiseService>()
+interface PromiseServices {
+  TaxinvoiceService: TaxinvoicePromiseService
+  StatementService: PromiseService
+  CashbillService: PromiseService
+  MessageService: PromiseService
+  KakaoService: PromiseService
+  FaxService: PromiseService
+  HTTaxinvoiceService: PromiseService
+  HTCashbillService: PromiseService
+  ClosedownService: PromiseService
+  BizInfoCheckService: PromiseService
+  EasyFinBankService: PromiseService
+  AccountCheckService: PromiseService
+}
+
+const promiseServiceCreators = {
+  TaxinvoiceService: createTaxinvoicePromiseService,
+  StatementService: createStatementPromiseService,
+  CashbillService: createCashbillPromiseService,
+  MessageService: createMessagePromiseService,
+  KakaoService: createKakaoPromiseService,
+  FaxService: createFaxPromiseService,
+  HTTaxinvoiceService: createHTTaxinvoicePromiseService,
+  HTCashbillService: createHTCashbillPromiseService,
+  ClosedownService: createClosedownPromiseService,
+  BizInfoCheckService: createBizInfoCheckPromiseService,
+  EasyFinBankService: createEasyFinBankPromiseService,
+  AccountCheckService: createAccountCheckPromiseService,
+} as const satisfies { [K in keyof PromiseServices]: (config: CompatConfig) => PromiseServices[K] }
+
+const singleton = createSingleton<PromiseServices>()
 
 export { MgtKeyType, MessageType, KakaoType }
 export type { CompatConfig }
 
 export function config(nextConfig: CompatConfig): void {
   setConfiguration(nextConfig)
-  serviceCache.clear()
+  singleton.clear()
 }
 
-function getOrCreate(name: string, creator: (config: CompatConfig) => PromiseService): PromiseService {
-  const cached = serviceCache.get(name)
-  if (cached) {
-    return cached
-  }
-
-  const created = creator(getConfiguration())
-  serviceCache.set(name, created)
-  return created
+function getService<TServiceKey extends keyof PromiseServices>(service: TServiceKey): PromiseServices[TServiceKey] {
+  const creator = promiseServiceCreators[service] as (config: CompatConfig) => PromiseServices[TServiceKey]
+  return singleton.get(service, () => creator(getConfiguration()))
 }
 
 export function TaxinvoiceService(): TaxinvoicePromiseService {
-  return getOrCreate('TaxinvoiceService', createTaxinvoicePromiseService) as unknown as TaxinvoicePromiseService
+  return getService('TaxinvoiceService')
 }
 
 export function StatementService(): PromiseService {
-  return getOrCreate('StatementService', createStatementPromiseService)
+  return getService('StatementService')
 }
 
 export function CashbillService(): PromiseService {
-  return getOrCreate('CashbillService', createCashbillPromiseService)
+  return getService('CashbillService')
 }
 
 export function MessageService(): PromiseService {
-  return getOrCreate('MessageService', createMessagePromiseService)
+  return getService('MessageService')
 }
 
 export function KakaoService(): PromiseService {
-  return getOrCreate('KakaoService', createKakaoPromiseService)
+  return getService('KakaoService')
 }
 
 export function FaxService(): PromiseService {
-  return getOrCreate('FaxService', createFaxPromiseService)
+  return getService('FaxService')
 }
 
 export function HTTaxinvoiceService(): PromiseService {
-  return getOrCreate('HTTaxinvoiceService', createHTTaxinvoicePromiseService)
+  return getService('HTTaxinvoiceService')
 }
 
 export function HTCashbillService(): PromiseService {
-  return getOrCreate('HTCashbillService', createHTCashbillPromiseService)
+  return getService('HTCashbillService')
 }
 
 export function ClosedownService(): PromiseService {
-  return getOrCreate('ClosedownService', createClosedownPromiseService)
+  return getService('ClosedownService')
 }
 
 export function BizInfoCheckService(): PromiseService {
-  return getOrCreate('BizInfoCheckService', createBizInfoCheckPromiseService)
+  return getService('BizInfoCheckService')
 }
 
 export function EasyFinBankService(): PromiseService {
-  return getOrCreate('EasyFinBankService', createEasyFinBankPromiseService)
+  return getService('EasyFinBankService')
 }
 
 export function AccountCheckService(): PromiseService {
-  return getOrCreate('AccountCheckService', createAccountCheckPromiseService)
+  return getService('AccountCheckService')
 }

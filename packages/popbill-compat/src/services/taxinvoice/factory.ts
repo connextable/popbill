@@ -1,11 +1,9 @@
 import type { CompatConfig } from '../../config'
 import {
   createTypedCallbackServiceStub,
-  type CallbackService,
 } from '../../adapters/callback-adapter'
 import {
   createTypedPromiseServiceStub,
-  type PromiseService,
 } from '../../adapters/promise-adapter'
 import { TAXINVOICE_METHODS } from './methods'
 import { createTaxinvoiceRuntimeMethods } from './runtime'
@@ -16,10 +14,9 @@ import type {
 
 const SERVICE_NAME = 'TaxinvoiceService'
 
-export function createTaxinvoiceService(_config: CompatConfig): CallbackService {
-  const service = createTypedCallbackServiceStub<TaxinvoiceCallbackService>(SERVICE_NAME, TAXINVOICE_METHODS) as
-    TaxinvoiceCallbackService & CallbackService
-  const runtimeMethods = createTaxinvoiceRuntimeMethods(_config)
+export function createTaxinvoiceService(config: CompatConfig): TaxinvoiceCallbackService {
+  const service = createTypedCallbackServiceStub<TaxinvoiceCallbackService>(SERVICE_NAME, TAXINVOICE_METHODS)
+  const runtimeMethods = createTaxinvoiceRuntimeMethods(config)
 
   service.issue = runtimeMethods.callback.issue
   service.cancelIssue = runtimeMethods.callback.cancelIssue
@@ -32,13 +29,12 @@ export function createTaxinvoiceService(_config: CompatConfig): CallbackService 
   service.getEPrintURL = runtimeMethods.callback.getEPrintURL
   service.getMailURL = runtimeMethods.callback.getMailURL
 
-  return service as unknown as CallbackService
+  return service
 }
 
-export function createTaxinvoicePromiseService(_config: CompatConfig): PromiseService {
-  const service = createTypedPromiseServiceStub<TaxinvoicePromiseService>(SERVICE_NAME, TAXINVOICE_METHODS) as
-    TaxinvoicePromiseService & PromiseService
-  const runtimeMethods = createTaxinvoiceRuntimeMethods(_config)
+export function createTaxinvoicePromiseService(config: CompatConfig): TaxinvoicePromiseService {
+  const service = createTypedPromiseServiceStub<TaxinvoicePromiseService>(SERVICE_NAME, TAXINVOICE_METHODS)
+  const runtimeMethods = createTaxinvoiceRuntimeMethods(config)
 
   service.issue = runtimeMethods.promise.issue
   service.cancelIssue = runtimeMethods.promise.cancelIssue
@@ -51,5 +47,5 @@ export function createTaxinvoicePromiseService(_config: CompatConfig): PromiseSe
   service.getEPrintURL = runtimeMethods.promise.getEPrintURL
   service.getMailURL = runtimeMethods.promise.getMailURL
 
-  return service as unknown as PromiseService
+  return service
 }
