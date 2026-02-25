@@ -1,9 +1,4 @@
-import type {
-  TaxInvoiceDateType,
-  TaxInvoiceMgtKeyType,
-  TaxInvoiceSearchCloseDownState,
-  TaxInvoiceSortOrder,
-} from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceDateType, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields, TaxInvoiceSearchCloseDownState, TaxInvoiceSortOrder } from '../common'
 import type { TaxInvoiceSearchResultApiModel } from '../models'
 
 /**
@@ -27,7 +22,23 @@ export type TaxInvoiceSearchStateCode = string
  * - `N`: 세금계산서
  * - `M`: 수정세금계산서
  */
-export type TaxInvoiceSearchDocumentType = 'N' | 'M'
+export interface TaxInvoiceSearchDocumentTypeMap {
+  /**
+   * 세금계산서.
+   */
+  Normal: 'N'
+
+  /**
+   * 수정세금계산서.
+   */
+  Modified: 'M'
+}
+
+/**
+ * Search 문서유형(raw).
+ */
+export type TaxInvoiceSearchDocumentType
+  = TaxInvoiceSearchDocumentTypeMap[keyof TaxInvoiceSearchDocumentTypeMap]
 
 /**
  * Search 과세형태(raw).
@@ -36,7 +47,27 @@ export type TaxInvoiceSearchDocumentType = 'N' | 'M'
  * - `N`: 면세
  * - `Z`: 영세
  */
-export type TaxInvoiceSearchTaxType = 'T' | 'N' | 'Z'
+export interface TaxInvoiceSearchTaxTypeMap {
+  /**
+   * 과세.
+   */
+  Taxable: 'T'
+
+  /**
+   * 면세.
+   */
+  Exempt: 'N'
+
+  /**
+   * 영세.
+   */
+  ZeroRated: 'Z'
+}
+
+/**
+ * Search 과세형태(raw).
+ */
+export type TaxInvoiceSearchTaxType = TaxInvoiceSearchTaxTypeMap[keyof TaxInvoiceSearchTaxTypeMap]
 
 /**
  * Search 발행형태(raw).
@@ -45,7 +76,27 @@ export type TaxInvoiceSearchTaxType = 'T' | 'N' | 'Z'
  * - `R`: 역발행
  * - `T`: 위수탁
  */
-export type TaxInvoiceSearchIssueType = 'N' | 'R' | 'T'
+export interface TaxInvoiceSearchIssueTypeMap {
+  /**
+   * 정발행.
+   */
+  Normal: 'N'
+
+  /**
+   * 역발행.
+   */
+  Reverse: 'R'
+
+  /**
+   * 위수탁.
+   */
+  Trustee: 'T'
+}
+
+/**
+ * Search 발행형태(raw).
+ */
+export type TaxInvoiceSearchIssueType = TaxInvoiceSearchIssueTypeMap[keyof TaxInvoiceSearchIssueTypeMap]
 
 /**
  * Search 종사업장번호 주체(raw).
@@ -54,7 +105,28 @@ export type TaxInvoiceSearchIssueType = 'N' | 'R' | 'T'
  * - `B`: 공급받는자
  * - `T`: 수탁자
  */
-export type TaxInvoiceSearchTaxRegIDType = 'S' | 'B' | 'T'
+export interface TaxInvoiceSearchTaxRegIDTypeMap {
+  /**
+   * 공급자.
+   */
+  Supplier: 'S'
+
+  /**
+   * 공급받는자.
+   */
+  Buyer: 'B'
+
+  /**
+   * 수탁자.
+   */
+  Trustee: 'T'
+}
+
+/**
+ * Search 종사업장번호 주체(raw).
+ */
+export type TaxInvoiceSearchTaxRegIDType
+  = TaxInvoiceSearchTaxRegIDTypeMap[keyof TaxInvoiceSearchTaxRegIDTypeMap]
 
 /**
  * Search 종사업장번호 유무(raw).
@@ -62,7 +134,22 @@ export type TaxInvoiceSearchTaxRegIDType = 'S' | 'B' | 'T'
  * - `0`: 없음
  * - `1`: 있음
  */
-export type TaxInvoiceSearchTaxRegIDYN = '0' | '1'
+export interface TaxInvoiceSearchTaxRegIDYNMap {
+  /**
+   * 없음.
+   */
+  No: '0'
+
+  /**
+   * 있음.
+   */
+  Yes: '1'
+}
+
+/**
+ * Search 종사업장번호 유무(raw).
+ */
+export type TaxInvoiceSearchTaxRegIDYN = TaxInvoiceSearchTaxRegIDYNMap[keyof TaxInvoiceSearchTaxRegIDYNMap]
 
 /**
  * Search 등록유형(raw).
@@ -70,7 +157,22 @@ export type TaxInvoiceSearchTaxRegIDYN = '0' | '1'
  * - `P`: 팝빌 등록(발행)
  * - `H`: 홈택스/ASP 등록(발행)
  */
-export type TaxInvoiceSearchRegType = 'P' | 'H'
+export interface TaxInvoiceSearchRegTypeMap {
+  /**
+   * 팝빌 등록(발행).
+   */
+  Popbill: 'P'
+
+  /**
+   * 홈택스/ASP 등록(발행).
+   */
+  HomeTax: 'H'
+}
+
+/**
+ * Search 등록유형(raw).
+ */
+export type TaxInvoiceSearchRegType = TaxInvoiceSearchRegTypeMap[keyof TaxInvoiceSearchRegTypeMap]
 
 /**
  * Search 세금계산서 작성유형(raw).
@@ -78,7 +180,22 @@ export type TaxInvoiceSearchRegType = 'P' | 'H'
  * - `0`: 팝빌 사이트 작성
  * - `1`: API 작성
  */
-export type TaxInvoiceSearchInterOPYN = '0' | '1'
+export interface TaxInvoiceSearchInterOPYNMap {
+  /**
+   * 팝빌 사이트 작성.
+   */
+  PopbillWeb: '0'
+
+  /**
+   * API 작성.
+   */
+  Api: '1'
+}
+
+/**
+ * Search 세금계산서 작성유형(raw).
+ */
+export type TaxInvoiceSearchInterOPYN = TaxInvoiceSearchInterOPYNMap[keyof TaxInvoiceSearchInterOPYNMap]
 
 /**
  * Search API path 파라미터(raw).
@@ -251,36 +368,14 @@ export type TaxInvoiceSearchApiRequestBody = never
  *
  * `path/query/body`를 분리하여 전송 위치를 명확히 구분한다.
  */
-export interface TaxInvoiceSearchApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  /**
-   * 경로 파라미터.
-   */
-  path: TaxInvoiceSearchApiRequestPath
-
-  /**
-   * 쿼리 파라미터.
-   */
-  query: TaxInvoiceSearchApiRequestQuery
-
-  /**
-   * 요청 바디.
-   *
-   * Search는 GET query 기반이라 body를 사용하지 않는다.
-   */
-  body?: TaxInvoiceSearchApiRequestBody
-}
+export type TaxInvoiceSearchApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceSearchApiRequestPath,
+    TaxInvoiceSearchApiRequestQuery,
+    TaxInvoiceSearchApiRequestBody
+  >,
+  'path' | 'query'
+>
 
 /**
  * Search API 응답(raw).

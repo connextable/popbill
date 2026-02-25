@@ -1,4 +1,4 @@
-import type { TaxInvoiceMgtKeyType } from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice GetXML Raw Spec
@@ -48,25 +48,14 @@ export type TaxInvoiceGetXmlApiRequestBody = never
 /**
  * GetXML API 요청(raw).
  */
-export interface TaxInvoiceGetXmlApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path: TaxInvoiceGetXmlApiRequestPath
-
-  query: TaxInvoiceGetXmlApiRequestQuery
-
-  body?: TaxInvoiceGetXmlApiRequestBody
-}
+export type TaxInvoiceGetXmlApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceGetXmlApiRequestPath,
+    TaxInvoiceGetXmlApiRequestQuery,
+    TaxInvoiceGetXmlApiRequestBody
+  >,
+  'path' | 'query'
+>
 
 /**
  * GetXML API 응답(raw).

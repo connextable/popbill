@@ -1,11 +1,13 @@
 accountcheck
 alim
+alimtalk
 bizinfocheck
 cashbill
 closedown
 connextable
 gaip
 hometax
+IDYN
 invoicee
 invoicer
 kakao
@@ -13,11 +15,11 @@ linkhub
 ntsconfirm
 ntsresult
 ntssend
-OPYN
+opyn
 popbill
 regist
 retriable
 seongjun
-Taxinvoice
+taxinvoice
 unstub
 usercode

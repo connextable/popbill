@@ -1,4 +1,4 @@
-import type { TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType } from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice Delete Raw Spec
@@ -39,24 +39,13 @@ export type TaxInvoiceDeleteApiRequestBody = never
 /**
  * Delete API 요청(raw).
  */
-export interface TaxInvoiceDeleteApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path: TaxInvoiceDeleteApiRequestPath
-
-  query?: TaxInvoiceDeleteApiRequestQuery
-
-  body?: TaxInvoiceDeleteApiRequestBody
-}
+export type TaxInvoiceDeleteApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceDeleteApiRequestPath,
+    TaxInvoiceDeleteApiRequestQuery,
+    TaxInvoiceDeleteApiRequestBody
+  >,
+  'path'
+>
 
 export type TaxInvoiceDeleteApiResponse = TaxInvoiceApiResponseBase

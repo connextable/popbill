@@ -1,4 +1,4 @@
-import type { TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType } from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice SendSMS Raw Spec
@@ -58,24 +58,13 @@ export interface TaxInvoiceSendSmsApiRequestBody {
 /**
  * SendSMS API 요청(raw).
  */
-export interface TaxInvoiceSendSmsApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path: TaxInvoiceSendSmsApiRequestPath
-
-  query?: TaxInvoiceSendSmsApiRequestQuery
-
-  body: TaxInvoiceSendSmsApiRequestBody
-}
+export type TaxInvoiceSendSmsApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceSendSmsApiRequestPath,
+    TaxInvoiceSendSmsApiRequestQuery,
+    TaxInvoiceSendSmsApiRequestBody
+  >,
+  'path' | 'body'
+>
 
 export type TaxInvoiceSendSmsApiResponse = TaxInvoiceApiResponseBase

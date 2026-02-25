@@ -1,4 +1,4 @@
-import type { TaxInvoiceMgtKeyType } from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice GetEPrintURL Raw Spec
@@ -48,25 +48,14 @@ export type TaxInvoiceGetEPrintUrlApiRequestBody = never
 /**
  * GetEPrintURL API 요청(raw).
  */
-export interface TaxInvoiceGetEPrintUrlApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path: TaxInvoiceGetEPrintUrlApiRequestPath
-
-  query: TaxInvoiceGetEPrintUrlApiRequestQuery
-
-  body?: TaxInvoiceGetEPrintUrlApiRequestBody
-}
+export type TaxInvoiceGetEPrintUrlApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceGetEPrintUrlApiRequestPath,
+    TaxInvoiceGetEPrintUrlApiRequestQuery,
+    TaxInvoiceGetEPrintUrlApiRequestBody
+  >,
+  'path' | 'query'
+>
 
 export interface TaxInvoiceGetEPrintUrlApiResponse {
   /**

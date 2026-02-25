@@ -1,3 +1,4 @@
+import type { TaxInvoiceApiRequest, TaxInvoiceRequireRequestFields } from '../common'
 /**
  * TaxInvoice GetTaxCertURL Raw Spec
  *
@@ -30,25 +31,14 @@ export type TaxInvoiceGetTaxCertUrlApiRequestBody = never
 /**
  * GetTaxCertURL API 요청(raw).
  */
-export interface TaxInvoiceGetTaxCertUrlApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path?: TaxInvoiceGetTaxCertUrlApiRequestPath
-
-  query: TaxInvoiceGetTaxCertUrlApiRequestQuery
-
-  body?: TaxInvoiceGetTaxCertUrlApiRequestBody
-}
+export type TaxInvoiceGetTaxCertUrlApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceGetTaxCertUrlApiRequestPath,
+    TaxInvoiceGetTaxCertUrlApiRequestQuery,
+    TaxInvoiceGetTaxCertUrlApiRequestBody
+  >,
+  'query'
+>
 
 export interface TaxInvoiceGetTaxCertUrlApiResponse {
   /**

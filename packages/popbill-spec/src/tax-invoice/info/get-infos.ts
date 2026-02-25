@@ -1,4 +1,4 @@
-import type { TaxInvoiceMgtKeyType } from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 import type { TaxInvoiceInfoApiModel } from '../models'
 
 /**
@@ -39,25 +39,14 @@ export type TaxInvoiceGetInfosApiRequestBody = string[]
 /**
  * GetInfos API 요청(raw).
  */
-export interface TaxInvoiceGetInfosApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path: TaxInvoiceGetInfosApiRequestPath
-
-  query?: TaxInvoiceGetInfosApiRequestQuery
-
-  body: TaxInvoiceGetInfosApiRequestBody
-}
+export type TaxInvoiceGetInfosApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceGetInfosApiRequestPath,
+    TaxInvoiceGetInfosApiRequestQuery,
+    TaxInvoiceGetInfosApiRequestBody
+  >,
+  'path' | 'body'
+>
 
 /**
  * GetInfos API 응답(raw).

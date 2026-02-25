@@ -1,3 +1,4 @@
+import type { TaxInvoiceApiRequest } from '../common'
 /**
  * TaxInvoice GetSendToNTSConfig Raw Spec
  *
@@ -23,25 +24,11 @@ export type TaxInvoiceGetSendToNTSConfigApiRequestBody = never
 /**
  * GetSendToNTSConfig API 요청(raw).
  */
-export interface TaxInvoiceGetSendToNTSConfigApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path?: TaxInvoiceGetSendToNTSConfigApiRequestPath
-
-  query?: TaxInvoiceGetSendToNTSConfigApiRequestQuery
-
-  body?: TaxInvoiceGetSendToNTSConfigApiRequestBody
-}
+export type TaxInvoiceGetSendToNTSConfigApiRequest = TaxInvoiceApiRequest<
+  TaxInvoiceGetSendToNTSConfigApiRequestPath,
+  TaxInvoiceGetSendToNTSConfigApiRequestQuery,
+  TaxInvoiceGetSendToNTSConfigApiRequestBody
+>
 
 export interface TaxInvoiceGetSendToNTSConfigApiResponse {
   /**

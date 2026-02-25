@@ -1,4 +1,4 @@
-import type { TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType } from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice SendEmail Raw Spec
@@ -46,24 +46,13 @@ export interface TaxInvoiceSendEmailApiRequestBody {
 /**
  * SendEmail API 요청(raw).
  */
-export interface TaxInvoiceSendEmailApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path: TaxInvoiceSendEmailApiRequestPath
-
-  query?: TaxInvoiceSendEmailApiRequestQuery
-
-  body: TaxInvoiceSendEmailApiRequestBody
-}
+export type TaxInvoiceSendEmailApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceSendEmailApiRequestPath,
+    TaxInvoiceSendEmailApiRequestQuery,
+    TaxInvoiceSendEmailApiRequestBody
+  >,
+  'path' | 'body'
+>
 
 export type TaxInvoiceSendEmailApiResponse = TaxInvoiceApiResponseBase

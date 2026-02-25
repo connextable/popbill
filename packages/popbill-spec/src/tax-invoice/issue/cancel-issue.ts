@@ -1,4 +1,4 @@
-import type { TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType } from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice CancelIssue Raw Spec
@@ -43,24 +43,13 @@ export interface TaxInvoiceCancelIssueApiRequestBody {
 /**
  * CancelIssue API 요청(raw).
  */
-export interface TaxInvoiceCancelIssueApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path: TaxInvoiceCancelIssueApiRequestPath
-
-  query?: TaxInvoiceCancelIssueApiRequestQuery
-
-  body?: TaxInvoiceCancelIssueApiRequestBody
-}
+export type TaxInvoiceCancelIssueApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceCancelIssueApiRequestPath,
+    TaxInvoiceCancelIssueApiRequestQuery,
+    TaxInvoiceCancelIssueApiRequestBody
+  >,
+  'path'
+>
 
 export type TaxInvoiceCancelIssueApiResponse = TaxInvoiceApiResponseBase

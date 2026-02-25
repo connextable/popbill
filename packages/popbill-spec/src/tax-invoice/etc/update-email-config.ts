@@ -1,4 +1,4 @@
-import type { TaxInvoiceApiResponseBase, TaxInvoiceEmailType } from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceEmailType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice UpdateEmailConfig Raw Spec
@@ -38,24 +38,13 @@ export type TaxInvoiceUpdateEmailConfigApiRequestBody = never
 /**
  * UpdateEmailConfig API 요청(raw).
  */
-export interface TaxInvoiceUpdateEmailConfigApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path?: TaxInvoiceUpdateEmailConfigApiRequestPath
-
-  query: TaxInvoiceUpdateEmailConfigApiRequestQuery
-
-  body?: TaxInvoiceUpdateEmailConfigApiRequestBody
-}
+export type TaxInvoiceUpdateEmailConfigApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceUpdateEmailConfigApiRequestPath,
+    TaxInvoiceUpdateEmailConfigApiRequestQuery,
+    TaxInvoiceUpdateEmailConfigApiRequestBody
+  >,
+  'query'
+>
 
 export type TaxInvoiceUpdateEmailConfigApiResponse = TaxInvoiceApiResponseBase

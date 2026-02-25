@@ -1,4 +1,4 @@
-import type { TaxInvoiceApiResponseBase } from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice RegistTaxCert Raw Spec
@@ -46,24 +46,13 @@ export interface TaxInvoiceRegistTaxCertApiRequestBody {
 /**
  * RegistTaxCert API 요청(raw).
  */
-export interface TaxInvoiceRegistTaxCertApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path?: TaxInvoiceRegistTaxCertApiRequestPath
-
-  query?: TaxInvoiceRegistTaxCertApiRequestQuery
-
-  body: TaxInvoiceRegistTaxCertApiRequestBody
-}
+export type TaxInvoiceRegistTaxCertApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceRegistTaxCertApiRequestPath,
+    TaxInvoiceRegistTaxCertApiRequestQuery,
+    TaxInvoiceRegistTaxCertApiRequestBody
+  >,
+  'body'
+>
 
 export type TaxInvoiceRegistTaxCertApiResponse = TaxInvoiceApiResponseBase

@@ -1,3 +1,4 @@
+import type { TaxInvoiceApiRequest } from '../common'
 import type { TaxInvoiceEmailConfigApiModel } from '../models'
 
 /**
@@ -25,25 +26,11 @@ export type TaxInvoiceListEmailConfigApiRequestBody = never
 /**
  * ListEmailConfig API 요청(raw).
  */
-export interface TaxInvoiceListEmailConfigApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path?: TaxInvoiceListEmailConfigApiRequestPath
-
-  query?: TaxInvoiceListEmailConfigApiRequestQuery
-
-  body?: TaxInvoiceListEmailConfigApiRequestBody
-}
+export type TaxInvoiceListEmailConfigApiRequest = TaxInvoiceApiRequest<
+  TaxInvoiceListEmailConfigApiRequestPath,
+  TaxInvoiceListEmailConfigApiRequestQuery,
+  TaxInvoiceListEmailConfigApiRequestBody
+>
 
 /**
  * ListEmailConfig API 응답(raw).

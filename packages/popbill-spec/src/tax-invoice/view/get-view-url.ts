@@ -1,4 +1,4 @@
-import type { TaxInvoiceMgtKeyType } from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice GetViewURL Raw Spec
@@ -48,25 +48,14 @@ export type TaxInvoiceGetViewUrlApiRequestBody = never
 /**
  * GetViewURL API 요청(raw).
  */
-export interface TaxInvoiceGetViewUrlApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path: TaxInvoiceGetViewUrlApiRequestPath
-
-  query: TaxInvoiceGetViewUrlApiRequestQuery
-
-  body?: TaxInvoiceGetViewUrlApiRequestBody
-}
+export type TaxInvoiceGetViewUrlApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceGetViewUrlApiRequestPath,
+    TaxInvoiceGetViewUrlApiRequestQuery,
+    TaxInvoiceGetViewUrlApiRequestBody
+  >,
+  'path' | 'query'
+>
 
 export interface TaxInvoiceGetViewUrlApiResponse {
   /**

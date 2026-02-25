@@ -1,4 +1,4 @@
-import type { TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType } from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice AttachFile Raw Spec
@@ -78,40 +78,13 @@ export interface TaxInvoiceAttachFileMultipartPayload {
 /**
  * AttachFile API 요청(raw).
  */
-export interface TaxInvoiceAttachFileApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path: TaxInvoiceAttachFileApiRequestPath
-
-  query?: TaxInvoiceAttachFileApiRequestQuery
-
-  body?: TaxInvoiceAttachFileApiRequestBody
-
-  /**
-   * multipart 기반 파일 목록.
-   *
-   * API 1회 호출당 1개 파일 첨부가 기본이며,
-   * 문서 전체 첨부파일 수는 최대 5개다.
-   */
-  files?: TaxInvoiceAttachFileMultipartPayload[]
-
-  /**
-   * 바이너리 기반 파일 목록.
-   *
-   * API 1회 호출당 1개 파일 첨부가 기본이며,
-   * 문서 전체 첨부파일 수는 최대 5개다.
-   */
-  binaryFiles?: TaxInvoiceAttachFileBinaryPayload[]
-}
+export type TaxInvoiceAttachFileApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceAttachFileApiRequestPath,
+    TaxInvoiceAttachFileApiRequestQuery,
+    TaxInvoiceAttachFileApiRequestBody
+  >,
+  'path'
+>
 
 export type TaxInvoiceAttachFileApiResponse = TaxInvoiceApiResponseBase

@@ -1,4 +1,4 @@
-import type { TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType } from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice AttachStatement Raw Spec
@@ -17,7 +17,43 @@ import type { TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType } from '../common'
  * - `125`: 입금표
  * - `126`: 영수증
  */
-export type TaxInvoiceStatementItemCode = 121 | 122 | 123 | 124 | 125 | 126
+export interface TaxInvoiceStatementItemCodeMap {
+  /**
+   * 거래명세서.
+   */
+  TradeStatement: 121
+
+  /**
+   * 청구서.
+   */
+  Invoice: 122
+
+  /**
+   * 견적서.
+   */
+  Estimate: 123
+
+  /**
+   * 발주서.
+   */
+  PurchaseOrder: 124
+
+  /**
+   * 입금표.
+   */
+  Deposit: 125
+
+  /**
+   * 영수증.
+   */
+  Receipt: 126
+}
+
+/**
+ * 전자명세서 문서유형 코드(raw).
+ */
+export type TaxInvoiceStatementItemCode
+  = TaxInvoiceStatementItemCodeMap[keyof TaxInvoiceStatementItemCodeMap]
 
 /**
  * AttachStatement API path 파라미터.
@@ -65,24 +101,13 @@ export interface TaxInvoiceAttachStatementApiRequestBody {
 /**
  * AttachStatement API 요청(raw).
  */
-export interface TaxInvoiceAttachStatementApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path: TaxInvoiceAttachStatementApiRequestPath
-
-  query?: TaxInvoiceAttachStatementApiRequestQuery
-
-  body: TaxInvoiceAttachStatementApiRequestBody
-}
+export type TaxInvoiceAttachStatementApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceAttachStatementApiRequestPath,
+    TaxInvoiceAttachStatementApiRequestQuery,
+    TaxInvoiceAttachStatementApiRequestBody
+  >,
+  'path' | 'body'
+>
 
 export type TaxInvoiceAttachStatementApiResponse = TaxInvoiceApiResponseBase

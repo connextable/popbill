@@ -1,3 +1,4 @@
+import type { TaxInvoiceApiRequest, TaxInvoiceRequireRequestFields } from '../common'
 /**
  * TaxInvoice GetCertificateExpireDate Raw Spec
  *
@@ -30,25 +31,14 @@ export type TaxInvoiceGetCertificateExpireDateApiRequestBody = never
 /**
  * GetCertificateExpireDate API 요청(raw).
  */
-export interface TaxInvoiceGetCertificateExpireDateApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path?: TaxInvoiceGetCertificateExpireDateApiRequestPath
-
-  query: TaxInvoiceGetCertificateExpireDateApiRequestQuery
-
-  body?: TaxInvoiceGetCertificateExpireDateApiRequestBody
-}
+export type TaxInvoiceGetCertificateExpireDateApiRequest = TaxInvoiceRequireRequestFields<
+  TaxInvoiceApiRequest<
+    TaxInvoiceGetCertificateExpireDateApiRequestPath,
+    TaxInvoiceGetCertificateExpireDateApiRequestQuery,
+    TaxInvoiceGetCertificateExpireDateApiRequestBody
+  >,
+  'query'
+>
 
 export interface TaxInvoiceGetCertificateExpireDateApiResponse {
   /**

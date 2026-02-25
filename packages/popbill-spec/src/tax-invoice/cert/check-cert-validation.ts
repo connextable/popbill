@@ -1,4 +1,4 @@
-import type { TaxInvoiceApiResponseBase } from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase } from '../common'
 
 /**
  * TaxInvoice CheckCertValidation Raw Spec
@@ -25,24 +25,10 @@ export type TaxInvoiceCheckCertValidationApiRequestBody = never
 /**
  * CheckCertValidation API 요청(raw).
  */
-export interface TaxInvoiceCheckCertValidationApiRequest {
-  /**
-   * 팝빌회원 사업자번호.
-   *
-   * `-` 없이 입력한다.
-   */
-  corpNum: string
-
-  /**
-   * 팝빌회원 아이디.
-   */
-  userId?: string
-
-  path?: TaxInvoiceCheckCertValidationApiRequestPath
-
-  query?: TaxInvoiceCheckCertValidationApiRequestQuery
-
-  body?: TaxInvoiceCheckCertValidationApiRequestBody
-}
+export type TaxInvoiceCheckCertValidationApiRequest = TaxInvoiceApiRequest<
+  TaxInvoiceCheckCertValidationApiRequestPath,
+  TaxInvoiceCheckCertValidationApiRequestQuery,
+  TaxInvoiceCheckCertValidationApiRequestBody
+>
 
 export type TaxInvoiceCheckCertValidationApiResponse = TaxInvoiceApiResponseBase
