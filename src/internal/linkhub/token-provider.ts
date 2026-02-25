@@ -2,6 +2,7 @@ import type { CreateTokenProviderInput, LinkhubTokenResponse, TokenProvider } fr
 
 export function createTokenProvider(input: CreateTokenProviderInput): TokenProvider {
   const tokenCache = new Map<string, LinkhubTokenResponse>()
+  const pendingRequests = new Map<string, Promise<LinkhubTokenResponse>>()
 
   return {
     async getToken(businessNumber: string): Promise<LinkhubTokenResponse> {
@@ -10,15 +11,26 @@ export function createTokenProvider(input: CreateTokenProviderInput): TokenProvi
         return cachedToken
       }
 
-      const issuedToken = await input.authClient.issueToken({
+      const pendingRequest = pendingRequests.get(businessNumber)
+      if (pendingRequest) {
+        return pendingRequest
+      }
+
+      const issueTokenPromise = input.authClient.issueToken({
         serviceId: input.serviceId,
         accessId: businessNumber,
         scopes: input.scopes,
         forwardedIp: input.forwardedIp,
+      }).then((issuedToken) => {
+        tokenCache.set(businessNumber, issuedToken)
+        return issuedToken
+      }).finally(() => {
+        pendingRequests.delete(businessNumber)
       })
 
-      tokenCache.set(businessNumber, issuedToken)
-      return issuedToken
+      pendingRequests.set(businessNumber, issueTokenPromise)
+
+      return issueTokenPromise
     },
   }
 }

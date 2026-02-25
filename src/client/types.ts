@@ -1,11 +1,5 @@
+import type { PopbillApiError } from '@/errors'
 import type { TaxInvoiceService } from '@/services/tax-invoice/type'
-
-export interface PopbillApiError {
-  code: number
-  message: string
-  status?: number
-  raw?: unknown
-}
 
 export interface PopbillClientConfig {
   linkId: string

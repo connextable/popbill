@@ -1,4 +1,4 @@
-import { createPopbillClient, type TaxInvoiceInfo } from '@/index'
+import { PopbillErrorStage, PopbillErrorType, createPopbillClient, type TaxInvoiceInfo } from '@/index'
 
 describe('tax-invoice getInfo', () => {
   afterEach(() => {
@@ -89,11 +89,13 @@ describe('tax-invoice getInfo', () => {
   test('throws on invalid input before requesting network', async () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
+    const onError = vi.fn()
 
     const client = createPopbillClient({
       linkId: 'TEST_LINK_ID',
       secretKey: Buffer.from('secret').toString('base64'),
       isTest: true,
+      onError,
     })
 
     await expect(
@@ -104,8 +106,59 @@ describe('tax-invoice getInfo', () => {
       }),
     ).rejects.toMatchObject({
       code: -99999999,
+      type: PopbillErrorType.InputValidation,
+      stage: PopbillErrorStage.ValidateInput,
     })
 
+    expect(onError).toHaveBeenCalledTimes(1)
+    expect(onError).toHaveBeenCalledWith(expect.objectContaining({
+      code: -99999999,
+      type: PopbillErrorType.InputValidation,
+      stage: PopbillErrorStage.ValidateInput,
+      operation: 'taxInvoice.getInfo',
+    }))
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  test('normalizes issue-token failure and invokes onError', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        code: -11000000,
+        message: 'Authentication denied',
+      }), { status: 401 }))
+
+    vi.stubGlobal('fetch', fetchMock)
+    const onError = vi.fn()
+
+    const client = createPopbillClient({
+      linkId: 'TEST_LINK_ID',
+      secretKey: Buffer.from('secret').toString('base64'),
+      isTest: true,
+      onError,
+    })
+
+    await expect(
+      client.services.taxInvoice.getInfo({
+        businessNumber: '1234567890',
+        invoiceKeyType: 'SELL',
+        invoiceManagementKey: 'MGT-1',
+      }),
+    ).rejects.toMatchObject({
+      code: -11000000,
+      message: 'Authentication denied',
+      type: PopbillErrorType.ApiResponse,
+      stage: PopbillErrorStage.IssueToken,
+      operation: 'taxInvoice.getInfo',
+      status: 401,
+    })
+
+    expect(onError).toHaveBeenCalledTimes(1)
+    expect(onError).toHaveBeenCalledWith(expect.objectContaining({
+      code: -11000000,
+      type: PopbillErrorType.ApiResponse,
+      stage: PopbillErrorStage.IssueToken,
+    }))
+    expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 })
