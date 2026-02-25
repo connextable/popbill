@@ -1,0 +1,25 @@
+{
+  "name": "@connextable/popbill-core",
+  "version": "0.1.0",
+  "description": "Internal core modules for Popbill SDKs",
+  "private": true,
+  "type": "module",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run --passWithNoTests",
+    "test:integration": "vitest run --passWithNoTests",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "del node_modules dist"
+  },
+  "sideEffects": false
+}

@@ -5,7 +5,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 import stylistic from '@stylistic/eslint-plugin'
 
 export default defineConfig(
-  globalIgnores(['legacy', 'dist', 'node_modules']),
+  globalIgnores(['legacy', '**/dist', 'node_modules', '.turbo']),
   {
     files: ['**/*.{js,ts}'],
     plugins: { js },

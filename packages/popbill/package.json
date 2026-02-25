@@ -1,0 +1,70 @@
+{
+  "name": "@connextable/popbill",
+  "version": "1.0.0",
+  "description": "Popbill API SDK for TypeScript. see www.popbill.com",
+  "type": "module",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Jinyong Park",
+    "email": "dev.jinyongp@gmail.com",
+    "url": "https://github.com/jinyongp"
+  },
+  "contributors": [
+    {
+      "name": "Kim Seongjun",
+      "email": "pallet027@gmail.com"
+    },
+    {
+      "name": "Linkhub DEV",
+      "email": "code@linkhubcorp.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/connextable/node-popbill.git"
+  },
+  "bugs": {
+    "url": "https://github.com/connextable/node-popbill/issues"
+  },
+  "keywords": [
+    "popbill",
+    "taxinvoice",
+    "cashbill",
+    "statement",
+    "closedown",
+    "bizinfocheck",
+    "hometax",
+    "accountcheck",
+    "SMS",
+    "KakaoTalk",
+    "FAX",
+    "api",
+    "sdk"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "test:unit": "POPBILL_RUN_INTEGRATION_TESTS=false vitest run",
+    "test:integration": "POPBILL_RUN_INTEGRATION_TESTS=true vitest run test/integration",
+    "test": "vitest run",
+    "lint": "eslint src test --ext .ts,.js",
+    "lint:fix": "eslint src test --ext .ts,.js --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "del node_modules dist"
+  },
+  "dependencies": {
+    "@connextable/popbill-core": "workspace:*",
+    "@connextable/popbill-spec": "workspace:*"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@connextable/popbill-spec",
+  "version": "0.1.0",
+  "description": "Raw Popbill API request/response types",
+  "type": "module",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./tax-invoice": "./dist/tax-invoice/index.mjs",
+    "./tax-invoice/get-info": "./dist/tax-invoice/get-info.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run --passWithNoTests",
+    "test:integration": "vitest run --passWithNoTests",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "del node_modules dist"
+  },
+  "sideEffects": false
+}

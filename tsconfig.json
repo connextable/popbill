@@ -1,47 +1,10 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    /// Languages and Environment
-    "target": "esnext",
-    /// Modules
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    },
-    /// Interop Constraints
-    "esModuleInterop": true,
-    "verbatimModuleSyntax": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
-    /// Type Checking
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noUncheckedIndexedAccess": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    /// Emit
-    "declaration": true,
-    "declarationMap": true,
-    "newLine": "lf",
-    "sourceMap": true,
-    "preserveConstEnums": true,
-    "removeComments": false,
-    /// Completeness
-    "skipLibCheck": true,
-    /// Output Formatting
-    "noErrorTruncation": true
+    "composite": false
   },
   "exclude": [
     "node_modules",
-    "dist"
+    "**/dist"
   ]
 }

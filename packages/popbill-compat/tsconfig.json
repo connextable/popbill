@@ -1,0 +1,37 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@connextable/popbill-spec": [
+        "../popbill-spec/src/index.ts"
+      ],
+      "@connextable/popbill-spec/*": [
+        "../popbill-spec/src/*"
+      ],
+      "@connextable/popbill-core": [
+        "../popbill-core/src/index.ts"
+      ],
+      "@connextable/popbill-core/*": [
+        "../popbill-core/src/*"
+      ]
+    },
+    "types": [
+      "node",
+      "vitest/globals"
+    ]
+  },
+  "include": [
+    "src",
+    "test",
+    "tsdown.config.ts",
+    "vitest.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

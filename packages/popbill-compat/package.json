@@ -1,0 +1,37 @@
+{
+  "name": "@connextable/popbill-compat",
+  "version": "0.1.0",
+  "description": "Compatibility SDK for legacy Popbill interfaces",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs"
+    },
+    "./promise": {
+      "import": "./dist/promise/index.mjs",
+      "require": "./dist/promise/index.cjs",
+      "default": "./dist/promise/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:integration": "vitest run --passWithNoTests",
+    "lint": "eslint src test --ext .ts",
+    "lint:fix": "eslint src test --ext .ts --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "del node_modules dist"
+  },
+  "dependencies": {
+    "@connextable/popbill-core": "workspace:*",
+    "@connextable/popbill-spec": "workspace:*"
+  },
+  "sideEffects": false
+}

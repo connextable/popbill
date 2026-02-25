@@ -1,70 +1,27 @@
 {
-  "name": "@connextable/popbill",
+  "name": "@connextable/popbill-workspace",
   "version": "1.0.0",
-  "description": "Popbill API SDK for TypeScript. see www.popbill.com",
-  "type": "module",
-  "types": "./dist/index.d.mts",
-  "exports": {
-    ".": "./dist/index.mjs",
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "dist"
-  ],
-  "license": "MIT",
-  "author": {
-    "name": "Jinyong Park",
-    "email": "dev.jinyongp@gmail.com",
-    "url": "https://github.com/jinyongp"
-  },
-  "contributors": [
-    {
-      "name": "Kim Seongjun",
-      "email": "pallet027@gmail.com"
-    },
-    {
-      "name": "Linkhub DEV",
-      "email": "code@linkhubcorp.com"
-    }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/connextable/node-popbill.git"
-  },
-  "bugs": {
-    "url": "https://github.com/connextable/node-popbill/issues"
-  },
-  "keywords": [
-    "popbill",
-    "taxinvoice",
-    "cashbill",
-    "statement",
-    "closedown",
-    "bizinfocheck",
-    "hometax",
-    "accountcheck",
-    "SMS",
-    "KakaoTalk",
-    "FAX",
-    "api",
-    "sdk"
-  ],
+  "private": true,
   "scripts": {
-    "build": "tsdown",
-    "test": "vitest",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix",
-    "typecheck": "tsc --noEmit"
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:integration": "turbo run test:integration",
+    "clean": "turbo run clean && del node_modules .turbo"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@stylistic/eslint-plugin": "5.9.0",
     "@types/node": "^20",
+    "del-cli": "7.0.0",
     "dotenv": "17.3.1",
     "eslint": "10.0.2",
     "globals": "17.3.0",
     "jiti": "2.6.1",
     "tsdown": "0.20.3",
+    "turbo": "^2.0.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.56.1",
     "vitest": "4.0.18"
@@ -72,6 +29,5 @@
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "pnpm@10.30.2+sha512.36cdc707e7b7940a988c9c1ecf88d084f8514b5c3f085f53a2e244c2921d3b2545bc20dd4ebe1fc245feec463bb298aecea7a63ed1f7680b877dc6379d8d0cb4",
-  "sideEffects": false
+  "packageManager": "pnpm@10.30.2+sha512.36cdc707e7b7940a988c9c1ecf88d084f8514b5c3f085f53a2e244c2921d3b2545bc20dd4ebe1fc245feec463bb298aecea7a63ed1f7680b877dc6379d8d0cb4"
 }

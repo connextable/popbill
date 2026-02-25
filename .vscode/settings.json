@@ -18,6 +18,10 @@
     "editor.formatOnPaste": false,
     "editor.formatOnSave": false,
   },
+  "json.schemaDownload.trustedDomains": {
+    "https://turborepo.dev/schema.json": true,
+    "https://json.schemastore.org": true,
+  },
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
   },
