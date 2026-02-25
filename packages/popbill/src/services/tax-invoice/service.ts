@@ -4,79 +4,9 @@ import type {
   TaxInvoiceRequestOptions,
   TaxInvoiceService,
 } from './types'
-import type {
-  TaxInvoiceApiModel,
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceBulkSubmitApiResponse,
-  TaxInvoiceGetBulkResultApiResponse,
-  TaxInvoiceGetDetailInfoApiResponse,
-  TaxInvoiceGetFilesApiResponse,
-  TaxInvoiceGetInfoApiResponse,
-  TaxInvoiceGetInfosApiResponse,
-  TaxInvoiceGetLogsApiResponse,
-  TaxInvoiceGetSealUrlApiResponse,
-  TaxInvoiceGetSendToNTSConfigApiResponse,
-  TaxInvoiceGetTaxCertInfoApiResponse,
-  TaxInvoiceGetTaxCertUrlApiResponse,
-  TaxInvoiceGetUrlTogo,
-  TaxInvoiceGetXmlApiResponse,
-  TaxInvoiceIssueApiResponse,
-  TaxInvoiceListEmailConfigApiResponse,
-  TaxInvoiceMgtKeyType,
-  TaxInvoiceRegistIssueApiResponse,
-  TaxInvoiceSearchApiResponse,
-} from '@connextable/popbill-spec'
 import type { TaxInvoiceSearchCloseDownState } from '@connextable/popbill-spec'
+import type { TaxinvoicePromiseService as CompatTaxInvoiceService } from '@connextable/popbill-compat/factory'
 import type { PopbillApiError } from '@/errors'
-
-interface CompatTaxInvoiceService {
-  registIssue(corpNum: string, taxinvoice: TaxInvoiceApiModel, writeSpecification?: boolean, forceIssue?: boolean, memo?: string, emailSubject?: string, dealInvoiceMgtKey?: string, userId?: string): Promise<TaxInvoiceRegistIssueApiResponse>
-  bulkSubmit(corpNum: string, submitID: string, taxinvoiceList: TaxInvoiceApiModel[], forceIssue?: boolean, userId?: string): Promise<TaxInvoiceBulkSubmitApiResponse>
-  getBulkResult(corpNum: string, submitID: string, userId?: string): Promise<TaxInvoiceGetBulkResultApiResponse>
-  register(corpNum: string, taxinvoice: TaxInvoiceApiModel, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  update(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, taxinvoice: TaxInvoiceApiModel, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  issue(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo: string, emailSubject?: string, forceIssue?: boolean, userId?: string): Promise<TaxInvoiceIssueApiResponse>
-  cancelIssue(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  registRequest(corpNum: string, taxinvoice: TaxInvoiceApiModel, memo: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  request(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  cancelRequest(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  refuse(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  delete(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  sendToNTS(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  getInfo(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<TaxInvoiceGetInfoApiResponse>
-  getInfos(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[], userId?: string): Promise<TaxInvoiceGetInfosApiResponse>
-  getDetailInfo(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<TaxInvoiceGetDetailInfoApiResponse>
-  checkMgtKeyInUse(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<boolean>
-  getXML(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<TaxInvoiceGetXmlApiResponse>
-  search(corpNum: string, keyType: TaxInvoiceMgtKeyType, dType: string, startDate: string, endDate: string, state: string[], type: string[], taxType: string[], lateOnly: boolean | null, order: string, page: number, perPage: number, taxRegIDType?: string, taxRegIDYN?: string, taxRegID?: string, qString?: string, interOPYN?: string, userId?: string, issueType?: string[], regType?: string[], closeDownState?: (0 | 1 | 2 | 3 | 4)[], mgtKey?: string): Promise<TaxInvoiceSearchApiResponse>
-  getLogs(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<TaxInvoiceGetLogsApiResponse>
-  getURL(corpNum: string, togo: TaxInvoiceGetUrlTogo, userId?: string): Promise<string>
-  getPopUpURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<string>
-  getViewURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<string>
-  getPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<string>
-  getEPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<string>
-  getMassPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[], userId?: string): Promise<string>
-  getMailURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<string>
-  getPDFURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<string>
-  getSealURL(corpNum: string, userId?: string): Promise<TaxInvoiceGetSealUrlApiResponse>
-  attachFile(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, displayName: string, filePath: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  attachFileBinary(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, binaryFile: { fileName: string, fileData: Buffer }, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  deleteFile(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, fileID: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  getFiles(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<TaxInvoiceGetFilesApiResponse>
-  sendEmail(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, receiver: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  sendSMS(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, sender: string, receiver: string, contents: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  sendFAX(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, sender: string, receiver: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  attachStatement(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, subItemCode: number, subMgtKey: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  detachStatement(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, subItemCode: number, subMgtKey: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  assignMgtKey(corpNum: string, keyType: TaxInvoiceMgtKeyType, itemKey: string, mgtKey: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  listEmailConfig(corpNum: string, userId?: string): Promise<TaxInvoiceListEmailConfigApiResponse>
-  updateEmailConfig(corpNum: string, emailType: string, sendYN: boolean, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  getSendToNTSConfig(corpNum: string, userId?: string): Promise<TaxInvoiceGetSendToNTSConfigApiResponse>
-  getTaxCertURL(corpNum: string, userId?: string): Promise<TaxInvoiceGetTaxCertUrlApiResponse>
-  getCertificateExpireDate(corpNum: string, userId?: string): Promise<string>
-  checkCertValidation(corpNum: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  getTaxCertInfo(corpNum: string, userId?: string): Promise<TaxInvoiceGetTaxCertInfoApiResponse>
-}
 
 interface CreateTaxInvoiceServiceInput {
   compatTaxInvoiceService: CompatTaxInvoiceService
