@@ -20,23 +20,45 @@ function resolveErrorCallback(args: unknown[]): ErrorCallback | undefined {
 }
 
 export function createCallbackServiceStub(serviceName: string): CallbackService {
-  return new Proxy({} as CallbackService, {
+  return createTypedCallbackServiceStub<CallbackService>(serviceName, [])
+}
+
+function createCallbackMethod(serviceName: string, methodName: string): (...args: unknown[]) => unknown {
+  return (...args: unknown[]) => {
+    const error = new NotImplementedError(`${serviceName}.${methodName}`)
+    const errorCallback = resolveErrorCallback(args)
+
+    if (errorCallback) {
+      errorCallback(error)
+      return undefined
+    }
+
+    throw error
+  }
+}
+
+export function createTypedCallbackServiceStub<Methods extends object>(
+  serviceName: string,
+  methodNames: readonly (Extract<keyof Methods, string>)[],
+): Methods {
+  const target: Record<string, (...args: unknown[]) => unknown> = {}
+
+  for (const methodName of methodNames) {
+    target[methodName] = createCallbackMethod(serviceName, methodName)
+  }
+
+  return new Proxy(target, {
     get(_target, property) {
       if (typeof property !== 'string') {
         return undefined
       }
 
-      return (...args: unknown[]) => {
-        const error = new NotImplementedError(`${serviceName}.${property}`)
-        const errorCallback = resolveErrorCallback(args)
-
-        if (errorCallback) {
-          errorCallback(error)
-          return undefined
-        }
-
-        throw error
+      const existing = target[property]
+      if (existing) {
+        return existing
       }
+
+      return createCallbackMethod(serviceName, property)
     },
-  })
+  }) as Methods
 }

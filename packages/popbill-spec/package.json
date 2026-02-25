@@ -7,7 +7,7 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./tax-invoice": "./dist/tax-invoice/index.mjs",
-    "./tax-invoice/get-info": "./dist/tax-invoice/get-info.mjs",
+    "./tax-invoice/shims": "./dist/tax-invoice/shims/index.mjs",
     "./package.json": "./package.json"
   },
   "files": [

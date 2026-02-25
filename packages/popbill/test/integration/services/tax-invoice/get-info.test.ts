@@ -1,5 +1,5 @@
 import { createPopbillClient } from '@/index'
-import type { TaxInvoiceKeyType } from '@connextable/popbill-spec/tax-invoice'
+import type { TaxInvoiceKeyType } from '@connextable/popbill-spec'
 
 const linkId = process.env.POPBILL_LINK_ID?.trim()
 const secretKey = process.env.POPBILL_SECRET_KEY?.trim()

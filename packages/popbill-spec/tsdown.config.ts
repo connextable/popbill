@@ -4,7 +4,7 @@ export default defineConfig({
   entry: {
     'index': 'src/index.ts',
     'tax-invoice/index': 'src/tax-invoice/index.ts',
-    'tax-invoice/get-info': 'src/tax-invoice/get-info.ts',
+    'tax-invoice/shims/index': 'src/tax-invoice/shims/index.ts',
   },
   shims: true,
   format: ['esm'],

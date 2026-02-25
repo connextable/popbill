@@ -2,8 +2,8 @@ import { isPopbillRequestStageError } from '@/internal/popbill'
 import { isBlank } from '@/utils/validation'
 import { createInputValidationError, normalizePopbillError, type PopbillApiError } from '@/errors'
 import type { CreateGetTaxInvoiceInfoInput, TaxInvoiceGetInfoInput, TaxInvoiceInfo } from './type'
-import type { TaxInvoiceGetInfoApiResponse } from '@connextable/popbill-spec/tax-invoice/get-info'
-import type { TaxInvoiceKeyType } from '@connextable/popbill-spec/tax-invoice'
+import type { TaxInvoiceGetInfoApiResponse } from '@connextable/popbill-spec'
+import type { TaxInvoiceKeyType } from '@connextable/popbill-spec'
 import { mapTaxInvoiceInfo } from './mapper'
 
 const OPERATION_NAME = 'taxInvoice.getInfo' as const

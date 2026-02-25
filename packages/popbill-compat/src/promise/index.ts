@@ -2,6 +2,7 @@ import { getConfiguration, setConfiguration, type CompatConfig } from '../config
 import { MgtKeyType, MessageType, KakaoType } from '../constants'
 import type { PromiseService } from '../adapters/promise-adapter'
 import {
+  type TaxinvoicePromiseService,
   createAccountCheckPromiseService,
   createBizInfoCheckPromiseService,
   createCashbillPromiseService,
@@ -37,8 +38,8 @@ function getOrCreate(name: string, creator: (config: CompatConfig) => PromiseSer
   return created
 }
 
-export function TaxinvoiceService(): PromiseService {
-  return getOrCreate('TaxinvoiceService', createTaxinvoicePromiseService)
+export function TaxinvoiceService(): TaxinvoicePromiseService {
+  return getOrCreate('TaxinvoiceService', createTaxinvoicePromiseService) as unknown as TaxinvoicePromiseService
 }
 
 export function StatementService(): PromiseService {

@@ -2,6 +2,7 @@ import { getConfiguration, setConfiguration, type CompatConfig } from './config'
 import { MgtKeyType, MessageType, KakaoType } from './constants'
 import type { CallbackService } from './adapters/callback-adapter'
 import {
+  type TaxinvoiceCallbackService,
   createAccountCheckService,
   createBizInfoCheckService,
   createCashbillService,
@@ -37,8 +38,8 @@ function getOrCreate(name: string, creator: (config: CompatConfig) => CallbackSe
   return created
 }
 
-export function TaxinvoiceService(): CallbackService {
-  return getOrCreate('TaxinvoiceService', createTaxinvoiceService)
+export function TaxinvoiceService(): TaxinvoiceCallbackService {
+  return getOrCreate('TaxinvoiceService', createTaxinvoiceService) as unknown as TaxinvoiceCallbackService
 }
 
 export function StatementService(): CallbackService {

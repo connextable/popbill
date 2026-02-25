@@ -1,5 +1,5 @@
 import { toBoolean } from '@/utils/cast'
-import type { TaxInvoiceGetInfoApiResponse } from '@connextable/popbill-spec/tax-invoice/get-info'
+import type { TaxInvoiceGetInfoApiResponse } from '@connextable/popbill-spec'
 import type { TaxInvoiceInfo } from './type'
 
 export function mapTaxInvoiceInfo(response: TaxInvoiceGetInfoApiResponse): TaxInvoiceInfo {
@@ -17,7 +17,7 @@ export function mapTaxInvoiceInfo(response: TaxInvoiceGetInfoApiResponse): TaxIn
     isOpen: toBoolean(response.openYN),
     openedAt: response.openDT,
     stateMemo: response.stateMemo,
-    stateCode: response.stateCode,
+    stateCode: typeof response.stateCode === 'string' ? Number(response.stateCode) : response.stateCode,
     stateChangedAt: response.stateDT,
     nationalTaxServiceConfirmationNumber: response.ntsconfirmNum,
     nationalTaxServiceResult: response.ntsresult,

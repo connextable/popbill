@@ -15,6 +15,7 @@ ntsresult
 ntssend
 OPYN
 popbill
+regist
 retriable
 seongjun
 Taxinvoice
