@@ -1,5 +1,5 @@
 import { createPopbillClient } from '@/client'
-import { TAX_INVOICE_METHODS } from '@/services/tax-invoice'
+import { TAX_INVOICE_METHODS } from '@/constants'
 
 const READ_METHODS = [
   'getBulkIssueSubmissionResult',

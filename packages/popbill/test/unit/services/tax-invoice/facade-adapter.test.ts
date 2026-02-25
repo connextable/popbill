@@ -1,5 +1,6 @@
+import { TAX_INVOICE_METHODS } from '@/constants'
 import { PopbillErrorStage, PopbillErrorType, createInputValidationError } from '@/errors'
-import { TAX_INVOICE_METHODS, createTaxInvoiceService } from '@/services/tax-invoice'
+import { createTaxInvoiceService } from '@/services/tax-invoice'
 import type { TaxInvoiceRequestOptions, TaxInvoiceService } from '@/services/tax-invoice/types'
 import { createTaxinvoicePromiseService } from '@connextable/popbill-compat/factory'
 import type { TaxInvoiceApiModel, TaxInvoiceGetInfoApiResponse } from '@connextable/popbill-spec'

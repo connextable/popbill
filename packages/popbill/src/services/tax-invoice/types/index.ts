@@ -80,11 +80,17 @@ export interface TaxInvoiceDocumentRequest extends TaxInvoiceBusinessRequest {
  * 즉시 발행 요청 입력입니다.
  */
 export interface IssueInvoiceImmediatelyInput extends TaxInvoiceBusinessRequest {
+  /** 발행할 세금계산서 문서 원본입니다. */
   taxInvoiceDocument: TaxInvoiceApiModel
+  /** 거래명세서 동시작성 여부입니다. */
   writeSpecification?: boolean
+  /** 지연발행 허용 여부입니다. */
   forceIssue?: boolean
+  /** 상태 이력에 남길 메모입니다. */
   historyMemo?: string
+  /** 발행 안내 메일 제목입니다. */
   emailSubject?: string
+  /** 거래명세서 관리번호입니다. */
   dealInvoiceManagementKey?: string
 }
 
@@ -92,8 +98,11 @@ export interface IssueInvoiceImmediatelyInput extends TaxInvoiceBusinessRequest 
  * 초대량 발행 접수 요청 입력입니다.
  */
 export interface SubmitBulkIssueInput extends TaxInvoiceBusinessRequest {
+  /** 초대량 접수 식별자(SubmitID)입니다. */
   submissionIdentifier: string
+  /** 접수할 세금계산서 문서 목록입니다. */
   taxInvoiceDocuments: TaxInvoiceApiModel[]
+  /** 지연발행 허용 여부입니다. */
   forceIssue?: boolean
 }
 
@@ -101,6 +110,7 @@ export interface SubmitBulkIssueInput extends TaxInvoiceBusinessRequest {
  * 초대량 접수결과 조회 요청 입력입니다.
  */
 export interface GetBulkIssueSubmissionResultInput extends TaxInvoiceBusinessRequest {
+  /** 조회할 초대량 접수 식별자(SubmitID)입니다. */
   submissionIdentifier: string
 }
 
@@ -108,6 +118,7 @@ export interface GetBulkIssueSubmissionResultInput extends TaxInvoiceBusinessReq
  * 임시저장 요청 입력입니다.
  */
 export interface RegisterInvoiceInput extends TaxInvoiceBusinessRequest {
+  /** 임시저장할 세금계산서 문서 원본입니다. */
   taxInvoiceDocument: TaxInvoiceApiModel
 }
 
@@ -115,6 +126,7 @@ export interface RegisterInvoiceInput extends TaxInvoiceBusinessRequest {
  * 문서 수정 요청 입력입니다.
  */
 export interface UpdateInvoiceInput extends TaxInvoiceDocumentRequest {
+  /** 수정할 세금계산서 문서 원본입니다. */
   taxInvoiceDocument: TaxInvoiceApiModel
 }
 
@@ -122,8 +134,11 @@ export interface UpdateInvoiceInput extends TaxInvoiceDocumentRequest {
  * 저장된 문서 발행 요청 입력입니다.
  */
 export interface IssueInvoiceInput extends TaxInvoiceDocumentRequest {
+  /** 상태 이력에 남길 메모입니다. */
   historyMemo: string
+  /** 발행 안내 메일 제목입니다. */
   emailSubject?: string
+  /** 지연발행 허용 여부입니다. */
   forceIssue?: boolean
 }
 
@@ -131,6 +146,7 @@ export interface IssueInvoiceInput extends TaxInvoiceDocumentRequest {
  * 발행취소 요청 입력입니다.
  */
 export interface CancelIssuedInvoiceInput extends TaxInvoiceDocumentRequest {
+  /** 상태 이력에 남길 메모입니다. */
   historyMemo: string
 }
 
@@ -138,7 +154,9 @@ export interface CancelIssuedInvoiceInput extends TaxInvoiceDocumentRequest {
  * 역발행 즉시 요청 입력입니다.
  */
 export interface RequestReverseIssueImmediatelyInput extends TaxInvoiceBusinessRequest {
+  /** 역발행 요청할 세금계산서 문서 원본입니다. */
   taxInvoiceDocument: TaxInvoiceApiModel
+  /** 상태 이력에 남길 메모입니다. */
   historyMemo: string
 }
 
@@ -146,6 +164,7 @@ export interface RequestReverseIssueImmediatelyInput extends TaxInvoiceBusinessR
  * 역발행 요청 입력입니다.
  */
 export interface RequestReverseIssueInput extends TaxInvoiceDocumentRequest {
+  /** 상태 이력에 남길 메모입니다. */
   historyMemo: string
 }
 
@@ -153,6 +172,7 @@ export interface RequestReverseIssueInput extends TaxInvoiceDocumentRequest {
  * 역발행 요청취소 입력입니다.
  */
 export interface CancelReverseIssueRequestInput extends TaxInvoiceDocumentRequest {
+  /** 상태 이력에 남길 메모입니다. */
   historyMemo: string
 }
 
@@ -160,6 +180,7 @@ export interface CancelReverseIssueRequestInput extends TaxInvoiceDocumentReques
  * 역발행 요청거부 입력입니다.
  */
 export interface RefuseReverseIssueRequestInput extends TaxInvoiceDocumentRequest {
+  /** 상태 이력에 남길 메모입니다. */
   historyMemo: string
 }
 
@@ -167,7 +188,9 @@ export interface RefuseReverseIssueRequestInput extends TaxInvoiceDocumentReques
  * 다건 상태 조회 요청 입력입니다.
  */
 export interface GetInvoicesInfoInput extends TaxInvoiceBusinessRequest {
+  /** 조회 대상 문서번호 유형입니다. */
   invoiceDocumentKeyType: TaxInvoiceDocumentKeyType
+  /** 조회 대상 문서번호 목록입니다. */
   invoiceManagementKeys: string[]
 }
 
@@ -175,25 +198,45 @@ export interface GetInvoicesInfoInput extends TaxInvoiceBusinessRequest {
  * 검색 요청 입력입니다.
  */
 export interface SearchInvoicesInput extends TaxInvoiceBusinessRequest {
+  /** 조회 대상 문서번호 유형입니다. */
   invoiceDocumentKeyType: TaxInvoiceDocumentKeyType
+  /** 검색 기준 일자 유형입니다. */
   searchDateType: TaxInvoiceDateType
+  /** 검색 시작일자(yyyyMMdd)입니다. */
   startDate: TaxInvoiceDateString
+  /** 검색 종료일자(yyyyMMdd)입니다. */
   endDate: TaxInvoiceDateString
+  /** 세금계산서 상태코드 필터입니다. */
   invoiceStateCodes: string[]
+  /** 문서 유형 필터입니다. */
   invoiceTypeCodes: string[]
+  /** 과세형태 필터입니다. */
   taxationTypeCodes: string[]
+  /** 지연발행 문서만 조회할지 여부입니다. */
   lateIssueOnly: boolean | null
+  /** 정렬 방향입니다. */
   sortOrder: 'A' | 'D' | string
+  /** 조회할 페이지 번호입니다. */
   pageNumber: number
+  /** 페이지당 조회 건수입니다. */
   pageSize: number
+  /** 종사업장번호 주체 필터입니다. */
   taxRegistrationIdentifierType?: string
+  /** 종사업장번호 존재 여부 필터입니다. */
   taxRegistrationIdentifierAvailability?: string
+  /** 종사업장번호 필터입니다. */
   taxRegistrationIdentifier?: string
+  /** 검색어(상호/사업자번호/문서번호 등)입니다. */
   queryText?: string
+  /** 작성유형(연동/API) 필터입니다. */
   interoperabilityType?: string
+  /** 발행형태 필터입니다. */
   issueTypeCodes?: string[]
+  /** 등록유형 필터입니다. */
   registrationTypeCodes?: string[]
+  /** 휴폐업상태 필터입니다. */
   closeDownStateCodes?: TaxInvoiceCloseDownStateCode[]
+  /** 문서번호 또는 국세청승인번호 필터입니다. */
   invoiceManagementKeyOrNationalTaxServiceConfirmationNumber?: string
 }
 
@@ -201,6 +244,7 @@ export interface SearchInvoicesInput extends TaxInvoiceBusinessRequest {
  * 문서함 URL 조회 요청 입력입니다.
  */
 export interface GetTaxInvoiceBoxURLInput extends TaxInvoiceBusinessRequest {
+  /** 조회할 세금계산서 문서함 범위입니다. */
   taxInvoiceBoxScope: TaxInvoiceBoxScope
 }
 
@@ -208,7 +252,9 @@ export interface GetTaxInvoiceBoxURLInput extends TaxInvoiceBusinessRequest {
  * 다건 인쇄 URL 요청 입력입니다.
  */
 export interface GetBulkInvoicePrintURLInput extends TaxInvoiceBusinessRequest {
+  /** 인쇄 대상 문서번호 유형입니다. */
   invoiceDocumentKeyType: TaxInvoiceDocumentKeyType
+  /** 인쇄 대상 문서번호 목록입니다. */
   invoiceManagementKeys: string[]
 }
 
@@ -221,7 +267,9 @@ export type GetSealAndAttachmentRegistrationURLInput = TaxInvoiceBusinessRequest
  * 파일 경로 기반 첨부 요청 입력입니다.
  */
 export interface AttachFileFromPathInput extends TaxInvoiceDocumentRequest {
+  /** 팝빌에 표시할 첨부파일명입니다. */
   displayName: string
+  /** 업로드할 파일의 로컬 경로입니다. */
   filePath: string
 }
 
@@ -229,7 +277,9 @@ export interface AttachFileFromPathInput extends TaxInvoiceDocumentRequest {
  * 바이너리 기반 첨부 요청 입력입니다.
  */
 export interface AttachFileFromBinaryInput extends TaxInvoiceDocumentRequest {
+  /** 업로드할 파일명입니다. */
   fileName: string
+  /** 업로드할 파일 바이너리 데이터입니다. */
   fileData: Buffer
 }
 
@@ -237,6 +287,7 @@ export interface AttachFileFromBinaryInput extends TaxInvoiceDocumentRequest {
  * 첨부파일 삭제 요청 입력입니다.
  */
 export interface DeleteAttachedFileInput extends TaxInvoiceDocumentRequest {
+  /** 삭제할 첨부파일 식별자(FileID)입니다. */
   fileIdentifier: string
 }
 
@@ -244,6 +295,7 @@ export interface DeleteAttachedFileInput extends TaxInvoiceDocumentRequest {
  * 이메일 재전송 요청 입력입니다.
  */
 export interface ResendInvoiceEmailInput extends TaxInvoiceDocumentRequest {
+  /** 재전송할 수신자 이메일 주소입니다. */
   receiverEmailAddress: string
 }
 
@@ -251,8 +303,11 @@ export interface ResendInvoiceEmailInput extends TaxInvoiceDocumentRequest {
  * 문자 재전송 요청 입력입니다.
  */
 export interface ResendInvoiceSMSInput extends TaxInvoiceDocumentRequest {
+  /** 발신자 전화번호입니다. */
   senderPhoneNumber: string
+  /** 수신자 전화번호입니다. */
   receiverPhoneNumber: string
+  /** 재전송할 문자 본문입니다. */
   messageBody: string
 }
 
@@ -260,7 +315,9 @@ export interface ResendInvoiceSMSInput extends TaxInvoiceDocumentRequest {
  * 팩스 재전송 요청 입력입니다.
  */
 export interface ResendInvoiceFAXInput extends TaxInvoiceDocumentRequest {
+  /** 발신 팩스번호입니다. */
   senderNumber: string
+  /** 수신 팩스번호입니다. */
   receiverNumber: string
 }
 
@@ -268,7 +325,9 @@ export interface ResendInvoiceFAXInput extends TaxInvoiceDocumentRequest {
  * 전자명세서 첨부 요청 입력입니다.
  */
 export interface AttachInvoiceStatementInput extends TaxInvoiceDocumentRequest {
+  /** 첨부할 전자명세서 문서 유형 코드입니다. */
   statementItemCode: number
+  /** 첨부할 전자명세서 관리번호입니다. */
   statementManagementKey: string
 }
 
@@ -276,7 +335,9 @@ export interface AttachInvoiceStatementInput extends TaxInvoiceDocumentRequest {
  * 전자명세서 첨부해제 요청 입력입니다.
  */
 export interface DetachInvoiceStatementInput extends TaxInvoiceDocumentRequest {
+  /** 첨부해제할 전자명세서 문서 유형 코드입니다. */
   statementItemCode: number
+  /** 첨부해제할 전자명세서 관리번호입니다. */
   statementManagementKey: string
 }
 
@@ -284,8 +345,11 @@ export interface DetachInvoiceStatementInput extends TaxInvoiceDocumentRequest {
  * 문서번호 할당 요청 입력입니다.
  */
 export interface AssignInvoiceManagementKeyInput extends TaxInvoiceBusinessRequest {
+  /** 할당 대상 문서번호 유형입니다. */
   invoiceDocumentKeyType: TaxInvoiceDocumentKeyType
+  /** 팝빌 문서 식별키(ItemKey)입니다. */
   itemKey: string
+  /** 새로 할당할 문서번호입니다. */
   invoiceManagementKey: string
 }
 
@@ -293,7 +357,9 @@ export interface AssignInvoiceManagementKeyInput extends TaxInvoiceBusinessReque
  * 이메일 전송설정 수정 입력입니다.
  */
 export interface UpdateEmailSendSettingsInput extends TaxInvoiceBusinessRequest {
+  /** 수정할 메일 전송 유형 코드입니다. */
   emailType: string
+  /** 전송 활성화 여부입니다. */
   sendEnabled: boolean
 }
 
@@ -301,41 +367,77 @@ export interface UpdateEmailSendSettingsInput extends TaxInvoiceBusinessRequest 
  * 문서 요약정보 조회 결과입니다.
  */
 export interface TaxInvoiceInfo {
+  /** 팝빌 문서 식별키(ItemKey)입니다. */
   itemKey: string
+  /** 과세형태입니다. */
   taxType: TaxType
+  /** 작성일자(yyyyMMdd)입니다. */
   writtenDate: string
+  /** 등록일시(yyyyMMddHHmmss)입니다. */
   registeredAt: string
+  /** 발행형태입니다. */
   issueType: IssueType
+  /** 공급가액 합계입니다. */
   totalSupplyCost: string
+  /** 세액 합계입니다. */
   totalTax: string
+  /** 영수/청구 구분입니다. */
   purposeType: PurposeType
+  /** 발행일시(yyyyMMddHHmmss)입니다. */
   issuedAt: string
+  /** 지연발행 여부입니다. */
   isLateIssued: boolean
+  /** 개봉 여부입니다. */
   isOpen: boolean
+  /** 개봉일시(yyyyMMddHHmmss)입니다. */
   openedAt?: string
+  /** 상태 메모입니다. */
   stateMemo: string
+  /** 상태 코드입니다. */
   stateCode: number
+  /** 상태 변경일시(yyyyMMddHHmmss)입니다. */
   stateChangedAt: string
+  /** 국세청 승인번호입니다. */
   nationalTaxServiceConfirmationNumber?: string
+  /** 국세청 전송 결과코드입니다. */
   nationalTaxServiceResult?: string
+  /** 국세청 전송일시(yyyyMMddHHmmss)입니다. */
   nationalTaxServiceSentAt?: string
+  /** 국세청 결과 수신일시(yyyyMMddHHmmss)입니다. */
   nationalTaxServiceResultReceivedAt?: string
+  /** 국세청 전송 오류코드입니다. */
   nationalTaxServiceSendErrorCode?: string
+  /** 수정세금계산서 사유코드입니다. */
   modificationCode?: number
+  /** API 연동 문서 여부입니다. */
   isApiLinkedDocument: boolean
+  /** 공급자 상호입니다. */
   supplierCompanyName: string
+  /** 공급자 사업자번호입니다. */
   supplierBusinessNumber: string
+  /** 공급자 문서번호입니다. */
   supplierManagementKey?: string
+  /** 공급자 인쇄 여부입니다. */
   isSupplierPrinted: boolean
+  /** 공급받는자 상호입니다. */
   buyerCompanyName: string
+  /** 공급받는자 사업자번호입니다. */
   buyerBusinessNumber: string
+  /** 공급받는자 문서번호입니다. */
   buyerManagementKey?: string
+  /** 공급받는자 인쇄 여부입니다. */
   isBuyerPrinted: boolean
+  /** 공급받는자 휴폐업 상태입니다. */
   buyerCloseDownState?: CloseDownState
+  /** 공급받는자 휴폐업일자(yyyyMMdd)입니다. */
   buyerCloseDownDate?: string
+  /** 수탁자 상호입니다. */
   trusteeCompanyName?: string
+  /** 수탁자 사업자번호입니다. */
   trusteeBusinessNumber?: string
+  /** 수탁자 문서번호입니다. */
   trusteeManagementKey?: string
+  /** 수탁자 인쇄 여부입니다. */
   isTrusteePrinted?: boolean
 }
 
