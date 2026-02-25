@@ -1,6 +1,7 @@
 import type { TaxInvoiceGetUrlTogo, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
 import {
   dispatchCallbackError,
+  createLegacyValidationError,
   toCompatRuntimeError,
   type CompatRuntimeError,
 } from '../../../internal/errors'
@@ -19,8 +20,26 @@ import type { TaxinvoiceRuntimeContext } from './context'
 export const SERVICE_NAME = 'TaxinvoiceService'
 
 export type TaxinvoiceRuntimeMethods
-  = | 'issue'
+  = | 'registIssue'
+    | 'bulkSubmit'
+    | 'getBulkResult'
+    | 'register'
+    | 'update'
+    | 'issue'
     | 'cancelIssue'
+    | 'registRequest'
+    | 'request'
+    | 'cancelRequest'
+    | 'refuse'
+    | 'delete'
+    | 'sendToNTS'
+    | 'getInfo'
+    | 'getInfos'
+    | 'getDetailInfo'
+    | 'checkMgtKeyInUse'
+    | 'getXML'
+    | 'search'
+    | 'getLogs'
     | 'getURL'
     | 'getPopUpURL'
     | 'getViewURL'
@@ -29,6 +48,24 @@ export type TaxinvoiceRuntimeMethods
     | 'getMassPrintURL'
     | 'getMailURL'
     | 'getPDFURL'
+    | 'getSealURL'
+    | 'attachFile'
+    | 'attachFileBinary'
+    | 'deleteFile'
+    | 'getFiles'
+    | 'sendEmail'
+    | 'sendSMS'
+    | 'sendFAX'
+    | 'attachStatement'
+    | 'detachStatement'
+    | 'assignMgtKey'
+    | 'listEmailConfig'
+    | 'updateEmailConfig'
+    | 'getSendToNTSConfig'
+    | 'getTaxCertURL'
+    | 'getCertificateExpireDate'
+    | 'checkCertValidation'
+    | 'getTaxCertInfo'
 
 export interface ParsedLegacyUserIdCallbacks<T> {
   userId: string
@@ -113,6 +150,18 @@ export function validateRequiredTaxinvoiceInputs(corpNum: string, keyType: TaxIn
       throw mgtKeyError
     }
   }
+}
+
+export function validateTaxinvoiceKeyTypeAllowed(
+  keyType: TaxInvoiceMgtKeyType,
+  allowed: readonly TaxInvoiceMgtKeyType[],
+  message = '문서번호유형이 올바르지 않습니다.',
+): void {
+  if (allowed.includes(keyType)) {
+    return
+  }
+
+  throw createLegacyValidationError(message)
 }
 
 export function validateGetUrlInputs(corpNum: string, togo: TaxInvoiceGetUrlTogo): void {

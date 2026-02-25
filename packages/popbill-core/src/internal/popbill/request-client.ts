@@ -26,8 +26,8 @@ export interface PopbillRequestOptions {
   corpNum?: string
   userId?: string
   method?: string
-  body?: string
-  contentType?: string
+  body?: BodyInit | null
+  contentType?: string | null
   submitId?: string
   headers?: Record<string, string>
 }
@@ -45,8 +45,16 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
       const method = options.method ?? 'GET'
       const requestHeaders: Record<string, string> = {
         ...options.headers,
-        'Content-Type': options.contentType ?? 'application/json;charset=utf-8',
         'User-Agent': POPBILL_USER_AGENT,
+      }
+
+      if (options.contentType !== null) {
+        if (typeof options.contentType === 'string') {
+          requestHeaders['Content-Type'] = options.contentType
+        }
+        else if (!isFormDataBody(options.body)) {
+          requestHeaders['Content-Type'] = 'application/json;charset=utf-8'
+        }
       }
 
       if (config.acceptEncoding !== null) {
@@ -65,7 +73,8 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
         requestHeaders['X-HTTP-Method-Override'] = method
 
         if (method === 'BULKISSUE') {
-          requestHeaders['X-PB-MESSAGE-DIGEST'] = sha1Base64(options.body ?? '')
+          const messageSource = typeof options.body === 'string' ? options.body : ''
+          requestHeaders['X-PB-MESSAGE-DIGEST'] = sha1Base64(messageSource)
           if (!isBlank(options.submitId)) {
             requestHeaders['X-PB-SUBMIT-ID'] = options.submitId as string
           }
@@ -88,7 +97,7 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
           {
             method: method === 'GET' ? 'GET' : 'POST',
             headers: requestHeaders,
-            body: method === 'GET' ? undefined : options.body,
+            body: method === 'GET' ? undefined : options.body ?? undefined,
           },
           { timeoutMs: config.timeoutMs },
         )
@@ -98,6 +107,11 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
       }
     },
   }
+}
+
+function isFormDataBody(body: PopbillRequestOptions['body']): body is FormData {
+  return typeof FormData !== 'undefined'
+    && body instanceof FormData
 }
 
 export function isPopbillRequestStageError(error: unknown): error is PopbillRequestStageError {
