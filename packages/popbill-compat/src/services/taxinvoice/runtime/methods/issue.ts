@@ -3,9 +3,9 @@ import type {
   TaxInvoiceIssueApiResponse,
   TaxInvoiceMgtKeyType,
 } from '@connextable/popbill-spec'
-import { validateRequiredTaxinvoiceInputs } from '../common'
-import type { TaxinvoiceRuntimeContext } from '../context'
-import type { ParsedIssueOptions } from '../parsers/issue'
+import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
+import type { ParsedIssueOptions } from '@/services/taxinvoice/runtime/parsers/issue'
 
 export async function requestIssue(
   context: TaxinvoiceRuntimeContext,

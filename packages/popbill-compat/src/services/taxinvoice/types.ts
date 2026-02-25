@@ -20,8 +20,8 @@ import type {
   TaxInvoiceRegistIssueApiResponse,
   TaxInvoiceSearchApiResponse,
 } from '@connextable/popbill-spec'
-import type { CallbackService } from '../../adapters/callback-adapter'
-import type { PromiseService } from '../../adapters/promise-adapter'
+import type { CallbackService } from '@/adapters/callback-adapter'
+import type { PromiseService } from '@/adapters/promise-adapter'
 
 export interface LegacySuccessCallback<T> {
   (response: T): void

@@ -1,8 +1,8 @@
 import type {
   TaxInvoiceGetTaxCertInfoApiResponse,
 } from '@connextable/popbill-spec'
-import { validateCorpNum } from '../../../../internal/validation'
-import type { TaxinvoiceRuntimeContext } from '../context'
+import { validateCorpNum } from '@/internal/validation'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
 export async function requestGetTaxCertInfo(
   context: TaxinvoiceRuntimeContext,

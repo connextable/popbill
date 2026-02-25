@@ -5,11 +5,11 @@ import type {
   TaxInvoiceGetUrlTogo,
   TaxInvoiceMgtKeyType,
 } from '@connextable/popbill-spec'
-import type { CompatConfig } from '../../../config'
+import type { CompatConfig } from '@/config'
 import type {
   TaxinvoiceCallbackService,
   TaxinvoicePromiseService,
-} from '../types'
+} from '@/services/taxinvoice/types'
 import {
   handleCallbackError,
   parseLegacyUserIdAndCallbacks,

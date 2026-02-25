@@ -4,17 +4,17 @@ import {
   createLegacyValidationError,
   toCompatRuntimeError,
   type CompatRuntimeError,
-} from '../../../internal/errors'
+} from '@/internal/errors'
 import {
   validateCorpNum,
   validateMgtKey,
   validateTaxInvoiceKeyType,
   validateTaxinvoiceTogo,
-} from '../../../internal/validation'
+} from '@/internal/validation'
 import type {
   LegacyErrorCallback,
   LegacySuccessCallback,
-} from '../types'
+} from '@/services/taxinvoice/types'
 import type { TaxinvoiceRuntimeContext } from './context'
 
 export const SERVICE_NAME = 'TaxinvoiceService'

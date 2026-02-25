@@ -5,8 +5,8 @@ import {
   validateCorpNum,
   validateEmailSendYn,
   validateEmailType,
-} from '../../../../internal/validation'
-import type { TaxinvoiceRuntimeContext } from '../context'
+} from '@/internal/validation'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
 export async function requestUpdateEmailConfig(
   context: TaxinvoiceRuntimeContext,

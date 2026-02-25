@@ -1,4 +1,4 @@
-import { NotImplementedError } from '../errors'
+import { NotImplementedError } from '@/errors'
 
 export type CallbackService = Record<string, (...args: any[]) => any>
 

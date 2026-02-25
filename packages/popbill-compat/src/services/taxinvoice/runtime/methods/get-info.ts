@@ -2,8 +2,8 @@ import type {
   TaxInvoiceGetInfoApiResponse,
   TaxInvoiceMgtKeyType,
 } from '@connextable/popbill-spec'
-import { validateRequiredTaxinvoiceInputs } from '../common'
-import type { TaxinvoiceRuntimeContext } from '../context'
+import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
 export async function requestGetInfo(
   context: TaxinvoiceRuntimeContext,

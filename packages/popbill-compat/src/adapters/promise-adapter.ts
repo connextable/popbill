@@ -1,4 +1,4 @@
-import { NotImplementedError } from '../errors'
+import { NotImplementedError } from '@/errors'
 
 export type PromiseService = Record<string, (...args: any[]) => Promise<any>>
 

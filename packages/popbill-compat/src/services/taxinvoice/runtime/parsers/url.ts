@@ -2,11 +2,11 @@ import type { TaxInvoiceGetUrlTogo } from '@connextable/popbill-spec'
 import type {
   LegacyErrorCallback,
   LegacySuccessCallback,
-} from '../../types'
+} from '@/services/taxinvoice/types'
 import {
   parseLegacyUserIdAndCallbacks,
   type ParsedLegacyUserIdCallbacks,
-} from '../common'
+} from '@/services/taxinvoice/runtime/common'
 
 export type TaxinvoiceUrlTarget = 'POPUP' | 'VIEW' | 'PRINT' | 'PDF' | 'EPRINT' | 'MAIL'
 

@@ -4,12 +4,12 @@ import type {
   TaxInvoiceApiResponseBase,
   TaxInvoiceMgtKeyType,
 } from '@connextable/popbill-spec'
-import { createLegacyValidationError } from '../../../../internal/errors'
+import { createLegacyValidationError } from '@/internal/errors'
 import {
   validateAttachFilePath,
-} from '../../../../internal/validation'
-import { validateRequiredTaxinvoiceInputs } from '../common'
-import type { TaxinvoiceRuntimeContext } from '../context'
+} from '@/internal/validation'
+import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import { buildSingleFileMultipartPayload } from './multipart'
 
 export async function requestAttachFile(

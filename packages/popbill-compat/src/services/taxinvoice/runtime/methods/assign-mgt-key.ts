@@ -6,9 +6,9 @@ import {
   validateItemKey,
   validateMgtKey,
   validateTaxInvoiceKeyType,
-} from '../../../../internal/validation'
-import { validateCorpNum } from '../../../../internal/validation'
-import type { TaxinvoiceRuntimeContext } from '../context'
+} from '@/internal/validation'
+import { validateCorpNum } from '@/internal/validation'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
 export async function requestAssignMgtKey(
   context: TaxinvoiceRuntimeContext,

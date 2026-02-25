@@ -3,8 +3,8 @@ import type {
   TaxInvoiceApiResponseBase,
   TaxInvoiceMgtKeyType,
 } from '@connextable/popbill-spec'
-import { validateRequiredTaxinvoiceInputs, validateTaxinvoiceKeyTypeAllowed } from '../common'
-import type { TaxinvoiceRuntimeContext } from '../context'
+import { validateRequiredTaxinvoiceInputs, validateTaxinvoiceKeyTypeAllowed } from '@/services/taxinvoice/runtime/common'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
 export async function requestCancelRequest(
   context: TaxinvoiceRuntimeContext,

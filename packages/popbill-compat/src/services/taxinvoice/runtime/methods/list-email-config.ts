@@ -1,8 +1,8 @@
 import type {
   TaxInvoiceListEmailConfigApiResponse,
 } from '@connextable/popbill-spec'
-import { validateCorpNum } from '../../../../internal/validation'
-import type { TaxinvoiceRuntimeContext } from '../context'
+import { validateCorpNum } from '@/internal/validation'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
 export async function requestListEmailConfig(
   context: TaxinvoiceRuntimeContext,

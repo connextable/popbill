@@ -2,11 +2,11 @@ import type { TaxInvoiceBulkSubmitApiResponse } from '@connextable/popbill-spec'
 import type {
   LegacyErrorCallback,
   LegacySuccessCallback,
-} from '../../types'
+} from '@/services/taxinvoice/types'
 import {
   asErrorCallback,
   asSuccessCallback,
-} from '../common'
+} from '@/services/taxinvoice/runtime/common'
 
 export interface ParsedBulkSubmitOptions {
   forceIssue: boolean

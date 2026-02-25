@@ -1,7 +1,7 @@
-import { getConfiguration, setConfiguration, type CompatConfig } from '../config'
-import { MgtKeyType, MessageType, KakaoType } from '../constants'
-import type { PromiseService } from '../adapters/promise-adapter'
-import { createSingleton } from '../internal/singleton'
+import { getConfiguration, setConfiguration, type CompatConfig } from '@/config'
+import { MgtKeyType, MessageType, KakaoType } from '@/constants'
+import type { PromiseService } from '@/adapters/promise-adapter'
+import { createSingleton } from '@/internal/singleton'
 import {
   type TaxinvoicePromiseService,
   createAccountCheckPromiseService,
@@ -16,7 +16,7 @@ import {
   createMessagePromiseService,
   createStatementPromiseService,
   createTaxinvoicePromiseService,
-} from '../services'
+} from '@/services'
 
 interface PromiseServices {
   TaxinvoiceService: TaxinvoicePromiseService

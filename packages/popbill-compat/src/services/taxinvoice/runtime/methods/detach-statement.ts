@@ -3,9 +3,9 @@ import type {
   TaxInvoiceApiResponseBase,
   TaxInvoiceMgtKeyType,
 } from '@connextable/popbill-spec'
-import { createLegacyValidationError } from '../../../../internal/errors'
-import { validateRequiredTaxinvoiceInputs } from '../common'
-import type { TaxinvoiceRuntimeContext } from '../context'
+import { createLegacyValidationError } from '@/internal/errors'
+import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
 export async function requestDetachStatement(
   context: TaxinvoiceRuntimeContext,

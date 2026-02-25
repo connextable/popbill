@@ -4,9 +4,9 @@ import type {
 } from '@connextable/popbill-spec'
 import {
   validateMgtKeyList,
-} from '../../../../internal/validation'
-import { validateRequiredTaxinvoiceInputs } from '../common'
-import type { TaxinvoiceRuntimeContext } from '../context'
+} from '@/internal/validation'
+import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
 export async function requestGetMassPrintUrl(
   context: TaxinvoiceRuntimeContext,

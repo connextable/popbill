@@ -5,9 +5,9 @@ import type {
 } from '@connextable/popbill-spec'
 import {
   validateTaxinvoicePayload,
-} from '../../../../internal/validation'
-import { validateRequiredTaxinvoiceInputs } from '../common'
-import type { TaxinvoiceRuntimeContext } from '../context'
+} from '@/internal/validation'
+import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import { buildSingleFileMultipartPayload } from './multipart'
 
 export async function requestAttachFileBinary(

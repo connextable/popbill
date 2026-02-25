@@ -5,9 +5,9 @@ import type {
 } from '@connextable/popbill-spec'
 import {
   validateTaxinvoicePayload,
-} from '../../../../internal/validation'
-import { validateCorpNum } from '../../../../internal/validation'
-import type { TaxinvoiceRuntimeContext } from '../context'
+} from '@/internal/validation'
+import { validateCorpNum } from '@/internal/validation'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
 export async function requestRegistRequest(
   context: TaxinvoiceRuntimeContext,

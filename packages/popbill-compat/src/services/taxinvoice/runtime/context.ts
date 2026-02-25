@@ -1,7 +1,7 @@
 import type { PopbillRequestClient } from '@connextable/popbill-core'
-import type { CompatConfig } from '../../../config'
-import type { CompatRuntimeError } from '../../../internal/errors'
-import { createTaxinvoiceRequestClient } from '../../../internal/request-client'
+import type { CompatConfig } from '@/config'
+import type { CompatRuntimeError } from '@/internal/errors'
+import { createTaxinvoiceRequestClient } from '@/internal/request-client'
 
 export interface TaxinvoiceRuntimeContext {
   requestClient: PopbillRequestClient

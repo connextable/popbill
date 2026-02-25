@@ -5,7 +5,7 @@ import {
   LinkhubAuthScope,
   type PopbillRequestClient,
 } from '@connextable/popbill-core'
-import type { CompatConfig } from '../config'
+import type { CompatConfig } from '@/config'
 
 const DEFAULT_REQUEST_TIMEOUT_MS = 180_000
 const DEFAULT_ACCEPT_ENCODING = 'gzip,deflate'

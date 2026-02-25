@@ -1,10 +1,10 @@
-import type { CompatConfig } from '../../config'
+import type { CompatConfig } from '@/config'
 import {
   createTypedCallbackServiceStub,
-} from '../../adapters/callback-adapter'
+} from '@/adapters/callback-adapter'
 import {
   createTypedPromiseServiceStub,
-} from '../../adapters/promise-adapter'
+} from '@/adapters/promise-adapter'
 import { TAXINVOICE_METHODS } from './methods'
 import { createTaxinvoiceRuntimeMethods } from './runtime'
 import type {

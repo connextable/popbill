@@ -6,9 +6,9 @@ import type {
 import {
   validateCorpNum,
   validateTaxinvoicePayload,
-} from '../../../../internal/validation'
-import type { TaxinvoiceRuntimeContext } from '../context'
-import type { ParsedRegistIssueOptions } from '../parsers/regist-issue'
+} from '@/internal/validation'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
+import type { ParsedRegistIssueOptions } from '@/services/taxinvoice/runtime/parsers/regist-issue'
 
 export async function requestRegistIssue(
   context: TaxinvoiceRuntimeContext,

@@ -4,8 +4,8 @@ import type {
 import {
   validateCorpNum,
   validateSubmitId,
-} from '../../../../internal/validation'
-import type { TaxinvoiceRuntimeContext } from '../context'
+} from '@/internal/validation'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
 export async function requestGetBulkResult(
   context: TaxinvoiceRuntimeContext,

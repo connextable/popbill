@@ -5,18 +5,6 @@
     "paths": {
       "@/*": [
         "src/*"
-      ],
-      "@connextable/popbill-spec": [
-        "../popbill-spec/src/index.ts"
-      ],
-      "@connextable/popbill-spec/*": [
-        "../popbill-spec/src/*"
-      ],
-      "@connextable/popbill-core": [
-        "../popbill-core/dist/index.d.mts"
-      ],
-      "@connextable/popbill-core/*": [
-        "../popbill-core/dist/*"
       ]
     },
     "types": [

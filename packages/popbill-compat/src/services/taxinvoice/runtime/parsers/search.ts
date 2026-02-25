@@ -4,11 +4,11 @@ import type {
 import type {
   LegacyErrorCallback,
   LegacySuccessCallback,
-} from '../../types'
+} from '@/services/taxinvoice/types'
 import {
   asErrorCallback,
   asSuccessCallback,
-} from '../common'
+} from '@/services/taxinvoice/runtime/common'
 
 export interface ParsedSearchOptions {
   taxRegIDType: string

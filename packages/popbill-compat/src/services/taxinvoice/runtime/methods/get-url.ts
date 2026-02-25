@@ -2,8 +2,8 @@ import type {
   TaxInvoiceGetUrlApiResponse,
   TaxInvoiceGetUrlTogo,
 } from '@connextable/popbill-spec'
-import { validateGetUrlInputs } from '../common'
-import type { TaxinvoiceRuntimeContext } from '../context'
+import { validateGetUrlInputs } from '@/services/taxinvoice/runtime/common'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
 export async function requestGetUrl(
   context: TaxinvoiceRuntimeContext,

@@ -7,9 +7,9 @@ import {
   validateSearchDate,
   validateSearchDateType,
   validateTaxInvoiceKeyType,
-} from '../../../../internal/validation'
-import type { TaxinvoiceRuntimeContext } from '../context'
-import type { ParsedSearchOptions } from '../parsers/search'
+} from '@/internal/validation'
+import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
+import type { ParsedSearchOptions } from '@/services/taxinvoice/runtime/parsers/search'
 
 export interface TaxinvoiceSearchBaseParams {
   dType: string
