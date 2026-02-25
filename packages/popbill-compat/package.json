@@ -6,11 +6,19 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
       "default": "./dist/index.mjs"
     },
+    "./factory": {
+      "types": "./dist/factory/index.d.mts",
+      "import": "./dist/factory/index.mjs",
+      "require": "./dist/factory/index.cjs",
+      "default": "./dist/factory/index.mjs"
+    },
     "./promise": {
+      "types": "./dist/promise/index.d.mts",
       "import": "./dist/promise/index.mjs",
       "require": "./dist/promise/index.cjs",
       "default": "./dist/promise/index.mjs"
