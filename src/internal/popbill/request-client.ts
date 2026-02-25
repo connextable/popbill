@@ -1,0 +1,121 @@
+import { fetchJson } from '@/internal/http/fetch-json'
+import type { TokenProvider } from '@/internal/linkhub'
+import { sha1Base64 } from '@/utils/crypto'
+import { normalizeOptionalString, trimTrailingSlash } from '@/utils/string'
+import { isBlank } from '@/utils/validation'
+
+const POPBILL_USER_AGENT = 'NODEJS POPBILL SDK'
+
+export type PopbillRequestStage = 'issue_token' | 'request_api'
+
+export interface PopbillRequestStageError {
+  requestStage: PopbillRequestStage
+  cause: unknown
+}
+
+export interface PopbillRequestClientConfig {
+  apiBaseUrl: string
+  timeoutMs: number
+  tokenProvider: TokenProvider
+  acceptEncoding: string | null
+  acceptLanguage?: string
+}
+
+export interface PopbillRequestOptions {
+  uri: string
+  corpNum?: string
+  userId?: string
+  method?: string
+  body?: string
+  contentType?: string
+  submitId?: string
+  headers?: Record<string, string>
+}
+
+export interface PopbillRequestClient {
+  requestJson<T>(options: PopbillRequestOptions): Promise<T>
+}
+
+export function createPopbillRequestClient(config: PopbillRequestClientConfig): PopbillRequestClient {
+  const normalizedApiBaseUrl = trimTrailingSlash(config.apiBaseUrl)
+  const normalizedAcceptLanguage = normalizeOptionalString(config.acceptLanguage)
+
+  return {
+    async requestJson<T>(options: PopbillRequestOptions): Promise<T> {
+      const method = options.method ?? 'GET'
+      const requestHeaders: Record<string, string> = {
+        ...options.headers,
+        'Content-Type': options.contentType ?? 'application/json;charset=utf-8',
+        'User-Agent': POPBILL_USER_AGENT,
+      }
+
+      if (config.acceptEncoding !== null) {
+        requestHeaders['Accept-Encoding'] = config.acceptEncoding
+      }
+
+      if (normalizedAcceptLanguage) {
+        requestHeaders['Accept-Language'] = normalizedAcceptLanguage
+      }
+
+      if (!isBlank(options.userId)) {
+        requestHeaders['x-pb-userid'] = options.userId as string
+      }
+
+      if (method !== 'GET' && method !== 'POST') {
+        requestHeaders['X-HTTP-Method-Override'] = method
+
+        if (method === 'BULKISSUE') {
+          requestHeaders['X-PB-MESSAGE-DIGEST'] = sha1Base64(options.body ?? '')
+          if (!isBlank(options.submitId)) {
+            requestHeaders['X-PB-SUBMIT-ID'] = options.submitId as string
+          }
+        }
+      }
+
+      if (!isBlank(options.corpNum)) {
+        try {
+          const token = await config.tokenProvider.getToken(options.corpNum as string)
+          requestHeaders['Authorization'] = `Bearer ${token.sessionToken}`
+        }
+        catch (error) {
+          throw createStageError('issue_token', error)
+        }
+      }
+
+      try {
+        return await fetchJson<T>(
+          `${normalizedApiBaseUrl}${options.uri}`,
+          {
+            method: method === 'GET' ? 'GET' : 'POST',
+            headers: requestHeaders,
+            body: method === 'GET' ? undefined : options.body,
+          },
+          { timeoutMs: config.timeoutMs },
+        )
+      }
+      catch (error) {
+        throw createStageError('request_api', error)
+      }
+    },
+  }
+}
+
+export function isPopbillRequestStageError(error: unknown): error is PopbillRequestStageError {
+  if (typeof error !== 'object' || error === null) {
+    return false
+  }
+
+  if (!('requestStage' in error) || !('cause' in error)) {
+    return false
+  }
+
+  const stage = (error as { requestStage: unknown }).requestStage
+  return stage === 'issue_token' || stage === 'request_api'
+}
+
+function createStageError(stage: PopbillRequestStage, cause: unknown): PopbillRequestStageError {
+  return {
+    requestStage: stage,
+    cause,
+  }
+}

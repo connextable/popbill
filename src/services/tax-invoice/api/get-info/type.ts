@@ -1,5 +1,5 @@
-import type { PopbillApiError } from '@/client/types'
-import type { TokenProvider } from '@/internal/linkhub'
+import type { PopbillApiError } from '@/errors'
+import type { PopbillRequestClient } from '@/internal/popbill'
 import type { CloseDownState, IssueType, PurposeType, TaxInvoiceKeyType, TaxType } from '../spec'
 
 export interface TaxInvoiceGetInfoInput {
@@ -10,9 +10,7 @@ export interface TaxInvoiceGetInfoInput {
 }
 
 export interface CreateGetTaxInvoiceInfoInput {
-  apiBaseUrl: string
-  timeoutMs: number
-  tokenProvider: TokenProvider
+  requestClient: PopbillRequestClient
   defaultErrorHandler?: (error: PopbillApiError) => void
 }
 

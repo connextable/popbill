@@ -1,4 +1,4 @@
-import { fetchJson } from '@/internal/http/fetch-json'
+import { isPopbillRequestStageError } from '@/internal/popbill'
 import { isBlank } from '@/utils/validation'
 import { createInputValidationError, normalizePopbillError, type PopbillApiError } from '@/errors'
 import type { CreateGetTaxInvoiceInfoInput, TaxInvoiceGetInfoInput, TaxInvoiceInfo } from './type'
@@ -17,30 +17,22 @@ export function createGetTaxInvoiceInfo(input: CreateGetTaxInvoiceInfoInput) {
       return throwMappedError(error, input.defaultErrorHandler, 'validate_input')
     }
 
-    let sessionToken: string
-
-    try {
-      const token = await input.tokenProvider.getToken(request.businessNumber)
-      sessionToken = token.sessionToken
-    }
-    catch (error) {
-      return throwMappedError(error, input.defaultErrorHandler, 'issue_token')
-    }
-
     const resourcePath = `/Taxinvoice/${request.invoiceKeyType}/${request.invoiceManagementKey}`
 
     try {
-      const apiResponse = await fetchJson<TaxInvoiceInfoApiResponse>(
-        `${input.apiBaseUrl}${resourcePath}`,
-        {
-          method: 'GET',
-          headers: buildGetInfoHeaders(sessionToken, request.userId),
-        },
-        { timeoutMs: input.timeoutMs },
-      )
+      const apiResponse = await input.requestClient.requestJson<TaxInvoiceInfoApiResponse>({
+        uri: resourcePath,
+        corpNum: request.businessNumber,
+        userId: request.userId,
+        method: 'GET',
+      })
       return mapTaxInvoiceInfo(apiResponse)
     }
     catch (error) {
+      if (isPopbillRequestStageError(error)) {
+        return throwMappedError(error.cause, input.defaultErrorHandler, error.requestStage)
+      }
+
       return throwMappedError(error, input.defaultErrorHandler, 'request_api')
     }
   }
@@ -64,20 +56,6 @@ function validateGetInfoRequest(request: TaxInvoiceGetInfoInput): void {
 
 function isTaxInvoiceKeyType(value: string): value is TaxInvoiceKeyType {
   return value === 'SELL' || value === 'BUY' || value === 'TRUSTEE'
-}
-
-function buildGetInfoHeaders(sessionToken: string, userId: string | undefined): Record<string, string> {
-  const headers: Record<string, string> = {
-    'Authorization': `Bearer ${sessionToken}`,
-    'Content-Type': 'application/json;charset=utf-8',
-    'User-Agent': 'NODEJS POPBILL SDK',
-  }
-
-  if (!isBlank(userId)) {
-    headers['x-pb-userid'] = userId as string
-  }
-
-  return headers
 }
 
 function throwMappedError(

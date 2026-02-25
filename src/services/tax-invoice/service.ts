@@ -1,21 +1,17 @@
-import type { TokenProvider } from '@/internal/linkhub'
 import type { TaxInvoiceService } from './type'
-import type { PopbillApiError } from '@/client/types'
+import type { PopbillApiError } from '@/errors'
 import { createGetTaxInvoiceInfo } from './api/get-info'
+import type { PopbillRequestClient } from '@/internal/popbill'
 
 export interface CreateTaxInvoiceServiceInput {
-  apiBaseUrl: string
-  timeoutMs: number
-  tokenProvider: TokenProvider
+  requestClient: PopbillRequestClient
   defaultErrorHandler?: (error: PopbillApiError) => void
 }
 
 export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): TaxInvoiceService {
   return {
     getInfo: createGetTaxInvoiceInfo({
-      apiBaseUrl: input.apiBaseUrl,
-      timeoutMs: input.timeoutMs,
-      tokenProvider: input.tokenProvider,
+      requestClient: input.requestClient,
       defaultErrorHandler: input.defaultErrorHandler,
     }),
   }

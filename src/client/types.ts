@@ -9,6 +9,8 @@ export interface PopbillClientConfig {
   useGaIp?: boolean
   useLocalTime?: boolean
   ipRestrictOnOff?: boolean
+  acceptEncoding?: string | null
+  acceptLanguage?: string
   requestTimeoutMs?: number
   onError?: (error: PopbillApiError) => void
 }
