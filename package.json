@@ -9,12 +9,14 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:integration": "turbo run test:integration",
+    "test:coverage": "turbo run test:coverage",
     "clean": "turbo run clean && del node_modules .turbo"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@stylistic/eslint-plugin": "5.9.0",
     "@types/node": "^20",
+    "@vitest/coverage-v8": "4.0.18",
     "@vitest/eslint-plugin": "1.6.9",
     "del-cli": "7.0.0",
     "dotenv": "17.3.1",

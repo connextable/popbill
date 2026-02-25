@@ -37,6 +37,12 @@
       ],
       "cache": false
     },
+    "test:coverage": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": false
+    },
     "clean": {
       "cache": false
     }
