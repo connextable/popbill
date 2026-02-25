@@ -11,12 +11,3 @@ export function sha1Base64(input: string): string {
 export function hmacSha256Base64(input: string, secretKeyBase64: string): string {
   return createHmac('sha256', Buffer.from(secretKeyBase64, 'base64')).update(input).digest('base64')
 }
-
-export function normalizeErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    const code = (error as NodeJS.ErrnoException).code
-    return `${code ?? ''} ${error.message}`.trim()
-  }
-
-  return String(error)
-}

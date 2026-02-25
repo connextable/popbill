@@ -1,4 +1,4 @@
-import { normalizeErrorMessage } from '@/utils/crypto'
+import { normalizeErrorMessage } from '@/utils/error'
 import type { PopbillApiError } from './types'
 import { PopbillErrorStage, PopbillErrorType } from './enums'
 
@@ -110,13 +110,16 @@ export function normalizePopbillError(
   context?: PopbillErrorContext,
 ): PopbillApiError {
   if (isPopbillApiError(error)) {
+    const inferredType = error.type ?? inferErrorTypeFromCode(error.code)
+    const inferredStage = context?.stage ?? error.stage ?? inferErrorStageFromCode(error.code)
+
     return createError({
       ...error,
       code: error.code,
       message: error.message,
-      type: error.type ?? PopbillErrorType.Unknown,
+      type: inferredType,
       operation: context?.operation ?? error.operation,
-      stage: context?.stage ?? error.stage,
+      stage: inferredStage,
       retriable: error.retriable ?? inferRetriable(error.status),
       status: error.status,
       raw: error.raw,
@@ -207,4 +210,20 @@ function inferRetriable(status: number | undefined): boolean {
   }
 
   return status >= 500
+}
+
+function inferErrorTypeFromCode(code: number): PopbillErrorType {
+  if (code === UNKNOWN_ERROR_CODE) {
+    return PopbillErrorType.InputValidation
+  }
+
+  return PopbillErrorType.Unknown
+}
+
+function inferErrorStageFromCode(code: number): PopbillErrorStage {
+  if (code === UNKNOWN_ERROR_CODE) {
+    return PopbillErrorStage.ValidateInput
+  }
+
+  return PopbillErrorStage.Unknown
 }
