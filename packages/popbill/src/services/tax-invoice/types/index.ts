@@ -112,16 +112,6 @@ export const TaxInvoiceModificationCodes = {
 export type TaxInvoiceModificationCode = (typeof TaxInvoiceModificationCodes)[keyof typeof TaxInvoiceModificationCodes]
 
 /**
- * TaxInvoice API 호출 시 공통으로 사용하는 요청 옵션입니다.
- */
-export interface TaxInvoiceRequestOptions {
-  /**
-   * 개별 요청에 사용할 팝빌 회원 아이디입니다.
-   */
-  userId?: string
-}
-
-/**
  * 사업자번호 입력이 필요한 요청의 공통 필드입니다.
  */
 export interface TaxInvoiceBusinessRequest {
@@ -515,191 +505,180 @@ export interface TaxInvoiceInfo {
  *
  * 모든 메서드는 `input`과 선택 `options`만 받으며,
  * 실패 시 `PopbillApiError`를 throw 합니다.
- *
- * `options.userId`는 요청 단위 사용자 컨텍스트를 강제할 때 사용합니다.
  */
 export interface TaxInvoiceService {
   /** 등록과 동시에 세금계산서를 즉시 발행합니다. */
   issueInvoiceImmediately(
     input: IssueInvoiceImmediatelyInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceRegistIssueApiResponse>
   /** 초대량 발행을 접수합니다. */
   submitBulkIssue(
     input: SubmitBulkIssueInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceBulkSubmitApiResponse>
   /** 초대량 발행 접수결과를 조회합니다. */
   getBulkIssueSubmissionResult(
     input: GetBulkIssueSubmissionResultInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceGetBulkResultApiResponse>
   /** 세금계산서를 임시저장합니다. */
-  registerInvoice(input: RegisterInvoiceInput, options?: TaxInvoiceRequestOptions): Promise<TaxInvoiceApiResponseBase>
+  registerInvoice(input: RegisterInvoiceInput, options?: Record<string, never>): Promise<TaxInvoiceApiResponseBase>
   /** 임시저장 문서를 수정합니다. */
-  updateInvoice(input: UpdateInvoiceInput, options?: TaxInvoiceRequestOptions): Promise<TaxInvoiceApiResponseBase>
+  updateInvoice(input: UpdateInvoiceInput, options?: Record<string, never>): Promise<TaxInvoiceApiResponseBase>
   /** 저장된 문서를 발행합니다. */
-  issueInvoice(input: IssueInvoiceInput, options?: TaxInvoiceRequestOptions): Promise<TaxInvoiceIssueApiResponse>
+  issueInvoice(input: IssueInvoiceInput, options?: Record<string, never>): Promise<TaxInvoiceIssueApiResponse>
   /** 발행된 문서를 취소합니다. */
   cancelIssuedInvoice(
     input: CancelIssuedInvoiceInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
   /** 등록과 동시에 역발행 요청을 보냅니다. */
   requestReverseIssueImmediately(
     input: RequestReverseIssueImmediatelyInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
   /** 저장된 문서로 역발행 요청을 보냅니다. */
   requestReverseIssue(
     input: RequestReverseIssueInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
   /** 역발행 요청을 취소합니다. */
   cancelReverseIssueRequest(
     input: CancelReverseIssueRequestInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
   /** 역발행 요청을 거부합니다. */
   refuseReverseIssueRequest(
     input: RefuseReverseIssueRequestInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
   /** 문서를 삭제합니다. */
-  deleteInvoice(
-    input: TaxInvoiceDocumentRequest,
-    options?: TaxInvoiceRequestOptions
-  ): Promise<TaxInvoiceApiResponseBase>
+  deleteInvoice(input: TaxInvoiceDocumentRequest, options?: Record<string, never>): Promise<TaxInvoiceApiResponseBase>
   /** 문서를 국세청으로 즉시 전송합니다. */
   sendInvoiceToNTS(
     input: TaxInvoiceDocumentRequest,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
 
   /** 문서 1건의 상태 요약정보를 조회합니다. */
-  getInvoiceInfo(input: TaxInvoiceDocumentRequest, options?: TaxInvoiceRequestOptions): Promise<TaxInvoiceInfo>
+  getInvoiceInfo(input: TaxInvoiceDocumentRequest, options?: Record<string, never>): Promise<TaxInvoiceInfo>
   /** 문서 다건의 상태 요약정보를 조회합니다. */
-  getInvoicesInfo(
-    input: GetInvoicesInfoInput,
-    options?: TaxInvoiceRequestOptions
-  ): Promise<TaxInvoiceGetInfosApiResponse>
+  getInvoicesInfo(input: GetInvoicesInfoInput, options?: Record<string, never>): Promise<TaxInvoiceGetInfosApiResponse>
   /** 문서 1건의 상세정보를 조회합니다. */
   getInvoiceDetailInfo(
     input: TaxInvoiceDocumentRequest,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceGetDetailInfoApiResponse>
   /** 문서번호 사용 여부를 확인합니다. */
-  checkInvoiceManagementKeyInUse(input: TaxInvoiceDocumentRequest, options?: TaxInvoiceRequestOptions): Promise<boolean>
+  checkInvoiceManagementKeyInUse(input: TaxInvoiceDocumentRequest, options?: Record<string, never>): Promise<boolean>
   /** 문서 XML 정보를 조회합니다. */
-  getInvoiceXML(
-    input: TaxInvoiceDocumentRequest,
-    options?: TaxInvoiceRequestOptions
-  ): Promise<TaxInvoiceGetXmlApiResponse>
+  getInvoiceXML(input: TaxInvoiceDocumentRequest, options?: Record<string, never>): Promise<TaxInvoiceGetXmlApiResponse>
   /** 검색조건으로 문서를 조회합니다. */
-  searchInvoices(input: SearchInvoicesInput, options?: TaxInvoiceRequestOptions): Promise<TaxInvoiceSearchApiResponse>
+  searchInvoices(input: SearchInvoicesInput, options?: Record<string, never>): Promise<TaxInvoiceSearchApiResponse>
   /** 문서 상태 변경이력을 조회합니다. */
   getInvoiceLogs(
     input: TaxInvoiceDocumentRequest,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceGetLogsApiResponse>
   /** 세금계산서 문서함 팝업 URL을 조회합니다. */
-  getTaxInvoiceBoxURL(input: GetTaxInvoiceBoxURLInput, options?: TaxInvoiceRequestOptions): Promise<string>
+  getTaxInvoiceBoxURL(input: GetTaxInvoiceBoxURLInput, options?: Record<string, never>): Promise<string>
 
   /** 문서 팝업 URL을 조회합니다. */
-  getInvoicePopupURL(input: TaxInvoiceDocumentRequest, options?: TaxInvoiceRequestOptions): Promise<string>
+  getInvoicePopupURL(input: TaxInvoiceDocumentRequest, options?: Record<string, never>): Promise<string>
   /** 보기 전용 팝업 URL을 조회합니다. */
-  getInvoiceViewURL(input: TaxInvoiceDocumentRequest, options?: TaxInvoiceRequestOptions): Promise<string>
+  getInvoiceViewURL(input: TaxInvoiceDocumentRequest, options?: Record<string, never>): Promise<string>
   /** 공급자 인쇄 팝업 URL을 조회합니다. */
-  getSupplierInvoicePrintURL(input: TaxInvoiceDocumentRequest, options?: TaxInvoiceRequestOptions): Promise<string>
+  getSupplierInvoicePrintURL(input: TaxInvoiceDocumentRequest, options?: Record<string, never>): Promise<string>
   /** 공급받는자 인쇄 팝업 URL을 조회합니다. */
-  getBuyerInvoicePrintURL(input: TaxInvoiceDocumentRequest, options?: TaxInvoiceRequestOptions): Promise<string>
+  getBuyerInvoicePrintURL(input: TaxInvoiceDocumentRequest, options?: Record<string, never>): Promise<string>
   /** 다건 인쇄 팝업 URL을 조회합니다. */
-  getBulkInvoicePrintURL(input: GetBulkInvoicePrintURLInput, options?: TaxInvoiceRequestOptions): Promise<string>
+  getBulkInvoicePrintURL(input: GetBulkInvoicePrintURLInput, options?: Record<string, never>): Promise<string>
   /** 메일 보기 URL을 조회합니다. */
-  getInvoiceMailURL(input: TaxInvoiceDocumentRequest, options?: TaxInvoiceRequestOptions): Promise<string>
+  getInvoiceMailURL(input: TaxInvoiceDocumentRequest, options?: Record<string, never>): Promise<string>
   /** PDF 다운로드 URL을 조회합니다. */
-  getInvoicePDFURL(input: TaxInvoiceDocumentRequest, options?: TaxInvoiceRequestOptions): Promise<string>
+  getInvoicePDFURL(input: TaxInvoiceDocumentRequest, options?: Record<string, never>): Promise<string>
 
   /** 인감 및 첨부문서 등록 URL을 조회합니다. */
   getSealAndAttachmentRegistrationURL(
     input: GetSealAndAttachmentRegistrationURLInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceGetSealUrlApiResponse>
   /** 파일 경로 기반 첨부를 수행합니다. */
   attachFileFromPath(
     input: AttachFileFromPathInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
   /** 바이너리 기반 첨부를 수행합니다. */
   attachFileFromBinary(
     input: AttachFileFromBinaryInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
   /** 첨부파일을 삭제합니다. */
   deleteAttachedFile(
     input: DeleteAttachedFileInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
   /** 첨부파일 목록을 조회합니다. */
   getAttachedFiles(
     input: TaxInvoiceDocumentRequest,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceGetFilesApiResponse>
   /** 안내 메일을 재전송합니다. */
   resendInvoiceEmail(
     input: ResendInvoiceEmailInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
   /** 안내 문자를 재전송합니다. */
-  resendInvoiceSMS(input: ResendInvoiceSMSInput, options?: TaxInvoiceRequestOptions): Promise<TaxInvoiceApiResponseBase>
+  resendInvoiceSMS(input: ResendInvoiceSMSInput, options?: Record<string, never>): Promise<TaxInvoiceApiResponseBase>
   /** 안내 팩스를 재전송합니다. */
-  resendInvoiceFAX(input: ResendInvoiceFAXInput, options?: TaxInvoiceRequestOptions): Promise<TaxInvoiceApiResponseBase>
+  resendInvoiceFAX(input: ResendInvoiceFAXInput, options?: Record<string, never>): Promise<TaxInvoiceApiResponseBase>
   /** 전자명세서를 첨부합니다. */
   attachInvoiceStatement(
     input: AttachInvoiceStatementInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
   /** 전자명세서 첨부를 해제합니다. */
   detachInvoiceStatement(
     input: DetachInvoiceStatementInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
   /** 문서번호를 할당합니다. */
   assignInvoiceManagementKey(
     input: AssignInvoiceManagementKeyInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
   /** 이메일 발송설정을 조회합니다. */
   getEmailSendSettings(
     input: TaxInvoiceBusinessRequest,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceListEmailConfigApiResponse>
   /** 이메일 발송설정을 수정합니다. */
   updateEmailSendSettings(
     input: UpdateEmailSendSettingsInput,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
   /** 국세청 전송설정을 조회합니다. */
   getSendToNTSSettings(
     input: TaxInvoiceBusinessRequest,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceGetSendToNTSConfigApiResponse>
 
   /** 인증서 등록 URL을 조회합니다. */
   getTaxCertificateRegistrationURL(
     input: TaxInvoiceBusinessRequest,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceGetTaxCertUrlApiResponse>
   /** 인증서 만료일을 조회합니다. */
-  getTaxCertificateExpirationDate(input: TaxInvoiceBusinessRequest, options?: TaxInvoiceRequestOptions): Promise<string>
+  getTaxCertificateExpirationDate(input: TaxInvoiceBusinessRequest, options?: Record<string, never>): Promise<string>
   /** 인증서 유효성을 점검합니다. */
   checkTaxCertificateValidation(
     input: TaxInvoiceBusinessRequest,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceApiResponseBase>
   /** 인증서 정보를 조회합니다. */
   getTaxCertificateInfo(
     input: TaxInvoiceBusinessRequest,
-    options?: TaxInvoiceRequestOptions
+    options?: Record<string, never>
   ): Promise<TaxInvoiceGetTaxCertInfoApiResponse>
 }

@@ -14,16 +14,54 @@ import type {
   TaxInvoiceGetSendToNTSConfigApiResponse,
   TaxInvoiceGetTaxCertInfoApiResponse,
   TaxInvoiceGetTaxCertUrlApiResponse,
-  TaxInvoiceGetUrlTogo,
   TaxInvoiceGetXmlApiResponse,
   TaxInvoiceIssueApiResponse,
   TaxInvoiceListEmailConfigApiResponse,
-  TaxInvoiceMgtKeyType,
   TaxInvoiceRegistIssueApiResponse,
   TaxInvoiceSearchApiResponse,
 } from '@connextable/popbill-spec'
 import type { CallbackService } from '@/adapters/callback-adapter'
 import type { PromiseService } from '@/adapters/promise-adapter'
+
+/**
+ * 세금계산서 문서번호 유형 상수입니다.
+ */
+export const TaxinvoiceDocumentKeyTypes = {
+  /** 코드: `SELL`, 설명: 매출 문서번호 유형 */
+  Sales: 'SELL',
+  /** 코드: `BUY`, 설명: 매입 문서번호 유형 */
+  Purchase: 'BUY',
+  /** 코드: `TRUSTEE`, 설명: 위수탁 문서번호 유형 */
+  Trustee: 'TRUSTEE',
+} as const
+
+/**
+ * 세금계산서 문서번호 유형입니다.
+ */
+export type TaxinvoiceDocumentKeyType = (typeof TaxinvoiceDocumentKeyTypes)[keyof typeof TaxinvoiceDocumentKeyTypes]
+
+/**
+ * 세금계산서 문서함 접근 메뉴 상수입니다.
+ */
+export const TaxinvoiceBoxScopes = {
+  /** 코드: `TBOX`, 설명: 임시 문서함 */
+  TemporaryDocumentBox: 'TBOX',
+  /** 코드: `SWBOX`, 설명: 매출 발행 대기함 */
+  SalesIssueWaitingBox: 'SWBOX',
+  /** 코드: `SBOX`, 설명: 매출 문서함 */
+  SalesDocumentBox: 'SBOX',
+  /** 코드: `PWBOX`, 설명: 매입 발행 대기함 */
+  PurchaseIssueWaitingBox: 'PWBOX',
+  /** 코드: `PBOX`, 설명: 매입 문서함 */
+  PurchaseDocumentBox: 'PBOX',
+  /** 코드: `WRITE`, 설명: 정발행 작성 */
+  WriteInvoice: 'WRITE',
+} as const
+
+/**
+ * 세금계산서 문서함 접근 메뉴 값입니다.
+ */
+export type TaxinvoiceBoxScope = (typeof TaxinvoiceBoxScopes)[keyof typeof TaxinvoiceBoxScopes]
 
 export type LegacySuccessCallback<T> = (response: T) => void
 
@@ -36,10 +74,10 @@ interface LegacyCallbackWithUserId<TArgs extends unknown[], TResult> {
 }
 
 interface LegacySendCallback {
-  (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo: string): void
+  (corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     success: LegacySuccessCallback<TaxInvoiceApiResponseBase>,
@@ -47,7 +85,7 @@ interface LegacySendCallback {
   ): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     userId: string,
@@ -56,7 +94,7 @@ interface LegacySendCallback {
   ): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     emailSubject: string,
@@ -65,7 +103,7 @@ interface LegacySendCallback {
   ): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     emailSubject: string,
@@ -76,26 +114,26 @@ interface LegacySendCallback {
 }
 
 interface LegacyIssueCallback {
-  (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string): void
+  (corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     success: LegacySuccessCallback<TaxInvoiceIssueApiResponse>,
     error?: LegacyErrorCallback
   ): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId: string,
     success: LegacySuccessCallback<TaxInvoiceIssueApiResponse>,
     error?: LegacyErrorCallback
   ): void
-  (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo: string): void
+  (corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     success: LegacySuccessCallback<TaxInvoiceIssueApiResponse>,
@@ -103,7 +141,7 @@ interface LegacyIssueCallback {
   ): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     userId: string,
@@ -112,7 +150,7 @@ interface LegacyIssueCallback {
   ): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     forceIssue: boolean,
@@ -121,7 +159,7 @@ interface LegacyIssueCallback {
   ): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     forceIssue: boolean,
@@ -131,7 +169,7 @@ interface LegacyIssueCallback {
   ): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     emailSubject: string,
@@ -140,7 +178,7 @@ interface LegacyIssueCallback {
   ): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     emailSubject: string,
@@ -150,7 +188,7 @@ interface LegacyIssueCallback {
   ): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     emailSubject: string,
@@ -160,7 +198,7 @@ interface LegacyIssueCallback {
   ): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     emailSubject: string,
@@ -174,7 +212,7 @@ interface LegacyIssueCallback {
 interface LegacySearchCallback {
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     dType: string,
     startDate: string,
     endDate: string,
@@ -188,7 +226,7 @@ interface LegacySearchCallback {
   ): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     dType: string,
     startDate: string,
     endDate: string,
@@ -204,7 +242,7 @@ interface LegacySearchCallback {
   ): void
   (
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     dType: string,
     startDate: string,
     endDate: string,
@@ -316,12 +354,12 @@ export interface TaxinvoiceCallbackService extends CallbackService {
   getBulkResult: LegacyCallbackWithUserId<[corpNum: string, submitID: string], TaxInvoiceGetBulkResultApiResponse>
   register: LegacyCallbackWithUserId<[corpNum: string, taxinvoice: TaxInvoiceApiModel], TaxInvoiceApiResponseBase>
   update: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, taxinvoice: TaxInvoiceApiModel],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, taxinvoice: TaxInvoiceApiModel],
     TaxInvoiceApiResponseBase
   >
   issue: LegacyIssueCallback
   cancelIssue: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
     TaxInvoiceApiResponseBase
   >
   registRequest: LegacyCallbackWithUserId<
@@ -329,94 +367,97 @@ export interface TaxinvoiceCallbackService extends CallbackService {
     TaxInvoiceApiResponseBase
   >
   request: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
     TaxInvoiceApiResponseBase
   >
   cancelRequest: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
     TaxInvoiceApiResponseBase
   >
   refuse: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
     TaxInvoiceApiResponseBase
   >
   delete: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     TaxInvoiceApiResponseBase
   >
   sendToNTS: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     TaxInvoiceApiResponseBase
   >
 
   // 정보확인
   getInfo: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     TaxInvoiceGetInfoApiResponse
   >
   getInfos: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[]],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKeyList: string[]],
     TaxInvoiceGetInfosApiResponse
   >
   getDetailInfo: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     TaxInvoiceGetDetailInfoApiResponse
   >
-  checkMgtKeyInUse: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string], boolean>
+  checkMgtKeyInUse: LegacyCallbackWithUserId<
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
+    boolean
+  >
   getXML: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     TaxInvoiceGetXmlApiResponse
   >
   search: LegacySearchCallback
   getLogs: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     TaxInvoiceGetLogsApiResponse
   >
-  getURL: LegacyCallbackWithUserId<[corpNum: string, togo: TaxInvoiceGetUrlTogo], string>
+  getURL: LegacyCallbackWithUserId<[corpNum: string, togo: TaxinvoiceBoxScope], string>
 
   // 보기/인쇄
-  getPopUpURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string], string>
-  getViewURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string], string>
-  getPrintURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string], string>
-  getEPrintURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string], string>
+  getPopUpURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], string>
+  getViewURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], string>
+  getPrintURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], string>
+  getEPrintURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], string>
   getMassPrintURL: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[]],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKeyList: string[]],
     string
   >
-  getMailURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string], string>
-  getPDFURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string], string>
+  getMailURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], string>
+  getPDFURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], string>
 
   // 부가기능
   getSealURL: LegacyCallbackWithUserId<[corpNum: string], TaxInvoiceGetSealUrlApiResponse>
   attachFile: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, displayName: string, filePath: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, displayName: string, filePath: string],
     TaxInvoiceApiResponseBase
   >
   attachFileBinary: LegacyCallbackWithUserId<
     [
       corpNum: string,
-      keyType: TaxInvoiceMgtKeyType,
+      keyType: TaxinvoiceDocumentKeyType,
       mgtKey: string,
       binaryFile: { fileName: string; fileData: Buffer },
     ],
     TaxInvoiceApiResponseBase
   >
   deleteFile: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, fileID: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, fileID: string],
     TaxInvoiceApiResponseBase
   >
   getFiles: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     TaxInvoiceGetFilesApiResponse
   >
   sendEmail: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, receiver: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, receiver: string],
     TaxInvoiceApiResponseBase
   >
   sendSMS: LegacyCallbackWithUserId<
     [
       corpNum: string,
-      keyType: TaxInvoiceMgtKeyType,
+      keyType: TaxinvoiceDocumentKeyType,
       mgtKey: string,
       sender: string,
       receiver: string,
@@ -425,19 +466,19 @@ export interface TaxinvoiceCallbackService extends CallbackService {
     TaxInvoiceApiResponseBase
   >
   sendFAX: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, sender: string, receiver: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, sender: string, receiver: string],
     TaxInvoiceApiResponseBase
   >
   attachStatement: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, subItemCode: number, subMgtKey: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, subItemCode: number, subMgtKey: string],
     TaxInvoiceApiResponseBase
   >
   detachStatement: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, subItemCode: number, subMgtKey: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, subItemCode: number, subMgtKey: string],
     TaxInvoiceApiResponseBase
   >
   assignMgtKey: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, itemKey: string, mgtKey: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, itemKey: string, mgtKey: string],
     TaxInvoiceApiResponseBase
   >
   listEmailConfig: LegacyCallbackWithUserId<[corpNum: string], TaxInvoiceListEmailConfigApiResponse>
@@ -458,20 +499,23 @@ export interface TaxinvoiceCallbackService extends CallbackService {
   getUnitCost: LegacyCallbackWithUserId<[corpNum: string], number>
   send: LegacySendCallback
   cancelSend: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
     TaxInvoiceApiResponseBase
   >
   accept: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
     TaxInvoiceApiResponseBase
   >
   deny: LegacyCallbackWithUserId<
-    [corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo: string],
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
     TaxInvoiceApiResponseBase
   >
-  getOldPrintURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string], string>
+  getOldPrintURL: LegacyCallbackWithUserId<
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
+    string
+  >
   getEmailPublicKeys: LegacyCallbackWithUserId<[corpNum: string], TaxInvoiceApiResponseBase>
-  getPDF: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string], Buffer>
+  getPDF: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], Buffer>
 }
 
 /**
@@ -500,14 +544,14 @@ export interface TaxinvoicePromiseService extends PromiseService {
   register(corpNum: string, taxinvoice: TaxInvoiceApiModel, userId?: string): Promise<TaxInvoiceApiResponseBase>
   update(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     taxinvoice: TaxInvoiceApiModel,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
   issue(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     emailSubject?: string,
@@ -516,7 +560,7 @@ export interface TaxinvoicePromiseService extends PromiseService {
   ): Promise<TaxInvoiceIssueApiResponse>
   cancelIssue(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     userId?: string
@@ -529,34 +573,34 @@ export interface TaxinvoicePromiseService extends PromiseService {
   ): Promise<TaxInvoiceApiResponseBase>
   request(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
   cancelRequest(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
   refuse(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
   delete(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
   sendToNTS(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
@@ -564,32 +608,37 @@ export interface TaxinvoicePromiseService extends PromiseService {
   // 정보확인
   getInfo(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceGetInfoApiResponse>
   getInfos(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKeyList: string[],
     userId?: string
   ): Promise<TaxInvoiceGetInfosApiResponse>
   getDetailInfo(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceGetDetailInfoApiResponse>
-  checkMgtKeyInUse(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<boolean>
+  checkMgtKeyInUse(
+    corpNum: string,
+    keyType: TaxinvoiceDocumentKeyType,
+    mgtKey: string,
+    userId?: string
+  ): Promise<boolean>
   getXML(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceGetXmlApiResponse>
   search(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     dType: string,
     startDate: string,
     endDate: string,
@@ -613,31 +662,31 @@ export interface TaxinvoicePromiseService extends PromiseService {
   ): Promise<TaxInvoiceSearchApiResponse>
   getLogs(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceGetLogsApiResponse>
-  getURL(corpNum: string, togo: TaxInvoiceGetUrlTogo, userId?: string): Promise<string>
+  getURL(corpNum: string, togo: TaxinvoiceBoxScope, userId?: string): Promise<string>
 
   // 보기/인쇄
-  getPopUpURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<string>
-  getViewURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<string>
-  getPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<string>
-  getEPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<string>
+  getPopUpURL(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<string>
+  getViewURL(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<string>
+  getPrintURL(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<string>
+  getEPrintURL(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<string>
   getMassPrintURL(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKeyList: string[],
     userId?: string
   ): Promise<string>
-  getMailURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<string>
-  getPDFURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<string>
+  getMailURL(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<string>
+  getPDFURL(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<string>
 
   // 부가기능
   getSealURL(corpNum: string, userId?: string): Promise<TaxInvoiceGetSealUrlApiResponse>
   attachFile(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     displayName: string,
     filePath: string,
@@ -645,34 +694,34 @@ export interface TaxinvoicePromiseService extends PromiseService {
   ): Promise<TaxInvoiceApiResponseBase>
   attachFileBinary(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     binaryFile: { fileName: string; fileData: Buffer },
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
   deleteFile(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     fileID: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
   getFiles(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceGetFilesApiResponse>
   sendEmail(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     receiver: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
   sendSMS(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     sender: string,
     receiver: string,
@@ -681,7 +730,7 @@ export interface TaxinvoicePromiseService extends PromiseService {
   ): Promise<TaxInvoiceApiResponseBase>
   sendFAX(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     sender: string,
     receiver: string,
@@ -689,7 +738,7 @@ export interface TaxinvoicePromiseService extends PromiseService {
   ): Promise<TaxInvoiceApiResponseBase>
   attachStatement(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     subItemCode: number,
     subMgtKey: string,
@@ -697,7 +746,7 @@ export interface TaxinvoicePromiseService extends PromiseService {
   ): Promise<TaxInvoiceApiResponseBase>
   detachStatement(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     subItemCode: number,
     subMgtKey: string,
@@ -705,7 +754,7 @@ export interface TaxinvoicePromiseService extends PromiseService {
   ): Promise<TaxInvoiceApiResponseBase>
   assignMgtKey(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     itemKey: string,
     mgtKey: string,
     userId?: string
@@ -730,7 +779,7 @@ export interface TaxinvoicePromiseService extends PromiseService {
   getUnitCost(corpNum: string, userId?: string): Promise<number>
   send(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     emailSubject?: string,
@@ -738,26 +787,26 @@ export interface TaxinvoicePromiseService extends PromiseService {
   ): Promise<TaxInvoiceApiResponseBase>
   cancelSend(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
   accept(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
   deny(
     corpNum: string,
-    keyType: TaxInvoiceMgtKeyType,
+    keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     memo: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
-  getOldPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<string>
+  getOldPrintURL(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<string>
   getEmailPublicKeys(corpNum: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
-  getPDF(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string): Promise<Buffer>
+  getPDF(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<Buffer>
 }

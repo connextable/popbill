@@ -10,6 +10,7 @@ const DEFAULT_ACCEPT_ENCODING = 'gzip'
 interface ResolvedPopbillClientConfig {
   linkId: string
   secretKey: string
+  userId: string
   isTest: boolean
   useStaticIp: boolean
   useGaIp: boolean
@@ -30,6 +31,7 @@ export function createPopbillClient(config: PopbillClientConfig): PopbillClient 
 
   const taxInvoiceService = createTaxInvoiceService({
     compatTaxInvoiceService,
+    defaultUserId: normalizedConfig.userId,
     onError: normalizedConfig.onError,
   })
 
@@ -46,10 +48,12 @@ export function createPopbillClient(config: PopbillClientConfig): PopbillClient 
 function normalizeClientConfiguration(config: PopbillClientConfig): ResolvedPopbillClientConfig {
   const linkId = normalizeRequiredString(config.linkId, 'linkId는 필수입니다.')
   const secretKey = normalizeRequiredString(config.secretKey, 'secretKey는 필수입니다.')
+  const userId = normalizeRequiredString(config.userId, 'userId는 필수입니다.')
 
   return {
     linkId,
     secretKey,
+    userId,
     isTest: config.isTest ?? false,
     useStaticIp: config.useStaticIp ?? false,
     useGaIp: config.useGaIp ?? false,
