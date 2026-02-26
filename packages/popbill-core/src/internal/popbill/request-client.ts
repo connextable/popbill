@@ -17,7 +17,7 @@ export interface PopbillRequestClientConfig {
   apiBaseUrl: string
   timeoutMs: number
   tokenProvider: TokenProvider
-  acceptEncoding: string | null
+  acceptEncoding?: string | null
   acceptLanguage?: string
 }
 
@@ -57,7 +57,7 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
       }
 
       if (config.acceptEncoding !== null) {
-        requestHeaders['Accept-Encoding'] = config.acceptEncoding
+        requestHeaders['Accept-Encoding'] = config.acceptEncoding === undefined ? 'gzip' : config.acceptEncoding
       }
 
       if (normalizedAcceptLanguage) {
