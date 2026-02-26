@@ -362,7 +362,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
           interoperabilityType: '1',
           issueTypeCodes: ['N'],
           registrationTypeCodes: ['P'],
-          closeDownStateCodes: ['N', '0', '4'],
+          closeDownStateCodes: ['0', '4'],
           invoiceManagementKeyOrNationalTaxServiceConfirmationNumber: 'MGT-001',
         },
         REQUEST_OPTIONS
@@ -717,6 +717,15 @@ const FORWARDING_CASES: ForwardingCase[] = [
   },
 ]
 
+const FORWARDING_CASES_WITH_EXPECTED_RESULT = FORWARDING_CASES.filter(
+  (testCase): testCase is ForwardingCase & Required<Pick<ForwardingCase, 'expectedResult'>> =>
+    testCase.expectedResult !== undefined
+)
+
+const FORWARDING_CASES_WITHOUT_EXPECTED_RESULT = FORWARDING_CASES.filter(
+  (testCase) => testCase.expectedResult === undefined
+)
+
 describe('tax-invoice facade adapter', () => {
   test('forwarding cases cover all public methods', () => {
     const coveredMethods = [...new Set(FORWARDING_CASES.map((testCase) => testCase.facadeMethod))].sort()
@@ -726,7 +735,7 @@ describe('tax-invoice facade adapter', () => {
     expect(coveredMethods).toHaveLength(46)
   })
 
-  for (const testCase of FORWARDING_CASES) {
+  for (const testCase of FORWARDING_CASES_WITH_EXPECTED_RESULT) {
     test(`${testCase.facadeMethod} forwards to ${testCase.compatMethod}`, async () => {
       const compatMethodMock = vi.fn(() => Promise.resolve(testCase.response))
       const service = createTaxInvoiceService({
@@ -740,10 +749,25 @@ describe('tax-invoice facade adapter', () => {
 
       expect(compatMethodMock).toHaveBeenCalledTimes(1)
       expect(compatMethodMock).toHaveBeenCalledWith(...testCase.expectedArgs)
+      expect(result).toMatchObject(testCase.expectedResult)
+    })
+  }
 
-      expect({ result }).toMatchObject({
-        result: testCase.expectedResult ?? testCase.response,
+  for (const testCase of FORWARDING_CASES_WITHOUT_EXPECTED_RESULT) {
+    test(`${testCase.facadeMethod} forwards to ${testCase.compatMethod}`, async () => {
+      const compatMethodMock = vi.fn(() => Promise.resolve(testCase.response))
+      const service = createTaxInvoiceService({
+        defaultUserId: USER_ID,
+        compatTaxInvoiceService: createCompatServiceStub({
+          [testCase.compatMethod]: compatMethodMock,
+        } as Partial<CompatTaxInvoiceService>),
       })
+
+      const result = await testCase.invoke(service)
+
+      expect(compatMethodMock).toHaveBeenCalledTimes(1)
+      expect(compatMethodMock).toHaveBeenCalledWith(...testCase.expectedArgs)
+      expect(result).toBeDefined()
     })
   }
 
@@ -795,35 +819,36 @@ describe('tax-invoice facade adapter', () => {
     expect(getURL).toHaveBeenCalledWith(BUSINESS_NUMBER, 'TBOX', 'default-user')
   })
 
-  test('normalizes closeDownStateCodes to undefined when values are not numeric', async () => {
+  test('throws input validation error when closeDownStateCodes include unsupported value', async () => {
     const search = vi.fn((..._args: unknown[]) => Promise.resolve(SEARCH_RESPONSE))
     const service = createTaxInvoiceService({
       defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ search }),
     })
+    const invalidSearchInput = {
+      businessNumber: BUSINESS_NUMBER,
+      invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+      searchDateType: 'R',
+      startDate: '20260201',
+      endDate: '20260228',
+      invoiceStateCodes: ['100'],
+      invoiceTypeCodes: ['N'],
+      taxationTypeCodes: ['T'],
+      lateIssueOnly: null,
+      sortOrder: 'D',
+      pageNumber: 1,
+      pageSize: 500,
+      closeDownStateCodes: ['N'],
+    } as unknown as Parameters<TaxInvoiceService['searchInvoices']>[0]
 
-    await service.searchInvoices(
-      {
-        businessNumber: BUSINESS_NUMBER,
-        invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-        searchDateType: 'R',
-        startDate: '20260201',
-        endDate: '20260228',
-        invoiceStateCodes: ['100'],
-        invoiceTypeCodes: ['N'],
-        taxationTypeCodes: ['T'],
-        lateIssueOnly: null,
-        sortOrder: 'D',
-        pageNumber: 1,
-        pageSize: 500,
-        closeDownStateCodes: ['N'],
-      },
-      REQUEST_OPTIONS
-    )
+    await expect(service.searchInvoices(invalidSearchInput, REQUEST_OPTIONS)).rejects.toMatchObject({
+      code: -99999999,
+      type: PopbillErrorType.InputValidation,
+      stage: PopbillErrorStage.ValidateInput,
+      operation: 'taxInvoice.searchInvoices',
+    })
 
-    expect(search).toHaveBeenCalledTimes(1)
-    const firstCallArgs = search.mock.calls[0] as unknown[] | undefined
-    expect(firstCallArgs?.[20]).toBeUndefined()
+    expect(search).not.toHaveBeenCalled()
   })
 
   test('keeps closeDownStateCodes undefined when the option is omitted', async () => {

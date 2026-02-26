@@ -20,7 +20,7 @@ export function mapTaxInvoiceInfo(response: TaxInvoiceGetInfoApiResponse): TaxIn
     isOpen: toBoolean(response.openYN),
     openedAt: response.openDT,
     stateMemo: response.stateMemo,
-    stateCode: typeof response.stateCode === 'string' ? Number(response.stateCode) : response.stateCode,
+    stateCode: toRequiredStateCode(response.stateCode),
     stateChangedAt: response.stateDT,
     nationalTaxServiceConfirmationNumber: response.ntsconfirmNum,
     nationalTaxServiceResult: response.ntsresult,
@@ -44,4 +44,19 @@ export function mapTaxInvoiceInfo(response: TaxInvoiceGetInfoApiResponse): TaxIn
     trusteeManagementKey: response.trusteeMgtKey,
     isTrusteePrinted: response.trusteePrintYN === undefined ? undefined : toBoolean(response.trusteePrintYN),
   }
+}
+
+function toRequiredStateCode(value: number | string): number {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value
+  }
+
+  if (typeof value === 'string') {
+    const normalizedNumber = Number(value)
+    if (Number.isFinite(normalizedNumber)) {
+      return normalizedNumber
+    }
+  }
+
+  throw new Error(`유효하지 않은 stateCode 응답값입니다. (${String(value)})`)
 }

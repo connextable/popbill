@@ -48,7 +48,7 @@ export function mapTaxInvoiceOperationResult(
   taxInvoiceApiResponse: TaxInvoiceApiResponseBase | { code: number | string; message: string }
 ): TaxInvoiceOperationResult {
   return {
-    resultCode: toOptionalNumber(taxInvoiceApiResponse.code) ?? 0,
+    resultCode: toRequiredNumber(taxInvoiceApiResponse.code, 'code'),
     resultMessage: taxInvoiceApiResponse.message,
   }
 }
@@ -452,6 +452,15 @@ function toOptionalNumber(value: number | string | undefined): number | undefine
 
   const normalizedNumber = Number(value)
   return Number.isFinite(normalizedNumber) ? normalizedNumber : undefined
+}
+
+function toRequiredNumber(value: number | string | undefined, fieldName: string): number {
+  const normalizedNumber = toOptionalNumber(value)
+  if (normalizedNumber !== undefined) {
+    return normalizedNumber
+  }
+
+  throw new Error(`유효하지 않은 ${fieldName} 응답값입니다. (${String(value)})`)
 }
 
 /**

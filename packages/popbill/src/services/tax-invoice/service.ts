@@ -20,10 +20,9 @@ import {
   mapTaxInvoiceTaxCertificateInfo,
   mapTaxInvoiceXmlResult,
 } from './mappers/response'
-import type { TaxInvoiceService } from './types'
-import type { TaxInvoiceSearchCloseDownState } from '@connextable/popbill-spec'
+import type { TaxInvoiceCloseDownStateCode, TaxInvoiceService } from './types'
 import type { TaxinvoicePromiseService as CompatTaxInvoiceService } from '@connextable/popbill-compat/factory'
-import type { PopbillApiError } from '@/errors'
+import { PopbillErrorStage, createInputValidationError, type PopbillApiError } from '@/errors'
 
 interface CreateTaxInvoiceServiceInput {
   compatTaxInvoiceService: CompatTaxInvoiceService
@@ -670,15 +669,38 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
  * 검색조건의 휴폐업상태 코드를 compat 입력 형식(`0 | 1 | 2 | 3 | 4`)으로 정규화합니다.
  */
 function mapSearchCloseDownStateCodes(
-  closeDownStateCodes: TaxInvoiceSearchCloseDownState[] | undefined
+  closeDownStateCodes: TaxInvoiceCloseDownStateCode[] | undefined
 ): (0 | 1 | 2 | 3 | 4)[] | undefined {
   if (!closeDownStateCodes) {
     return undefined
   }
 
-  const normalizedCloseDownStateCodes = closeDownStateCodes
-    .map((code) => Number(code))
-    .filter((code): code is 0 | 1 | 2 | 3 | 4 => code === 0 || code === 1 || code === 2 || code === 3 || code === 4)
+  const normalizedCloseDownStateCodes: (0 | 1 | 2 | 3 | 4)[] = []
+  for (const closeDownStateCode of closeDownStateCodes) {
+    const normalizedCloseDownStateCode = Number(closeDownStateCode)
+
+    if (
+      normalizedCloseDownStateCode === 0 ||
+      normalizedCloseDownStateCode === 1 ||
+      normalizedCloseDownStateCode === 2
+    ) {
+      normalizedCloseDownStateCodes.push(normalizedCloseDownStateCode)
+      continue
+    }
+
+    if (normalizedCloseDownStateCode === 3 || normalizedCloseDownStateCode === 4) {
+      normalizedCloseDownStateCodes.push(normalizedCloseDownStateCode)
+      continue
+    }
+
+    throw createInputValidationError(
+      `closeDownStateCodes에 유효하지 않은 값이 있어. 허용값: 0, 1, 2, 3, 4 (입력값: ${String(closeDownStateCode)})`,
+      {
+        operation: 'taxInvoice.searchInvoices',
+        stage: PopbillErrorStage.ValidateInput,
+      }
+    )
+  }
 
   return normalizedCloseDownStateCodes.length > 0 ? normalizedCloseDownStateCodes : undefined
 }

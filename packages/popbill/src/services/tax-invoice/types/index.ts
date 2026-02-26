@@ -111,8 +111,6 @@ export type TaxInvoiceBoxScope = (typeof TaxInvoiceBoxScopes)[keyof typeof TaxIn
  * 검색 조건의 휴폐업 상태 상수입니다.
  */
 export const TaxInvoiceCloseDownStateCodes = {
-  /** 코드: `N`, 설명: 미확인 */
-  NotChecked: 'N',
   /** 코드: `0`, 설명: 미등록 */
   NotRegistered: '0',
   /** 코드: `1`, 설명: 사업중 */

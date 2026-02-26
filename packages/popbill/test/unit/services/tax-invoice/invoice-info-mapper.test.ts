@@ -47,4 +47,13 @@ describe('tax-invoice invoice-info mapper', () => {
     expect(result.stateCode).toBe(301)
     expect(result.isTrusteePrinted).toBe(true)
   })
+
+  test('throws when stateCode is not numeric', () => {
+    expect(() =>
+      mapTaxInvoiceInfo({
+        ...BASE_RESPONSE,
+        stateCode: 'invalid',
+      } as unknown as TaxInvoiceGetInfoApiResponse)
+    ).toThrow('유효하지 않은 stateCode 응답값입니다.')
+  })
 })

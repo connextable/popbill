@@ -27,4 +27,24 @@ describe('createPopbillClient', () => {
       })
     ).toThrow('userId는 필수입니다.')
   })
+
+  test('throws when requestTimeoutMs is not positive integer', () => {
+    expect(() =>
+      sdk.createPopbillClient({
+        linkId: 'TEST_LINK_ID',
+        secretKey: Buffer.from('secret').toString('base64'),
+        userId: 'test-user',
+        requestTimeoutMs: 0,
+      })
+    ).toThrow('requestTimeoutMs는 1 이상의 정수여야 합니다.')
+
+    expect(() =>
+      sdk.createPopbillClient({
+        linkId: 'TEST_LINK_ID',
+        secretKey: Buffer.from('secret').toString('base64'),
+        userId: 'test-user',
+        requestTimeoutMs: 10.5,
+      })
+    ).toThrow('requestTimeoutMs는 1 이상의 정수여야 합니다.')
+  })
 })

@@ -61,7 +61,19 @@ function normalizeClientConfiguration(config: PopbillClientConfig): ResolvedPopb
     ipRestrictOnOff: config.ipRestrictOnOff ?? true,
     acceptEncoding: config.acceptEncoding === undefined ? DEFAULT_ACCEPT_ENCODING : config.acceptEncoding,
     acceptLanguage: normalizeOptionalString(config.acceptLanguage),
-    requestTimeoutMilliseconds: config.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MILLISECONDS,
+    requestTimeoutMilliseconds: normalizeRequestTimeoutMilliseconds(config.requestTimeoutMs),
     onError: config.onError,
   }
+}
+
+function normalizeRequestTimeoutMilliseconds(requestTimeoutMs: number | undefined): number {
+  if (requestTimeoutMs === undefined) {
+    return DEFAULT_REQUEST_TIMEOUT_MILLISECONDS
+  }
+
+  if (!Number.isInteger(requestTimeoutMs) || requestTimeoutMs <= 0) {
+    throw new Error('requestTimeoutMs는 1 이상의 정수여야 합니다.')
+  }
+
+  return requestTimeoutMs
 }
