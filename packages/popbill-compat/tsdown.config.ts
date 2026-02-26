@@ -6,6 +6,7 @@ export default defineConfig({
     'src/factory/index.ts',
     'src/promise/index.ts',
   ],
+  dts: { build: true },
   shims: true,
   format: ['esm', 'cjs'],
   exports: false,

@@ -24,5 +24,6 @@ regist
 retriable
 seongjun
 taxinvoice
+tsgo
 unstub
 usercode

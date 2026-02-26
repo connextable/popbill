@@ -6,6 +6,9 @@ export default defineConfig({
     'src/tax-invoice/index.ts',
     'src/tax-invoice/shims/index.ts',
   ],
+  dts: {
+    build: true,
+  },
   shims: true,
   format: ['esm'],
   exports: false,

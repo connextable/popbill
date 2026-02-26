@@ -35,7 +35,7 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src test --ext .ts",
     "lint:fix": "eslint src test --ext .ts --fix",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsgo -b --noEmit",
     "clean": "del node_modules dist"
   },
   "dependencies": {

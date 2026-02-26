@@ -17,7 +17,7 @@
     "build": "tsdown",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsgo -b --noEmit",
     "clean": "del node_modules dist"
   },
   "sideEffects": false

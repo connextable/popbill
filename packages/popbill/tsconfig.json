@@ -1,34 +1,14 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@connextable/popbill-spec": [
-        "../popbill-spec/src/index.ts"
-      ],
-      "@connextable/popbill-spec/*": [
-        "../popbill-spec/src/*"
-      ],
-      "@connextable/popbill-compat/factory": [
-        "../popbill-compat/dist/factory/index.d.mts"
-      ]
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
     },
-    "types": [
-      "node",
-      "vitest/globals"
-    ]
-  },
-  "include": [
-    "src",
-    "test",
-    "tsdown.config.ts",
-    "vitest.config.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
+    {
+      "path": "./tsconfig.test.json"
+    },
+    {
+      "path": "./tsconfig.config.json"
+    },
   ]
 }
