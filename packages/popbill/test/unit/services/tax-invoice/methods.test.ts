@@ -34,6 +34,7 @@ describe('tax-invoice methods surface', () => {
     const client = createPopbillClient({
       linkId: 'TEST_LINK_ID',
       secretKey: Buffer.from('secret').toString('base64'),
+      userId: 'test-user',
       isTest: true,
     })
 

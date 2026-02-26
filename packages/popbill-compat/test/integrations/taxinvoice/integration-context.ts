@@ -1,4 +1,5 @@
-import { createPopbillClient } from '@/index'
+import * as promiseCompat from '@/promise/index'
+import { TaxinvoiceBoxScopes } from '@/services/taxinvoice'
 
 const REQUIRED_ENV_NAMES = ['POPBILL_LINK_ID', 'POPBILL_SECRET_KEY', 'POPBILL_CORP_NUM', 'POPBILL_USER_ID'] as const
 const RUN_INTEGRATION_TESTS = normalizeBooleanEnv(process.env['POPBILL_RUN_INTEGRATION_TESTS'])
@@ -27,27 +28,32 @@ if (RUN_INTEGRATION_TESTS && !hasRequiredEnv) {
   throw new Error(`Missing required integration env vars: ${integrationEnv.missingNames.join(', ')}`)
 }
 
-export function describeTaxInvoiceIntegration(suiteName: string, definition: () => void): void {
+export function describeTaxinvoiceIntegration(suiteName: string, definition: () => void): void {
   describeIntegration(suiteName, definition)
 }
 
-export function createTaxInvoiceIntegrationClient() {
-  return createPopbillClient({
-    linkId: integrationEnv.linkId,
-    secretKey: integrationEnv.secretKey,
-    userId: integrationEnv.userId,
-    isTest: true,
-    useLocalTime: true,
+export function createTaxinvoicePromiseIntegrationService() {
+  promiseCompat.config({
+    LinkID: integrationEnv.linkId,
+    SecretKey: integrationEnv.secretKey,
+    IsTest: true,
+    UseLocalTimeYN: true,
     requestTimeoutMs: 30_000,
     acceptEncoding: 'gzip',
   })
+
+  return promiseCompat.TaxinvoiceService()
 }
 
-export function getTaxInvoiceIntegrationEnv(): IntegrationEnv {
+export function getTaxinvoiceIntegrationEnv(): IntegrationEnv {
   return integrationEnv
 }
 
-export function expectTaxInvoiceApiErrorLike(error: unknown): void {
+export function getTaxinvoiceDefaultBoxScope(): (typeof TaxinvoiceBoxScopes)[keyof typeof TaxinvoiceBoxScopes] {
+  return TaxinvoiceBoxScopes.TemporaryDocumentBox
+}
+
+export function expectTaxinvoiceApiErrorLike(error: unknown): void {
   expect(error).toMatchObject({
     code: expect.any(Number),
     message: expect.any(String),

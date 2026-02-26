@@ -1,7 +1,7 @@
 import { TAX_INVOICE_METHODS } from '@/constants'
 import { PopbillErrorStage, PopbillErrorType, createInputValidationError } from '@/errors'
 import { createTaxInvoiceService } from '@/services/tax-invoice'
-import type { TaxInvoiceRequestOptions, TaxInvoiceService } from '@/services/tax-invoice/types'
+import type { TaxInvoiceService } from '@/services/tax-invoice/types'
 import { createTaxinvoicePromiseService } from '@connextable/popbill-compat/factory'
 import type { TaxInvoiceApiModel, TaxInvoiceGetInfoApiResponse } from '@connextable/popbill-spec'
 
@@ -30,7 +30,7 @@ const BUSINESS_NUMBER = '1234567890'
 const INVOICE_DOCUMENT_KEY_TYPE = 'SELL'
 const INVOICE_MANAGEMENT_KEY = 'MGT-001'
 const USER_ID = 'tester'
-const REQUEST_OPTIONS = { userId: USER_ID } as const satisfies TaxInvoiceRequestOptions
+const REQUEST_OPTIONS = {} as const satisfies Record<string, never>
 
 const TAX_INVOICE_DOCUMENT: TaxInvoiceApiModel = {
   writeDate: '20260225',
@@ -722,6 +722,7 @@ describe('tax-invoice facade adapter', () => {
     test(`${testCase.facadeMethod} forwards to ${testCase.compatMethod}`, async () => {
       const compatMethodMock = vi.fn(() => Promise.resolve(testCase.response))
       const service = createTaxInvoiceService({
+        defaultUserId: USER_ID,
         compatTaxInvoiceService: createCompatServiceStub({
           [testCase.compatMethod]: compatMethodMock,
         } as Partial<CompatTaxInvoiceService>),
@@ -738,9 +739,10 @@ describe('tax-invoice facade adapter', () => {
     })
   }
 
-  test('passes undefined userId when options are omitted', async () => {
+  test('uses client default userId when options are omitted', async () => {
     const getURL = vi.fn(() => Promise.resolve(URL_RESPONSE))
     const service = createTaxInvoiceService({
+      defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ getURL }),
     })
 
@@ -749,12 +751,46 @@ describe('tax-invoice facade adapter', () => {
       taxInvoiceBoxScope: 'TBOX',
     })
 
-    expect(getURL).toHaveBeenCalledWith(BUSINESS_NUMBER, 'TBOX', undefined)
+    expect(getURL).toHaveBeenCalledWith(BUSINESS_NUMBER, 'TBOX', USER_ID)
+  })
+
+  test('uses default userId when options are omitted', async () => {
+    const getURL = vi.fn(() => Promise.resolve(URL_RESPONSE))
+    const service = createTaxInvoiceService({
+      compatTaxInvoiceService: createCompatServiceStub({ getURL }),
+      defaultUserId: 'default-user',
+    })
+
+    await service.getTaxInvoiceBoxURL({
+      businessNumber: BUSINESS_NUMBER,
+      taxInvoiceBoxScope: 'TBOX',
+    })
+
+    expect(getURL).toHaveBeenCalledWith(BUSINESS_NUMBER, 'TBOX', 'default-user')
+  })
+
+  test('uses default userId even when options object is passed', async () => {
+    const getURL = vi.fn(() => Promise.resolve(URL_RESPONSE))
+    const service = createTaxInvoiceService({
+      compatTaxInvoiceService: createCompatServiceStub({ getURL }),
+      defaultUserId: 'default-user',
+    })
+
+    await service.getTaxInvoiceBoxURL(
+      {
+        businessNumber: BUSINESS_NUMBER,
+        taxInvoiceBoxScope: 'TBOX',
+      },
+      REQUEST_OPTIONS
+    )
+
+    expect(getURL).toHaveBeenCalledWith(BUSINESS_NUMBER, 'TBOX', 'default-user')
   })
 
   test('normalizes closeDownStateCodes to undefined when values are not numeric', async () => {
     const search = vi.fn((..._args: unknown[]) => Promise.resolve(SEARCH_RESPONSE))
     const service = createTaxInvoiceService({
+      defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ search }),
     })
 
@@ -785,6 +821,7 @@ describe('tax-invoice facade adapter', () => {
   test('keeps closeDownStateCodes undefined when the option is omitted', async () => {
     const search = vi.fn((..._args: unknown[]) => Promise.resolve(SEARCH_RESPONSE))
     const service = createTaxInvoiceService({
+      defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ search }),
     })
 
@@ -820,6 +857,7 @@ describe('tax-invoice facade adapter', () => {
     )
     const getInfo = vi.fn(() => Promise.reject(validationError))
     const service = createTaxInvoiceService({
+      defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ getInfo }),
     })
 
@@ -830,7 +868,7 @@ describe('tax-invoice facade adapter', () => {
           invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
           invoiceManagementKey: INVOICE_MANAGEMENT_KEY,
         },
-        { userId: USER_ID }
+        REQUEST_OPTIONS
       )
     ).rejects.toMatchObject({
       code: -99999999,
@@ -853,6 +891,7 @@ describe('tax-invoice facade adapter', () => {
       throw new Error('onError should not override original error')
     })
     const service = createTaxInvoiceService({
+      defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ getInfo }),
       onError,
     })
@@ -864,7 +903,7 @@ describe('tax-invoice facade adapter', () => {
           invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
           invoiceManagementKey: INVOICE_MANAGEMENT_KEY,
         },
-        { userId: USER_ID }
+        REQUEST_OPTIONS
       )
     ).rejects.toMatchObject({
       code: -99999999,

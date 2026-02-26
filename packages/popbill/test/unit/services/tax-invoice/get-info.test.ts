@@ -47,6 +47,7 @@ describe('tax-invoice getInvoiceInfo', () => {
     const client = createPopbillClient({
       linkId: 'TEST_LINK_ID',
       secretKey: Buffer.from('secret').toString('base64'),
+      userId: 'test-user',
       isTest: true,
       useLocalTime: true,
     })
@@ -142,6 +143,7 @@ describe('tax-invoice getInvoiceInfo', () => {
     const client = createPopbillClient({
       linkId: 'TEST_LINK_ID',
       secretKey: Buffer.from('secret').toString('base64'),
+      userId: 'test-user',
       isTest: true,
       acceptLanguage: 'en-US',
     })
@@ -204,6 +206,7 @@ describe('tax-invoice getInvoiceInfo', () => {
     const client = createPopbillClient({
       linkId: 'TEST_LINK_ID',
       secretKey: Buffer.from('secret').toString('base64'),
+      userId: 'test-user',
     })
 
     await client.services.taxInvoice.getInvoiceInfo({
@@ -262,6 +265,7 @@ describe('tax-invoice getInvoiceInfo', () => {
     const client = createPopbillClient({
       linkId: 'TEST_LINK_ID',
       secretKey: Buffer.from('secret').toString('base64'),
+      userId: 'test-user',
       isTest: true,
       acceptEncoding: 'br',
     })
@@ -285,6 +289,7 @@ describe('tax-invoice getInvoiceInfo', () => {
     const client = createPopbillClient({
       linkId: 'TEST_LINK_ID',
       secretKey: Buffer.from('secret').toString('base64'),
+      userId: 'test-user',
       isTest: true,
       onError,
     })
@@ -331,6 +336,7 @@ describe('tax-invoice getInvoiceInfo', () => {
     const client = createPopbillClient({
       linkId: 'TEST_LINK_ID',
       secretKey: Buffer.from('secret').toString('base64'),
+      userId: 'test-user',
       isTest: true,
       onError,
     })
