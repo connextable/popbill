@@ -37,5 +37,6 @@ testkit
 tsgo
 tsgolint
 unstub
+usecases
 usercode
 vitepress
