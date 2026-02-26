@@ -32,13 +32,14 @@
   "scripts": {
     "build": "tsdown",
     "test": "vitest run",
-    "test:integration": "vitest run --passWithNoTests",
     "test:coverage": "vitest run --coverage",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "typecheck": "tsgo -b --noEmit",
+    "typecheck:lib": "tsgo -p tsconfig.lib.json --noEmit",
+    "typecheck:test": "tsgo -p tsconfig.test.json --noEmit",
     "clean": "del node_modules dist"
   },
   "dependencies": {

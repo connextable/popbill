@@ -3,3 +3,7 @@ packages:
 
 ignoredBuiltDependencies:
   - esbuild
+
+updateConfig:
+  ignoreDependencies:
+    - '@types/node'

@@ -23,14 +23,8 @@
     "fmt:check": {},
     "test": {
       "dependsOn": [
-        "^test"
-      ]
-    },
-    "test:integration": {
-      "dependsOn": [
         "^build"
-      ],
-      "cache": false
+      ]
     },
     "test:coverage": {
       "dependsOn": [

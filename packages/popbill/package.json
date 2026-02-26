@@ -52,8 +52,6 @@
   },
   "scripts": {
     "build": "tsdown",
-    "test:unit": "POPBILL_RUN_INTEGRATION_TESTS=false vitest run",
-    "test:integration": "POPBILL_RUN_INTEGRATION_TESTS=true vitest run --passWithNoTests test/integration",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "oxlint --type-aware",

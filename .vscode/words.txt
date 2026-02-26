@@ -6,6 +6,8 @@ bulkissue
 cashbill
 closedown
 connextable
+dotenvx
+esbuild
 gaip
 hometax
 idyn
