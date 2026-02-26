@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
-  "include": [
-    "./*.config.ts"
-  ]
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.cache/tsconfig.tsbuildinfo"
+  },
+  "include": ["./*.config.ts", "scripts"]
 }

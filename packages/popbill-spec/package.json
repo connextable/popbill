@@ -1,6 +1,6 @@
 {
   "name": "@connextable/popbill-spec",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Raw Popbill API request/response types",
   "files": [
     "dist"

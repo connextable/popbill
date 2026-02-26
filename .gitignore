@@ -7,3 +7,6 @@ dist
 coverage
 node_modules
 .turbo
+
+# SDK machine-readable artifacts (regenerate when needed)
+docs/sdk

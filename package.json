@@ -9,9 +9,10 @@
     "lint:fix": "turbo run lint:fix",
     "fmt": "turbo run fmt",
     "fmt:check": "turbo run fmt:check",
-    "typecheck": "turbo run typecheck",
+    "typecheck": "turbo run typecheck && tsgo -b --noEmit",
     "test": "dotenvx run -- turbo run test",
     "test:coverage": "dotenvx run -- turbo run test:coverage",
+    "docs:generate": "jiti ./scripts/generate-sdk-docs.ts",
     "clean": "turbo run clean && del node_modules .turbo"
   },
   "devDependencies": {
