@@ -78,7 +78,11 @@ importers:
         specifier: workspace:*
         version: link:../popbill-spec
 
-  packages/popbill-core: {}
+  packages/popbill-core:
+    dependencies:
+      '@connextable/popbill-spec':
+        specifier: workspace:*
+        version: link:../popbill-spec
 
   packages/popbill-spec: {}
 

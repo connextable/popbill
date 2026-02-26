@@ -3,6 +3,7 @@ packages:
 
 ignoredBuiltDependencies:
   - esbuild
+  - simple-git-hooks
 
 updateConfig:
   ignoreDependencies:
