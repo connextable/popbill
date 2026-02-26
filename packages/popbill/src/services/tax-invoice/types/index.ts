@@ -2,7 +2,6 @@ import type {
   CloseDownState,
   IssueType,
   PurposeType,
-  TaxInvoiceApiModel,
   TaxInvoiceApiResponseBase,
   TaxInvoiceBulkSubmitApiResponse,
   TaxInvoiceDateString,
@@ -23,6 +22,34 @@ import type {
   TaxInvoiceSearchApiResponse,
   TaxType,
 } from '@connextable/popbill-spec'
+import {
+  TaxInvoiceModificationReasonCodes,
+  type TaxInvoiceDocumentInput,
+  type TaxInvoiceModificationReasonCode,
+} from './document'
+export {
+  TaxInvoiceBusinessStatusValues,
+  TaxInvoiceChargeDirectionValues,
+  TaxInvoiceIssueTypes,
+  TaxInvoiceModificationReasonCodes,
+  TaxInvoicePurposeTypes,
+  TaxInvoiceRecipientTypes,
+  TaxInvoiceTaxationTypes,
+} from './document'
+export type {
+  TaxInvoiceAdditionalContactInput,
+  TaxInvoiceBusinessStatus,
+  TaxInvoiceChargeDirection,
+  TaxInvoiceDocumentInput,
+  TaxInvoiceIssueType,
+  TaxInvoiceLineItemInput,
+  TaxInvoiceModificationReasonCode,
+  TaxInvoicePartyInput,
+  TaxInvoicePurposeType,
+  TaxInvoiceRecipientType,
+  TaxInvoiceTaxationType,
+  TaxInvoiceBuyerInput,
+} from './document'
 
 /**
  * 세금계산서 문서번호 유형 상수입니다.
@@ -91,25 +118,12 @@ export type TaxInvoiceCloseDownStateCode =
 /**
  * 수정세금계산서 사유코드입니다.
  */
-export const TaxInvoiceModificationCodes = {
-  /** 코드: `1`, 설명: 기재사항 착오정정 */
-  CorrectingEntryErrors: 1,
-  /** 코드: `2`, 설명: 공급가액 변동 */
-  SupplyAmountAdjustment: 2,
-  /** 코드: `3`, 설명: 환입 */
-  Return: 3,
-  /** 코드: `4`, 설명: 계약의 해제 */
-  ContractCancellation: 4,
-  /** 코드: `5`, 설명: 내국신용장 사후개설 */
-  PostIssuedDomesticLetterOfCredit: 5,
-  /** 코드: `6`, 설명: 착오에 의한 이중발급 */
-  DuplicateIssuanceByMistake: 6,
-} as const
+export const TaxInvoiceModificationCodes = TaxInvoiceModificationReasonCodes
 
 /**
  * 수정세금계산서 사유코드입니다.
  */
-export type TaxInvoiceModificationCode = (typeof TaxInvoiceModificationCodes)[keyof typeof TaxInvoiceModificationCodes]
+export type TaxInvoiceModificationCode = TaxInvoiceModificationReasonCode
 
 /**
  * 사업자번호 입력이 필요한 요청의 공통 필드입니다.
@@ -140,7 +154,7 @@ export interface TaxInvoiceDocumentRequest extends TaxInvoiceBusinessRequest {
  */
 export interface IssueInvoiceImmediatelyInput extends TaxInvoiceBusinessRequest {
   /** 발행할 세금계산서 문서 원본입니다. */
-  taxInvoiceDocument: TaxInvoiceApiModel
+  taxInvoiceDocument: TaxInvoiceDocumentInput
   /** 거래명세서 동시작성 여부입니다. */
   writeSpecification?: boolean
   /** 지연발행 허용 여부입니다. */
@@ -160,7 +174,7 @@ export interface SubmitBulkIssueInput extends TaxInvoiceBusinessRequest {
   /** 초대량 접수 식별자(SubmitID)입니다. */
   submissionIdentifier: string
   /** 접수할 세금계산서 문서 목록입니다. */
-  taxInvoiceDocuments: TaxInvoiceApiModel[]
+  taxInvoiceDocuments: TaxInvoiceDocumentInput[]
   /** 지연발행 허용 여부입니다. */
   forceIssue?: boolean
 }
@@ -178,7 +192,7 @@ export interface GetBulkIssueSubmissionResultInput extends TaxInvoiceBusinessReq
  */
 export interface RegisterInvoiceInput extends TaxInvoiceBusinessRequest {
   /** 임시저장할 세금계산서 문서 원본입니다. */
-  taxInvoiceDocument: TaxInvoiceApiModel
+  taxInvoiceDocument: TaxInvoiceDocumentInput
 }
 
 /**
@@ -186,7 +200,7 @@ export interface RegisterInvoiceInput extends TaxInvoiceBusinessRequest {
  */
 export interface UpdateInvoiceInput extends TaxInvoiceDocumentRequest {
   /** 수정할 세금계산서 문서 원본입니다. */
-  taxInvoiceDocument: TaxInvoiceApiModel
+  taxInvoiceDocument: TaxInvoiceDocumentInput
 }
 
 /**
@@ -214,7 +228,7 @@ export interface CancelIssuedInvoiceInput extends TaxInvoiceDocumentRequest {
  */
 export interface RequestReverseIssueImmediatelyInput extends TaxInvoiceBusinessRequest {
   /** 역발행 요청할 세금계산서 문서 원본입니다. */
-  taxInvoiceDocument: TaxInvoiceApiModel
+  taxInvoiceDocument: TaxInvoiceDocumentInput
   /** 상태 이력에 남길 메모입니다. */
   historyMemo: string
 }

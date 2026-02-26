@@ -1,9 +1,10 @@
 import { TAX_INVOICE_METHODS } from '@/constants'
 import { PopbillErrorStage, PopbillErrorType, createInputValidationError } from '@/errors'
 import { createTaxInvoiceService } from '@/services/tax-invoice'
-import type { TaxInvoiceService } from '@/services/tax-invoice/types'
+import { mapTaxInvoiceDocument } from '@/services/tax-invoice/mappers/document'
+import type { TaxInvoiceDocumentInput, TaxInvoiceService } from '@/services/tax-invoice/types'
 import { createTaxinvoicePromiseService } from '@connextable/popbill-compat/factory'
-import type { TaxInvoiceApiModel, TaxInvoiceGetInfoApiResponse } from '@connextable/popbill-spec'
+import type { TaxInvoiceGetInfoApiResponse } from '@connextable/popbill-spec'
 
 type CompatTaxInvoiceService = Parameters<typeof createTaxInvoiceService>[0]['compatTaxInvoiceService']
 
@@ -32,11 +33,12 @@ const INVOICE_MANAGEMENT_KEY = 'MGT-001'
 const USER_ID = 'tester'
 const REQUEST_OPTIONS = {} as const satisfies Record<string, never>
 
-const TAX_INVOICE_DOCUMENT: TaxInvoiceApiModel = {
-  writeDate: '20260225',
-  detailList: [{ serialNum: 1 }],
-  addContactList: [{ serialNum: 1, email: 'test@test.com' }],
+const TAX_INVOICE_DOCUMENT: TaxInvoiceDocumentInput = {
+  writtenDate: '20260225',
+  lineItems: [{ lineNumber: 1 }],
+  additionalContacts: [{ sequenceNumber: 1, emailAddress: 'test@test.com' }],
 }
+const TAX_INVOICE_API_DOCUMENT = mapTaxInvoiceDocument(TAX_INVOICE_DOCUMENT)
 
 const BASE_DOCUMENT_INPUT = {
   businessNumber: BUSINESS_NUMBER,
@@ -103,7 +105,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
         },
         REQUEST_OPTIONS
       ),
-    expectedArgs: [BUSINESS_NUMBER, TAX_INVOICE_DOCUMENT, true, false, 'memo', 'subject', 'DEAL-1', USER_ID],
+    expectedArgs: [BUSINESS_NUMBER, TAX_INVOICE_API_DOCUMENT, true, false, 'memo', 'subject', 'DEAL-1', USER_ID],
     response: ISSUE_RESPONSE,
   },
   {
@@ -119,7 +121,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
         },
         REQUEST_OPTIONS
       ),
-    expectedArgs: [BUSINESS_NUMBER, 'SUBMIT-1', [TAX_INVOICE_DOCUMENT], true, USER_ID],
+    expectedArgs: [BUSINESS_NUMBER, 'SUBMIT-1', [TAX_INVOICE_API_DOCUMENT], true, USER_ID],
     response: BULK_SUBMIT_RESPONSE,
   },
   {
@@ -147,7 +149,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
         },
         REQUEST_OPTIONS
       ),
-    expectedArgs: [BUSINESS_NUMBER, TAX_INVOICE_DOCUMENT, USER_ID],
+    expectedArgs: [BUSINESS_NUMBER, TAX_INVOICE_API_DOCUMENT, USER_ID],
     response: API_RESPONSE,
   },
   {
@@ -161,7 +163,13 @@ const FORWARDING_CASES: ForwardingCase[] = [
         },
         REQUEST_OPTIONS
       ),
-    expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, TAX_INVOICE_DOCUMENT, USER_ID],
+    expectedArgs: [
+      BUSINESS_NUMBER,
+      INVOICE_DOCUMENT_KEY_TYPE,
+      INVOICE_MANAGEMENT_KEY,
+      TAX_INVOICE_API_DOCUMENT,
+      USER_ID,
+    ],
     response: API_RESPONSE,
   },
   {
@@ -214,7 +222,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
         },
         REQUEST_OPTIONS
       ),
-    expectedArgs: [BUSINESS_NUMBER, TAX_INVOICE_DOCUMENT, 'memo', USER_ID],
+    expectedArgs: [BUSINESS_NUMBER, TAX_INVOICE_API_DOCUMENT, 'memo', USER_ID],
     response: API_RESPONSE,
   },
   {
@@ -313,7 +321,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
     compatMethod: 'getDetailInfo',
     invoke: (service) => service.getInvoiceDetailInfo(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
-    response: TAX_INVOICE_DOCUMENT,
+    response: TAX_INVOICE_API_DOCUMENT,
   },
   {
     facadeMethod: 'checkInvoiceManagementKeyInUse',

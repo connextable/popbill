@@ -13,9 +13,9 @@ describeTaxInvoiceIntegration('popbill tax-invoice integration: getBulkIssueSubm
         taxInvoiceDocuments: [
           testkit.createTaxInvoiceDocument({
             businessNumber: context.businessNumber,
-            counterpartCorpNum: context.env.counterpartCorpNum,
+            counterpartBusinessNumber: context.env.counterpartCorpNum,
             managementKey: testkit.createManagementKey('BRS'),
-            writeDate: context.today,
+            writtenDate: context.today,
             receiverEmail: context.env.receiverEmail,
           }),
         ],

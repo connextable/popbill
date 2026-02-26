@@ -1,4 +1,5 @@
 import { invokeTaxInvoiceMethod } from './adapters/error'
+import { mapTaxInvoiceDocument, mapTaxInvoiceDocuments } from './mappers/document'
 import { mapTaxInvoiceInfo } from './mappers/invoice-info'
 import type { TaxInvoiceService } from './types'
 import type { TaxInvoiceSearchCloseDownState } from '@connextable/popbill-spec'
@@ -25,7 +26,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       return invokeTaxInvoiceMethod(input, 'taxInvoice.issueInvoiceImmediately', async () =>
         compatTaxInvoiceService.registIssue(
           request.businessNumber,
-          request.taxInvoiceDocument,
+          mapTaxInvoiceDocument(request.taxInvoiceDocument),
           request.writeSpecification,
           request.forceIssue,
           request.historyMemo,
@@ -41,7 +42,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
         compatTaxInvoiceService.bulkSubmit(
           request.businessNumber,
           request.submissionIdentifier,
-          request.taxInvoiceDocuments,
+          mapTaxInvoiceDocuments(request.taxInvoiceDocuments),
           request.forceIssue,
           input.defaultUserId
         )
@@ -56,7 +57,11 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
 
     registerInvoice(request, _options) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.registerInvoice', async () =>
-        compatTaxInvoiceService.register(request.businessNumber, request.taxInvoiceDocument, input.defaultUserId)
+        compatTaxInvoiceService.register(
+          request.businessNumber,
+          mapTaxInvoiceDocument(request.taxInvoiceDocument),
+          input.defaultUserId
+        )
       )
     },
 
@@ -66,7 +71,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
-          request.taxInvoiceDocument,
+          mapTaxInvoiceDocument(request.taxInvoiceDocument),
           input.defaultUserId
         )
       )
@@ -102,7 +107,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       return invokeTaxInvoiceMethod(input, 'taxInvoice.requestReverseIssueImmediately', async () =>
         compatTaxInvoiceService.registRequest(
           request.businessNumber,
-          request.taxInvoiceDocument,
+          mapTaxInvoiceDocument(request.taxInvoiceDocument),
           request.historyMemo,
           input.defaultUserId
         )

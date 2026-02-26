@@ -3,8 +3,16 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { TAX_INVOICE_METHODS } from '@/constants'
 import { TaxInvoiceDocumentKeyTypes } from '@/services/tax-invoice'
-import type { TaxInvoiceService } from '@/services/tax-invoice/types'
-import type { TaxInvoiceApiModel } from '@connextable/popbill-spec'
+import {
+  TaxInvoiceChargeDirectionValues,
+  TaxInvoiceIssueTypes,
+  TaxInvoicePurposeTypes,
+  TaxInvoiceRecipientTypes,
+  TaxInvoiceTaxationTypes,
+  type TaxInvoiceDocumentInput,
+  type TaxInvoiceIssueType,
+  type TaxInvoiceService,
+} from '@/services/tax-invoice/types'
 import { createTaxInvoiceIntegrationClient, getTaxInvoiceIntegrationEnv } from './integration-context'
 
 export type TaxInvoiceMethodName = (typeof TAX_INVOICE_METHODS)[number]
@@ -39,9 +47,9 @@ export async function registerDraftInvoice(context: TaxInvoiceMethodContext, man
     businessNumber: context.businessNumber,
     taxInvoiceDocument: createTaxInvoiceDocument({
       businessNumber: context.businessNumber,
-      counterpartCorpNum: context.env.counterpartCorpNum,
+      counterpartBusinessNumber: context.env.counterpartCorpNum,
       managementKey,
-      writeDate: context.today,
+      writtenDate: context.today,
       receiverEmail: context.env.receiverEmail,
     }),
   })
@@ -78,11 +86,11 @@ export async function createReverseDraftInvoice(context: TaxInvoiceMethodContext
       businessNumber: context.businessNumber,
       taxInvoiceDocument: createTaxInvoiceDocument({
         businessNumber: context.businessNumber,
-        counterpartCorpNum: context.env.counterpartCorpNum,
+        counterpartBusinessNumber: context.env.counterpartCorpNum,
         managementKey,
-        writeDate: context.today,
+        writtenDate: context.today,
         receiverEmail: context.env.receiverEmail,
-        issueType: '역발행',
+        issueType: TaxInvoiceIssueTypes.Reverse,
       }),
     })
   )
@@ -138,66 +146,72 @@ export async function attachFileAndFindIdentifier(
 
 interface CreateTaxInvoiceDocumentInput {
   businessNumber: string
-  counterpartCorpNum: string
+  counterpartBusinessNumber: string
   managementKey: string
-  writeDate: string
+  writtenDate: string
   receiverEmail: string
-  issueType?: '정발행' | '역발행'
+  issueType?: TaxInvoiceIssueType
   remark?: string
 }
 
-export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): TaxInvoiceApiModel {
+export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): TaxInvoiceDocumentInput {
   return {
-    writeDate: input.writeDate,
-    chargeDirection: '정과금',
-    issueType: input.issueType ?? '정발행',
-    purposeType: '영수',
-    taxType: '과세',
-    invoicerCorpNum: input.businessNumber,
-    invoicerMgtKey: input.managementKey,
-    invoicerCorpName: '통합테스트 공급자',
-    invoicerCEOName: '대표자',
-    invoicerAddr: '서울시 강남구 테스트로 1',
-    invoicerBizClass: '서비스',
-    invoicerBizType: '소프트웨어',
-    invoicerContactName: '테스트담당자',
-    invoicerEmail: input.receiverEmail,
-    invoiceeType: '사업자',
-    invoiceeCorpNum: input.counterpartCorpNum,
-    invoiceeMgtKey: createManagementKey('BUY'),
-    invoiceeCorpName: '통합테스트 공급받는자',
-    invoiceeCEOName: '수신대표',
-    invoiceeAddr: '서울시 서초구 테스트로 2',
-    invoiceeBizClass: '서비스',
-    invoiceeBizType: '소프트웨어',
-    invoiceeContactName1: '수신담당자',
-    invoiceeEmail1: input.receiverEmail,
-    supplyCostTotal: '10000',
-    taxTotal: '1000',
-    totalAmount: '11000',
-    serialNum: '1',
-    cash: '0',
-    chkBill: '0',
-    note: '0',
-    credit: '11000',
-    remark1: input.remark ?? 'integration test',
-    detailList: [
+    writtenDate: input.writtenDate,
+    chargeDirection: TaxInvoiceChargeDirectionValues.NormalCharge,
+    issueType: input.issueType ?? TaxInvoiceIssueTypes.Normal,
+    purposeType: TaxInvoicePurposeTypes.Receipt,
+    taxType: TaxInvoiceTaxationTypes.Taxable,
+    supplier: {
+      businessNumber: input.businessNumber,
+      managementKey: input.managementKey,
+      companyName: '통합테스트 공급자',
+      chiefExecutiveOfficerName: '대표자',
+      address: '서울시 강남구 테스트로 1',
+      businessClass: '서비스',
+      businessType: '소프트웨어',
+      contactName: '테스트담당자',
+      emailAddress: input.receiverEmail,
+    },
+    buyer: {
+      recipientType: TaxInvoiceRecipientTypes.Business,
+      businessNumber: input.counterpartBusinessNumber,
+      managementKey: createManagementKey('BUY'),
+      companyName: '통합테스트 공급받는자',
+      chiefExecutiveOfficerName: '수신대표',
+      address: '서울시 서초구 테스트로 2',
+      businessClass: '서비스',
+      businessType: '소프트웨어',
+      contactName: '수신담당자',
+      emailAddress: input.receiverEmail,
+    },
+    paymentSummary: {
+      totalSupplyCostAmount: '10000',
+      totalTaxAmount: '1000',
+      totalAmount: '11000',
+      cashAmount: '0',
+      checkAmount: '0',
+      promissoryNoteAmount: '0',
+      creditAmount: '11000',
+    },
+    taxInvoiceSerialNumber: '1',
+    remarkOne: input.remark ?? 'integration test',
+    lineItems: [
       {
-        serialNum: 1,
-        purchaseDT: input.writeDate,
+        lineNumber: 1,
+        transactionDate: input.writtenDate,
         itemName: '통합테스트 품목',
-        spec: 'EA',
-        qty: '1',
-        unitCost: '10000',
-        supplyCost: '10000',
-        tax: '1000',
+        specification: 'EA',
+        quantity: '1',
+        unitCostAmount: '10000',
+        supplyCostAmount: '10000',
+        taxAmount: '1000',
       },
     ],
-    addContactList: [
+    additionalContacts: [
       {
-        serialNum: 1,
+        sequenceNumber: 1,
         contactName: '추가담당자',
-        email: input.receiverEmail,
+        emailAddress: input.receiverEmail,
       },
     ],
   }

@@ -10,9 +10,9 @@ describeTaxInvoiceIntegration('popbill tax-invoice integration: issueInvoiceImme
         businessNumber: context.businessNumber,
         taxInvoiceDocument: testkit.createTaxInvoiceDocument({
           businessNumber: context.businessNumber,
-          counterpartCorpNum: context.env.counterpartCorpNum,
+          counterpartBusinessNumber: context.env.counterpartCorpNum,
           managementKey,
-          writeDate: context.today,
+          writtenDate: context.today,
           receiverEmail: context.env.receiverEmail,
         }),
         historyMemo: 'integration immediate issue',

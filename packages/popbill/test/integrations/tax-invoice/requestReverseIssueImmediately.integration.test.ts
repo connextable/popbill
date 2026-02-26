@@ -1,4 +1,5 @@
 import { describeTaxInvoiceIntegration } from './integration-context'
+import { TaxInvoiceIssueTypes } from '@/services/tax-invoice/types'
 import * as testkit from './method-testkit'
 
 describeTaxInvoiceIntegration('popbill tax-invoice integration: requestReverseIssueImmediately', () => {
@@ -11,11 +12,11 @@ describeTaxInvoiceIntegration('popbill tax-invoice integration: requestReverseIs
         businessNumber: context.businessNumber,
         taxInvoiceDocument: testkit.createTaxInvoiceDocument({
           businessNumber: context.businessNumber,
-          counterpartCorpNum: context.env.counterpartCorpNum,
+          counterpartBusinessNumber: context.env.counterpartCorpNum,
           managementKey,
-          writeDate: context.today,
+          writtenDate: context.today,
           receiverEmail: context.env.receiverEmail,
-          issueType: '역발행',
+          issueType: TaxInvoiceIssueTypes.Reverse,
         }),
         historyMemo: 'integration reverse immediate request',
       })
