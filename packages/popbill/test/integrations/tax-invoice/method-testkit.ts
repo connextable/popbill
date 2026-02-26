@@ -9,8 +9,11 @@ import {
   TaxInvoicePurposeTypes,
   TaxInvoiceRecipientTypes,
   TaxInvoiceTaxationTypes,
+  type TaxInvoiceBulkSubmitResult,
   type TaxInvoiceDocumentInput,
+  type TaxInvoiceIssueResult,
   type TaxInvoiceIssueType,
+  type TaxInvoiceOperationResult,
   type TaxInvoiceService,
 } from '@/services/tax-invoice/types'
 import { createTaxInvoiceIntegrationClient, getTaxInvoiceIntegrationEnv } from './integration-context'
@@ -135,7 +138,7 @@ export async function attachFileAndFindIdentifier(
     invoiceManagementKey: managementKey,
   })
 
-  const fileIdentifier = files.find((file) => typeof file.attachedFile === 'string')?.attachedFile
+  const fileIdentifier = files.find((file) => typeof file.fileIdentifier === 'string')?.fileIdentifier
 
   if (!fileIdentifier) {
     throw new Error('Expected at least one attached file from getAttachedFiles response')
@@ -247,7 +250,9 @@ export function formatDate(date: Date): string {
   return `${year}${month}${day}`
 }
 
-export function expectApiSuccess(response: { code?: number; message?: string }): void {
-  expect(response.code).toBe(1)
-  expect(typeof response.message).toBe('string')
+export function expectApiSuccess(
+  response: TaxInvoiceOperationResult | TaxInvoiceIssueResult | TaxInvoiceBulkSubmitResult
+): void {
+  expect(response.resultCode).toBe(1)
+  expect(typeof response.resultMessage).toBe('string')
 }

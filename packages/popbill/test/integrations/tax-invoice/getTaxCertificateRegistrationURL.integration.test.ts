@@ -8,7 +8,7 @@ describeTaxInvoiceIntegration('popbill tax-invoice integration: getTaxCertificat
       businessNumber: context.businessNumber,
     })
 
-    expect(typeof response.url).toBe('string')
-    expect(response.url.startsWith('http')).toBe(true)
+    expect(typeof response.accessUrl).toBe('string')
+    expect(response.accessUrl.startsWith('http')).toBe(true)
   }, 180_000)
 })

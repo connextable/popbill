@@ -1,6 +1,25 @@
 import { invokeTaxInvoiceMethod } from './adapters/error'
 import { mapTaxInvoiceDocument, mapTaxInvoiceDocuments } from './mappers/document'
 import { mapTaxInvoiceInfo } from './mappers/invoice-info'
+import {
+  mapTaxInvoiceAccessUrl,
+  mapTaxInvoiceAccessUrlFromString,
+  mapTaxInvoiceAttachedFiles,
+  mapTaxInvoiceBulkIssueSubmissionResult,
+  mapTaxInvoiceBulkSubmitResult,
+  mapTaxInvoiceDocumentOutput,
+  mapTaxInvoiceEmailSendSettings,
+  mapTaxInvoiceInfos,
+  mapTaxInvoiceInvoiceManagementKeyUsage,
+  mapTaxInvoiceIssueResult,
+  mapTaxInvoiceLogs,
+  mapTaxInvoiceOperationResult,
+  mapTaxInvoiceSearchResult,
+  mapTaxInvoiceSendToNationalTaxServiceSetting,
+  mapTaxInvoiceTaxCertificateExpiration,
+  mapTaxInvoiceTaxCertificateInfo,
+  mapTaxInvoiceXmlResult,
+} from './mappers/response'
 import type { TaxInvoiceService } from './types'
 import type { TaxInvoiceSearchCloseDownState } from '@connextable/popbill-spec'
 import type { TaxinvoicePromiseService as CompatTaxInvoiceService } from '@connextable/popbill-compat/factory'
@@ -23,8 +42,8 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
 
   return {
     issueInvoiceImmediately(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.issueInvoiceImmediately', async () =>
-        compatTaxInvoiceService.registIssue(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.issueInvoiceImmediately', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.registIssue(
           request.businessNumber,
           mapTaxInvoiceDocument(request.taxInvoiceDocument),
           request.writeSpecification,
@@ -34,52 +53,66 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           request.dealInvoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceIssueResult(taxInvoiceApiResponse)
+      })
     },
 
     submitBulkIssue(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.submitBulkIssue', async () =>
-        compatTaxInvoiceService.bulkSubmit(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.submitBulkIssue', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.bulkSubmit(
           request.businessNumber,
           request.submissionIdentifier,
           mapTaxInvoiceDocuments(request.taxInvoiceDocuments),
           request.forceIssue,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceBulkSubmitResult(taxInvoiceApiResponse)
+      })
     },
 
     getBulkIssueSubmissionResult(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getBulkIssueSubmissionResult', async () =>
-        compatTaxInvoiceService.getBulkResult(request.businessNumber, request.submissionIdentifier, input.defaultUserId)
-      )
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getBulkIssueSubmissionResult', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getBulkResult(
+          request.businessNumber,
+          request.submissionIdentifier,
+          input.defaultUserId
+        )
+
+        return mapTaxInvoiceBulkIssueSubmissionResult(taxInvoiceApiResponse)
+      })
     },
 
     registerInvoice(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.registerInvoice', async () =>
-        compatTaxInvoiceService.register(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.registerInvoice', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.register(
           request.businessNumber,
           mapTaxInvoiceDocument(request.taxInvoiceDocument),
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     updateInvoice(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.updateInvoice', async () =>
-        compatTaxInvoiceService.update(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.updateInvoice', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.update(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           mapTaxInvoiceDocument(request.taxInvoiceDocument),
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     issueInvoice(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.issueInvoice', async () =>
-        compatTaxInvoiceService.issue(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.issueInvoice', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.issue(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
@@ -88,88 +121,104 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           request.forceIssue,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceIssueResult(taxInvoiceApiResponse)
+      })
     },
 
     cancelIssuedInvoice(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.cancelIssuedInvoice', async () =>
-        compatTaxInvoiceService.cancelIssue(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.cancelIssuedInvoice', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.cancelIssue(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           request.historyMemo,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     requestReverseIssueImmediately(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.requestReverseIssueImmediately', async () =>
-        compatTaxInvoiceService.registRequest(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.requestReverseIssueImmediately', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.registRequest(
           request.businessNumber,
           mapTaxInvoiceDocument(request.taxInvoiceDocument),
           request.historyMemo,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     requestReverseIssue(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.requestReverseIssue', async () =>
-        compatTaxInvoiceService.request(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.requestReverseIssue', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.request(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           request.historyMemo,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     cancelReverseIssueRequest(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.cancelReverseIssueRequest', async () =>
-        compatTaxInvoiceService.cancelRequest(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.cancelReverseIssueRequest', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.cancelRequest(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           request.historyMemo,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     refuseReverseIssueRequest(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.refuseReverseIssueRequest', async () =>
-        compatTaxInvoiceService.refuse(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.refuseReverseIssueRequest', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.refuse(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           request.historyMemo,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     deleteInvoice(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.deleteInvoice', async () =>
-        compatTaxInvoiceService.delete(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.deleteInvoice', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.delete(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     sendInvoiceToNTS(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.sendInvoiceToNTS', async () =>
-        compatTaxInvoiceService.sendToNTS(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.sendInvoiceToNTS', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.sendToNTS(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     async getInvoiceInfo(request, _options) {
@@ -186,52 +235,60 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
     },
 
     getInvoicesInfo(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoicesInfo', async () =>
-        compatTaxInvoiceService.getInfos(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoicesInfo', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getInfos(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKeys,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceInfos(taxInvoiceApiResponse)
+      })
     },
 
     getInvoiceDetailInfo(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceDetailInfo', async () =>
-        compatTaxInvoiceService.getDetailInfo(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceDetailInfo', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getDetailInfo(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceDocumentOutput(taxInvoiceApiResponse)
+      })
     },
 
     checkInvoiceManagementKeyInUse(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.checkInvoiceManagementKeyInUse', async () =>
-        compatTaxInvoiceService.checkMgtKeyInUse(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.checkInvoiceManagementKeyInUse', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.checkMgtKeyInUse(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceInvoiceManagementKeyUsage(taxInvoiceApiResponse)
+      })
     },
 
     getInvoiceXML(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceXML', async () =>
-        compatTaxInvoiceService.getXML(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceXML', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getXML(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceXmlResult(taxInvoiceApiResponse)
+      })
     },
 
     searchInvoices(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.searchInvoices', async () =>
-        compatTaxInvoiceService.search(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.searchInvoices', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.search(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.searchDateType,
@@ -255,112 +312,140 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           mapSearchCloseDownStateCodes(request.closeDownStateCodes),
           request.invoiceManagementKeyOrNationalTaxServiceConfirmationNumber
         )
-      )
+
+        return mapTaxInvoiceSearchResult(taxInvoiceApiResponse)
+      })
     },
 
     getInvoiceLogs(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceLogs', async () =>
-        compatTaxInvoiceService.getLogs(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceLogs', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getLogs(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceLogs(taxInvoiceApiResponse)
+      })
     },
 
     getTaxInvoiceBoxURL(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxInvoiceBoxURL', async () =>
-        compatTaxInvoiceService.getURL(request.businessNumber, request.taxInvoiceBoxScope, input.defaultUserId)
-      )
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxInvoiceBoxURL', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getURL(
+          request.businessNumber,
+          request.taxInvoiceBoxScope,
+          input.defaultUserId
+        )
+
+        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+      })
     },
 
     getInvoicePopupURL(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoicePopupURL', async () =>
-        compatTaxInvoiceService.getPopUpURL(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoicePopupURL', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getPopUpURL(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+      })
     },
 
     getInvoiceViewURL(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceViewURL', async () =>
-        compatTaxInvoiceService.getViewURL(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceViewURL', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getViewURL(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+      })
     },
 
     getSupplierInvoicePrintURL(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getSupplierInvoicePrintURL', async () =>
-        compatTaxInvoiceService.getPrintURL(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getSupplierInvoicePrintURL', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getPrintURL(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+      })
     },
 
     getBuyerInvoicePrintURL(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getBuyerInvoicePrintURL', async () =>
-        compatTaxInvoiceService.getEPrintURL(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getBuyerInvoicePrintURL', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getEPrintURL(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+      })
     },
 
     getBulkInvoicePrintURL(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getBulkInvoicePrintURL', async () =>
-        compatTaxInvoiceService.getMassPrintURL(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getBulkInvoicePrintURL', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getMassPrintURL(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKeys,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+      })
     },
 
     getInvoiceMailURL(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceMailURL', async () =>
-        compatTaxInvoiceService.getMailURL(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceMailURL', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getMailURL(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+      })
     },
 
     getInvoicePDFURL(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoicePDFURL', async () =>
-        compatTaxInvoiceService.getPDFURL(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoicePDFURL', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getPDFURL(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+      })
     },
 
     getSealAndAttachmentRegistrationURL(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getSealAndAttachmentRegistrationURL', async () =>
-        compatTaxInvoiceService.getSealURL(request.businessNumber, input.defaultUserId)
-      )
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getSealAndAttachmentRegistrationURL', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getSealURL(
+          request.businessNumber,
+          input.defaultUserId
+        )
+        return mapTaxInvoiceAccessUrl(taxInvoiceApiResponse)
+      })
     },
 
     attachFileFromPath(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.attachFileFromPath', async () =>
-        compatTaxInvoiceService.attachFile(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.attachFileFromPath', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.attachFile(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
@@ -368,12 +453,14 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           request.filePath,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     attachFileFromBinary(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.attachFileFromBinary', async () =>
-        compatTaxInvoiceService.attachFileBinary(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.attachFileFromBinary', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.attachFileBinary(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
@@ -383,47 +470,55 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           },
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     deleteAttachedFile(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.deleteAttachedFile', async () =>
-        compatTaxInvoiceService.deleteFile(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.deleteAttachedFile', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.deleteFile(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           request.fileIdentifier,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     getAttachedFiles(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getAttachedFiles', async () =>
-        compatTaxInvoiceService.getFiles(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getAttachedFiles', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getFiles(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceAttachedFiles(taxInvoiceApiResponse)
+      })
     },
 
     resendInvoiceEmail(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.resendInvoiceEmail', async () =>
-        compatTaxInvoiceService.sendEmail(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.resendInvoiceEmail', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.sendEmail(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
           request.receiverEmailAddress,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     resendInvoiceSMS(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.resendInvoiceSMS', async () =>
-        compatTaxInvoiceService.sendSMS(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.resendInvoiceSMS', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.sendSMS(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
@@ -432,12 +527,14 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           request.messageBody,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     resendInvoiceFAX(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.resendInvoiceFAX', async () =>
-        compatTaxInvoiceService.sendFAX(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.resendInvoiceFAX', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.sendFAX(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
@@ -445,12 +542,14 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           request.receiverNumber,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     attachInvoiceStatement(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.attachInvoiceStatement', async () =>
-        compatTaxInvoiceService.attachStatement(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.attachInvoiceStatement', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.attachStatement(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
@@ -458,12 +557,14 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           request.statementManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     detachInvoiceStatement(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.detachInvoiceStatement', async () =>
-        compatTaxInvoiceService.detachStatement(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.detachInvoiceStatement', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.detachStatement(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
@@ -471,66 +572,96 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           request.statementManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     assignInvoiceManagementKey(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.assignInvoiceManagementKey', async () =>
-        compatTaxInvoiceService.assignMgtKey(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.assignInvoiceManagementKey', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.assignMgtKey(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.itemKey,
           request.invoiceManagementKey,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     getEmailSendSettings(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getEmailSendSettings', async () =>
-        compatTaxInvoiceService.listEmailConfig(request.businessNumber, input.defaultUserId)
-      )
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getEmailSendSettings', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.listEmailConfig(
+          request.businessNumber,
+          input.defaultUserId
+        )
+        return mapTaxInvoiceEmailSendSettings(taxInvoiceApiResponse)
+      })
     },
 
     updateEmailSendSettings(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.updateEmailSendSettings', async () =>
-        compatTaxInvoiceService.updateEmailConfig(
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.updateEmailSendSettings', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.updateEmailConfig(
           request.businessNumber,
           request.emailType,
           request.sendEnabled,
           input.defaultUserId
         )
-      )
+
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     getSendToNTSSettings(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getSendToNTSSettings', async () =>
-        compatTaxInvoiceService.getSendToNTSConfig(request.businessNumber, input.defaultUserId)
-      )
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getSendToNTSSettings', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getSendToNTSConfig(
+          request.businessNumber,
+          input.defaultUserId
+        )
+        return mapTaxInvoiceSendToNationalTaxServiceSetting(taxInvoiceApiResponse)
+      })
     },
 
     getTaxCertificateRegistrationURL(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxCertificateRegistrationURL', async () =>
-        compatTaxInvoiceService.getTaxCertURL(request.businessNumber, input.defaultUserId)
-      )
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxCertificateRegistrationURL', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getTaxCertURL(
+          request.businessNumber,
+          input.defaultUserId
+        )
+        return mapTaxInvoiceAccessUrl(taxInvoiceApiResponse)
+      })
     },
 
     getTaxCertificateExpirationDate(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxCertificateExpirationDate', async () =>
-        compatTaxInvoiceService.getCertificateExpireDate(request.businessNumber, input.defaultUserId)
-      )
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxCertificateExpirationDate', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getCertificateExpireDate(
+          request.businessNumber,
+          input.defaultUserId
+        )
+        return mapTaxInvoiceTaxCertificateExpiration(taxInvoiceApiResponse)
+      })
     },
 
     checkTaxCertificateValidation(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.checkTaxCertificateValidation', async () =>
-        compatTaxInvoiceService.checkCertValidation(request.businessNumber, input.defaultUserId)
-      )
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.checkTaxCertificateValidation', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.checkCertValidation(
+          request.businessNumber,
+          input.defaultUserId
+        )
+        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+      })
     },
 
     getTaxCertificateInfo(request, _options) {
-      return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxCertificateInfo', async () =>
-        compatTaxInvoiceService.getTaxCertInfo(request.businessNumber, input.defaultUserId)
-      )
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxCertificateInfo', async () => {
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getTaxCertInfo(
+          request.businessNumber,
+          input.defaultUserId
+        )
+        return mapTaxInvoiceTaxCertificateInfo(taxInvoiceApiResponse)
+      })
     },
   }
 }

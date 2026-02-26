@@ -8,7 +8,7 @@ describeTaxInvoiceIntegration('popbill tax-invoice integration: getTaxCertificat
       businessNumber: context.businessNumber,
     })
 
-    expect(typeof response).toBe('string')
-    expect(response.length).toBeGreaterThan(0)
+    expect(typeof response.expirationDateTime).toBe('string')
+    expect(response.expirationDateTime.length).toBeGreaterThan(0)
   }, 180_000)
 })

@@ -20,7 +20,7 @@ describeTaxInvoiceIntegration('popbill tax-invoice integration: searchInvoices',
       closeDownStateCodes: ['0'],
     })
 
-    expect(typeof response.code).toBe('number')
-    expect(Array.isArray(response.list)).toBe(true)
+    expect(typeof response.operationResult.resultCode).toBe('number')
+    expect(Array.isArray(response.invoiceSummaries)).toBe(true)
   }, 180_000)
 })

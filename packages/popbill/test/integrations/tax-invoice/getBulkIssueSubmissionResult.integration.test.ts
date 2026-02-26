@@ -28,7 +28,7 @@ describeTaxInvoiceIntegration('popbill tax-invoice integration: getBulkIssueSubm
       submissionIdentifier,
     })
 
-    expect(typeof response.code).toBe('number')
-    expect(typeof response.message).toBe('string')
+    expect(typeof response.resultCode).toBe('number')
+    expect(typeof response.resultMessage).toBe('string')
   }, 180_000)
 })

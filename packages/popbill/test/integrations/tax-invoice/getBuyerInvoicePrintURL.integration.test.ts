@@ -12,7 +12,7 @@ describeTaxInvoiceIntegration('popbill tax-invoice integration: getBuyerInvoiceP
       invoiceManagementKey: managementKey,
     })
 
-    expect(typeof response).toBe('string')
-    expect(response.startsWith('http')).toBe(true)
+    expect(typeof response.accessUrl).toBe('string')
+    expect(response.accessUrl.startsWith('http')).toBe(true)
   }, 180_000)
 })

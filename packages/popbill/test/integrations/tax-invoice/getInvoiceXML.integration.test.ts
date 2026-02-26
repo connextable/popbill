@@ -12,7 +12,7 @@ describeTaxInvoiceIntegration('popbill tax-invoice integration: getInvoiceXML', 
       invoiceManagementKey: managementKey,
     })
 
-    expect(typeof response.code).toBe('number')
-    expect(typeof response.retObject).toBe('string')
+    expect(typeof response.operationResult?.resultCode).toBe('number')
+    expect(typeof response.xmlContent).toBe('string')
   }, 180_000)
 })
