@@ -357,6 +357,53 @@ export interface TaxInvoiceSortOrderMap {
 export type TaxInvoiceSortOrder = TaxInvoiceSortOrderMap[keyof TaxInvoiceSortOrderMap]
 
 /**
+ * 수정세금계산서 사유코드(raw).
+ *
+ * - `1`: 기재사항 착오정정
+ * - `2`: 공급가액 변동
+ * - `3`: 환입
+ * - `4`: 계약의 해제
+ * - `5`: 내국신용장 사후개설
+ * - `6`: 착오에 의한 이중발급
+ */
+export interface TaxInvoiceModifyCodeMap {
+  /**
+   * 기재사항 착오정정.
+   */
+  CorrectingEntryErrors: 1
+
+  /**
+   * 공급가액 변동.
+   */
+  SupplyAmountAdjustment: 2
+
+  /**
+   * 환입.
+   */
+  ReturnedGoods: 3
+
+  /**
+   * 계약의 해제.
+   */
+  ContractCancellation: 4
+
+  /**
+   * 내국신용장 사후개설.
+   */
+  LocalLetterOfCreditOpenedAfterSupply: 5
+
+  /**
+   * 착오에 의한 이중발급.
+   */
+  DuplicateIssuanceByMistake: 6
+}
+
+/**
+ * 수정세금계산서 사유코드(raw).
+ */
+export type TaxInvoiceModifyCode = TaxInvoiceModifyCodeMap[keyof TaxInvoiceModifyCodeMap]
+
+/**
  * 이메일 설정 구분(raw).
  *
  * Source

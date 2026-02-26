@@ -19,6 +19,7 @@ import type {
   TaxInvoiceGetXmlApiResponse,
   TaxInvoiceIssueApiResponse,
   TaxInvoiceListEmailConfigApiResponse,
+  TaxInvoiceModifyCode as TaxInvoiceModificationCodeRaw,
   TaxInvoiceMgtKeyType as TaxInvoiceDocumentKeyTypeRaw,
   TaxInvoiceRegistIssueApiResponse,
   TaxInvoiceSearchApiResponse,
@@ -41,6 +42,18 @@ export type TaxInvoiceBoxScope = TaxInvoiceBoxScopeRaw
  * 검색 조건의 휴폐업 상태 코드입니다.
  */
 export type TaxInvoiceCloseDownStateCode = TaxInvoiceCloseDownStateCodeRaw
+
+/**
+ * 수정세금계산서 사유코드입니다.
+ *
+ * - `1`: 기재사항 착오정정
+ * - `2`: 공급가액 변동
+ * - `3`: 환입
+ * - `4`: 계약의 해제
+ * - `5`: 내국신용장 사후개설
+ * - `6`: 착오에 의한 이중발급
+ */
+export type TaxInvoiceModificationCode = TaxInvoiceModificationCodeRaw
 
 /**
  * TaxInvoice API 호출 시 공통으로 사용하는 요청 옵션입니다.
@@ -408,7 +421,7 @@ export interface TaxInvoiceInfo {
   /** 국세청 전송 오류코드입니다. */
   nationalTaxServiceSendErrorCode?: string
   /** 수정세금계산서 사유코드입니다. */
-  modificationCode?: number
+  modificationCode?: TaxInvoiceModificationCode
   /** API 연동 문서 여부입니다. */
   isApiLinkedDocument: boolean
   /** 공급자 상호입니다. */

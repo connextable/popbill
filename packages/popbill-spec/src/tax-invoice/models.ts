@@ -6,10 +6,14 @@ import type {
   TaxInvoiceApiResponseBase,
   TaxInvoiceDateString,
   TaxInvoiceEmailType,
+  TaxInvoiceModifyCode,
   TaxInvoiceMgtKeyType,
   TaxType,
 } from './common'
 import type { TaxInvoiceNtsResultCode, TaxInvoiceStateCode } from './response-codes'
+
+type ExtensibleTaxInvoiceStateCode = TaxInvoiceStateCode | (number & {}) | (string & {})
+type ExtensibleTaxInvoiceNtsResultCode = TaxInvoiceNtsResultCode | (string & {}) // oxlint-disable-line
 
 /**
  * Tax Invoice Domain Raw Models
@@ -492,9 +496,9 @@ export interface TaxInvoiceApiModel {
   totalAmount?: string
 
   /**
-   * 수정사유코드
+   * 수정세금계산서 사유코드
    */
-  modifyCode?: number
+  modifyCode?: TaxInvoiceModifyCode
 
   /**
    * 수정세금계산서 작성시 원본세금계산서의 국세청승인번호
@@ -569,7 +573,7 @@ export interface TaxInvoiceApiModel {
   /**
    * 상태코드
    */
-  stateCode?: TaxInvoiceStateCode | number | string
+  stateCode?: ExtensibleTaxInvoiceStateCode
 
   /**
    * 상태코드 갱신일시
@@ -614,7 +618,7 @@ export interface TaxInvoiceApiModel {
   /**
    * 국세청 전송결과코드
    */
-  ntssendErrCode?: TaxInvoiceNtsResultCode | string
+  ntssendErrCode?: ExtensibleTaxInvoiceNtsResultCode
 
   /**
    * 정발행 역발행 여부
@@ -706,7 +710,7 @@ export interface TaxInvoiceInfoApiModel {
   /**
    * 상태코드
    */
-  stateCode: TaxInvoiceStateCode
+  stateCode: ExtensibleTaxInvoiceStateCode
 
   /**
    * 상태코드 갱신일시
@@ -736,12 +740,12 @@ export interface TaxInvoiceInfoApiModel {
   /**
    * 국세청 전송결과코드
    */
-  ntssendErrCode?: TaxInvoiceNtsResultCode
+  ntssendErrCode?: ExtensibleTaxInvoiceNtsResultCode
 
   /**
-   * 수정사유코드
+   * 수정세금계산서 사유코드
    */
-  modifyCode?: number
+  modifyCode?: TaxInvoiceModifyCode
 
   /**
    * 정발행 역발행 여부

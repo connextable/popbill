@@ -13,7 +13,7 @@ interface ForwardingCase {
   invoke: (service: TaxInvoiceService) => Promise<unknown>
   expectedArgs: unknown[]
   response: unknown
-  assertResult?: (result: unknown) => void
+  expectedResult?: Record<string, unknown>
 }
 
 function createCompatServiceStub(overrides: Partial<CompatTaxInvoiceService>): CompatTaxInvoiceService {
@@ -281,18 +281,16 @@ const FORWARDING_CASES: ForwardingCase[] = [
     invoke: (service) => service.getInvoiceInfo(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: INVOICE_INFO_RAW_RESPONSE,
-    assertResult: (result) => {
-      expect(result).toMatchObject({
-        itemKey: 'ITEM-1',
-        writtenDate: '20260225',
-        registeredAt: '20260225120000',
-        stateCode: 300,
-        isLateIssued: false,
-        isOpen: false,
-        isApiLinkedDocument: true,
-        supplierCompanyName: '공급자',
-        buyerCompanyName: '공급받는자',
-      })
+    expectedResult: {
+      itemKey: 'ITEM-1',
+      writtenDate: '20260225',
+      registeredAt: '20260225120000',
+      stateCode: 300,
+      isLateIssued: false,
+      isOpen: false,
+      isApiLinkedDocument: true,
+      supplierCompanyName: '공급자',
+      buyerCompanyName: '공급받는자',
     },
   },
   {
@@ -734,12 +732,9 @@ describe('tax-invoice facade adapter', () => {
       expect(compatMethodMock).toHaveBeenCalledTimes(1)
       expect(compatMethodMock).toHaveBeenCalledWith(...testCase.expectedArgs)
 
-      if (testCase.assertResult) {
-        testCase.assertResult(result)
-        return
-      }
-
-      expect(result).toBe(testCase.response)
+      expect({ result }).toMatchObject({
+        result: testCase.expectedResult ?? testCase.response,
+      })
     })
   }
 
