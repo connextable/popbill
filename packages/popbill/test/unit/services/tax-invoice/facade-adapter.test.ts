@@ -71,7 +71,7 @@ const INVOICE_INFO_RAW_RESPONSE: TaxInvoiceGetInfoApiResponse = {
   lateIssueYN: 'false',
   openYN: false,
   stateMemo: '발행 완료',
-  stateCode: '300',
+  stateCode: 300,
   stateDT: '20260225120001',
   ntsconfirmNum: 'NTS-1',
   interOPYN: 'true',

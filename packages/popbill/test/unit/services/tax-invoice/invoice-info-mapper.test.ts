@@ -14,7 +14,7 @@ const BASE_RESPONSE: TaxInvoiceGetInfoApiResponse = {
   lateIssueYN: 'false',
   openYN: 'false',
   stateMemo: '발행 완료',
-  stateCode: '300',
+  stateCode: 300,
   stateDT: '20260225120001',
   interOPYN: 'true',
   invoicerCorpName: '공급자',
@@ -42,7 +42,7 @@ describe('tax-invoice invoice-info mapper', () => {
       ...BASE_RESPONSE,
       stateCode: '301',
       trusteePrintYN: 'true',
-    })
+    } as unknown as TaxInvoiceGetInfoApiResponse)
 
     expect(result.stateCode).toBe(301)
     expect(result.isTrusteePrinted).toBe(true)

@@ -19,41 +19,97 @@ import type {
   TaxInvoiceGetXmlApiResponse,
   TaxInvoiceIssueApiResponse,
   TaxInvoiceListEmailConfigApiResponse,
-  TaxInvoiceModifyCode as TaxInvoiceModificationCodeRaw,
-  TaxInvoiceMgtKeyType as TaxInvoiceDocumentKeyTypeRaw,
   TaxInvoiceRegistIssueApiResponse,
   TaxInvoiceSearchApiResponse,
-  TaxInvoiceSearchCloseDownState as TaxInvoiceCloseDownStateCodeRaw,
   TaxType,
-  TaxInvoiceGetUrlTogo as TaxInvoiceBoxScopeRaw,
 } from '@connextable/popbill-spec'
+
+/**
+ * 세금계산서 문서번호 유형 상수입니다.
+ */
+export const TaxInvoiceDocumentKeyTypes = {
+  /** 코드: `SELL`, 설명: 매출 문서번호 유형 */
+  Sales: 'SELL',
+  /** 코드: `BUY`, 설명: 매입 문서번호 유형 */
+  Purchase: 'BUY',
+  /** 코드: `TRUSTEE`, 설명: 위수탁 문서번호 유형 */
+  Trustee: 'TRUSTEE',
+} as const
 
 /**
  * 세금계산서 문서번호 유형입니다.
  */
-export type TaxInvoiceDocumentKeyType = TaxInvoiceDocumentKeyTypeRaw
+export type TaxInvoiceDocumentKeyType = (typeof TaxInvoiceDocumentKeyTypes)[keyof typeof TaxInvoiceDocumentKeyTypes]
+
+/**
+ * 세금계산서 문서함 범위 상수입니다.
+ */
+export const TaxInvoiceBoxScopes = {
+  /** 코드: `TBOX`, 설명: 임시 문서함 */
+  TemporaryDocumentBox: 'TBOX',
+  /** 코드: `SWBOX`, 설명: 매출 발행 대기함 */
+  SalesIssueWaitingBox: 'SWBOX',
+  /** 코드: `SBOX`, 설명: 매출 문서함 */
+  SalesDocumentBox: 'SBOX',
+  /** 코드: `PWBOX`, 설명: 매입 발행 대기함 */
+  PurchaseIssueWaitingBox: 'PWBOX',
+  /** 코드: `PBOX`, 설명: 매입 문서함 */
+  PurchaseDocumentBox: 'PBOX',
+  /** 코드: `WRITE`, 설명: 정발행 작성 */
+  WriteInvoice: 'WRITE',
+} as const
 
 /**
  * 세금계산서 문서함 범위 값입니다.
  */
-export type TaxInvoiceBoxScope = TaxInvoiceBoxScopeRaw
+export type TaxInvoiceBoxScope = (typeof TaxInvoiceBoxScopes)[keyof typeof TaxInvoiceBoxScopes]
+
+/**
+ * 검색 조건의 휴폐업 상태 상수입니다.
+ */
+export const TaxInvoiceCloseDownStateCodes = {
+  /** 코드: `N`, 설명: 미확인 */
+  NotChecked: 'N',
+  /** 코드: `0`, 설명: 미등록 */
+  NotRegistered: '0',
+  /** 코드: `1`, 설명: 사업중 */
+  Operating: '1',
+  /** 코드: `2`, 설명: 폐업 */
+  Closed: '2',
+  /** 코드: `3`, 설명: 휴업 */
+  Suspended: '3',
+  /** 코드: `4`, 설명: 확인실패 */
+  CheckFailed: '4',
+} as const
 
 /**
  * 검색 조건의 휴폐업 상태 코드입니다.
  */
-export type TaxInvoiceCloseDownStateCode = TaxInvoiceCloseDownStateCodeRaw
+export type TaxInvoiceCloseDownStateCode =
+  (typeof TaxInvoiceCloseDownStateCodes)[keyof typeof TaxInvoiceCloseDownStateCodes]
 
 /**
  * 수정세금계산서 사유코드입니다.
- *
- * - `1`: 기재사항 착오정정
- * - `2`: 공급가액 변동
- * - `3`: 환입
- * - `4`: 계약의 해제
- * - `5`: 내국신용장 사후개설
- * - `6`: 착오에 의한 이중발급
  */
-export type TaxInvoiceModificationCode = TaxInvoiceModificationCodeRaw
+export const TaxInvoiceModificationCodes = {
+  /** 코드: `1`, 설명: 기재사항 착오정정 */
+  CorrectingEntryErrors: 1,
+  /** 코드: `2`, 설명: 공급가액 변동 */
+  SupplyAmountAdjustment: 2,
+  /** 코드: `3`, 설명: 환입 */
+  Return: 3,
+  /** 코드: `4`, 설명: 계약의 해제 */
+  ContractCancellation: 4,
+  /** 코드: `5`, 설명: 내국신용장 사후개설 */
+  PostIssuedDomesticLetterOfCredit: 5,
+  /** 코드: `6`, 설명: 착오에 의한 이중발급 */
+  DuplicateIssuanceByMistake: 6,
+} as const
+
+/**
+ * 수정세금계산서 사유코드입니다.
+ */
+export type TaxInvoiceModificationCode = (typeof TaxInvoiceModificationCodes)[keyof typeof TaxInvoiceModificationCodes]
 
 /**
  * TaxInvoice API 호출 시 공통으로 사용하는 요청 옵션입니다.
