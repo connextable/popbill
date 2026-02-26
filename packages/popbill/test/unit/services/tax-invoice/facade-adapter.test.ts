@@ -31,7 +31,6 @@ const BUSINESS_NUMBER = '1234567890'
 const INVOICE_DOCUMENT_KEY_TYPE = 'SELL'
 const INVOICE_MANAGEMENT_KEY = 'MGT-001'
 const USER_ID = 'tester'
-const REQUEST_OPTIONS = {} as const satisfies Record<string, never>
 
 const TAX_INVOICE_DOCUMENT: TaxInvoiceDocumentInput = {
   writtenDate: '20260225',
@@ -93,18 +92,15 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'issueInvoiceImmediately',
     compatMethod: 'registIssue',
     invoke: (service) =>
-      service.issueInvoiceImmediately(
-        {
-          businessNumber: BUSINESS_NUMBER,
-          taxInvoiceDocument: TAX_INVOICE_DOCUMENT,
-          writeSpecification: true,
-          forceIssue: false,
-          historyMemo: 'memo',
-          emailSubject: 'subject',
-          dealInvoiceManagementKey: 'DEAL-1',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.issueInvoiceImmediately({
+        businessNumber: BUSINESS_NUMBER,
+        taxInvoiceDocument: TAX_INVOICE_DOCUMENT,
+        writeSpecification: true,
+        forceIssue: false,
+        historyMemo: 'memo',
+        emailSubject: 'subject',
+        dealInvoiceManagementKey: 'DEAL-1',
+      }),
     expectedArgs: [BUSINESS_NUMBER, TAX_INVOICE_API_DOCUMENT, true, false, 'memo', 'subject', 'DEAL-1', USER_ID],
     response: ISSUE_RESPONSE,
   },
@@ -112,15 +108,12 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'submitBulkIssue',
     compatMethod: 'bulkSubmit',
     invoke: (service) =>
-      service.submitBulkIssue(
-        {
-          businessNumber: BUSINESS_NUMBER,
-          submissionIdentifier: 'SUBMIT-1',
-          taxInvoiceDocuments: [TAX_INVOICE_DOCUMENT],
-          forceIssue: true,
-        },
-        REQUEST_OPTIONS
-      ),
+      service.submitBulkIssue({
+        businessNumber: BUSINESS_NUMBER,
+        submissionIdentifier: 'SUBMIT-1',
+        taxInvoiceDocuments: [TAX_INVOICE_DOCUMENT],
+        forceIssue: true,
+      }),
     expectedArgs: [BUSINESS_NUMBER, 'SUBMIT-1', [TAX_INVOICE_API_DOCUMENT], true, USER_ID],
     response: BULK_SUBMIT_RESPONSE,
   },
@@ -128,13 +121,10 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'getBulkIssueSubmissionResult',
     compatMethod: 'getBulkResult',
     invoke: (service) =>
-      service.getBulkIssueSubmissionResult(
-        {
-          businessNumber: BUSINESS_NUMBER,
-          submissionIdentifier: 'SUBMIT-1',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.getBulkIssueSubmissionResult({
+        businessNumber: BUSINESS_NUMBER,
+        submissionIdentifier: 'SUBMIT-1',
+      }),
     expectedArgs: [BUSINESS_NUMBER, 'SUBMIT-1', USER_ID],
     response: BULK_RESULT_RESPONSE,
   },
@@ -142,13 +132,10 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'registerInvoice',
     compatMethod: 'register',
     invoke: (service) =>
-      service.registerInvoice(
-        {
-          businessNumber: BUSINESS_NUMBER,
-          taxInvoiceDocument: TAX_INVOICE_DOCUMENT,
-        },
-        REQUEST_OPTIONS
-      ),
+      service.registerInvoice({
+        businessNumber: BUSINESS_NUMBER,
+        taxInvoiceDocument: TAX_INVOICE_DOCUMENT,
+      }),
     expectedArgs: [BUSINESS_NUMBER, TAX_INVOICE_API_DOCUMENT, USER_ID],
     response: API_RESPONSE,
   },
@@ -156,13 +143,10 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'updateInvoice',
     compatMethod: 'update',
     invoke: (service) =>
-      service.updateInvoice(
-        {
-          ...BASE_DOCUMENT_INPUT,
-          taxInvoiceDocument: TAX_INVOICE_DOCUMENT,
-        },
-        REQUEST_OPTIONS
-      ),
+      service.updateInvoice({
+        ...BASE_DOCUMENT_INPUT,
+        taxInvoiceDocument: TAX_INVOICE_DOCUMENT,
+      }),
     expectedArgs: [
       BUSINESS_NUMBER,
       INVOICE_DOCUMENT_KEY_TYPE,
@@ -176,15 +160,12 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'issueInvoice',
     compatMethod: 'issue',
     invoke: (service) =>
-      service.issueInvoice(
-        {
-          ...BASE_DOCUMENT_INPUT,
-          historyMemo: 'memo',
-          emailSubject: 'subject',
-          forceIssue: true,
-        },
-        REQUEST_OPTIONS
-      ),
+      service.issueInvoice({
+        ...BASE_DOCUMENT_INPUT,
+        historyMemo: 'memo',
+        emailSubject: 'subject',
+        forceIssue: true,
+      }),
     expectedArgs: [
       BUSINESS_NUMBER,
       INVOICE_DOCUMENT_KEY_TYPE,
@@ -200,13 +181,10 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'cancelIssuedInvoice',
     compatMethod: 'cancelIssue',
     invoke: (service) =>
-      service.cancelIssuedInvoice(
-        {
-          ...BASE_DOCUMENT_INPUT,
-          historyMemo: 'memo',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.cancelIssuedInvoice({
+        ...BASE_DOCUMENT_INPUT,
+        historyMemo: 'memo',
+      }),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, 'memo', USER_ID],
     response: API_RESPONSE,
   },
@@ -214,14 +192,11 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'requestReverseIssueImmediately',
     compatMethod: 'registRequest',
     invoke: (service) =>
-      service.requestReverseIssueImmediately(
-        {
-          businessNumber: BUSINESS_NUMBER,
-          taxInvoiceDocument: TAX_INVOICE_DOCUMENT,
-          historyMemo: 'memo',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.requestReverseIssueImmediately({
+        businessNumber: BUSINESS_NUMBER,
+        taxInvoiceDocument: TAX_INVOICE_DOCUMENT,
+        historyMemo: 'memo',
+      }),
     expectedArgs: [BUSINESS_NUMBER, TAX_INVOICE_API_DOCUMENT, 'memo', USER_ID],
     response: API_RESPONSE,
   },
@@ -229,13 +204,10 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'requestReverseIssue',
     compatMethod: 'request',
     invoke: (service) =>
-      service.requestReverseIssue(
-        {
-          ...BASE_DOCUMENT_INPUT,
-          historyMemo: 'memo',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.requestReverseIssue({
+        ...BASE_DOCUMENT_INPUT,
+        historyMemo: 'memo',
+      }),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, 'memo', USER_ID],
     response: API_RESPONSE,
   },
@@ -243,13 +215,10 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'cancelReverseIssueRequest',
     compatMethod: 'cancelRequest',
     invoke: (service) =>
-      service.cancelReverseIssueRequest(
-        {
-          ...BASE_DOCUMENT_INPUT,
-          historyMemo: 'memo',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.cancelReverseIssueRequest({
+        ...BASE_DOCUMENT_INPUT,
+        historyMemo: 'memo',
+      }),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, 'memo', USER_ID],
     response: API_RESPONSE,
   },
@@ -257,27 +226,24 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'refuseReverseIssueRequest',
     compatMethod: 'refuse',
     invoke: (service) =>
-      service.refuseReverseIssueRequest(
-        {
-          ...BASE_DOCUMENT_INPUT,
-          historyMemo: 'memo',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.refuseReverseIssueRequest({
+        ...BASE_DOCUMENT_INPUT,
+        historyMemo: 'memo',
+      }),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, 'memo', USER_ID],
     response: API_RESPONSE,
   },
   {
     facadeMethod: 'deleteInvoice',
     compatMethod: 'delete',
-    invoke: (service) => service.deleteInvoice(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
+    invoke: (service) => service.deleteInvoice(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: API_RESPONSE,
   },
   {
     facadeMethod: 'sendInvoiceToNTS',
     compatMethod: 'sendToNTS',
-    invoke: (service) => service.sendInvoiceToNTS(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
+    invoke: (service) => service.sendInvoiceToNTS(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: API_RESPONSE,
   },
@@ -286,7 +252,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
   {
     facadeMethod: 'getInvoiceInfo',
     compatMethod: 'getInfo',
-    invoke: (service) => service.getInvoiceInfo(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
+    invoke: (service) => service.getInvoiceInfo(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: INVOICE_INFO_RAW_RESPONSE,
     expectedResult: {
@@ -305,35 +271,32 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'getInvoicesInfo',
     compatMethod: 'getInfos',
     invoke: (service) =>
-      service.getInvoicesInfo(
-        {
-          businessNumber: BUSINESS_NUMBER,
-          invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-          invoiceManagementKeys: ['MGT-1', 'MGT-2'],
-        },
-        REQUEST_OPTIONS
-      ),
+      service.getInvoicesInfo({
+        businessNumber: BUSINESS_NUMBER,
+        invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+        invoiceManagementKeys: ['MGT-1', 'MGT-2'],
+      }),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, ['MGT-1', 'MGT-2'], USER_ID],
     response: [INVOICE_INFO_RAW_RESPONSE],
   },
   {
     facadeMethod: 'getInvoiceDetailInfo',
     compatMethod: 'getDetailInfo',
-    invoke: (service) => service.getInvoiceDetailInfo(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
+    invoke: (service) => service.getInvoiceDetailInfo(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: TAX_INVOICE_API_DOCUMENT,
   },
   {
     facadeMethod: 'checkInvoiceManagementKeyInUse',
     compatMethod: 'checkMgtKeyInUse',
-    invoke: (service) => service.checkInvoiceManagementKeyInUse(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
+    invoke: (service) => service.checkInvoiceManagementKeyInUse(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: true,
   },
   {
     facadeMethod: 'getInvoiceXML',
     compatMethod: 'getXML',
-    invoke: (service) => service.getInvoiceXML(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
+    invoke: (service) => service.getInvoiceXML(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: XML_RESPONSE,
   },
@@ -341,32 +304,29 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'searchInvoices',
     compatMethod: 'search',
     invoke: (service) =>
-      service.searchInvoices(
-        {
-          businessNumber: BUSINESS_NUMBER,
-          invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-          searchDateType: 'R',
-          startDate: '20260201',
-          endDate: '20260228',
-          invoiceStateCodes: ['100', '300'],
-          invoiceTypeCodes: ['N'],
-          taxationTypeCodes: ['T'],
-          lateIssueOnly: null,
-          sortOrder: 'D',
-          pageNumber: 1,
-          pageSize: 500,
-          taxRegistrationIdentifierType: 'S',
-          taxRegistrationIdentifierAvailability: '1',
-          taxRegistrationIdentifier: '0001',
-          queryText: 'query',
-          interoperabilityType: '1',
-          issueTypeCodes: ['N'],
-          registrationTypeCodes: ['P'],
-          closeDownStateCodes: ['0', '4'],
-          invoiceManagementKeyOrNationalTaxServiceConfirmationNumber: 'MGT-001',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.searchInvoices({
+        businessNumber: BUSINESS_NUMBER,
+        invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+        searchDateType: 'R',
+        startDate: '20260201',
+        endDate: '20260228',
+        invoiceStateCodes: ['100', '300'],
+        invoiceTypeCodes: ['N'],
+        taxationTypeCodes: ['T'],
+        lateIssueOnly: null,
+        sortOrder: 'D',
+        pageNumber: 1,
+        pageSize: 500,
+        taxRegistrationIdentifierType: 'S',
+        taxRegistrationIdentifierAvailability: '1',
+        taxRegistrationIdentifier: '0001',
+        queryText: 'query',
+        interoperabilityType: '1',
+        issueTypeCodes: ['N'],
+        registrationTypeCodes: ['P'],
+        closeDownStateCodes: ['0', '4'],
+        invoiceManagementKeyOrNationalTaxServiceConfirmationNumber: 'MGT-001',
+      }),
     expectedArgs: [
       BUSINESS_NUMBER,
       INVOICE_DOCUMENT_KEY_TYPE,
@@ -396,7 +356,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
   {
     facadeMethod: 'getInvoiceLogs',
     compatMethod: 'getLogs',
-    invoke: (service) => service.getInvoiceLogs(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
+    invoke: (service) => service.getInvoiceLogs(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: [{ log: '발행 완료' }],
   },
@@ -404,13 +364,10 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'getTaxInvoiceBoxURL',
     compatMethod: 'getURL',
     invoke: (service) =>
-      service.getTaxInvoiceBoxURL(
-        {
-          businessNumber: BUSINESS_NUMBER,
-          taxInvoiceBoxScope: 'TBOX',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.getTaxInvoiceBoxURL({
+        businessNumber: BUSINESS_NUMBER,
+        taxInvoiceBoxScope: 'TBOX',
+      }),
     expectedArgs: [BUSINESS_NUMBER, 'TBOX', USER_ID],
     response: URL_RESPONSE,
   },
@@ -419,28 +376,28 @@ const FORWARDING_CASES: ForwardingCase[] = [
   {
     facadeMethod: 'getInvoicePopupURL',
     compatMethod: 'getPopUpURL',
-    invoke: (service) => service.getInvoicePopupURL(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
+    invoke: (service) => service.getInvoicePopupURL(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: URL_RESPONSE,
   },
   {
     facadeMethod: 'getInvoiceViewURL',
     compatMethod: 'getViewURL',
-    invoke: (service) => service.getInvoiceViewURL(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
+    invoke: (service) => service.getInvoiceViewURL(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: URL_RESPONSE,
   },
   {
     facadeMethod: 'getSupplierInvoicePrintURL',
     compatMethod: 'getPrintURL',
-    invoke: (service) => service.getSupplierInvoicePrintURL(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
+    invoke: (service) => service.getSupplierInvoicePrintURL(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: URL_RESPONSE,
   },
   {
     facadeMethod: 'getBuyerInvoicePrintURL',
     compatMethod: 'getEPrintURL',
-    invoke: (service) => service.getBuyerInvoicePrintURL(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
+    invoke: (service) => service.getBuyerInvoicePrintURL(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: URL_RESPONSE,
   },
@@ -448,28 +405,25 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'getBulkInvoicePrintURL',
     compatMethod: 'getMassPrintURL',
     invoke: (service) =>
-      service.getBulkInvoicePrintURL(
-        {
-          businessNumber: BUSINESS_NUMBER,
-          invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-          invoiceManagementKeys: ['MGT-1', 'MGT-2'],
-        },
-        REQUEST_OPTIONS
-      ),
+      service.getBulkInvoicePrintURL({
+        businessNumber: BUSINESS_NUMBER,
+        invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+        invoiceManagementKeys: ['MGT-1', 'MGT-2'],
+      }),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, ['MGT-1', 'MGT-2'], USER_ID],
     response: URL_RESPONSE,
   },
   {
     facadeMethod: 'getInvoiceMailURL',
     compatMethod: 'getMailURL',
-    invoke: (service) => service.getInvoiceMailURL(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
+    invoke: (service) => service.getInvoiceMailURL(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: URL_RESPONSE,
   },
   {
     facadeMethod: 'getInvoicePDFURL',
     compatMethod: 'getPDFURL',
-    invoke: (service) => service.getInvoicePDFURL(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
+    invoke: (service) => service.getInvoicePDFURL(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: URL_RESPONSE,
   },
@@ -478,8 +432,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
   {
     facadeMethod: 'getSealAndAttachmentRegistrationURL',
     compatMethod: 'getSealURL',
-    invoke: (service) =>
-      service.getSealAndAttachmentRegistrationURL({ businessNumber: BUSINESS_NUMBER }, REQUEST_OPTIONS),
+    invoke: (service) => service.getSealAndAttachmentRegistrationURL({ businessNumber: BUSINESS_NUMBER }),
     expectedArgs: [BUSINESS_NUMBER, USER_ID],
     response: SEAL_URL_RESPONSE,
   },
@@ -487,14 +440,11 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'attachFileFromPath',
     compatMethod: 'attachFile',
     invoke: (service) =>
-      service.attachFileFromPath(
-        {
-          ...BASE_DOCUMENT_INPUT,
-          displayName: 'invoice.pdf',
-          filePath: '/tmp/invoice.pdf',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.attachFileFromPath({
+        ...BASE_DOCUMENT_INPUT,
+        displayName: 'invoice.pdf',
+        filePath: '/tmp/invoice.pdf',
+      }),
     expectedArgs: [
       BUSINESS_NUMBER,
       INVOICE_DOCUMENT_KEY_TYPE,
@@ -509,14 +459,11 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'attachFileFromBinary',
     compatMethod: 'attachFileBinary',
     invoke: (service) =>
-      service.attachFileFromBinary(
-        {
-          ...BASE_DOCUMENT_INPUT,
-          fileName: 'invoice.pdf',
-          fileData: Buffer.from('file-bytes'),
-        },
-        REQUEST_OPTIONS
-      ),
+      service.attachFileFromBinary({
+        ...BASE_DOCUMENT_INPUT,
+        fileName: 'invoice.pdf',
+        fileData: Buffer.from('file-bytes'),
+      }),
     expectedArgs: [
       BUSINESS_NUMBER,
       INVOICE_DOCUMENT_KEY_TYPE,
@@ -533,20 +480,17 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'deleteAttachedFile',
     compatMethod: 'deleteFile',
     invoke: (service) =>
-      service.deleteAttachedFile(
-        {
-          ...BASE_DOCUMENT_INPUT,
-          fileIdentifier: 'FILE-1',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.deleteAttachedFile({
+        ...BASE_DOCUMENT_INPUT,
+        fileIdentifier: 'FILE-1',
+      }),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, 'FILE-1', USER_ID],
     response: API_RESPONSE,
   },
   {
     facadeMethod: 'getAttachedFiles',
     compatMethod: 'getFiles',
-    invoke: (service) => service.getAttachedFiles(BASE_DOCUMENT_INPUT, REQUEST_OPTIONS),
+    invoke: (service) => service.getAttachedFiles(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: FILES_RESPONSE,
   },
@@ -554,13 +498,10 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'resendInvoiceEmail',
     compatMethod: 'sendEmail',
     invoke: (service) =>
-      service.resendInvoiceEmail(
-        {
-          ...BASE_DOCUMENT_INPUT,
-          receiverEmailAddress: 'receiver@test.com',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.resendInvoiceEmail({
+        ...BASE_DOCUMENT_INPUT,
+        receiverEmailAddress: 'receiver@test.com',
+      }),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, 'receiver@test.com', USER_ID],
     response: API_RESPONSE,
   },
@@ -568,15 +509,12 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'resendInvoiceSMS',
     compatMethod: 'sendSMS',
     invoke: (service) =>
-      service.resendInvoiceSMS(
-        {
-          ...BASE_DOCUMENT_INPUT,
-          senderPhoneNumber: '01012345678',
-          receiverPhoneNumber: '01099998888',
-          messageBody: '문자 테스트',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.resendInvoiceSMS({
+        ...BASE_DOCUMENT_INPUT,
+        senderPhoneNumber: '01012345678',
+        receiverPhoneNumber: '01099998888',
+        messageBody: '문자 테스트',
+      }),
     expectedArgs: [
       BUSINESS_NUMBER,
       INVOICE_DOCUMENT_KEY_TYPE,
@@ -592,14 +530,11 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'resendInvoiceFAX',
     compatMethod: 'sendFAX',
     invoke: (service) =>
-      service.resendInvoiceFAX(
-        {
-          ...BASE_DOCUMENT_INPUT,
-          senderNumber: '0212345678',
-          receiverNumber: '0288889999',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.resendInvoiceFAX({
+        ...BASE_DOCUMENT_INPUT,
+        senderNumber: '0212345678',
+        receiverNumber: '0288889999',
+      }),
     expectedArgs: [
       BUSINESS_NUMBER,
       INVOICE_DOCUMENT_KEY_TYPE,
@@ -614,14 +549,11 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'attachInvoiceStatement',
     compatMethod: 'attachStatement',
     invoke: (service) =>
-      service.attachInvoiceStatement(
-        {
-          ...BASE_DOCUMENT_INPUT,
-          statementItemCode: 121,
-          statementManagementKey: 'STMT-1',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.attachInvoiceStatement({
+        ...BASE_DOCUMENT_INPUT,
+        statementItemCode: 121,
+        statementManagementKey: 'STMT-1',
+      }),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, 121, 'STMT-1', USER_ID],
     response: API_RESPONSE,
   },
@@ -629,14 +561,11 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'detachInvoiceStatement',
     compatMethod: 'detachStatement',
     invoke: (service) =>
-      service.detachInvoiceStatement(
-        {
-          ...BASE_DOCUMENT_INPUT,
-          statementItemCode: 121,
-          statementManagementKey: 'STMT-1',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.detachInvoiceStatement({
+        ...BASE_DOCUMENT_INPUT,
+        statementItemCode: 121,
+        statementManagementKey: 'STMT-1',
+      }),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, 121, 'STMT-1', USER_ID],
     response: API_RESPONSE,
   },
@@ -644,22 +573,19 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'assignInvoiceManagementKey',
     compatMethod: 'assignMgtKey',
     invoke: (service) =>
-      service.assignInvoiceManagementKey(
-        {
-          businessNumber: BUSINESS_NUMBER,
-          invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-          itemKey: 'ITEM-1',
-          invoiceManagementKey: 'MGT-NEW',
-        },
-        REQUEST_OPTIONS
-      ),
+      service.assignInvoiceManagementKey({
+        businessNumber: BUSINESS_NUMBER,
+        invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+        itemKey: 'ITEM-1',
+        invoiceManagementKey: 'MGT-NEW',
+      }),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, 'ITEM-1', 'MGT-NEW', USER_ID],
     response: API_RESPONSE,
   },
   {
     facadeMethod: 'getEmailSendSettings',
     compatMethod: 'listEmailConfig',
-    invoke: (service) => service.getEmailSendSettings({ businessNumber: BUSINESS_NUMBER }, REQUEST_OPTIONS),
+    invoke: (service) => service.getEmailSendSettings({ businessNumber: BUSINESS_NUMBER }),
     expectedArgs: [BUSINESS_NUMBER, USER_ID],
     response: EMAIL_CONFIG_RESPONSE,
   },
@@ -667,21 +593,18 @@ const FORWARDING_CASES: ForwardingCase[] = [
     facadeMethod: 'updateEmailSendSettings',
     compatMethod: 'updateEmailConfig',
     invoke: (service) =>
-      service.updateEmailSendSettings(
-        {
-          businessNumber: BUSINESS_NUMBER,
-          emailType: 'TAX_ISSUE',
-          sendEnabled: true,
-        },
-        REQUEST_OPTIONS
-      ),
+      service.updateEmailSendSettings({
+        businessNumber: BUSINESS_NUMBER,
+        emailType: 'TAX_ISSUE',
+        sendEnabled: true,
+      }),
     expectedArgs: [BUSINESS_NUMBER, 'TAX_ISSUE', true, USER_ID],
     response: API_RESPONSE,
   },
   {
     facadeMethod: 'getSendToNTSSettings',
     compatMethod: 'getSendToNTSConfig',
-    invoke: (service) => service.getSendToNTSSettings({ businessNumber: BUSINESS_NUMBER }, REQUEST_OPTIONS),
+    invoke: (service) => service.getSendToNTSSettings({ businessNumber: BUSINESS_NUMBER }),
     expectedArgs: [BUSINESS_NUMBER, USER_ID],
     response: SEND_TO_NTS_CONFIG_RESPONSE,
   },
@@ -690,28 +613,28 @@ const FORWARDING_CASES: ForwardingCase[] = [
   {
     facadeMethod: 'getTaxCertificateRegistrationURL',
     compatMethod: 'getTaxCertURL',
-    invoke: (service) => service.getTaxCertificateRegistrationURL({ businessNumber: BUSINESS_NUMBER }, REQUEST_OPTIONS),
+    invoke: (service) => service.getTaxCertificateRegistrationURL({ businessNumber: BUSINESS_NUMBER }),
     expectedArgs: [BUSINESS_NUMBER, USER_ID],
     response: TAX_CERT_URL_RESPONSE,
   },
   {
     facadeMethod: 'getTaxCertificateExpirationDate',
     compatMethod: 'getCertificateExpireDate',
-    invoke: (service) => service.getTaxCertificateExpirationDate({ businessNumber: BUSINESS_NUMBER }, REQUEST_OPTIONS),
+    invoke: (service) => service.getTaxCertificateExpirationDate({ businessNumber: BUSINESS_NUMBER }),
     expectedArgs: [BUSINESS_NUMBER, USER_ID],
     response: '20301231235959',
   },
   {
     facadeMethod: 'checkTaxCertificateValidation',
     compatMethod: 'checkCertValidation',
-    invoke: (service) => service.checkTaxCertificateValidation({ businessNumber: BUSINESS_NUMBER }, REQUEST_OPTIONS),
+    invoke: (service) => service.checkTaxCertificateValidation({ businessNumber: BUSINESS_NUMBER }),
     expectedArgs: [BUSINESS_NUMBER, USER_ID],
     response: API_RESPONSE,
   },
   {
     facadeMethod: 'getTaxCertificateInfo',
     compatMethod: 'getTaxCertInfo',
-    invoke: (service) => service.getTaxCertificateInfo({ businessNumber: BUSINESS_NUMBER }, REQUEST_OPTIONS),
+    invoke: (service) => service.getTaxCertificateInfo({ businessNumber: BUSINESS_NUMBER }),
     expectedArgs: [BUSINESS_NUMBER, USER_ID],
     response: TAX_CERT_INFO_RESPONSE,
   },
@@ -808,13 +731,10 @@ describe('tax-invoice facade adapter', () => {
       defaultUserId: 'default-user',
     })
 
-    await service.getTaxInvoiceBoxURL(
-      {
-        businessNumber: BUSINESS_NUMBER,
-        taxInvoiceBoxScope: 'TBOX',
-      },
-      REQUEST_OPTIONS
-    )
+    await service.getTaxInvoiceBoxURL({
+      businessNumber: BUSINESS_NUMBER,
+      taxInvoiceBoxScope: 'TBOX',
+    })
 
     expect(getURL).toHaveBeenCalledWith(BUSINESS_NUMBER, 'TBOX', 'default-user')
   })
@@ -841,7 +761,7 @@ describe('tax-invoice facade adapter', () => {
       closeDownStateCodes: ['N'],
     } as unknown as Parameters<TaxInvoiceService['searchInvoices']>[0]
 
-    await expect(service.searchInvoices(invalidSearchInput, REQUEST_OPTIONS)).rejects.toMatchObject({
+    await expect(service.searchInvoices(invalidSearchInput)).rejects.toMatchObject({
       code: -99999999,
       type: PopbillErrorType.InputValidation,
       stage: PopbillErrorStage.ValidateInput,
@@ -858,23 +778,20 @@ describe('tax-invoice facade adapter', () => {
       compatTaxInvoiceService: createCompatServiceStub({ search }),
     })
 
-    await service.searchInvoices(
-      {
-        businessNumber: BUSINESS_NUMBER,
-        invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-        searchDateType: 'R',
-        startDate: '20260201',
-        endDate: '20260228',
-        invoiceStateCodes: ['100'],
-        invoiceTypeCodes: ['N'],
-        taxationTypeCodes: ['T'],
-        lateIssueOnly: null,
-        sortOrder: 'D',
-        pageNumber: 1,
-        pageSize: 500,
-      },
-      REQUEST_OPTIONS
-    )
+    await service.searchInvoices({
+      businessNumber: BUSINESS_NUMBER,
+      invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+      searchDateType: 'R',
+      startDate: '20260201',
+      endDate: '20260228',
+      invoiceStateCodes: ['100'],
+      invoiceTypeCodes: ['N'],
+      taxationTypeCodes: ['T'],
+      lateIssueOnly: null,
+      sortOrder: 'D',
+      pageNumber: 1,
+      pageSize: 500,
+    })
 
     expect(search).toHaveBeenCalledTimes(1)
     const firstCallArgs = search.mock.calls[0] as unknown[] | undefined
@@ -895,14 +812,11 @@ describe('tax-invoice facade adapter', () => {
     })
 
     await expect(
-      service.getInvoiceInfo(
-        {
-          businessNumber: BUSINESS_NUMBER,
-          invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-          invoiceManagementKey: INVOICE_MANAGEMENT_KEY,
-        },
-        REQUEST_OPTIONS
-      )
+      service.getInvoiceInfo({
+        businessNumber: BUSINESS_NUMBER,
+        invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+        invoiceManagementKey: INVOICE_MANAGEMENT_KEY,
+      })
     ).rejects.toMatchObject({
       code: -99999999,
       message: 'invalid businessNumber',
@@ -930,14 +844,11 @@ describe('tax-invoice facade adapter', () => {
     })
 
     await expect(
-      service.getInvoiceInfo(
-        {
-          businessNumber: BUSINESS_NUMBER,
-          invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-          invoiceManagementKey: INVOICE_MANAGEMENT_KEY,
-        },
-        REQUEST_OPTIONS
-      )
+      service.getInvoiceInfo({
+        businessNumber: BUSINESS_NUMBER,
+        invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+        invoiceManagementKey: INVOICE_MANAGEMENT_KEY,
+      })
     ).rejects.toMatchObject({
       code: -99999999,
       message: 'invalid businessNumber',

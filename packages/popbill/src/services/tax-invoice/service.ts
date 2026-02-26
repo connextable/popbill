@@ -40,7 +40,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
   const compatTaxInvoiceService = input.compatTaxInvoiceService
 
   return {
-    issueInvoiceImmediately(request, _options) {
+    issueInvoiceImmediately(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.issueInvoiceImmediately', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.registIssue(
           request.businessNumber,
@@ -57,7 +57,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    submitBulkIssue(request, _options) {
+    submitBulkIssue(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.submitBulkIssue', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.bulkSubmit(
           request.businessNumber,
@@ -71,7 +71,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getBulkIssueSubmissionResult(request, _options) {
+    getBulkIssueSubmissionResult(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getBulkIssueSubmissionResult', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getBulkResult(
           request.businessNumber,
@@ -83,7 +83,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    registerInvoice(request, _options) {
+    registerInvoice(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.registerInvoice', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.register(
           request.businessNumber,
@@ -95,7 +95,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    updateInvoice(request, _options) {
+    updateInvoice(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.updateInvoice', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.update(
           request.businessNumber,
@@ -109,7 +109,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    issueInvoice(request, _options) {
+    issueInvoice(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.issueInvoice', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.issue(
           request.businessNumber,
@@ -125,7 +125,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    cancelIssuedInvoice(request, _options) {
+    cancelIssuedInvoice(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.cancelIssuedInvoice', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.cancelIssue(
           request.businessNumber,
@@ -139,7 +139,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    requestReverseIssueImmediately(request, _options) {
+    requestReverseIssueImmediately(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.requestReverseIssueImmediately', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.registRequest(
           request.businessNumber,
@@ -152,7 +152,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    requestReverseIssue(request, _options) {
+    requestReverseIssue(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.requestReverseIssue', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.request(
           request.businessNumber,
@@ -166,7 +166,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    cancelReverseIssueRequest(request, _options) {
+    cancelReverseIssueRequest(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.cancelReverseIssueRequest', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.cancelRequest(
           request.businessNumber,
@@ -180,7 +180,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    refuseReverseIssueRequest(request, _options) {
+    refuseReverseIssueRequest(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.refuseReverseIssueRequest', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.refuse(
           request.businessNumber,
@@ -194,7 +194,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    deleteInvoice(request, _options) {
+    deleteInvoice(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.deleteInvoice', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.delete(
           request.businessNumber,
@@ -207,7 +207,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    sendInvoiceToNTS(request, _options) {
+    sendInvoiceToNTS(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.sendInvoiceToNTS', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.sendToNTS(
           request.businessNumber,
@@ -220,7 +220,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    async getInvoiceInfo(request, _options) {
+    async getInvoiceInfo(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceInfo', async () => {
         const apiResponse = await compatTaxInvoiceService.getInfo(
           request.businessNumber,
@@ -233,7 +233,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getInvoicesInfo(request, _options) {
+    getInvoicesInfo(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoicesInfo', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getInfos(
           request.businessNumber,
@@ -246,7 +246,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getInvoiceDetailInfo(request, _options) {
+    getInvoiceDetailInfo(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceDetailInfo', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getDetailInfo(
           request.businessNumber,
@@ -259,7 +259,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    checkInvoiceManagementKeyInUse(request, _options) {
+    checkInvoiceManagementKeyInUse(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.checkInvoiceManagementKeyInUse', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.checkMgtKeyInUse(
           request.businessNumber,
@@ -272,7 +272,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getInvoiceXML(request, _options) {
+    getInvoiceXML(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceXML', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getXML(
           request.businessNumber,
@@ -285,7 +285,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    searchInvoices(request, _options) {
+    searchInvoices(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.searchInvoices', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.search(
           request.businessNumber,
@@ -316,7 +316,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getInvoiceLogs(request, _options) {
+    getInvoiceLogs(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceLogs', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getLogs(
           request.businessNumber,
@@ -329,7 +329,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getTaxInvoiceBoxURL(request, _options) {
+    getTaxInvoiceBoxURL(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxInvoiceBoxURL', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getURL(
           request.businessNumber,
@@ -341,7 +341,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getInvoicePopupURL(request, _options) {
+    getInvoicePopupURL(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoicePopupURL', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getPopUpURL(
           request.businessNumber,
@@ -354,7 +354,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getInvoiceViewURL(request, _options) {
+    getInvoiceViewURL(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceViewURL', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getViewURL(
           request.businessNumber,
@@ -367,7 +367,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getSupplierInvoicePrintURL(request, _options) {
+    getSupplierInvoicePrintURL(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getSupplierInvoicePrintURL', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getPrintURL(
           request.businessNumber,
@@ -380,7 +380,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getBuyerInvoicePrintURL(request, _options) {
+    getBuyerInvoicePrintURL(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getBuyerInvoicePrintURL', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getEPrintURL(
           request.businessNumber,
@@ -393,7 +393,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getBulkInvoicePrintURL(request, _options) {
+    getBulkInvoicePrintURL(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getBulkInvoicePrintURL', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getMassPrintURL(
           request.businessNumber,
@@ -406,7 +406,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getInvoiceMailURL(request, _options) {
+    getInvoiceMailURL(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoiceMailURL', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getMailURL(
           request.businessNumber,
@@ -419,7 +419,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getInvoicePDFURL(request, _options) {
+    getInvoicePDFURL(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getInvoicePDFURL', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getPDFURL(
           request.businessNumber,
@@ -432,7 +432,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getSealAndAttachmentRegistrationURL(request, _options) {
+    getSealAndAttachmentRegistrationURL(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getSealAndAttachmentRegistrationURL', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getSealURL(
           request.businessNumber,
@@ -442,7 +442,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    attachFileFromPath(request, _options) {
+    attachFileFromPath(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.attachFileFromPath', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.attachFile(
           request.businessNumber,
@@ -457,7 +457,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    attachFileFromBinary(request, _options) {
+    attachFileFromBinary(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.attachFileFromBinary', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.attachFileBinary(
           request.businessNumber,
@@ -474,7 +474,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    deleteAttachedFile(request, _options) {
+    deleteAttachedFile(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.deleteAttachedFile', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.deleteFile(
           request.businessNumber,
@@ -488,7 +488,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getAttachedFiles(request, _options) {
+    getAttachedFiles(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getAttachedFiles', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getFiles(
           request.businessNumber,
@@ -501,7 +501,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    resendInvoiceEmail(request, _options) {
+    resendInvoiceEmail(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.resendInvoiceEmail', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.sendEmail(
           request.businessNumber,
@@ -515,7 +515,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    resendInvoiceSMS(request, _options) {
+    resendInvoiceSMS(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.resendInvoiceSMS', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.sendSMS(
           request.businessNumber,
@@ -531,7 +531,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    resendInvoiceFAX(request, _options) {
+    resendInvoiceFAX(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.resendInvoiceFAX', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.sendFAX(
           request.businessNumber,
@@ -546,7 +546,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    attachInvoiceStatement(request, _options) {
+    attachInvoiceStatement(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.attachInvoiceStatement', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.attachStatement(
           request.businessNumber,
@@ -561,7 +561,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    detachInvoiceStatement(request, _options) {
+    detachInvoiceStatement(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.detachInvoiceStatement', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.detachStatement(
           request.businessNumber,
@@ -576,7 +576,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    assignInvoiceManagementKey(request, _options) {
+    assignInvoiceManagementKey(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.assignInvoiceManagementKey', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.assignMgtKey(
           request.businessNumber,
@@ -590,7 +590,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getEmailSendSettings(request, _options) {
+    getEmailSendSettings(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getEmailSendSettings', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.listEmailConfig(
           request.businessNumber,
@@ -600,7 +600,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    updateEmailSendSettings(request, _options) {
+    updateEmailSendSettings(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.updateEmailSendSettings', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.updateEmailConfig(
           request.businessNumber,
@@ -613,7 +613,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getSendToNTSSettings(request, _options) {
+    getSendToNTSSettings(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getSendToNTSSettings', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getSendToNTSConfig(
           request.businessNumber,
@@ -623,7 +623,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getTaxCertificateRegistrationURL(request, _options) {
+    getTaxCertificateRegistrationURL(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxCertificateRegistrationURL', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getTaxCertURL(
           request.businessNumber,
@@ -633,7 +633,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getTaxCertificateExpirationDate(request, _options) {
+    getTaxCertificateExpirationDate(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxCertificateExpirationDate', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getCertificateExpireDate(
           request.businessNumber,
@@ -643,7 +643,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    checkTaxCertificateValidation(request, _options) {
+    checkTaxCertificateValidation(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.checkTaxCertificateValidation', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.checkCertValidation(
           request.businessNumber,
@@ -653,7 +653,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       })
     },
 
-    getTaxCertificateInfo(request, _options) {
+    getTaxCertificateInfo(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxCertificateInfo', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.getTaxCertInfo(
           request.businessNumber,
