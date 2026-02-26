@@ -57,6 +57,12 @@ importers:
         specifier: 4.0.18
         version: 4.0.18(@types/node@20.19.34)(jiti@2.6.1)(yaml@2.8.2)
 
+  examples:
+    dependencies:
+      '@connextable/popbill':
+        specifier: workspace:*
+        version: link:../packages/popbill
+
   packages/popbill:
     dependencies:
       '@connextable/popbill-compat':
@@ -78,11 +84,7 @@ importers:
         specifier: workspace:*
         version: link:../popbill-spec
 
-  packages/popbill-core:
-    dependencies:
-      '@connextable/popbill-spec':
-        specifier: workspace:*
-        version: link:../popbill-spec
+  packages/popbill-core: {}
 
   packages/popbill-spec: {}
 

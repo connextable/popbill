@@ -1,0 +1,28 @@
+{
+  "name": "@connextable/popbill-examples",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:sdk": "pnpm -C ../packages/popbill build",
+    "taxinvoice:run": "dotenvx run -- jiti ./src/run-taxinvoice-usecases.ts",
+    "taxinvoice:method:run": "dotenvx run -- jiti ./src/run-taxinvoice-method.ts",
+    "taxinvoice": "pnpm run taxinvoice:run",
+    "taxinvoice:all": "pnpm run taxinvoice:run -- all",
+    "taxinvoice:issue": "pnpm run taxinvoice:run -- issue",
+    "taxinvoice:inquiry": "pnpm run taxinvoice:run -- inquiry",
+    "taxinvoice:urls": "pnpm run taxinvoice:run -- urls",
+    "taxinvoice:attachment": "pnpm run taxinvoice:run -- attachment",
+    "taxinvoice:notify": "pnpm run taxinvoice:run -- notify",
+    "taxinvoice:reverse": "pnpm run taxinvoice:run -- reverse",
+    "taxinvoice:bulk": "pnpm run taxinvoice:run -- bulk",
+    "taxinvoice:search": "pnpm run taxinvoice:run -- search",
+    "taxinvoice:certificate": "pnpm run taxinvoice:run -- certificate",
+    "taxinvoice:method": "pnpm run taxinvoice:method:run --",
+    "taxinvoice:method:list": "pnpm run taxinvoice:method:run -- --help",
+    "taxinvoice:method:list:verbose": "pnpm run taxinvoice:method:run -- --help --verbose",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@connextable/popbill": "workspace:*"
+  }
+}
