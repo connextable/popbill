@@ -3,7 +3,5 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.cache/tsconfig.config.tsbuildinfo"
   },
-  "include": [
-    "tsdown.config.ts",
-  ]
+  "include": ["tsdown.config.ts"]
 }

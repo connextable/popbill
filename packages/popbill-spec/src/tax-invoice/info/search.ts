@@ -1,4 +1,11 @@
-import type { TaxInvoiceApiRequest, TaxInvoiceDateType, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields, TaxInvoiceSearchCloseDownState, TaxInvoiceSortOrder } from '../common'
+import type {
+  TaxInvoiceApiRequest,
+  TaxInvoiceDateType,
+  TaxInvoiceMgtKeyType,
+  TaxInvoiceRequireRequestFields,
+  TaxInvoiceSearchCloseDownState,
+  TaxInvoiceSortOrder,
+} from '../common'
 import type { TaxInvoiceSearchResultApiModel } from '../models'
 
 /**
@@ -37,8 +44,7 @@ export interface TaxInvoiceSearchDocumentTypeMap {
 /**
  * Search 문서유형(raw).
  */
-export type TaxInvoiceSearchDocumentType
-  = TaxInvoiceSearchDocumentTypeMap[keyof TaxInvoiceSearchDocumentTypeMap]
+export type TaxInvoiceSearchDocumentType = TaxInvoiceSearchDocumentTypeMap[keyof TaxInvoiceSearchDocumentTypeMap]
 
 /**
  * Search 과세형태(raw).
@@ -125,8 +131,7 @@ export interface TaxInvoiceSearchTaxRegIDTypeMap {
 /**
  * Search 종사업장번호 주체(raw).
  */
-export type TaxInvoiceSearchTaxRegIDType
-  = TaxInvoiceSearchTaxRegIDTypeMap[keyof TaxInvoiceSearchTaxRegIDTypeMap]
+export type TaxInvoiceSearchTaxRegIDType = TaxInvoiceSearchTaxRegIDTypeMap[keyof TaxInvoiceSearchTaxRegIDTypeMap]
 
 /**
  * Search 종사업장번호 유무(raw).
@@ -369,11 +374,7 @@ export type TaxInvoiceSearchApiRequestBody = never
  * `path/query/body`를 분리하여 전송 위치를 명확히 구분한다.
  */
 export type TaxInvoiceSearchApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceSearchApiRequestPath,
-    TaxInvoiceSearchApiRequestQuery,
-    TaxInvoiceSearchApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceSearchApiRequestPath, TaxInvoiceSearchApiRequestQuery, TaxInvoiceSearchApiRequestBody>,
   'path' | 'query'
 >
 

@@ -5,12 +5,8 @@
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.cache/tsconfig.lib.tsbuildinfo",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

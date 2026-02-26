@@ -22,7 +22,7 @@ class HttpResponseError extends Error implements HttpErrorPayload {
 export async function fetchJson<T>(
   requestUrl: string,
   requestInit: RequestInit,
-  options: FetchJsonOptions,
+  options: FetchJsonOptions
 ): Promise<T> {
   const response = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs)
   const responseBody = await parseJsonResponse(response)
@@ -37,7 +37,7 @@ export async function fetchJson<T>(
 export async function fetchText(
   requestUrl: string,
   requestInit: RequestInit,
-  options: FetchJsonOptions,
+  options: FetchJsonOptions
 ): Promise<string> {
   const response = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs)
   const responseText = await response.text()
@@ -49,11 +49,7 @@ export async function fetchText(
   return responseText
 }
 
-async function fetchWithTimeout(
-  requestUrl: string,
-  requestInit: RequestInit,
-  timeoutMs: number,
-): Promise<Response> {
+async function fetchWithTimeout(requestUrl: string, requestInit: RequestInit, timeoutMs: number): Promise<Response> {
   const abortController = new AbortController()
   const timer = setTimeout(() => {
     abortController.abort()
@@ -64,8 +60,7 @@ async function fetchWithTimeout(
       ...requestInit,
       signal: abortController.signal,
     })
-  }
-  finally {
+  } finally {
     clearTimeout(timer)
   }
 }

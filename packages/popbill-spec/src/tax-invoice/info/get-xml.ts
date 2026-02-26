@@ -49,11 +49,7 @@ export type TaxInvoiceGetXmlApiRequestBody = never
  * GetXML API 요청(raw).
  */
 export type TaxInvoiceGetXmlApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceGetXmlApiRequestPath,
-    TaxInvoiceGetXmlApiRequestQuery,
-    TaxInvoiceGetXmlApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceGetXmlApiRequestPath, TaxInvoiceGetXmlApiRequestQuery, TaxInvoiceGetXmlApiRequestBody>,
   'path' | 'query'
 >
 

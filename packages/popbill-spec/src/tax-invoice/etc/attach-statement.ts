@@ -1,4 +1,9 @@
-import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
+import type {
+  TaxInvoiceApiRequest,
+  TaxInvoiceApiResponseBase,
+  TaxInvoiceMgtKeyType,
+  TaxInvoiceRequireRequestFields,
+} from '../common'
 
 /**
  * TaxInvoice AttachStatement Raw Spec
@@ -52,8 +57,7 @@ export interface TaxInvoiceStatementItemCodeMap {
 /**
  * 전자명세서 문서유형 코드(raw).
  */
-export type TaxInvoiceStatementItemCode
-  = TaxInvoiceStatementItemCodeMap[keyof TaxInvoiceStatementItemCodeMap]
+export type TaxInvoiceStatementItemCode = TaxInvoiceStatementItemCodeMap[keyof TaxInvoiceStatementItemCodeMap]
 
 /**
  * AttachStatement API path 파라미터.

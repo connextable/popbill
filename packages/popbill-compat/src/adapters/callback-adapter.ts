@@ -39,7 +39,7 @@ function createCallbackMethod(serviceName: string, methods: string): (...args: u
 
 export function createTypedCallbackServiceStub<Methods extends object>(
   serviceName: string,
-  methods: readonly (Extract<keyof Methods, string>)[],
+  methods: readonly Extract<keyof Methods, string>[]
 ): Methods {
   const target: Record<string, (...args: unknown[]) => unknown> = {}
 

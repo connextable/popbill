@@ -1,12 +1,6 @@
 import { stringifyWithoutEmptyValues } from '@connextable/popbill-core'
-import type {
-  TaxInvoiceApiModel,
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceMgtKeyType,
-} from '@connextable/popbill-spec'
-import {
-  validateTaxinvoicePayload,
-} from '@/internal/validation'
+import type { TaxInvoiceApiModel, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
+import { validateTaxinvoicePayload } from '@/internal/validation'
 import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
@@ -16,7 +10,7 @@ export async function requestUpdate(
   keyType: TaxInvoiceMgtKeyType,
   mgtKey: string,
   taxinvoice: TaxInvoiceApiModel,
-  userId: string,
+  userId: string
 ): Promise<TaxInvoiceApiResponseBase> {
   validateRequiredTaxinvoiceInputs(corpNum, keyType, mgtKey)
 

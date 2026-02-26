@@ -3,16 +3,9 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.cache/tsconfig.test.tsbuildinfo",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     },
-    "types": [
-      "node",
-      "vitest/globals"
-    ]
+    "types": ["node", "vitest/globals"]
   },
-  "include": [
-    "test",
-  ]
+  "include": ["test"]
 }

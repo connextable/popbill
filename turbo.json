@@ -13,24 +13,18 @@
     },
     "typecheck": {
       "dependsOn": [
+        "^build",
         "^typecheck"
-      ],
-      "outputs": []
+      ]
     },
-    "lint": {
-      "dependsOn": [
-        "^lint"
-      ],
-      "outputs": []
-    },
-    "lint:fix": {
-      "cache": false
-    },
+    "lint": {},
+    "lint:fix": {},
+    "fmt": {},
+    "fmt:check": {},
     "test": {
       "dependsOn": [
         "^test"
-      ],
-      "outputs": []
+      ]
     },
     "test:integration": {
       "dependsOn": [

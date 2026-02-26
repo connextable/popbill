@@ -1,4 +1,9 @@
-import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
+import type {
+  TaxInvoiceApiRequest,
+  TaxInvoiceApiResponseBase,
+  TaxInvoiceMgtKeyType,
+  TaxInvoiceRequireRequestFields,
+} from '../common'
 import type { TaxInvoiceStatementItemCode } from './attach-statement'
 
 /**

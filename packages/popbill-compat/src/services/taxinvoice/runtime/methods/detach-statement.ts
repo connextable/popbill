@@ -1,8 +1,5 @@
 import { stringifyWithoutEmptyValues } from '@connextable/popbill-core'
-import type {
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceMgtKeyType,
-} from '@connextable/popbill-spec'
+import type { TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
 import { createLegacyValidationError } from '@/internal/errors'
 import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
@@ -14,7 +11,7 @@ export async function requestDetachStatement(
   mgtKey: string,
   subItemCode: number,
   subMgtKey: string,
-  userId: string,
+  userId: string
 ): Promise<TaxInvoiceApiResponseBase> {
   validateRequiredTaxinvoiceInputs(corpNum, keyType, mgtKey)
 

@@ -1,10 +1,5 @@
-import type {
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceMgtKeyType,
-} from '@connextable/popbill-spec'
-import {
-  validateFileId,
-} from '@/internal/validation'
+import type { TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
+import { validateFileId } from '@/internal/validation'
 import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
@@ -14,7 +9,7 @@ export async function requestDeleteFile(
   keyType: TaxInvoiceMgtKeyType,
   mgtKey: string,
   fileID: string,
-  userId: string,
+  userId: string
 ): Promise<TaxInvoiceApiResponseBase> {
   validateRequiredTaxinvoiceInputs(corpNum, keyType, mgtKey)
 

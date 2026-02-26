@@ -1,14 +1,6 @@
-import type {
-  TaxInvoiceSearchApiResponse,
-} from '@connextable/popbill-spec'
-import type {
-  LegacyErrorCallback,
-  LegacySuccessCallback,
-} from '@/services/taxinvoice/types'
-import {
-  asErrorCallback,
-  asSuccessCallback,
-} from '@/services/taxinvoice/runtime/common'
+import type { TaxInvoiceSearchApiResponse } from '@connextable/popbill-spec'
+import type { LegacyErrorCallback, LegacySuccessCallback } from '@/services/taxinvoice/types'
+import { asErrorCallback, asSuccessCallback } from '@/services/taxinvoice/runtime/common'
 
 export interface ParsedSearchOptions {
   taxRegIDType: string
@@ -39,7 +31,7 @@ export function parseSearchCallbackArgs(args: unknown[]): ParsedSearchCallbackOp
     mgtKey: '',
   }
 
-  const successIndex = args.findIndex(candidate => typeof candidate === 'function')
+  const successIndex = args.findIndex((candidate) => typeof candidate === 'function')
   const valueArgs = successIndex === -1 ? args : args.slice(0, successIndex)
 
   if (successIndex !== -1) {
@@ -136,5 +128,7 @@ function asCloseDownStateArray(value: unknown): (0 | 1 | 2 | 3 | 4)[] | undefine
 
   return value
     .filter((entry): entry is number => typeof entry === 'number')
-    .filter((entry): entry is 0 | 1 | 2 | 3 | 4 => entry === 0 || entry === 1 || entry === 2 || entry === 3 || entry === 4)
+    .filter(
+      (entry): entry is 0 | 1 | 2 | 3 | 4 => entry === 0 || entry === 1 || entry === 2 || entry === 3 || entry === 4
+    )
 }

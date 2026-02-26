@@ -91,7 +91,7 @@ export function validateItemKey(itemKey: string): LegacyCompatError | undefined 
 export function validateSearchDate(
   value: string,
   missingMessage: string,
-  invalidMessage: string,
+  invalidMessage: string
 ): LegacyCompatError | undefined {
   if (isBlank(value)) {
     return createLegacyValidationError(missingMessage)
@@ -157,12 +157,14 @@ function isTaxInvoiceKeyType(value: string): value is TaxInvoiceMgtKeyType {
 }
 
 function isTaxinvoiceTogo(value: string): value is TaxInvoiceGetUrlTogo {
-  return value === 'TBOX'
-    || value === 'SWBOX'
-    || value === 'SBOX'
-    || value === 'PWBOX'
-    || value === 'PBOX'
-    || value === 'WRITE'
+  return (
+    value === 'TBOX' ||
+    value === 'SWBOX' ||
+    value === 'SBOX' ||
+    value === 'PWBOX' ||
+    value === 'PBOX' ||
+    value === 'WRITE'
+  )
 }
 
 function isValidDate(value: string): boolean {

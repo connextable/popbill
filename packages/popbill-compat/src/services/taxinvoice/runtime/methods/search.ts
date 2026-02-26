@@ -1,7 +1,4 @@
-import type {
-  TaxInvoiceMgtKeyType,
-  TaxInvoiceSearchApiResponse,
-} from '@connextable/popbill-spec'
+import type { TaxInvoiceMgtKeyType, TaxInvoiceSearchApiResponse } from '@connextable/popbill-spec'
 import {
   validateCorpNum,
   validateSearchDate,
@@ -29,7 +26,7 @@ export async function requestSearch(
   corpNum: string,
   keyType: TaxInvoiceMgtKeyType,
   base: TaxinvoiceSearchBaseParams,
-  options: ParsedSearchOptions,
+  options: ParsedSearchOptions
 ): Promise<TaxInvoiceSearchApiResponse> {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {
@@ -46,12 +43,20 @@ export async function requestSearch(
     throw dTypeError
   }
 
-  const startDateError = validateSearchDate(base.startDate, '시작일자가 입력되지 않았습니다.', '시작일자 유형이 올바르지 않습니다.')
+  const startDateError = validateSearchDate(
+    base.startDate,
+    '시작일자가 입력되지 않았습니다.',
+    '시작일자 유형이 올바르지 않습니다.'
+  )
   if (startDateError) {
     throw startDateError
   }
 
-  const endDateError = validateSearchDate(base.endDate, '종료일자가 입력되지 않았습니다.', '종료일자 유형이 올바르지 않습니다.')
+  const endDateError = validateSearchDate(
+    base.endDate,
+    '종료일자가 입력되지 않았습니다.',
+    '종료일자 유형이 올바르지 않습니다.'
+  )
   if (endDateError) {
     throw endDateError
   }

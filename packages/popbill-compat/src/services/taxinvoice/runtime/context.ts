@@ -11,8 +11,7 @@ export interface TaxinvoiceRuntimeContext {
 export function createTaxinvoiceRuntimeContext(config: CompatConfig): TaxinvoiceRuntimeContext {
   return {
     requestClient: createTaxinvoiceRequestClient(config),
-    defaultErrorHandler: typeof config.defaultErrorHandler === 'function'
-      ? error => config.defaultErrorHandler?.(error)
-      : undefined,
+    defaultErrorHandler:
+      typeof config.defaultErrorHandler === 'function' ? (error) => config.defaultErrorHandler?.(error) : undefined,
   }
 }

@@ -1,12 +1,6 @@
 import { stringifyWithoutEmptyValues } from '@connextable/popbill-core'
-import type {
-  TaxInvoiceApiModel,
-  TaxInvoiceRegistIssueApiResponse,
-} from '@connextable/popbill-spec'
-import {
-  validateCorpNum,
-  validateTaxinvoicePayload,
-} from '@/internal/validation'
+import type { TaxInvoiceApiModel, TaxInvoiceRegistIssueApiResponse } from '@connextable/popbill-spec'
+import { validateCorpNum, validateTaxinvoicePayload } from '@/internal/validation'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import type { ParsedRegistIssueOptions } from '@/services/taxinvoice/runtime/parsers/regist-issue'
 
@@ -14,7 +8,7 @@ export async function requestRegistIssue(
   context: TaxinvoiceRuntimeContext,
   corpNum: string,
   taxinvoice: TaxInvoiceApiModel,
-  options: ParsedRegistIssueOptions,
+  options: ParsedRegistIssueOptions
 ): Promise<TaxInvoiceRegistIssueApiResponse> {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {

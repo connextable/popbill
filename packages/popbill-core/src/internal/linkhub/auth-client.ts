@@ -17,14 +17,17 @@ const DEFAULT_TIMEOUT_MS = 180_000
 export function createLinkhubAuthClient(config: LinkhubAuthClientConfig): LinkhubAuthClient {
   return {
     async issueToken(request: IssueTokenRequest): Promise<LinkhubTokenResponse> {
-      return issueTokenRequest({
-        linkId: config.linkId,
-        secretKey: config.secretKey,
-        useStaticIp: config.useStaticIp ?? false,
-        useGaIp: config.useGaIp ?? false,
-        useLocalTime: config.useLocalTime ?? true,
-        timeoutMs: config.timeoutMs ?? DEFAULT_TIMEOUT_MS,
-      }, request)
+      return issueTokenRequest(
+        {
+          linkId: config.linkId,
+          secretKey: config.secretKey,
+          useStaticIp: config.useStaticIp ?? false,
+          useGaIp: config.useGaIp ?? false,
+          useLocalTime: config.useLocalTime ?? true,
+          timeoutMs: config.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+        },
+        request
+      )
     },
   }
 }
@@ -37,7 +40,7 @@ function resolveAuthBaseUrl(useStaticIp: boolean, useGaIp: boolean): string {
 
 async function issueTokenRequest(
   config: ResolvedLinkhubAuthClientConfig,
-  request: IssueTokenRequest,
+  request: IssueTokenRequest
 ): Promise<LinkhubTokenResponse> {
   const authBaseUrl = resolveAuthBaseUrl(config.useStaticIp, config.useGaIp)
   const resourceUri = `/${request.serviceId}/Token`
@@ -55,7 +58,7 @@ async function issueTokenRequest(
   const signature = hmacSha256Base64(signaturePayload, config.secretKey)
 
   const requestHeaders: Record<string, string> = {
-    'Authorization': `LINKHUB ${config.linkId} ${signature}`,
+    Authorization: `LINKHUB ${config.linkId} ${signature}`,
     'Content-Type': 'application/json',
     'User-Agent': LINKHUB_USER_AGENT,
     'x-lh-date': dateHeader,
@@ -66,11 +69,15 @@ async function issueTokenRequest(
     requestHeaders['x-lh-forwarded'] = request.forwardedIp
   }
 
-  const rawResponse = await fetchJson<LinkhubTokenApiResponse>(`${authBaseUrl}${resourceUri}`, {
-    method: 'POST',
-    headers: requestHeaders,
-    body,
-  }, { timeoutMs: config.timeoutMs })
+  const rawResponse = await fetchJson<LinkhubTokenApiResponse>(
+    `${authBaseUrl}${resourceUri}`,
+    {
+      method: 'POST',
+      headers: requestHeaders,
+      body,
+    },
+    { timeoutMs: config.timeoutMs }
+  )
 
   return mapToLinkhubTokenResponse(rawResponse)
 }
@@ -81,17 +88,12 @@ async function resolveDateHeader(config: ResolvedLinkhubAuthClientConfig, authBa
   }
 
   try {
-    const serverTime = await fetchText(
-      `${authBaseUrl}/Time`,
-      { method: 'GET' },
-      { timeoutMs: config.timeoutMs },
-    )
+    const serverTime = await fetchText(`${authBaseUrl}/Time`, { method: 'GET' }, { timeoutMs: config.timeoutMs })
     const trimmed = serverTime.trim()
     if (trimmed.length > 0) {
       return trimmed
     }
-  }
-  catch {
+  } catch {
     // Fallback to local UTC timestamp when server time API is not reachable.
   }
 
@@ -145,7 +147,7 @@ function buildSignaturePayload(
   contentMd5: string,
   dateHeader: string,
   canonicalizedHeaderValues: string,
-  resourceUri: string,
+  resourceUri: string
 ): string {
   if (canonicalizedHeaderValues.length === 0) {
     return `${method}\n${contentMd5}\n${dateHeader}\n${resourceUri}`

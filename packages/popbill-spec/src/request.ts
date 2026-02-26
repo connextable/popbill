@@ -9,12 +9,7 @@ import type { PopbillApiRequestHeaders } from './headers'
  *
  * `path/query/body/headers`를 전송 위치별로 분리하여 명세한다.
  */
-export interface PopbillApiRequest<
-  TPath = never,
-  TQuery = never,
-  TBody = never,
-  THeaders = PopbillApiRequestHeaders,
-> {
+export interface PopbillApiRequest<TPath = never, TQuery = never, TBody = never, THeaders = PopbillApiRequestHeaders> {
   /**
    * 팝빌회원 사업자번호.
    *

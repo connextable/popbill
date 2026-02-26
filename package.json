@@ -2,10 +2,13 @@
   "name": "@connextable/popbill-workspace",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "turbo run build",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
+    "fmt": "turbo run fmt",
+    "fmt:check": "turbo run fmt:check",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:integration": "turbo run test:integration",
@@ -20,8 +23,12 @@
     "dotenv": "17.3.1",
     "globals": "17.3.0",
     "jiti": "2.6.1",
+    "oxfmt": "0.35.0",
+    "oxlint": "1.50.0",
+    "oxlint-tsgolint": "0.15.0",
     "tsdown": "0.20.3",
     "turbo": "^2.0.0",
+    "typescript": "5.9.3",
     "vitest": "4.0.18"
   },
   "engines": {

@@ -12,61 +12,58 @@ import {
   validateTaxInvoiceKeyType,
   validateTaxinvoiceTogo,
 } from '@/internal/validation'
-import type {
-  LegacyErrorCallback,
-  LegacySuccessCallback,
-} from '@/services/taxinvoice/types'
+import type { LegacyErrorCallback, LegacySuccessCallback } from '@/services/taxinvoice/types'
 import type { TaxinvoiceRuntimeContext } from './context'
 
 export const SERVICE_NAME = 'TaxinvoiceService'
 
-export type TaxinvoiceRuntimeMethods
-  = | 'registIssue'
-    | 'bulkSubmit'
-    | 'getBulkResult'
-    | 'register'
-    | 'update'
-    | 'issue'
-    | 'cancelIssue'
-    | 'registRequest'
-    | 'request'
-    | 'cancelRequest'
-    | 'refuse'
-    | 'delete'
-    | 'sendToNTS'
-    | 'getInfo'
-    | 'getInfos'
-    | 'getDetailInfo'
-    | 'checkMgtKeyInUse'
-    | 'getXML'
-    | 'search'
-    | 'getLogs'
-    | 'getURL'
-    | 'getPopUpURL'
-    | 'getViewURL'
-    | 'getPrintURL'
-    | 'getEPrintURL'
-    | 'getMassPrintURL'
-    | 'getMailURL'
-    | 'getPDFURL'
-    | 'getSealURL'
-    | 'attachFile'
-    | 'attachFileBinary'
-    | 'deleteFile'
-    | 'getFiles'
-    | 'sendEmail'
-    | 'sendSMS'
-    | 'sendFAX'
-    | 'attachStatement'
-    | 'detachStatement'
-    | 'assignMgtKey'
-    | 'listEmailConfig'
-    | 'updateEmailConfig'
-    | 'getSendToNTSConfig'
-    | 'getTaxCertURL'
-    | 'getCertificateExpireDate'
-    | 'checkCertValidation'
-    | 'getTaxCertInfo'
+export type TaxinvoiceRuntimeMethods =
+  | 'registIssue'
+  | 'bulkSubmit'
+  | 'getBulkResult'
+  | 'register'
+  | 'update'
+  | 'issue'
+  | 'cancelIssue'
+  | 'registRequest'
+  | 'request'
+  | 'cancelRequest'
+  | 'refuse'
+  | 'delete'
+  | 'sendToNTS'
+  | 'getInfo'
+  | 'getInfos'
+  | 'getDetailInfo'
+  | 'checkMgtKeyInUse'
+  | 'getXML'
+  | 'search'
+  | 'getLogs'
+  | 'getURL'
+  | 'getPopUpURL'
+  | 'getViewURL'
+  | 'getPrintURL'
+  | 'getEPrintURL'
+  | 'getMassPrintURL'
+  | 'getMailURL'
+  | 'getPDFURL'
+  | 'getSealURL'
+  | 'attachFile'
+  | 'attachFileBinary'
+  | 'deleteFile'
+  | 'getFiles'
+  | 'sendEmail'
+  | 'sendSMS'
+  | 'sendFAX'
+  | 'attachStatement'
+  | 'detachStatement'
+  | 'assignMgtKey'
+  | 'listEmailConfig'
+  | 'updateEmailConfig'
+  | 'getSendToNTSConfig'
+  | 'getTaxCertURL'
+  | 'getCertificateExpireDate'
+  | 'checkCertValidation'
+  | 'getTaxCertInfo'
 
 export interface ParsedLegacyUserIdCallbacks<T> {
   userId: string
@@ -103,22 +100,18 @@ export function parseLegacyUserIdAndCallbacks<T>(args: unknown[]): ParsedLegacyU
 }
 
 export function asSuccessCallback<T>(candidate: unknown): LegacySuccessCallback<T> | undefined {
-  return typeof candidate === 'function'
-    ? candidate as LegacySuccessCallback<T>
-    : undefined
+  return typeof candidate === 'function' ? (candidate as LegacySuccessCallback<T>) : undefined
 }
 
 export function asErrorCallback(candidate: unknown): LegacyErrorCallback | undefined {
-  return typeof candidate === 'function'
-    ? candidate as LegacyErrorCallback
-    : undefined
+  return typeof candidate === 'function' ? (candidate as LegacyErrorCallback) : undefined
 }
 
 export function handleCallbackError(
   context: TaxinvoiceRuntimeContext,
   methods: TaxinvoiceRuntimeMethods,
   error: unknown,
-  errorCallback: LegacyErrorCallback | undefined,
+  errorCallback: LegacyErrorCallback | undefined
 ): void {
   const runtimeError = toCompatRuntimeError(error, `${SERVICE_NAME}.${methods}`)
   dispatchCallbackError(runtimeError, errorCallback, context.defaultErrorHandler)
@@ -127,7 +120,7 @@ export function handleCallbackError(
 export function throwPromiseError(
   context: TaxinvoiceRuntimeContext,
   methods: TaxinvoiceRuntimeMethods,
-  error: unknown,
+  error: unknown
 ): never {
   const runtimeError = toCompatRuntimeError(error, `${SERVICE_NAME}.${methods}`)
   const throwableError = asThrowableCompatError(runtimeError)
@@ -135,7 +128,11 @@ export function throwPromiseError(
   throw throwableError
 }
 
-export function validateRequiredTaxinvoiceInputs(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey?: string): void {
+export function validateRequiredTaxinvoiceInputs(
+  corpNum: string,
+  keyType: TaxInvoiceMgtKeyType,
+  mgtKey?: string
+): void {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {
     throw corpNumError
@@ -157,7 +154,7 @@ export function validateRequiredTaxinvoiceInputs(corpNum: string, keyType: TaxIn
 export function validateTaxinvoiceKeyTypeAllowed(
   keyType: TaxInvoiceMgtKeyType,
   allowed: readonly TaxInvoiceMgtKeyType[],
-  message = '문서번호유형이 올바르지 않습니다.',
+  message = '문서번호유형이 올바르지 않습니다.'
 ): void {
   if (allowed.includes(keyType)) {
     return

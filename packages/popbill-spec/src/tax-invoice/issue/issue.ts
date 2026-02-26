@@ -60,11 +60,7 @@ export interface TaxInvoiceIssueApiRequestBody {
  * Issue API 요청(raw).
  */
 export type TaxInvoiceIssueApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceIssueApiRequestPath,
-    TaxInvoiceIssueApiRequestQuery,
-    TaxInvoiceIssueApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceIssueApiRequestPath, TaxInvoiceIssueApiRequestQuery, TaxInvoiceIssueApiRequestBody>,
   'path'
 >
 

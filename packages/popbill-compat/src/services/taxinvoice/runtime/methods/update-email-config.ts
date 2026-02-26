@@ -1,11 +1,5 @@
-import type {
-  TaxInvoiceApiResponseBase,
-} from '@connextable/popbill-spec'
-import {
-  validateCorpNum,
-  validateEmailSendYn,
-  validateEmailType,
-} from '@/internal/validation'
+import type { TaxInvoiceApiResponseBase } from '@connextable/popbill-spec'
+import { validateCorpNum, validateEmailSendYn, validateEmailType } from '@/internal/validation'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
 export async function requestUpdateEmailConfig(
@@ -13,7 +7,7 @@ export async function requestUpdateEmailConfig(
   corpNum: string,
   emailType: string,
   sendYN: boolean,
-  userId: string,
+  userId: string
 ): Promise<TaxInvoiceApiResponseBase> {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {

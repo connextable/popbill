@@ -16,17 +16,20 @@ export function createTokenProvider(input: CreateTokenProviderInput): TokenProvi
         return pendingRequest
       }
 
-      const issueTokenPromise = input.authClient.issueToken({
-        serviceId: input.serviceId,
-        accessId: businessNumber,
-        scopes: input.scopes,
-        forwardedIp: input.forwardedIp,
-      }).then((issuedToken) => {
-        tokenCache.set(businessNumber, issuedToken)
-        return issuedToken
-      }).finally(() => {
-        pendingRequests.delete(businessNumber)
-      })
+      const issueTokenPromise = input.authClient
+        .issueToken({
+          serviceId: input.serviceId,
+          accessId: businessNumber,
+          scopes: input.scopes,
+          forwardedIp: input.forwardedIp,
+        })
+        .then((issuedToken) => {
+          tokenCache.set(businessNumber, issuedToken)
+          return issuedToken
+        })
+        .finally(() => {
+          pendingRequests.delete(businessNumber)
+        })
 
       pendingRequests.set(businessNumber, issueTokenPromise)
 

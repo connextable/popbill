@@ -1,12 +1,6 @@
 import type { TaxInvoiceRegistIssueApiResponse } from '@connextable/popbill-spec'
-import type {
-  LegacyErrorCallback,
-  LegacySuccessCallback,
-} from '@/services/taxinvoice/types'
-import {
-  asErrorCallback,
-  asSuccessCallback,
-} from '@/services/taxinvoice/runtime/common'
+import type { LegacyErrorCallback, LegacySuccessCallback } from '@/services/taxinvoice/types'
+import { asErrorCallback, asSuccessCallback } from '@/services/taxinvoice/runtime/common'
 
 export interface ParsedRegistIssueOptions {
   writeSpecification: boolean

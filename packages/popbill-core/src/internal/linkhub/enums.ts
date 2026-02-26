@@ -63,4 +63,4 @@ export const LinkhubAuthScope = {
   IntelligentFax: '161',
 } as const
 
-export type LinkhubAuthScope = typeof LinkhubAuthScope[keyof typeof LinkhubAuthScope]
+export type LinkhubAuthScope = (typeof LinkhubAuthScope)[keyof typeof LinkhubAuthScope]

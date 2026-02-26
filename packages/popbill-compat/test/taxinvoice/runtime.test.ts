@@ -75,10 +75,7 @@ describe('taxinvoice runtime methods', () => {
       message: 'issued',
       ntsConfirmNum: '20260225-0001',
     }
-    const fetchMock = stubFetchResponses(
-      toJsonResponse(createTokenResponseBody()),
-      toJsonResponse(issueResponse),
-    )
+    const fetchMock = stubFetchResponses(toJsonResponse(createTokenResponseBody()), toJsonResponse(issueResponse))
     const service = compat.TaxinvoiceService()
 
     const resolved = await new Promise<TaxInvoiceIssueApiResponse>((resolve, reject) => {
@@ -86,8 +83,12 @@ describe('taxinvoice runtime methods', () => {
         '1234567890',
         'SELL',
         'MGT-001',
-        (response: TaxInvoiceIssueApiResponse) => { resolve(response) },
-        (error: unknown) => { reject(asError(error)) },
+        (response: TaxInvoiceIssueApiResponse) => {
+          resolve(response)
+        },
+        (error: unknown) => {
+          reject(asError(error))
+        }
       )
     })
 
@@ -107,10 +108,7 @@ describe('taxinvoice runtime methods', () => {
       code: 1,
       message: 'issued',
     }
-    const fetchMock = stubFetchResponses(
-      toJsonResponse(createTokenResponseBody()),
-      toJsonResponse(issueResponse),
-    )
+    const fetchMock = stubFetchResponses(toJsonResponse(createTokenResponseBody()), toJsonResponse(issueResponse))
     const service = compat.TaxinvoiceService()
 
     await new Promise<void>((resolve, reject) => {
@@ -120,8 +118,12 @@ describe('taxinvoice runtime methods', () => {
         'MGT-002',
         '발행메모',
         'test-user',
-        () => { resolve() },
-        (error: unknown) => { reject(asError(error)) },
+        () => {
+          resolve()
+        },
+        (error: unknown) => {
+          reject(asError(error))
+        }
       )
     })
 
@@ -139,10 +141,7 @@ describe('taxinvoice runtime methods', () => {
       code: 1,
       message: 'issued',
     }
-    const fetchMock = stubFetchResponses(
-      toJsonResponse(createTokenResponseBody()),
-      toJsonResponse(issueResponse),
-    )
+    const fetchMock = stubFetchResponses(toJsonResponse(createTokenResponseBody()), toJsonResponse(issueResponse))
     const service = compat.TaxinvoiceService()
 
     await new Promise<void>((resolve, reject) => {
@@ -154,8 +153,12 @@ describe('taxinvoice runtime methods', () => {
         '안내 메일 제목',
         true,
         'test-user',
-        () => { resolve() },
-        (error: unknown) => { reject(asError(error)) },
+        () => {
+          resolve()
+        },
+        (error: unknown) => {
+          reject(asError(error))
+        }
       )
     })
 
@@ -174,18 +177,9 @@ describe('taxinvoice runtime methods', () => {
       code: 1,
       message: 'issued',
     }
-    const fetchMock = stubFetchResponses(
-      toJsonResponse(createTokenResponseBody()),
-      toJsonResponse(issueResponse),
-    )
+    const fetchMock = stubFetchResponses(toJsonResponse(createTokenResponseBody()), toJsonResponse(issueResponse))
 
-    await promiseCompat.TaxinvoiceService().issue(
-      '1234567890',
-      'SELL',
-      'MGT-004',
-      '발행메모',
-      'promise-user',
-    )
+    await promiseCompat.TaxinvoiceService().issue('1234567890', 'SELL', 'MGT-004', '발행메모', 'promise-user')
 
     const requestInit = getTaxinvoiceRequestInit(fetchMock)
     const requestHeaders = requestInit.headers as Record<string, string>
@@ -202,10 +196,7 @@ describe('taxinvoice runtime methods', () => {
       message: 'issued',
       ntsConfirmNum: '20260225-0900',
     }
-    const fetchMock = stubFetchResponses(
-      toJsonResponse(createTokenResponseBody()),
-      toJsonResponse(issueResponse),
-    )
+    const fetchMock = stubFetchResponses(toJsonResponse(createTokenResponseBody()), toJsonResponse(issueResponse))
 
     await new Promise<void>((resolve, reject) => {
       compat.TaxinvoiceService().registIssue(
@@ -217,8 +208,12 @@ describe('taxinvoice runtime methods', () => {
         '안내 제목',
         'DEAL-001',
         'regist-user',
-        () => { resolve() },
-        (error: unknown) => { reject(asError(error)) },
+        () => {
+          resolve()
+        },
+        (error: unknown) => {
+          reject(asError(error))
+        }
       )
     })
 
@@ -245,7 +240,7 @@ describe('taxinvoice runtime methods', () => {
       toJsonResponse({
         itemKey: '025102114360700001',
         stateCode: 300,
-      }),
+      })
     )
 
     const response = await promiseCompat.TaxinvoiceService().getInfo('1234567890', 'SELL', 'MGT-INFO', 'info-user')
@@ -269,7 +264,7 @@ describe('taxinvoice runtime methods', () => {
         pageNum: 1,
         pageCount: 1,
         list: [],
-      }),
+      })
     )
 
     await new Promise<void>((resolve, reject) => {
@@ -296,8 +291,12 @@ describe('taxinvoice runtime methods', () => {
         ['P'],
         [0],
         'MGT-SEARCH',
-        () => { resolve() },
-        (error: unknown) => { reject(asError(error)) },
+        () => {
+          resolve()
+        },
+        (error: unknown) => {
+          reject(asError(error))
+        }
       )
     })
 
@@ -319,16 +318,14 @@ describe('taxinvoice runtime methods', () => {
   test('promise getSealURL and getCertificateExpireDate call ETC/CERT endpoints', async () => {
     const sealFetchMock = stubFetchResponses(
       toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ url: 'https://example.com/seal' }),
+      toJsonResponse({ url: 'https://example.com/seal' })
     )
 
     const seal = await promiseCompat.TaxinvoiceService().getSealURL('1234567890', 'seal-user')
     expect(seal).toMatchObject({ url: 'https://example.com/seal' })
     expectTaxinvoiceRequestPath(sealFetchMock, '/Member?TG=SEAL')
 
-    const certFetchMock = stubFetchResponses(
-      toJsonResponse({ certificateExpiration: '20260706145209' }),
-    )
+    const certFetchMock = stubFetchResponses(toJsonResponse({ certificateExpiration: '20260706145209' }))
 
     const expiration = await promiseCompat.TaxinvoiceService().getCertificateExpireDate('1234567890', 'cert-user')
     expect(typeof expiration).toBe('string')
@@ -339,7 +336,7 @@ describe('taxinvoice runtime methods', () => {
   test('callback and promise URL methods return string URL', async () => {
     const callbackFetchMock = stubFetchResponses(
       toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ url: 'https://example.com/view' }),
+      toJsonResponse({ url: 'https://example.com/view' })
     )
 
     const callbackUrl = await new Promise<string>((resolve, reject) => {
@@ -347,8 +344,12 @@ describe('taxinvoice runtime methods', () => {
         '1234567890',
         'SELL',
         'MGT-VIEW',
-        (url: string) => { resolve(url) },
-        (error: unknown) => { reject(asError(error)) },
+        (url: string) => {
+          resolve(url)
+        },
+        (error: unknown) => {
+          reject(asError(error))
+        }
       )
     })
 
@@ -357,7 +358,7 @@ describe('taxinvoice runtime methods', () => {
 
     const promiseFetchMock = stubFetchResponses(
       toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ url: 'https://example.com/pdf' }),
+      toJsonResponse({ url: 'https://example.com/pdf' })
     )
 
     const promiseUrl = await promiseCompat.TaxinvoiceService().getPDFURL('1234567890', 'SELL', 'MGT-PDF', 'pdf-user')
@@ -370,15 +371,19 @@ describe('taxinvoice runtime methods', () => {
   test('getURL returns string URL in callback and promise paths', async () => {
     const callbackFetchMock = stubFetchResponses(
       toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ url: 'https://example.com/tbox' }),
+      toJsonResponse({ url: 'https://example.com/tbox' })
     )
 
     const callbackUrl = await new Promise<string>((resolve, reject) => {
       compat.TaxinvoiceService().getURL(
         '1234567890',
         'TBOX',
-        (url: string) => { resolve(url) },
-        (error: unknown) => { reject(asError(error)) },
+        (url: string) => {
+          resolve(url)
+        },
+        (error: unknown) => {
+          reject(asError(error))
+        }
       )
     })
 
@@ -387,7 +392,7 @@ describe('taxinvoice runtime methods', () => {
 
     const promiseFetchMock = stubFetchResponses(
       toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ url: 'https://example.com/sbox' }),
+      toJsonResponse({ url: 'https://example.com/sbox' })
     )
 
     const promiseUrl = await promiseCompat.TaxinvoiceService().getURL('1234567890', 'SBOX', 'menu-user')
@@ -401,7 +406,7 @@ describe('taxinvoice runtime methods', () => {
   test('getMassPrintURL sends POST body and returns URL string', async () => {
     const fetchMock = stubFetchResponses(
       toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ url: 'https://example.com/mass-print' }),
+      toJsonResponse({ url: 'https://example.com/mass-print' })
     )
 
     const resultUrl = await new Promise<string>((resolve, reject) => {
@@ -410,8 +415,12 @@ describe('taxinvoice runtime methods', () => {
         'SELL',
         ['MGT-101', 'MGT-102'],
         'mass-user',
-        (url: string) => { resolve(url) },
-        (error: unknown) => { reject(asError(error)) },
+        (url: string) => {
+          resolve(url)
+        },
+        (error: unknown) => {
+          reject(asError(error))
+        }
       )
     })
 
@@ -435,8 +444,12 @@ describe('taxinvoice runtime methods', () => {
         '',
         'SELL',
         'MGT-005',
-        () => { resolve(new Error('unexpected success')) },
-        (error: unknown) => { resolve(error) },
+        () => {
+          resolve(new Error('unexpected success'))
+        },
+        (error: unknown) => {
+          resolve(error)
+        }
       )
     })
 
@@ -445,9 +458,7 @@ describe('taxinvoice runtime methods', () => {
       message: '팝빌회원 사업자번호가 입력되지 않았습니다.',
     })
 
-    await expect(
-      promiseCompat.TaxinvoiceService().getMassPrintURL('1234567890', 'SELL', []),
-    ).rejects.toMatchObject({
+    await expect(promiseCompat.TaxinvoiceService().getMassPrintURL('1234567890', 'SELL', [])).rejects.toMatchObject({
       code: -99999999,
       message: '문서번호배열이 입력되지 않았습니다.',
     })
@@ -465,8 +476,12 @@ describe('taxinvoice runtime methods', () => {
       compat.TaxinvoiceService().getURL(
         '1234567890',
         emptyTogo,
-        () => { resolve(new Error('unexpected success')) },
-        (error: unknown) => { resolve(error) },
+        () => {
+          resolve(new Error('unexpected success'))
+        },
+        (error: unknown) => {
+          resolve(error)
+        }
       )
     })
 
@@ -481,8 +496,12 @@ describe('taxinvoice runtime methods', () => {
       compat.TaxinvoiceService().getURL(
         '1234567890',
         invalidTogo,
-        () => { resolve(new Error('unexpected success')) },
-        (error: unknown) => { resolve(error) },
+        () => {
+          resolve(new Error('unexpected success'))
+        },
+        (error: unknown) => {
+          resolve(error)
+        }
       )
     })
 
@@ -491,9 +510,7 @@ describe('taxinvoice runtime methods', () => {
       message: '접근 메뉴가 올바르지 않습니다.',
     })
 
-    await expect(
-      promiseCompat.TaxinvoiceService().getURL('1234567890', invalidTogo),
-    ).rejects.toMatchObject({
+    await expect(promiseCompat.TaxinvoiceService().getURL('1234567890', invalidTogo)).rejects.toMatchObject({
       code: -99999999,
       message: '접근 메뉴가 올바르지 않습니다.',
     })
@@ -506,7 +523,7 @@ describe('taxinvoice runtime methods', () => {
     configureCompat(defaultErrorHandler)
     const fetchMock = stubFetchResponses(
       toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ code: -12345, message: 'Bad request' }, 400),
+      toJsonResponse({ code: -12345, message: 'Bad request' }, 400)
     )
     const callbackError = vi.fn()
 
@@ -515,20 +532,24 @@ describe('taxinvoice runtime methods', () => {
         '1234567890',
         'SELL',
         'MGT-ERROR-1',
-        () => { resolve() },
+        () => {
+          resolve()
+        },
         (error: unknown) => {
           callbackError(error)
           resolve()
-        },
+        }
       )
     })
 
     expect(fetchMock).toHaveBeenCalledTimes(2)
     expect(callbackError).toHaveBeenCalledTimes(1)
-    expect(callbackError).toHaveBeenCalledWith(expect.objectContaining({
-      code: -12345,
-      stage: 'request_api',
-    }))
+    expect(callbackError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: -12345,
+        stage: 'request_api',
+      })
+    )
     expect(defaultErrorHandler).not.toHaveBeenCalled()
   })
 
@@ -538,23 +559,23 @@ describe('taxinvoice runtime methods', () => {
 
     const callbackFetchMock = stubFetchResponses(
       toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ code: -12345, message: 'Bad request' }, 400),
+      toJsonResponse({ code: -12345, message: 'Bad request' }, 400)
     )
 
     compat.TaxinvoiceService().getViewURL('1234567890', 'SELL', 'MGT-ERROR-2', () => undefined)
 
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
     expect(defaultErrorHandler).toHaveBeenCalledTimes(1)
 
     expect(callbackFetchMock).toHaveBeenCalledTimes(2)
 
     const promiseFetchMock = stubFetchResponses(
       toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ code: -22345, message: 'Promise bad request' }, 400),
+      toJsonResponse({ code: -22345, message: 'Promise bad request' }, 400)
     )
 
     await expect(
-      promiseCompat.TaxinvoiceService().getPDFURL('1234567890', 'SELL', 'MGT-ERROR-3'),
+      promiseCompat.TaxinvoiceService().getPDFURL('1234567890', 'SELL', 'MGT-ERROR-3')
     ).rejects.toMatchObject({
       code: -22345,
       stage: 'request_api',
@@ -570,7 +591,7 @@ describe('taxinvoice runtime methods', () => {
 
     const callbackFetchMock = stubFetchResponses(
       toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ code: -12345, message: 'Bad request' }, 400),
+      toJsonResponse({ code: -12345, message: 'Bad request' }, 400)
     )
     const callbackError = vi.fn()
 
@@ -578,30 +599,32 @@ describe('taxinvoice runtime methods', () => {
       compat.TaxinvoiceService().getURL(
         '1234567890',
         'TBOX',
-        () => { resolve() },
+        () => {
+          resolve()
+        },
         (error: unknown) => {
           callbackError(error)
           resolve()
-        },
+        }
       )
     })
 
     expect(callbackFetchMock).toHaveBeenCalledTimes(2)
     expect(callbackError).toHaveBeenCalledTimes(1)
-    expect(callbackError).toHaveBeenCalledWith(expect.objectContaining({
-      code: -12345,
-      stage: 'request_api',
-    }))
+    expect(callbackError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: -12345,
+        stage: 'request_api',
+      })
+    )
     expect(defaultErrorHandler).not.toHaveBeenCalled()
 
     const promiseFetchMock = stubFetchResponses(
       toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ code: -22345, message: 'Promise bad request' }, 400),
+      toJsonResponse({ code: -22345, message: 'Promise bad request' }, 400)
     )
 
-    await expect(
-      promiseCompat.TaxinvoiceService().getURL('1234567890', 'SBOX'),
-    ).rejects.toMatchObject({
+    await expect(promiseCompat.TaxinvoiceService().getURL('1234567890', 'SBOX')).rejects.toMatchObject({
       code: -22345,
       stage: 'request_api',
     })

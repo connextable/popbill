@@ -48,7 +48,7 @@ describe('compat exports', () => {
 
   test('promise subpath returns rejected promise with NotImplementedError', async () => {
     await expect(promiseCompat.TaxinvoiceService().getChargeInfo('1234567890')).rejects.toBeInstanceOf(
-      NotImplementedError,
+      NotImplementedError
     )
   })
 
@@ -64,7 +64,7 @@ describe('compat exports', () => {
       },
       (error: unknown) => {
         void error
-      },
+      }
     )
     expectTypeOf(callbackService.issue).toBeCallableWith(
       '1234567890',
@@ -78,7 +78,7 @@ describe('compat exports', () => {
       },
       (error: unknown) => {
         void error
-      },
+      }
     )
     expectTypeOf(callbackService.search).toBeCallableWith(
       '1234567890',
@@ -95,7 +95,7 @@ describe('compat exports', () => {
       100,
       (response: TaxInvoiceSearchApiResponse) => {
         void response
-      },
+      }
     )
     expectTypeOf(callbackService.getViewURL).toBeCallableWith(
       '1234567890',
@@ -106,7 +106,7 @@ describe('compat exports', () => {
       },
       (error: unknown) => {
         void error
-      },
+      }
     )
     expectTypeOf(callbackService.getURL).toBeCallableWith(
       '1234567890',
@@ -116,7 +116,7 @@ describe('compat exports', () => {
       },
       (error: unknown) => {
         void error
-      },
+      }
     )
     expectTypeOf(callbackService.getTaxCertInfo).toBeCallableWith(
       '1234567890',
@@ -125,7 +125,7 @@ describe('compat exports', () => {
       },
       (error: unknown) => {
         void error
-      },
+      }
     )
 
     expectTypeOf<TaxinvoicePromiseService['getInfo']>().returns.toEqualTypeOf<Promise<TaxInvoiceGetInfoApiResponse>>()
@@ -133,6 +133,8 @@ describe('compat exports', () => {
     expectTypeOf<TaxinvoicePromiseService['search']>().returns.toEqualTypeOf<Promise<TaxInvoiceSearchApiResponse>>()
     expectTypeOf<TaxinvoicePromiseService['getViewURL']>().returns.toEqualTypeOf<Promise<string>>()
     expectTypeOf<TaxinvoicePromiseService['getURL']>().returns.toEqualTypeOf<Promise<string>>()
-    expectTypeOf<TaxinvoicePromiseService['getTaxCertInfo']>().returns.toEqualTypeOf<Promise<TaxInvoiceGetTaxCertInfoApiResponse>>()
+    expectTypeOf<TaxinvoicePromiseService['getTaxCertInfo']>().returns.toEqualTypeOf<
+      Promise<TaxInvoiceGetTaxCertInfoApiResponse>
+    >()
   })
 })

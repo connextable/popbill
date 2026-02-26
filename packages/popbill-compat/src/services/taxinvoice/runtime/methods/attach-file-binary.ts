@@ -3,9 +3,7 @@ import type {
   TaxInvoiceAttachFileBinaryPayload,
   TaxInvoiceMgtKeyType,
 } from '@connextable/popbill-spec'
-import {
-  validateTaxinvoicePayload,
-} from '@/internal/validation'
+import { validateTaxinvoicePayload } from '@/internal/validation'
 import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import { buildSingleFileMultipartPayload } from './multipart'
@@ -16,7 +14,7 @@ export async function requestAttachFileBinary(
   keyType: TaxInvoiceMgtKeyType,
   mgtKey: string,
   binaryFile: TaxInvoiceAttachFileBinaryPayload,
-  userId: string,
+  userId: string
 ): Promise<TaxInvoiceApiResponseBase> {
   validateRequiredTaxinvoiceInputs(corpNum, keyType, mgtKey)
 

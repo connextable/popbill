@@ -10,9 +10,6 @@
     "custom": true,
     "internal-terms": false
   },
-  "[json][jsonc]": {
-    "editor.defaultFormatter": "vscode.json-language-features",
-  },
   "typescript.experimental.useTsgo": true,
   "json.schemaDownload.trustedDomains": {
     "https://turborepo.dev/schema.json": true,
@@ -24,5 +21,12 @@
     "*.js": "${capture}.js.map, ${capture}.min.js",
     "tsconfig.json": "tsconfig.*.json",
     "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, bun.lock"
-  }
+  },
+  "oxc.enable": true,
+  "oxc.typeAware": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.oxc": "always"
+  },
 }

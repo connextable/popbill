@@ -2,9 +2,6 @@ import { createTaxinvoiceService, createTaxinvoicePromiseService } from '@/servi
 
 export { createTaxinvoiceService, createTaxinvoicePromiseService }
 
-export type {
-  TaxinvoiceCallbackService,
-  TaxinvoicePromiseService,
-} from '@/services/taxinvoice'
+export type { TaxinvoiceCallbackService, TaxinvoicePromiseService } from '@/services/taxinvoice'
 
 export type { CompatConfig } from '@/config'

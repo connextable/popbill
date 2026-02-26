@@ -1,13 +1,6 @@
 import { stringifyWithoutEmptyValues } from '@connextable/popbill-core'
-import type {
-  TaxInvoiceApiModel,
-  TaxInvoiceBulkSubmitApiResponse,
-} from '@connextable/popbill-spec'
-import {
-  validateCorpNum,
-  validateSubmitId,
-  validateTaxinvoicePayload,
-} from '@/internal/validation'
+import type { TaxInvoiceApiModel, TaxInvoiceBulkSubmitApiResponse } from '@connextable/popbill-spec'
+import { validateCorpNum, validateSubmitId, validateTaxinvoicePayload } from '@/internal/validation'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import type { ParsedBulkSubmitOptions } from '@/services/taxinvoice/runtime/parsers/bulk-submit'
 
@@ -16,7 +9,7 @@ export async function requestBulkSubmit(
   corpNum: string,
   submitID: string,
   taxinvoiceList: TaxInvoiceApiModel[],
-  options: ParsedBulkSubmitOptions,
+  options: ParsedBulkSubmitOptions
 ): Promise<TaxInvoiceBulkSubmitApiResponse> {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {

@@ -11,7 +11,7 @@ export interface CompatConfig {
   requestTimeoutMs?: number
   acceptLanguage?: string
   acceptEncoding?: string | null
-  defaultErrorHandler?: (error: PopbillApiError | { code: number, message: string }) => void
+  defaultErrorHandler?: (error: PopbillApiError | { code: number; message: string }) => void
   [key: string]: unknown
 }
 

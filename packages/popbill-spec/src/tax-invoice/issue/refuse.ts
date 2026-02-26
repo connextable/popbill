@@ -1,4 +1,9 @@
-import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
+import type {
+  TaxInvoiceApiRequest,
+  TaxInvoiceApiResponseBase,
+  TaxInvoiceMgtKeyType,
+  TaxInvoiceRequireRequestFields,
+} from '../common'
 
 /**
  * TaxInvoice Refuse Raw Spec
@@ -43,11 +48,7 @@ export interface TaxInvoiceRefuseApiRequestBody {
  * Refuse API 요청(raw).
  */
 export type TaxInvoiceRefuseApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceRefuseApiRequestPath,
-    TaxInvoiceRefuseApiRequestQuery,
-    TaxInvoiceRefuseApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceRefuseApiRequestPath, TaxInvoiceRefuseApiRequestQuery, TaxInvoiceRefuseApiRequestBody>,
   'path'
 >
 

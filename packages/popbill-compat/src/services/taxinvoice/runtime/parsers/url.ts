@@ -1,12 +1,6 @@
 import type { TaxInvoiceGetUrlTogo } from '@connextable/popbill-spec'
-import type {
-  LegacyErrorCallback,
-  LegacySuccessCallback,
-} from '@/services/taxinvoice/types'
-import {
-  parseLegacyUserIdAndCallbacks,
-  type ParsedLegacyUserIdCallbacks,
-} from '@/services/taxinvoice/runtime/common'
+import type { LegacyErrorCallback, LegacySuccessCallback } from '@/services/taxinvoice/types'
+import { parseLegacyUserIdAndCallbacks, type ParsedLegacyUserIdCallbacks } from '@/services/taxinvoice/runtime/common'
 
 export type TaxinvoiceUrlTarget = 'POPUP' | 'VIEW' | 'PRINT' | 'PDF' | 'EPRINT' | 'MAIL'
 
@@ -17,10 +11,7 @@ export interface ParsedGetUrlCallbackOptions {
   error?: LegacyErrorCallback
 }
 
-export function parseGetUrlCallbackArgs(
-  togo: TaxInvoiceGetUrlTogo,
-  args: unknown[],
-): ParsedGetUrlCallbackOptions {
+export function parseGetUrlCallbackArgs(togo: TaxInvoiceGetUrlTogo, args: unknown[]): ParsedGetUrlCallbackOptions {
   const parsed = parseLegacyUserIdAndCallbacks<string>(args)
   return {
     togo,

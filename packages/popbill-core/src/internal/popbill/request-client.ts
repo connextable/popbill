@@ -51,8 +51,7 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
       if (options.contentType !== null) {
         if (typeof options.contentType === 'string') {
           requestHeaders['Content-Type'] = options.contentType
-        }
-        else if (!isFormDataBody(options.body)) {
+        } else if (!isFormDataBody(options.body)) {
           requestHeaders['Content-Type'] = 'application/json;charset=utf-8'
         }
       }
@@ -85,8 +84,7 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
         try {
           const token = await config.tokenProvider.getToken(options.corpNum)
           requestHeaders['Authorization'] = `Bearer ${token.sessionToken}`
-        }
-        catch (error) {
+        } catch (error) {
           throw createStageError('issue_token', error)
         }
       }
@@ -97,12 +95,11 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
           {
             method: method === 'GET' ? 'GET' : 'POST',
             headers: requestHeaders,
-            body: method === 'GET' ? undefined : options.body ?? undefined,
+            body: method === 'GET' ? undefined : (options.body ?? undefined),
           },
-          { timeoutMs: config.timeoutMs },
+          { timeoutMs: config.timeoutMs }
         )
-      }
-      catch (error) {
+      } catch (error) {
         throw createStageError('request_api', error)
       }
     },
@@ -110,8 +107,7 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
 }
 
 function isFormDataBody(body: PopbillRequestOptions['body']): body is FormData {
-  return typeof FormData !== 'undefined'
-    && body instanceof FormData
+  return typeof FormData !== 'undefined' && body instanceof FormData
 }
 
 function isNonBlankString(value: string | undefined): value is string {

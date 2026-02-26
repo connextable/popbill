@@ -1,4 +1,9 @@
-import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
+import type {
+  TaxInvoiceApiRequest,
+  TaxInvoiceApiResponseBase,
+  TaxInvoiceMgtKeyType,
+  TaxInvoiceRequireRequestFields,
+} from '../common'
 import type { TaxInvoiceApiModel } from '../models'
 
 /**
@@ -72,11 +77,7 @@ export type TaxInvoiceUpdateApiRequestBody = TaxInvoiceApiModel & {
  * Update API 요청(raw).
  */
 export type TaxInvoiceUpdateApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceUpdateApiRequestPath,
-    TaxInvoiceUpdateApiRequestQuery,
-    TaxInvoiceUpdateApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceUpdateApiRequestPath, TaxInvoiceUpdateApiRequestQuery, TaxInvoiceUpdateApiRequestBody>,
   'path' | 'body'
 >
 

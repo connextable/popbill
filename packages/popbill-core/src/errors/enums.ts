@@ -14,5 +14,5 @@ export const PopbillErrorStage = {
   Unknown: 'unknown',
 } as const
 
-export type PopbillErrorType = typeof PopbillErrorType[keyof typeof PopbillErrorType]
-export type PopbillErrorStage = typeof PopbillErrorStage[keyof typeof PopbillErrorStage]
+export type PopbillErrorType = (typeof PopbillErrorType)[keyof typeof PopbillErrorType]
+export type PopbillErrorStage = (typeof PopbillErrorStage)[keyof typeof PopbillErrorStage]

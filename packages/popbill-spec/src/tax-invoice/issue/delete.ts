@@ -1,4 +1,9 @@
-import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
+import type {
+  TaxInvoiceApiRequest,
+  TaxInvoiceApiResponseBase,
+  TaxInvoiceMgtKeyType,
+  TaxInvoiceRequireRequestFields,
+} from '../common'
 
 /**
  * TaxInvoice Delete Raw Spec
@@ -40,11 +45,7 @@ export type TaxInvoiceDeleteApiRequestBody = never
  * Delete API 요청(raw).
  */
 export type TaxInvoiceDeleteApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceDeleteApiRequestPath,
-    TaxInvoiceDeleteApiRequestQuery,
-    TaxInvoiceDeleteApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceDeleteApiRequestPath, TaxInvoiceDeleteApiRequestQuery, TaxInvoiceDeleteApiRequestBody>,
   'path'
 >
 

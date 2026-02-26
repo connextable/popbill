@@ -1,13 +1,8 @@
 import { promises as fs } from 'node:fs'
 import { stringifyWithoutEmptyValues } from '@connextable/popbill-core'
-import type {
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceMgtKeyType,
-} from '@connextable/popbill-spec'
+import type { TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
 import { createLegacyValidationError } from '@/internal/errors'
-import {
-  validateAttachFilePath,
-} from '@/internal/validation'
+import { validateAttachFilePath } from '@/internal/validation'
 import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import { buildSingleFileMultipartPayload } from './multipart'
@@ -19,7 +14,7 @@ export async function requestAttachFile(
   mgtKey: string,
   displayName: string,
   filePath: string,
-  userId: string,
+  userId: string
 ): Promise<TaxInvoiceApiResponseBase> {
   validateRequiredTaxinvoiceInputs(corpNum, keyType, mgtKey)
 
@@ -31,8 +26,7 @@ export async function requestAttachFile(
   let fileData: Buffer
   try {
     fileData = await fs.readFile(filePath)
-  }
-  catch {
+  } catch {
     throw createLegacyValidationError(`파일을 읽을 수 없습니다. [${filePath}]`)
   }
 

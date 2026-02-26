@@ -1,9 +1,7 @@
 import * as compat from '@/index'
 import * as promiseCompat from '@/promise/index'
 import { NotImplementedError } from '@/errors'
-import {
-  TAXINVOICE_REQUIRED_METHODS,
-} from '@/services/taxinvoice/methods'
+import { TAXINVOICE_REQUIRED_METHODS } from '@/services/taxinvoice/methods'
 
 describe('taxinvoice legacy method surface', () => {
   test('required 46 methods exist in callback and promise services', () => {
@@ -47,8 +45,8 @@ describe('taxinvoice legacy method surface', () => {
     expect(onError).toHaveBeenCalledTimes(1)
     expect(onError).toHaveBeenCalledWith(expect.any(NotImplementedError))
 
-    await expect(
-      promiseCompat.TaxinvoiceService().getChargeInfo('1234567890'),
-    ).rejects.toBeInstanceOf(NotImplementedError)
+    await expect(promiseCompat.TaxinvoiceService().getChargeInfo('1234567890')).rejects.toBeInstanceOf(
+      NotImplementedError
+    )
   })
 })

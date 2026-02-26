@@ -64,18 +64,12 @@ function resolveCompatRequestConfig(config: CompatConfig): ResolvedCompatRequest
 
 function resolveApiBaseUrl(config: Pick<ResolvedCompatRequestConfig, 'isTest' | 'useGaIp' | 'useStaticIp'>): string {
   if (config.useGaIp) {
-    return config.isTest
-      ? 'https://ga-popbill-test.linkhub.co.kr'
-      : 'https://ga-popbill.linkhub.co.kr'
+    return config.isTest ? 'https://ga-popbill-test.linkhub.co.kr' : 'https://ga-popbill.linkhub.co.kr'
   }
 
   if (config.useStaticIp) {
-    return config.isTest
-      ? 'https://static-popbill-test.linkhub.co.kr'
-      : 'https://static-popbill.linkhub.co.kr'
+    return config.isTest ? 'https://static-popbill-test.linkhub.co.kr' : 'https://static-popbill.linkhub.co.kr'
   }
 
-  return config.isTest
-    ? 'https://popbill-test.linkhub.co.kr'
-    : 'https://popbill.linkhub.co.kr'
+  return config.isTest ? 'https://popbill-test.linkhub.co.kr' : 'https://popbill.linkhub.co.kr'
 }

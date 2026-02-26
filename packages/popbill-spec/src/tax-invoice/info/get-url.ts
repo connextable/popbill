@@ -36,11 +36,7 @@ export type TaxInvoiceGetUrlApiRequestBody = never
  * GetURL API 요청(raw).
  */
 export type TaxInvoiceGetUrlApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceGetUrlApiRequestPath,
-    TaxInvoiceGetUrlApiRequestQuery,
-    TaxInvoiceGetUrlApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceGetUrlApiRequestPath, TaxInvoiceGetUrlApiRequestQuery, TaxInvoiceGetUrlApiRequestBody>,
   'query'
 >
 

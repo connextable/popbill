@@ -1,12 +1,5 @@
-import type {
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceMgtKeyType,
-} from '@connextable/popbill-spec'
-import {
-  validateItemKey,
-  validateMgtKey,
-  validateTaxInvoiceKeyType,
-} from '@/internal/validation'
+import type { TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
+import { validateItemKey, validateMgtKey, validateTaxInvoiceKeyType } from '@/internal/validation'
 import { validateCorpNum } from '@/internal/validation'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
@@ -16,7 +9,7 @@ export async function requestAssignMgtKey(
   keyType: TaxInvoiceMgtKeyType,
   itemKey: string,
   mgtKey: string,
-  userId: string,
+  userId: string
 ): Promise<TaxInvoiceApiResponseBase> {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {

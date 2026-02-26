@@ -18,6 +18,8 @@ ntsfail
 ntsresult
 ntssend
 opyn
+oxfmt
+oxlint
 pdfurl
 popbill
 regist
@@ -25,5 +27,6 @@ retriable
 seongjun
 taxinvoice
 tsgo
+tsgolint
 unstub
 usercode

@@ -1,7 +1,4 @@
-import type {
-  TaxInvoiceGetEPrintUrlApiResponse,
-  TaxInvoiceMgtKeyType,
-} from '@connextable/popbill-spec'
+import type { TaxInvoiceGetEPrintUrlApiResponse, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
 import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 
@@ -10,7 +7,7 @@ export async function requestGetEPrintUrl(
   corpNum: string,
   keyType: TaxInvoiceMgtKeyType,
   mgtKey: string,
-  userId: string,
+  userId: string
 ): Promise<string> {
   validateRequiredTaxinvoiceInputs(corpNum, keyType, mgtKey)
 

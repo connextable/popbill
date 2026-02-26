@@ -1,5 +1,2 @@
 export type * from './types'
-export {
-  createTaxinvoiceService,
-  createTaxinvoicePromiseService,
-} from './factory'
+export { createTaxinvoiceService, createTaxinvoicePromiseService } from './factory'

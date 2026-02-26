@@ -25,10 +25,7 @@ const READ_METHODS = [
   'getTaxCertificateInfo',
 ] as const
 
-const CHECK_METHODS = [
-  'checkInvoiceManagementKeyInUse',
-  'checkTaxCertificateValidation',
-] as const
+const CHECK_METHODS = ['checkInvoiceManagementKeyInUse', 'checkTaxCertificateValidation'] as const
 
 describe('tax-invoice methods surface', () => {
   test('exposes all 46 modern facade methods', () => {

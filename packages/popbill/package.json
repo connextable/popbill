@@ -2,15 +2,24 @@
   "name": "@connextable/popbill",
   "version": "1.0.0",
   "description": "Popbill API SDK for TypeScript. see www.popbill.com",
-  "type": "module",
-  "types": "./dist/index.d.mts",
-  "exports": {
-    ".": "./dist/index.mjs",
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "dist"
+  "keywords": [
+    "FAX",
+    "KakaoTalk",
+    "SMS",
+    "accountcheck",
+    "api",
+    "bizinfocheck",
+    "cashbill",
+    "closedown",
+    "hometax",
+    "popbill",
+    "sdk",
+    "statement",
+    "taxinvoice"
   ],
+  "bugs": {
+    "url": "https://github.com/connextable/node-popbill/issues"
+  },
   "license": "MIT",
   "author": {
     "name": "Jinyong Park",
@@ -31,32 +40,26 @@
     "type": "git",
     "url": "https://github.com/connextable/node-popbill.git"
   },
-  "bugs": {
-    "url": "https://github.com/connextable/node-popbill/issues"
-  },
-  "keywords": [
-    "popbill",
-    "taxinvoice",
-    "cashbill",
-    "statement",
-    "closedown",
-    "bizinfocheck",
-    "hometax",
-    "accountcheck",
-    "SMS",
-    "KakaoTalk",
-    "FAX",
-    "api",
-    "sdk"
+  "files": [
+    "dist"
   ],
+  "type": "module",
+  "sideEffects": false,
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "build": "tsdown",
     "test:unit": "POPBILL_RUN_INTEGRATION_TESTS=false vitest run",
     "test:integration": "POPBILL_RUN_INTEGRATION_TESTS=true vitest run --passWithNoTests test/integration",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint src test --ext .ts,.js",
-    "lint:fix": "eslint src test --ext .ts,.js --fix",
+    "lint": "oxlint --type-aware",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
     "typecheck": "tsgo -b --noEmit",
     "typecheck:lib": "tsgo -p tsconfig.lib.json --noEmit",
     "typecheck:test": "tsgo -p tsconfig.test.json --noEmit",
@@ -69,6 +72,5 @@
   },
   "engines": {
     "node": ">=20"
-  },
-  "sideEffects": false
+  }
 }

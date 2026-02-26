@@ -12,7 +12,7 @@ function createPromiseMethod(serviceName: string, methods: string): (...args: un
 
 export function createTypedPromiseServiceStub<Methods extends object>(
   serviceName: string,
-  methods: readonly (Extract<keyof Methods, string>)[],
+  methods: readonly Extract<keyof Methods, string>[]
 ): Methods {
   const target: Record<string, (...args: unknown[]) => Promise<unknown>> = {}
 

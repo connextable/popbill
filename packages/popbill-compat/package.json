@@ -2,7 +2,11 @@
   "name": "@connextable/popbill-compat",
   "version": "0.1.0",
   "description": "Compatibility SDK for legacy Popbill interfaces",
+  "files": [
+    "dist"
+  ],
   "type": "module",
+  "sideEffects": false,
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -25,22 +29,20 @@
     },
     "./package.json": "./package.json"
   },
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "tsdown",
     "test": "vitest run",
     "test:integration": "vitest run --passWithNoTests",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint src test --ext .ts",
-    "lint:fix": "eslint src test --ext .ts --fix",
+    "lint": "oxlint --type-aware",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
     "typecheck": "tsgo -b --noEmit",
     "clean": "del node_modules dist"
   },
   "dependencies": {
     "@connextable/popbill-core": "workspace:*",
     "@connextable/popbill-spec": "workspace:*"
-  },
-  "sideEffects": false
+  }
 }

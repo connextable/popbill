@@ -1,8 +1,4 @@
-import type {
-  TaxInvoiceApiRequest,
-  TaxInvoiceBulkIssueRequestHeaders,
-  TaxInvoiceRequireRequestFields,
-} from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceBulkIssueRequestHeaders, TaxInvoiceRequireRequestFields } from '../common'
 import type { TaxInvoiceBulkSubmitResponseApiModel, TaxInvoiceApiModel } from '../models'
 
 /**

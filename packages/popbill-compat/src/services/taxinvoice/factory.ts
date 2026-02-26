@@ -1,16 +1,9 @@
 import type { CompatConfig } from '@/config'
-import {
-  createTypedCallbackServiceStub,
-} from '@/adapters/callback-adapter'
-import {
-  createTypedPromiseServiceStub,
-} from '@/adapters/promise-adapter'
+import { createTypedCallbackServiceStub } from '@/adapters/callback-adapter'
+import { createTypedPromiseServiceStub } from '@/adapters/promise-adapter'
 import { TAXINVOICE_METHODS } from './methods'
 import { createTaxinvoiceRuntimeMethods } from './runtime'
-import type {
-  TaxinvoiceCallbackService,
-  TaxinvoicePromiseService,
-} from './types'
+import type { TaxinvoiceCallbackService, TaxinvoicePromiseService } from './types'
 
 const SERVICE_NAME = 'TaxinvoiceService'
 

@@ -17,10 +17,7 @@ export interface PopbillErrorContext {
   stage?: PopbillErrorStage
 }
 
-export function createInputValidationError(
-  message: string,
-  context?: PopbillErrorContext,
-): PopbillApiError {
+export function createInputValidationError(message: string, context?: PopbillErrorContext): PopbillApiError {
   return createError({
     code: UNKNOWN_ERROR_CODE,
     message,
@@ -33,7 +30,7 @@ export function createInputValidationError(
 export function createApiResponseError(
   code: number,
   message: string,
-  context?: PopbillErrorContext & { status?: number, raw?: unknown },
+  context?: PopbillErrorContext & { status?: number; raw?: unknown }
 ): PopbillApiError {
   return createError({
     code,
@@ -47,11 +44,7 @@ export function createApiResponseError(
   })
 }
 
-export function createHttpError(
-  status: number,
-  raw: unknown,
-  context?: PopbillErrorContext,
-): PopbillApiError {
+export function createHttpError(status: number, raw: unknown, context?: PopbillErrorContext): PopbillApiError {
   return createError({
     code: HTTP_ERROR_CODE,
     message: `HTTP ${String(status)}`,
@@ -63,10 +56,7 @@ export function createHttpError(
   })
 }
 
-export function createNetworkError(
-  error: unknown,
-  context?: PopbillErrorContext,
-): PopbillApiError {
+export function createNetworkError(error: unknown, context?: PopbillErrorContext): PopbillApiError {
   return createError({
     code: NETWORK_ERROR_CODE,
     message: normalizeErrorMessage(error),
@@ -77,10 +67,7 @@ export function createNetworkError(
   })
 }
 
-export function createTimeoutError(
-  error: unknown,
-  context?: PopbillErrorContext,
-): PopbillApiError {
+export function createTimeoutError(error: unknown, context?: PopbillErrorContext): PopbillApiError {
   return createError({
     code: TIMEOUT_ERROR_CODE,
     message: normalizeErrorMessage(error),
@@ -91,10 +78,7 @@ export function createTimeoutError(
   })
 }
 
-export function createUnknownError(
-  error: unknown,
-  context?: PopbillErrorContext,
-): PopbillApiError {
+export function createUnknownError(error: unknown, context?: PopbillErrorContext): PopbillApiError {
   return createError({
     code: UNKNOWN_ERROR_CODE,
     message: normalizeErrorMessage(error),
@@ -105,10 +89,7 @@ export function createUnknownError(
   })
 }
 
-export function normalizePopbillError(
-  error: unknown,
-  context?: PopbillErrorContext,
-): PopbillApiError {
+export function normalizePopbillError(error: unknown, context?: PopbillErrorContext): PopbillApiError {
   if (isPopbillApiError(error)) {
     const inferredType = error.type ?? inferErrorTypeFromCode(error.code)
     const inferredStage = context?.stage ?? error.stage ?? inferErrorStageFromCode(error.code)
@@ -165,7 +146,7 @@ function isHttpErrorPayload(payload: unknown): payload is HttpErrorPayload {
   return 'status' in payload && 'body' in payload
 }
 
-function isApiErrorBody(payload: unknown): payload is { code: number, message: string } {
+function isApiErrorBody(payload: unknown): payload is { code: number; message: string } {
   if (typeof payload !== 'object' || payload === null) {
     return false
   }
@@ -174,8 +155,10 @@ function isApiErrorBody(payload: unknown): payload is { code: number, message: s
     return false
   }
 
-  return typeof (payload as { code: unknown }).code === 'number'
-    && typeof (payload as { message: unknown }).message === 'string'
+  return (
+    typeof (payload as { code: unknown }).code === 'number' &&
+    typeof (payload as { message: unknown }).message === 'string'
+  )
 }
 
 function isTimeoutError(error: unknown): error is Error {

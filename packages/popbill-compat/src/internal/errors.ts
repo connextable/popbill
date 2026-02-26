@@ -54,7 +54,7 @@ export function toCompatRuntimeError(error: unknown, operation: string): CompatR
 export function dispatchCallbackError(
   error: CompatRuntimeError,
   errorCallback: ((error: unknown) => void) | undefined,
-  defaultErrorHandler: ((error: CompatRuntimeError) => void) | undefined,
+  defaultErrorHandler: ((error: CompatRuntimeError) => void) | undefined
 ): void {
   if (errorCallback) {
     errorCallback(error)

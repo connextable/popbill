@@ -299,8 +299,7 @@ export interface TaxInvoiceSearchCloseDownStateMap {
 /**
  * Search API 휴폐업상태 필터(raw).
  */
-export type TaxInvoiceSearchCloseDownState
-  = TaxInvoiceSearchCloseDownStateMap[keyof TaxInvoiceSearchCloseDownStateMap]
+export type TaxInvoiceSearchCloseDownState = TaxInvoiceSearchCloseDownStateMap[keyof TaxInvoiceSearchCloseDownStateMap]
 
 /**
  * 검색일자 유형(raw).
