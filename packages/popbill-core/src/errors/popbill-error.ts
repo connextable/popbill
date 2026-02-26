@@ -1,4 +1,5 @@
 import { normalizeErrorMessage } from '@/utils/error'
+import { getPopbillErrorCodeDefinition } from './code-catalog'
 import type { PopbillApiError } from './types'
 import { PopbillErrorStage, PopbillErrorType } from './enums'
 
@@ -179,12 +180,27 @@ function isNetworkError(error: unknown): error is Error {
 }
 
 function createError(error: PopbillApiError): PopbillApiError {
+  const codeDefinition = getPopbillErrorCodeDefinition(error.code)
+  const canonicalMessage = codeDefinition?.message
+
   return {
     ...error,
+    message: resolveApiErrorMessage(error.message, canonicalMessage),
+    knownCode: error.knownCode ?? codeDefinition !== undefined,
+    category: error.category ?? codeDefinition?.category,
+    canonicalMessage: error.canonicalMessage ?? canonicalMessage,
     retriable: error.retriable ?? inferRetriable(error.status),
     stage: error.stage ?? PopbillErrorStage.Unknown,
     type: error.type ?? PopbillErrorType.Unknown,
   }
+}
+
+function resolveApiErrorMessage(message: string, fallbackMessage: string | undefined): string {
+  if (message.trim().length > 0) {
+    return message
+  }
+
+  return fallbackMessage ?? message
 }
 
 function inferRetriable(status: number | undefined): boolean {
