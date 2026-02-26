@@ -12,7 +12,8 @@
     "typecheck": "turbo run typecheck",
     "test": "dotenvx run -- turbo run test",
     "test:coverage": "dotenvx run -- turbo run test:coverage",
-    "clean": "turbo run clean && del node_modules .turbo"
+    "clean": "turbo run clean && del node_modules .turbo",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "1.52.0",
@@ -21,7 +22,9 @@
     "@vitest/coverage-v8": "4.0.18",
     "del-cli": "7.0.0",
     "globals": "17.3.0",
+    "husky": "9.1.7",
     "jiti": "2.6.1",
+    "lint-staged": "16.2.7",
     "oxfmt": "0.35.0",
     "oxlint": "1.50.0",
     "oxlint-tsgolint": "0.15.0",
@@ -29,6 +32,12 @@
     "turbo": "2.8.11",
     "typescript": "5.9.3",
     "vitest": "4.0.18"
+  },
+  "lint-staged": {
+    "*": [
+      "pnpm fmt -- --no-error-on-unmatched-pattern",
+      "pnpm lint:fix --"
+    ]
   },
   "engines": {
     "node": ">=20"

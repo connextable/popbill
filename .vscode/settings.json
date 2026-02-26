@@ -13,7 +13,7 @@
   "typescript.experimental.useTsgo": true,
   "json.schemaDownload.trustedDomains": {
     "https://turborepo.dev/schema.json": true,
-    "https://json.schemastore.org": true,
+    "https://json.schemastore.org": true
   },
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
@@ -26,7 +26,10 @@
   "oxc.typeAware": true,
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "oxc.oxc-vscode",
+  "[json][json]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
   "editor.codeActionsOnSave": {
     "source.fixAll.oxc": "always"
-  },
+  }
 }

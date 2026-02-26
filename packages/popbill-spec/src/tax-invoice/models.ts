@@ -706,7 +706,7 @@ export interface TaxInvoiceInfoApiModel {
   /**
    * 상태코드
    */
-  stateCode: TaxInvoiceStateCode | number | string
+  stateCode: TaxInvoiceStateCode
 
   /**
    * 상태코드 갱신일시
@@ -736,7 +736,7 @@ export interface TaxInvoiceInfoApiModel {
   /**
    * 국세청 전송결과코드
    */
-  ntssendErrCode?: TaxInvoiceNtsResultCode | string
+  ntssendErrCode?: TaxInvoiceNtsResultCode
 
   /**
    * 수정사유코드
@@ -967,7 +967,7 @@ export interface TaxInvoiceBulkResultItemApiModel {
   /**
    * 문서번호 유형
    */
-  keyType?: TaxInvoiceMgtKeyType | string
+  keyType?: TaxInvoiceMgtKeyType
 
   /**
    * [공급자] 문서번호
@@ -1119,7 +1119,7 @@ export interface TaxInvoiceEmailConfigApiModel {
   /**
    * 메일전송 설정 구분코드
    */
-  emailType?: TaxInvoiceEmailType | string
+  emailType?: TaxInvoiceEmailType
 
   /**
    * 전송여부

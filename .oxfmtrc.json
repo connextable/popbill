@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "ignorePatterns": [],
+  "ignorePatterns": ["dist", "coverage"],
   "semi": false,
   "singleQuote": true,
   "arrowParens": "always",
