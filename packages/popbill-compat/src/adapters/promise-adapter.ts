@@ -7,9 +7,7 @@ export function createPromiseServiceStub(serviceName: string): PromiseService {
 }
 
 function createPromiseMethod(serviceName: string, methods: string): (...args: unknown[]) => Promise<never> {
-  return async (..._args: unknown[]) => {
-    throw new NotImplementedError(`${serviceName}.${methods}`)
-  }
+  return (..._args: unknown[]) => Promise.reject(new NotImplementedError(`${serviceName}.${methods}`))
 }
 
 export function createTypedPromiseServiceStub<Methods extends object>(

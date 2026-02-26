@@ -13,9 +13,9 @@ export function buildSingleFileMultipartPayload(options: {
   displayName?: string
   formData?: string
 }): MultipartPayload {
-  const boundary = `----POPBILL-COMPAT-${Date.now()}-${Math.random().toString(16).slice(2)}`
+  const boundary = `----POPBILL-COMPAT-${String(Date.now())}-${Math.random().toString(16).slice(2)}`
   const formData = options.formData ?? ''
-  const fileName = options.displayName || path.basename(options.filePathOrName)
+  const fileName = options.displayName ?? path.basename(options.filePathOrName)
 
   const chunks: Buffer[] = [
     Buffer.from(`--${boundary}${CRLF}`),

@@ -215,7 +215,7 @@ export interface SearchInvoicesInput extends TaxInvoiceBusinessRequest {
   /** 지연발행 문서만 조회할지 여부입니다. */
   lateIssueOnly: boolean | null
   /** 정렬 방향입니다. */
-  sortOrder: 'A' | 'D' | string
+  sortOrder: string
   /** 조회할 페이지 번호입니다. */
   pageNumber: number
   /** 페이지당 조회 건수입니다. */

@@ -65,8 +65,8 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
         requestHeaders['Accept-Language'] = normalizedAcceptLanguage
       }
 
-      if (!isBlank(options.userId)) {
-        requestHeaders['x-pb-userid'] = options.userId as string
+      if (isNonBlankString(options.userId)) {
+        requestHeaders['x-pb-userid'] = options.userId
       }
 
       if (method !== 'GET' && method !== 'POST') {
@@ -75,15 +75,15 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
         if (method === 'BULKISSUE') {
           const messageSource = typeof options.body === 'string' ? options.body : ''
           requestHeaders['X-PB-MESSAGE-DIGEST'] = sha1Base64(messageSource)
-          if (!isBlank(options.submitId)) {
-            requestHeaders['X-PB-SUBMIT-ID'] = options.submitId as string
+          if (isNonBlankString(options.submitId)) {
+            requestHeaders['X-PB-SUBMIT-ID'] = options.submitId
           }
         }
       }
 
-      if (!isBlank(options.corpNum)) {
+      if (isNonBlankString(options.corpNum)) {
         try {
-          const token = await config.tokenProvider.getToken(options.corpNum as string)
+          const token = await config.tokenProvider.getToken(options.corpNum)
           requestHeaders['Authorization'] = `Bearer ${token.sessionToken}`
         }
         catch (error) {
@@ -114,6 +114,10 @@ function isFormDataBody(body: PopbillRequestOptions['body']): body is FormData {
     && body instanceof FormData
 }
 
+function isNonBlankString(value: string | undefined): value is string {
+  return !isBlank(value)
+}
+
 export function isPopbillRequestStageError(error: unknown): error is PopbillRequestStageError {
   if (typeof error !== 'object' || error === null) {
     return false
@@ -127,9 +131,9 @@ export function isPopbillRequestStageError(error: unknown): error is PopbillRequ
   return stage === 'issue_token' || stage === 'request_api'
 }
 
-function createStageError(stage: PopbillRequestStage, cause: unknown): PopbillRequestStageError {
-  return {
+function createStageError(stage: PopbillRequestStage, cause: unknown): PopbillRequestStageError & Error {
+  return Object.assign(new Error(`Popbill request failed at stage "${stage}".`), {
     requestStage: stage,
     cause,
-  }
+  })
 }

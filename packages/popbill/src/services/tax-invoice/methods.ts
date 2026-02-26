@@ -60,4 +60,4 @@ export const TAX_INVOICE_METHODS = [
   'getTaxCertificateExpirationDate',
   'checkTaxCertificateValidation',
   'getTaxCertificateInfo',
-] as const satisfies readonly (keyof TaxInvoiceService & string)[]
+] as const satisfies readonly (keyof TaxInvoiceService)[]

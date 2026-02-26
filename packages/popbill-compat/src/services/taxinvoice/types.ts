@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/unified-signatures */
+
 import type {
   TaxInvoiceApiModel,
   TaxInvoiceApiResponseBase,
@@ -23,13 +25,9 @@ import type {
 import type { CallbackService } from '@/adapters/callback-adapter'
 import type { PromiseService } from '@/adapters/promise-adapter'
 
-export interface LegacySuccessCallback<T> {
-  (response: T): void
-}
+export type LegacySuccessCallback<T> = (response: T) => void
 
-export interface LegacyErrorCallback {
-  (error: unknown): void
-}
+export type LegacyErrorCallback = (error: unknown) => void
 
 interface LegacyCallbackWithUserId<TArgs extends unknown[], TResult> {
   (...args: TArgs): void

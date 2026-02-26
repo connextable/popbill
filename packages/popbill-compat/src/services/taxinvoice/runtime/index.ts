@@ -88,224 +88,224 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
   return {
     callback: {
       // 발행/전송
-      registIssue: ((corpNum: string, taxinvoice: TaxInvoiceApiModel, ...args: unknown[]) => {
+      registIssue(corpNum: string, taxinvoice: TaxInvoiceApiModel, ...args: unknown[]) {
         const parsed = parseRegistIssueCallbackArgs(args)
 
         void requestRegistIssue(context, corpNum, taxinvoice, parsed)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'registIssue', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['registIssue'],
+      },
 
-      bulkSubmit: ((corpNum: string, submitID: string, taxinvoiceList: TaxInvoiceApiModel[], ...args: unknown[]) => {
+      bulkSubmit(corpNum: string, submitID: string, taxinvoiceList: TaxInvoiceApiModel[], ...args: unknown[]) {
         const parsed = parseBulkSubmitCallbackArgs(args)
 
         void requestBulkSubmit(context, corpNum, submitID, taxinvoiceList, parsed)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'bulkSubmit', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['bulkSubmit'],
+      },
 
-      getBulkResult: ((corpNum: string, submitID: string, ...args: unknown[]) => {
+      getBulkResult(corpNum: string, submitID: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
         void requestGetBulkResult(context, corpNum, submitID, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getBulkResult', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getBulkResult'],
+      },
 
-      register: ((corpNum: string, taxinvoice: TaxInvoiceApiModel, ...args: unknown[]) => {
+      register(corpNum: string, taxinvoice: TaxInvoiceApiModel, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestRegister(context, corpNum, taxinvoice, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'register', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['register'],
+      },
 
-      update: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, taxinvoice: TaxInvoiceApiModel, ...args: unknown[]) => {
+      update(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, taxinvoice: TaxInvoiceApiModel, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestUpdate(context, corpNum, keyType, mgtKey, taxinvoice, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'update', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['update'],
+      },
 
-      issue: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      issue(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseIssueCallbackArgs(args)
 
         void requestIssue(context, corpNum, keyType, mgtKey, parsed)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'issue', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['issue'],
+      },
 
-      cancelIssue: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) => {
+      cancelIssue(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
         const parsed = parseMemoCallbackArgs<TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
         void requestCancelIssue(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'cancelIssue', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['cancelIssue'],
+      },
 
-      registRequest: ((corpNum: string, taxinvoice: TaxInvoiceApiModel, maybeMemoOrSuccess?: unknown, ...args: unknown[]) => {
+      registRequest(corpNum: string, taxinvoice: TaxInvoiceApiModel, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
         const parsed = parseMemoCallbackArgs<TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
         void requestRegistRequest(context, corpNum, taxinvoice, parsed.memo, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'registRequest', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['registRequest'],
+      },
 
-      request: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) => {
+      request(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
         const parsed = parseMemoCallbackArgs<TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
         void requestRequest(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'request', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['request'],
+      },
 
-      cancelRequest: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) => {
+      cancelRequest(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
         const parsed = parseMemoCallbackArgs<TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
         void requestCancelRequest(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'cancelRequest', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['cancelRequest'],
+      },
 
-      refuse: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) => {
+      refuse(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
         const parsed = parseMemoCallbackArgs<TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
         void requestRefuse(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'refuse', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['refuse'],
+      },
 
-      delete: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      delete(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestDelete(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'delete', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['delete'],
+      },
 
-      sendToNTS: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      sendToNTS(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestSendToNts(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'sendToNTS', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['sendToNTS'],
+      },
 
       // 정보확인
-      getInfo: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      getInfo(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
         void requestGetInfo(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getInfo', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getInfo'],
+      },
 
-      getInfos: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[], ...args: unknown[]) => {
+      getInfos(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[], ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
         void requestGetInfos(context, corpNum, keyType, mgtKeyList, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getInfos', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getInfos'],
+      },
 
-      getDetailInfo: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      getDetailInfo(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
         void requestGetDetailInfo(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getDetailInfo', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getDetailInfo'],
+      },
 
-      checkMgtKeyInUse: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      checkMgtKeyInUse(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks<boolean>(args)
 
         void requestCheckMgtKeyInUse(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'checkMgtKeyInUse', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['checkMgtKeyInUse'],
+      },
 
-      getXML: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      getXML(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
         void requestGetXml(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getXML', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getXML'],
+      },
 
-      search: ((
+      search(
         corpNum: string,
         keyType: TaxInvoiceMgtKeyType,
         dType: string,
@@ -319,7 +319,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         page: number,
         perPage: number,
         ...args: unknown[]
-      ) => {
+      ) {
         const parsed = parseSearchCallbackArgs(args)
 
         void requestSearch(context, corpNum, keyType, {
@@ -337,207 +337,207 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'search', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['search'],
+      },
 
-      getLogs: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      getLogs(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
         void requestGetLogs(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getLogs', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getLogs'],
+      },
 
-      getURL: ((corpNum: string, togo: TaxInvoiceGetUrlTogo, ...args: unknown[]) => {
+      getURL(corpNum: string, togo: TaxInvoiceGetUrlTogo, ...args: unknown[]) {
         const parsed = parseGetUrlCallbackArgs(togo, args)
 
         void requestGetUrl(context, corpNum, parsed.togo, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getURL', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getURL'],
+      },
 
       // 보기/인쇄
-      getPopUpURL: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      getPopUpURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseUrlMethodCallbackArgs(args)
 
         void requestGetPopUpUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getPopUpURL', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getPopUpURL'],
+      },
 
-      getViewURL: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      getViewURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseUrlMethodCallbackArgs(args)
 
         void requestGetViewUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getViewURL', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getViewURL'],
+      },
 
-      getPrintURL: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      getPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseUrlMethodCallbackArgs(args)
 
         void requestGetPrintUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getPrintURL', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getPrintURL'],
+      },
 
-      getPDFURL: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      getPDFURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseUrlMethodCallbackArgs(args)
 
         void requestGetPdfUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getPDFURL', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getPDFURL'],
+      },
 
-      getMassPrintURL: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[], ...args: unknown[]) => {
+      getMassPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[], ...args: unknown[]) {
         const parsed = parseUrlMethodCallbackArgs(args)
 
         void requestGetMassPrintUrl(context, corpNum, keyType, mgtKeyList, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getMassPrintURL', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getMassPrintURL'],
+      },
 
-      getEPrintURL: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      getEPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseUrlMethodCallbackArgs(args)
 
         void requestGetEPrintUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getEPrintURL', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getEPrintURL'],
+      },
 
-      getMailURL: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      getMailURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseUrlMethodCallbackArgs(args)
 
         void requestGetMailUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getMailURL', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getMailURL'],
+      },
 
       // 부가기능
-      getSealURL: ((corpNum: string, ...args: unknown[]) => {
+      getSealURL(corpNum: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
         void requestGetSealUrl(context, corpNum, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getSealURL', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getSealURL'],
+      },
 
-      attachFile: ((
+      attachFile(
         corpNum: string,
         keyType: TaxInvoiceMgtKeyType,
         mgtKey: string,
         displayName: string,
         filePath: string,
         ...args: unknown[]
-      ) => {
+      ) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestAttachFile(context, corpNum, keyType, mgtKey, displayName, filePath, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'attachFile', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['attachFile'],
+      },
 
-      attachFileBinary: ((
+      attachFileBinary(
         corpNum: string,
         keyType: TaxInvoiceMgtKeyType,
         mgtKey: string,
         binaryFile: TaxInvoiceAttachFileBinaryPayload,
         ...args: unknown[]
-      ) => {
+      ) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestAttachFileBinary(context, corpNum, keyType, mgtKey, binaryFile, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'attachFileBinary', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['attachFileBinary'],
+      },
 
-      deleteFile: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, fileID: string, ...args: unknown[]) => {
+      deleteFile(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, fileID: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestDeleteFile(context, corpNum, keyType, mgtKey, fileID, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'deleteFile', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['deleteFile'],
+      },
 
-      getFiles: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      getFiles(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
         void requestGetFiles(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getFiles', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getFiles'],
+      },
 
-      sendEmail: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, receiver: string, ...args: unknown[]) => {
+      sendEmail(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, receiver: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestSendEmail(context, corpNum, keyType, mgtKey, receiver, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'sendEmail', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['sendEmail'],
+      },
 
-      sendSMS: ((
+      sendSMS(
         corpNum: string,
         keyType: TaxInvoiceMgtKeyType,
         mgtKey: string,
@@ -545,175 +545,175 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         receiver: string,
         contents: string,
         ...args: unknown[]
-      ) => {
+      ) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestSendSms(context, corpNum, keyType, mgtKey, sender, receiver, contents, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'sendSMS', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['sendSMS'],
+      },
 
-      sendFAX: ((corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, sender: string, receiver: string, ...args: unknown[]) => {
+      sendFAX(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, sender: string, receiver: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestSendFax(context, corpNum, keyType, mgtKey, sender, receiver, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'sendFAX', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['sendFAX'],
+      },
 
-      attachStatement: ((
+      attachStatement(
         corpNum: string,
         keyType: TaxInvoiceMgtKeyType,
         mgtKey: string,
         subItemCode: number,
         subMgtKey: string,
         ...args: unknown[]
-      ) => {
+      ) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestAttachStatement(context, corpNum, keyType, mgtKey, subItemCode, subMgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'attachStatement', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['attachStatement'],
+      },
 
-      detachStatement: ((
+      detachStatement(
         corpNum: string,
         keyType: TaxInvoiceMgtKeyType,
         mgtKey: string,
         subItemCode: number,
         subMgtKey: string,
         ...args: unknown[]
-      ) => {
+      ) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestDetachStatement(context, corpNum, keyType, mgtKey, subItemCode, subMgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'detachStatement', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['detachStatement'],
+      },
 
-      assignMgtKey: ((
+      assignMgtKey(
         corpNum: string,
         keyType: TaxInvoiceMgtKeyType,
         itemKey: string,
         mgtKey: string,
         ...args: unknown[]
-      ) => {
+      ) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestAssignMgtKey(context, corpNum, keyType, itemKey, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'assignMgtKey', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['assignMgtKey'],
+      },
 
-      listEmailConfig: ((corpNum: string, ...args: unknown[]) => {
+      listEmailConfig(corpNum: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
         void requestListEmailConfig(context, corpNum, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'listEmailConfig', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['listEmailConfig'],
+      },
 
-      updateEmailConfig: ((corpNum: string, emailType: string, sendYN: boolean, ...args: unknown[]) => {
+      updateEmailConfig(corpNum: string, emailType: string, sendYN: boolean, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestUpdateEmailConfig(context, corpNum, emailType, sendYN, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'updateEmailConfig', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['updateEmailConfig'],
+      },
 
-      getSendToNTSConfig: ((corpNum: string, ...args: unknown[]) => {
+      getSendToNTSConfig(corpNum: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
         void requestGetSendToNtsConfig(context, corpNum, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getSendToNTSConfig', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getSendToNTSConfig'],
+      },
 
       // 인증서 관리
-      getTaxCertURL: ((corpNum: string, ...args: unknown[]) => {
+      getTaxCertURL(corpNum: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
         void requestGetTaxCertUrl(context, corpNum, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getTaxCertURL', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getTaxCertURL'],
+      },
 
-      getCertificateExpireDate: ((corpNum: string, ...args: unknown[]) => {
+      getCertificateExpireDate(corpNum: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks<string>(args)
 
         void requestGetCertificateExpireDate(context, corpNum, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getCertificateExpireDate', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getCertificateExpireDate'],
+      },
 
-      checkCertValidation: ((corpNum: string, ...args: unknown[]) => {
+      checkCertValidation(corpNum: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
 
         void requestCheckCertValidation(context, corpNum, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'checkCertValidation', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['checkCertValidation'],
+      },
 
-      getTaxCertInfo: ((corpNum: string, ...args: unknown[]) => {
+      getTaxCertInfo(corpNum: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
         void requestGetTaxCertInfo(context, corpNum, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             handleCallbackError(context, 'getTaxCertInfo', error, parsed.error)
           })
-      }) as TaxinvoiceRuntimeCallbackMethods['getTaxCertInfo'],
-    },
+      },
+    } as TaxinvoiceRuntimeCallbackMethods,
 
     promise: {
       // 발행/전송
-      registIssue: (async (corpNum: string, taxinvoice: TaxInvoiceApiModel, ...args: unknown[]) => {
+      async registIssue(corpNum: string, taxinvoice: TaxInvoiceApiModel, ...args: unknown[]) {
         const parsed = parseRegistIssuePromiseArgs(args)
 
         try {
@@ -722,9 +722,9 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         catch (error) {
           return throwPromiseError(context, 'registIssue', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['registIssue'],
+      },
 
-      bulkSubmit: (async (corpNum: string, submitID: string, taxinvoiceList: TaxInvoiceApiModel[], ...args: unknown[]) => {
+      async bulkSubmit(corpNum: string, submitID: string, taxinvoiceList: TaxInvoiceApiModel[], ...args: unknown[]) {
         const parsed = parseBulkSubmitPromiseArgs(args)
 
         try {
@@ -733,36 +733,36 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         catch (error) {
           return throwPromiseError(context, 'bulkSubmit', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['bulkSubmit'],
+      },
 
-      getBulkResult: (async (corpNum: string, submitID: string, userId?: string) => {
+      async getBulkResult(corpNum: string, submitID: string, userId?: string) {
         try {
           return await requestGetBulkResult(context, corpNum, submitID, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getBulkResult', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getBulkResult'],
+      },
 
-      register: (async (corpNum: string, taxinvoice: TaxInvoiceApiModel, userId?: string) => {
+      async register(corpNum: string, taxinvoice: TaxInvoiceApiModel, userId?: string) {
         try {
           return await requestRegister(context, corpNum, taxinvoice, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'register', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['register'],
+      },
 
-      update: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, taxinvoice: TaxInvoiceApiModel, userId?: string) => {
+      async update(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, taxinvoice: TaxInvoiceApiModel, userId?: string) {
         try {
           return await requestUpdate(context, corpNum, keyType, mgtKey, taxinvoice, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'update', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['update'],
+      },
 
-      issue: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) => {
+      async issue(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseIssuePromiseArgs(args)
 
         try {
@@ -771,118 +771,118 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         catch (error) {
           return throwPromiseError(context, 'issue', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['issue'],
+      },
 
-      cancelIssue: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo?: string, userId?: string) => {
+      async cancelIssue(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo?: string, userId?: string) {
         try {
           return await requestCancelIssue(context, corpNum, keyType, mgtKey, memo ?? '', userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'cancelIssue', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['cancelIssue'],
+      },
 
-      registRequest: (async (corpNum: string, taxinvoice: TaxInvoiceApiModel, memo?: string, userId?: string) => {
+      async registRequest(corpNum: string, taxinvoice: TaxInvoiceApiModel, memo?: string, userId?: string) {
         try {
           return await requestRegistRequest(context, corpNum, taxinvoice, memo ?? '', userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'registRequest', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['registRequest'],
+      },
 
-      request: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo?: string, userId?: string) => {
+      async request(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo?: string, userId?: string) {
         try {
           return await requestRequest(context, corpNum, keyType, mgtKey, memo ?? '', userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'request', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['request'],
+      },
 
-      cancelRequest: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo?: string, userId?: string) => {
+      async cancelRequest(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo?: string, userId?: string) {
         try {
           return await requestCancelRequest(context, corpNum, keyType, mgtKey, memo ?? '', userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'cancelRequest', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['cancelRequest'],
+      },
 
-      refuse: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo?: string, userId?: string) => {
+      async refuse(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo?: string, userId?: string) {
         try {
           return await requestRefuse(context, corpNum, keyType, mgtKey, memo ?? '', userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'refuse', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['refuse'],
+      },
 
-      delete: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) => {
+      async delete(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await requestDelete(context, corpNum, keyType, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'delete', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['delete'],
+      },
 
-      sendToNTS: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) => {
+      async sendToNTS(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await requestSendToNts(context, corpNum, keyType, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'sendToNTS', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['sendToNTS'],
+      },
 
       // 정보확인
-      getInfo: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) => {
+      async getInfo(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await requestGetInfo(context, corpNum, keyType, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getInfo', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getInfo'],
+      },
 
-      getInfos: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[], userId?: string) => {
+      async getInfos(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[], userId?: string) {
         try {
           return await requestGetInfos(context, corpNum, keyType, mgtKeyList, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getInfos', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getInfos'],
+      },
 
-      getDetailInfo: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) => {
+      async getDetailInfo(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await requestGetDetailInfo(context, corpNum, keyType, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getDetailInfo', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getDetailInfo'],
+      },
 
-      checkMgtKeyInUse: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) => {
+      async checkMgtKeyInUse(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await requestCheckMgtKeyInUse(context, corpNum, keyType, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'checkMgtKeyInUse', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['checkMgtKeyInUse'],
+      },
 
-      getXML: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) => {
+      async getXML(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await requestGetXml(context, corpNum, keyType, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getXML', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getXML'],
+      },
 
-      search: (async (
+      async search(
         corpNum: string,
         keyType: TaxInvoiceMgtKeyType,
         dType: string,
@@ -896,7 +896,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         page: number,
         perPage: number,
         ...args: unknown[]
-      ) => {
+      ) {
         const parsed = parseSearchPromiseArgs(args)
 
         try {
@@ -916,254 +916,254 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         catch (error) {
           return throwPromiseError(context, 'search', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['search'],
+      },
 
-      getLogs: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) => {
+      async getLogs(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await requestGetLogs(context, corpNum, keyType, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getLogs', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getLogs'],
+      },
 
-      getURL: (async (corpNum: string, togo: TaxInvoiceGetUrlTogo, userId?: string) => {
+      async getURL(corpNum: string, togo: TaxInvoiceGetUrlTogo, userId?: string) {
         try {
           return await requestGetUrl(context, corpNum, togo, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getURL', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getURL'],
+      },
 
       // 보기/인쇄
-      getPopUpURL: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) => {
+      async getPopUpURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await requestGetPopUpUrl(context, corpNum, keyType, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getPopUpURL', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getPopUpURL'],
+      },
 
-      getViewURL: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) => {
+      async getViewURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await requestGetViewUrl(context, corpNum, keyType, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getViewURL', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getViewURL'],
+      },
 
-      getPrintURL: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) => {
+      async getPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await requestGetPrintUrl(context, corpNum, keyType, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getPrintURL', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getPrintURL'],
+      },
 
-      getPDFURL: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) => {
+      async getPDFURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await requestGetPdfUrl(context, corpNum, keyType, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getPDFURL', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getPDFURL'],
+      },
 
-      getMassPrintURL: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[], userId?: string) => {
+      async getMassPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[], userId?: string) {
         try {
           return await requestGetMassPrintUrl(context, corpNum, keyType, mgtKeyList, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getMassPrintURL', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getMassPrintURL'],
+      },
 
-      getEPrintURL: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) => {
+      async getEPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await requestGetEPrintUrl(context, corpNum, keyType, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getEPrintURL', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getEPrintURL'],
+      },
 
-      getMailURL: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) => {
+      async getMailURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await requestGetMailUrl(context, corpNum, keyType, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getMailURL', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getMailURL'],
+      },
 
       // 부가기능
-      getSealURL: (async (corpNum: string, userId?: string) => {
+      async getSealURL(corpNum: string, userId?: string) {
         try {
           return await requestGetSealUrl(context, corpNum, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getSealURL', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getSealURL'],
+      },
 
-      attachFile: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, displayName: string, filePath: string, userId?: string) => {
+      async attachFile(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, displayName: string, filePath: string, userId?: string) {
         try {
           return await requestAttachFile(context, corpNum, keyType, mgtKey, displayName, filePath, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'attachFile', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['attachFile'],
+      },
 
-      attachFileBinary: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, binaryFile: TaxInvoiceAttachFileBinaryPayload, userId?: string) => {
+      async attachFileBinary(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, binaryFile: TaxInvoiceAttachFileBinaryPayload, userId?: string) {
         try {
           return await requestAttachFileBinary(context, corpNum, keyType, mgtKey, binaryFile, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'attachFileBinary', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['attachFileBinary'],
+      },
 
-      deleteFile: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, fileID: string, userId?: string) => {
+      async deleteFile(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, fileID: string, userId?: string) {
         try {
           return await requestDeleteFile(context, corpNum, keyType, mgtKey, fileID, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'deleteFile', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['deleteFile'],
+      },
 
-      getFiles: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) => {
+      async getFiles(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await requestGetFiles(context, corpNum, keyType, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getFiles', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getFiles'],
+      },
 
-      sendEmail: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, receiver: string, userId?: string) => {
+      async sendEmail(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, receiver: string, userId?: string) {
         try {
           return await requestSendEmail(context, corpNum, keyType, mgtKey, receiver, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'sendEmail', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['sendEmail'],
+      },
 
-      sendSMS: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, sender: string, receiver: string, contents: string, userId?: string) => {
+      async sendSMS(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, sender: string, receiver: string, contents: string, userId?: string) {
         try {
           return await requestSendSms(context, corpNum, keyType, mgtKey, sender, receiver, contents, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'sendSMS', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['sendSMS'],
+      },
 
-      sendFAX: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, sender: string, receiver: string, userId?: string) => {
+      async sendFAX(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, sender: string, receiver: string, userId?: string) {
         try {
           return await requestSendFax(context, corpNum, keyType, mgtKey, sender, receiver, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'sendFAX', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['sendFAX'],
+      },
 
-      attachStatement: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, subItemCode: number, subMgtKey: string, userId?: string) => {
+      async attachStatement(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, subItemCode: number, subMgtKey: string, userId?: string) {
         try {
           return await requestAttachStatement(context, corpNum, keyType, mgtKey, subItemCode, subMgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'attachStatement', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['attachStatement'],
+      },
 
-      detachStatement: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, subItemCode: number, subMgtKey: string, userId?: string) => {
+      async detachStatement(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, subItemCode: number, subMgtKey: string, userId?: string) {
         try {
           return await requestDetachStatement(context, corpNum, keyType, mgtKey, subItemCode, subMgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'detachStatement', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['detachStatement'],
+      },
 
-      assignMgtKey: (async (corpNum: string, keyType: TaxInvoiceMgtKeyType, itemKey: string, mgtKey: string, userId?: string) => {
+      async assignMgtKey(corpNum: string, keyType: TaxInvoiceMgtKeyType, itemKey: string, mgtKey: string, userId?: string) {
         try {
           return await requestAssignMgtKey(context, corpNum, keyType, itemKey, mgtKey, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'assignMgtKey', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['assignMgtKey'],
+      },
 
-      listEmailConfig: (async (corpNum: string, userId?: string) => {
+      async listEmailConfig(corpNum: string, userId?: string) {
         try {
           return await requestListEmailConfig(context, corpNum, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'listEmailConfig', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['listEmailConfig'],
+      },
 
-      updateEmailConfig: (async (corpNum: string, emailType: string, sendYN: boolean, userId?: string) => {
+      async updateEmailConfig(corpNum: string, emailType: string, sendYN: boolean, userId?: string) {
         try {
           return await requestUpdateEmailConfig(context, corpNum, emailType, sendYN, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'updateEmailConfig', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['updateEmailConfig'],
+      },
 
-      getSendToNTSConfig: (async (corpNum: string, userId?: string) => {
+      async getSendToNTSConfig(corpNum: string, userId?: string) {
         try {
           return await requestGetSendToNtsConfig(context, corpNum, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getSendToNTSConfig', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getSendToNTSConfig'],
+      },
 
       // 인증서 관리
-      getTaxCertURL: (async (corpNum: string, userId?: string) => {
+      async getTaxCertURL(corpNum: string, userId?: string) {
         try {
           return await requestGetTaxCertUrl(context, corpNum, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getTaxCertURL', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getTaxCertURL'],
+      },
 
-      getCertificateExpireDate: (async (corpNum: string, userId?: string) => {
+      async getCertificateExpireDate(corpNum: string, userId?: string) {
         try {
           return await requestGetCertificateExpireDate(context, corpNum, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getCertificateExpireDate', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getCertificateExpireDate'],
+      },
 
-      checkCertValidation: (async (corpNum: string, userId?: string) => {
+      async checkCertValidation(corpNum: string, userId?: string) {
         try {
           return await requestCheckCertValidation(context, corpNum, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'checkCertValidation', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['checkCertValidation'],
+      },
 
-      getTaxCertInfo: (async (corpNum: string, userId?: string) => {
+      async getTaxCertInfo(corpNum: string, userId?: string) {
         try {
           return await requestGetTaxCertInfo(context, corpNum, userId ?? '')
         }
         catch (error) {
           return throwPromiseError(context, 'getTaxCertInfo', error)
         }
-      }) as TaxinvoiceRuntimePromiseMethods['getTaxCertInfo'],
-    },
+      },
+    } as TaxinvoiceRuntimePromiseMethods,
   }
 }
 

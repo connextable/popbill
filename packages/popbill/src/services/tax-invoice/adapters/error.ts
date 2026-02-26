@@ -20,8 +20,9 @@ export async function invokeTaxInvoiceMethod<T>(
   }
   catch (error) {
     const normalizedError = normalizePopbillError(error, { operation })
-    safelyDispatchError(context.onError, normalizedError)
-    throw normalizedError
+    const throwableError = toThrowablePopbillError(normalizedError)
+    safelyDispatchError(context.onError, throwableError)
+    throw throwableError
   }
 }
 
@@ -42,4 +43,8 @@ function safelyDispatchError(
   catch {
     // onError 훅 예외는 삼켜서 원래 API 에러를 유지합니다.
   }
+}
+
+function toThrowablePopbillError(error: PopbillApiError): Error & PopbillApiError {
+  return Object.assign(new Error(error.message), error)
 }

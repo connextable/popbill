@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, test, vi } from 'vitest'
 import * as compat from '@/index'
 import * as promiseCompat from '@/promise/index'
 import { NotImplementedError } from '@/errors'
+import type { TaxinvoicePromiseService } from '@/services/taxinvoice/types'
 import type {
   TaxInvoiceGetInfoApiResponse,
   TaxInvoiceIssueApiResponse,
@@ -11,24 +12,22 @@ import type {
 
 describe('compat exports', () => {
   test('matches legacy export keys at root', () => {
-    expect(compat).toMatchObject({
-      config: expect.any(Function),
-      MgtKeyType: expect.objectContaining({ SELL: 'SELL', BUY: 'BUY', TRUSTEE: 'TRUSTEE' }),
-      MessageType: expect.objectContaining({ SMS: 'SMS', LMS: 'LMS', MMS: 'MMS' }),
-      KakaoType: expect.objectContaining({ ATS: 'ATS', FTS: 'FTS', FMS: 'FMS' }),
-      TaxinvoiceService: expect.any(Function),
-      StatementService: expect.any(Function),
-      CashbillService: expect.any(Function),
-      MessageService: expect.any(Function),
-      KakaoService: expect.any(Function),
-      FaxService: expect.any(Function),
-      HTTaxinvoiceService: expect.any(Function),
-      HTCashbillService: expect.any(Function),
-      ClosedownService: expect.any(Function),
-      BizInfoCheckService: expect.any(Function),
-      EasyFinBankService: expect.any(Function),
-      AccountCheckService: expect.any(Function),
-    })
+    expect(typeof compat.config).toBe('function')
+    expect(compat.MgtKeyType).toMatchObject({ SELL: 'SELL', BUY: 'BUY', TRUSTEE: 'TRUSTEE' })
+    expect(compat.MessageType).toMatchObject({ SMS: 'SMS', LMS: 'LMS', MMS: 'MMS' })
+    expect(compat.KakaoType).toMatchObject({ ATS: 'ATS', FTS: 'FTS', FMS: 'FMS' })
+    expect(typeof compat.TaxinvoiceService).toBe('function')
+    expect(typeof compat.StatementService).toBe('function')
+    expect(typeof compat.CashbillService).toBe('function')
+    expect(typeof compat.MessageService).toBe('function')
+    expect(typeof compat.KakaoService).toBe('function')
+    expect(typeof compat.FaxService).toBe('function')
+    expect(typeof compat.HTTaxinvoiceService).toBe('function')
+    expect(typeof compat.HTCashbillService).toBe('function')
+    expect(typeof compat.ClosedownService).toBe('function')
+    expect(typeof compat.BizInfoCheckService).toBe('function')
+    expect(typeof compat.EasyFinBankService).toBe('function')
+    expect(typeof compat.AccountCheckService).toBe('function')
   })
 
   test('callback stub calls error callback when provided', () => {
@@ -55,7 +54,6 @@ describe('compat exports', () => {
 
   test('taxinvoice method typing is exposed at callback and promise entrypoints', () => {
     const callbackService = compat.TaxinvoiceService()
-    const promiseService = promiseCompat.TaxinvoiceService()
 
     expectTypeOf(callbackService.getInfo).toBeCallableWith(
       '1234567890',
@@ -130,11 +128,11 @@ describe('compat exports', () => {
       },
     )
 
-    expectTypeOf(promiseService.getInfo).returns.toEqualTypeOf<Promise<TaxInvoiceGetInfoApiResponse>>()
-    expectTypeOf(promiseService.issue).returns.toEqualTypeOf<Promise<TaxInvoiceIssueApiResponse>>()
-    expectTypeOf(promiseService.search).returns.toEqualTypeOf<Promise<TaxInvoiceSearchApiResponse>>()
-    expectTypeOf(promiseService.getViewURL).returns.toEqualTypeOf<Promise<string>>()
-    expectTypeOf(promiseService.getURL).returns.toEqualTypeOf<Promise<string>>()
-    expectTypeOf(promiseService.getTaxCertInfo).returns.toEqualTypeOf<Promise<TaxInvoiceGetTaxCertInfoApiResponse>>()
+    expectTypeOf<TaxinvoicePromiseService['getInfo']>().returns.toEqualTypeOf<Promise<TaxInvoiceGetInfoApiResponse>>()
+    expectTypeOf<TaxinvoicePromiseService['issue']>().returns.toEqualTypeOf<Promise<TaxInvoiceIssueApiResponse>>()
+    expectTypeOf<TaxinvoicePromiseService['search']>().returns.toEqualTypeOf<Promise<TaxInvoiceSearchApiResponse>>()
+    expectTypeOf<TaxinvoicePromiseService['getViewURL']>().returns.toEqualTypeOf<Promise<string>>()
+    expectTypeOf<TaxinvoicePromiseService['getURL']>().returns.toEqualTypeOf<Promise<string>>()
+    expectTypeOf<TaxinvoicePromiseService['getTaxCertInfo']>().returns.toEqualTypeOf<Promise<TaxInvoiceGetTaxCertInfoApiResponse>>()
   })
 })

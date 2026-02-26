@@ -18,7 +18,7 @@ export async function requestDetachStatement(
 ): Promise<TaxInvoiceApiResponseBase> {
   validateRequiredTaxinvoiceInputs(corpNum, keyType, mgtKey)
 
-  if (subItemCode === null || subItemCode === undefined) {
+  if (!Number.isInteger(subItemCode)) {
     throw createLegacyValidationError('첨부해제할 전자명세서코드가 입력되지 않았습니다.')
   }
 

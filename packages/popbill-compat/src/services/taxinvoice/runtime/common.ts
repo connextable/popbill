@@ -1,5 +1,6 @@
 import type { TaxInvoiceGetUrlTogo, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
 import {
+  asThrowableCompatError,
   dispatchCallbackError,
   createLegacyValidationError,
   toCompatRuntimeError,
@@ -129,8 +130,9 @@ export function throwPromiseError(
   error: unknown,
 ): never {
   const runtimeError = toCompatRuntimeError(error, `${SERVICE_NAME}.${methods}`)
-  context.defaultErrorHandler?.(runtimeError)
-  throw runtimeError
+  const throwableError = asThrowableCompatError(runtimeError)
+  context.defaultErrorHandler?.(throwableError)
+  throw throwableError
 }
 
 export function validateRequiredTaxinvoiceInputs(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey?: string): void {

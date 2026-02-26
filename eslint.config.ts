@@ -13,11 +13,22 @@ export default defineConfig(
     extends: ['js/recommended'],
     languageOptions: { globals: globals.node },
   },
-  tseslint.configs.recommended,
+  tseslint.configs.strictTypeChecked,
+  tseslint.configs.stylisticTypeChecked,
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+      },
+    },
+  },
   stylistic.configs.recommended,
   {
     rules: {
-      'object-shorthand': ['error'],
+      'object-shorthand': ['error', 'always', {
+        avoidExplicitReturnArrows: false,
+      }],
+      '@typescript-eslint/no-floating-promises': ['error'],
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': ['error', {
         args: 'all',

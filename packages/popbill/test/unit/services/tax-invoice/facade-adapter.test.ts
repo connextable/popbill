@@ -8,8 +8,8 @@ import type { TaxInvoiceApiModel, TaxInvoiceGetInfoApiResponse } from '@connexta
 type CompatTaxInvoiceService = Parameters<typeof createTaxInvoiceService>[0]['compatTaxInvoiceService']
 
 interface ForwardingCase {
-  facadeMethod: keyof TaxInvoiceService
-  compatMethod: keyof CompatTaxInvoiceService
+  facadeMethod: Extract<keyof TaxInvoiceService, string>
+  compatMethod: Extract<keyof CompatTaxInvoiceService, string>
   invoke: (service: TaxInvoiceService) => Promise<unknown>
   expectedArgs: unknown[]
   response: unknown
@@ -599,7 +599,7 @@ describe('tax-invoice facade adapter', () => {
 
   for (const testCase of FORWARDING_CASES) {
     test(`${testCase.facadeMethod} forwards to ${testCase.compatMethod}`, async () => {
-      const compatMethodMock = vi.fn(async () => testCase.response)
+      const compatMethodMock = vi.fn(() => Promise.resolve(testCase.response))
       const service = createTaxInvoiceService({
         compatTaxInvoiceService: createCompatServiceStub({
           [testCase.compatMethod]: compatMethodMock,
@@ -621,7 +621,7 @@ describe('tax-invoice facade adapter', () => {
   }
 
   test('passes undefined userId when options are omitted', async () => {
-    const getURL = vi.fn(async () => URL_RESPONSE)
+    const getURL = vi.fn(() => Promise.resolve(URL_RESPONSE))
     const service = createTaxInvoiceService({
       compatTaxInvoiceService: createCompatServiceStub({ getURL }),
     })
@@ -635,7 +635,7 @@ describe('tax-invoice facade adapter', () => {
   })
 
   test('normalizes closeDownStateCodes to undefined when values are not numeric', async () => {
-    const search = vi.fn(async (..._args: unknown[]) => SEARCH_RESPONSE)
+    const search = vi.fn((..._args: unknown[]) => Promise.resolve(SEARCH_RESPONSE))
     const service = createTaxInvoiceService({
       compatTaxInvoiceService: createCompatServiceStub({ search }),
     })
@@ -662,7 +662,7 @@ describe('tax-invoice facade adapter', () => {
   })
 
   test('keeps closeDownStateCodes undefined when the option is omitted', async () => {
-    const search = vi.fn(async (..._args: unknown[]) => SEARCH_RESPONSE)
+    const search = vi.fn((..._args: unknown[]) => Promise.resolve(SEARCH_RESPONSE))
     const service = createTaxInvoiceService({
       compatTaxInvoiceService: createCompatServiceStub({ search }),
     })
@@ -688,12 +688,10 @@ describe('tax-invoice facade adapter', () => {
   })
 
   test('normalizes compat error even when onError is not provided', async () => {
-    const validationError = createInputValidationError('invalid businessNumber', {
+    const validationError = Object.assign(new Error('invalid businessNumber'), createInputValidationError('invalid businessNumber', {
       stage: PopbillErrorStage.ValidateInput,
-    })
-    const getInfo = vi.fn(async () => {
-      throw validationError
-    })
+    }))
+    const getInfo = vi.fn(() => Promise.reject(validationError))
     const service = createTaxInvoiceService({
       compatTaxInvoiceService: createCompatServiceStub({ getInfo }),
     })
@@ -714,12 +712,10 @@ describe('tax-invoice facade adapter', () => {
   })
 
   test('normalizes compat error and preserves original error when onError throws', async () => {
-    const validationError = createInputValidationError('invalid businessNumber', {
+    const validationError = Object.assign(new Error('invalid businessNumber'), createInputValidationError('invalid businessNumber', {
       stage: PopbillErrorStage.ValidateInput,
-    })
-    const getInfo = vi.fn(async () => {
-      throw validationError
-    })
+    }))
+    const getInfo = vi.fn(() => Promise.reject(validationError))
     const onError = vi.fn(() => {
       throw new Error('onError should not override original error')
     })

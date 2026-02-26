@@ -5,18 +5,32 @@ import {
   type PopbillApiError,
 } from '@connextable/popbill-core'
 
-export interface LegacyCompatError {
+export interface LegacyCompatError extends Error {
   code: number
-  message: string
 }
 
 export type CompatRuntimeError = LegacyCompatError | PopbillApiError
 
-export function createLegacyValidationError(message: string): LegacyCompatError {
-  return {
-    code: -99999999,
-    message,
+class LegacyValidationError extends Error implements LegacyCompatError {
+  readonly code: number
+
+  constructor(message: string) {
+    super(message)
+    this.name = 'LegacyValidationError'
+    this.code = -99999999
   }
+}
+
+export function createLegacyValidationError(message: string): LegacyCompatError {
+  return new LegacyValidationError(message)
+}
+
+export function asThrowableCompatError(error: CompatRuntimeError): Error & CompatRuntimeError {
+  if (error instanceof Error) {
+    return error
+  }
+
+  return Object.assign(new Error(error.message), error)
 }
 
 export function toCompatRuntimeError(error: unknown, operation: string): CompatRuntimeError {
@@ -51,14 +65,13 @@ export function dispatchCallbackError(
 }
 
 function isLegacyCompatError(error: unknown): error is LegacyCompatError {
-  if (typeof error !== 'object' || error === null) {
+  if (!(error instanceof Error)) {
     return false
   }
 
-  if (!('code' in error) || !('message' in error)) {
+  if (!('code' in error)) {
     return false
   }
 
   return typeof (error as { code: unknown }).code === 'number'
-    && typeof (error as { message: unknown }).message === 'string'
 }

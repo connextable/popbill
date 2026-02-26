@@ -14,7 +14,7 @@ interface HttpErrorPayload {
 
 export interface PopbillErrorContext {
   operation?: string
-  stage?: PopbillErrorStage | string
+  stage?: PopbillErrorStage
 }
 
 export function createInputValidationError(
@@ -54,7 +54,7 @@ export function createHttpError(
 ): PopbillApiError {
   return createError({
     code: HTTP_ERROR_CODE,
-    message: `HTTP ${status}`,
+    message: `HTTP ${String(status)}`,
     type: PopbillErrorType.Http,
     status,
     raw,

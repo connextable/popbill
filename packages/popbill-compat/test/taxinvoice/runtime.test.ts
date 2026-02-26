@@ -2,6 +2,14 @@ import * as compat from '@/index'
 import * as promiseCompat from '@/promise/index'
 import type { TaxInvoiceIssueApiResponse } from '@connextable/popbill-spec'
 
+function asError(error: unknown): Error {
+  if (error instanceof Error) {
+    return error
+  }
+
+  return new Error(String(error))
+}
+
 function createTokenResponseBody() {
   return {
     session_token: 'session-token',
@@ -78,8 +86,8 @@ describe('taxinvoice runtime methods', () => {
         '1234567890',
         'SELL',
         'MGT-001',
-        (response: TaxInvoiceIssueApiResponse) => resolve(response),
-        (error: unknown) => reject(error),
+        (response: TaxInvoiceIssueApiResponse) => { resolve(response) },
+        (error: unknown) => { reject(asError(error)) },
       )
     })
 
@@ -112,8 +120,8 @@ describe('taxinvoice runtime methods', () => {
         'MGT-002',
         '발행메모',
         'test-user',
-        () => resolve(),
-        (error: unknown) => reject(error),
+        () => { resolve() },
+        (error: unknown) => { reject(asError(error)) },
       )
     })
 
@@ -146,8 +154,8 @@ describe('taxinvoice runtime methods', () => {
         '안내 메일 제목',
         true,
         'test-user',
-        () => resolve(),
-        (error: unknown) => reject(error),
+        () => { resolve() },
+        (error: unknown) => { reject(asError(error)) },
       )
     })
 
@@ -209,8 +217,8 @@ describe('taxinvoice runtime methods', () => {
         '안내 제목',
         'DEAL-001',
         'regist-user',
-        () => resolve(),
-        (error: unknown) => reject(error),
+        () => { resolve() },
+        (error: unknown) => { reject(asError(error)) },
       )
     })
 
@@ -288,8 +296,8 @@ describe('taxinvoice runtime methods', () => {
         ['P'],
         [0],
         'MGT-SEARCH',
-        () => resolve(),
-        (error: unknown) => reject(error),
+        () => { resolve() },
+        (error: unknown) => { reject(asError(error)) },
       )
     })
 
@@ -339,8 +347,8 @@ describe('taxinvoice runtime methods', () => {
         '1234567890',
         'SELL',
         'MGT-VIEW',
-        (url: string) => resolve(url),
-        (error: unknown) => reject(error),
+        (url: string) => { resolve(url) },
+        (error: unknown) => { reject(asError(error)) },
       )
     })
 
@@ -369,8 +377,8 @@ describe('taxinvoice runtime methods', () => {
       compat.TaxinvoiceService().getURL(
         '1234567890',
         'TBOX',
-        (url: string) => resolve(url),
-        (error: unknown) => reject(error),
+        (url: string) => { resolve(url) },
+        (error: unknown) => { reject(asError(error)) },
       )
     })
 
@@ -402,8 +410,8 @@ describe('taxinvoice runtime methods', () => {
         'SELL',
         ['MGT-101', 'MGT-102'],
         'mass-user',
-        (url: string) => resolve(url),
-        (error: unknown) => reject(error),
+        (url: string) => { resolve(url) },
+        (error: unknown) => { reject(asError(error)) },
       )
     })
 
@@ -427,8 +435,8 @@ describe('taxinvoice runtime methods', () => {
         '',
         'SELL',
         'MGT-005',
-        () => resolve(new Error('unexpected success')),
-        (error: unknown) => resolve(error),
+        () => { resolve(new Error('unexpected success')) },
+        (error: unknown) => { resolve(error) },
       )
     })
 
@@ -457,8 +465,8 @@ describe('taxinvoice runtime methods', () => {
       compat.TaxinvoiceService().getURL(
         '1234567890',
         emptyTogo,
-        () => resolve(new Error('unexpected success')),
-        (error: unknown) => resolve(error),
+        () => { resolve(new Error('unexpected success')) },
+        (error: unknown) => { resolve(error) },
       )
     })
 
@@ -473,8 +481,8 @@ describe('taxinvoice runtime methods', () => {
       compat.TaxinvoiceService().getURL(
         '1234567890',
         invalidTogo,
-        () => resolve(new Error('unexpected success')),
-        (error: unknown) => resolve(error),
+        () => { resolve(new Error('unexpected success')) },
+        (error: unknown) => { resolve(error) },
       )
     })
 
@@ -507,7 +515,7 @@ describe('taxinvoice runtime methods', () => {
         '1234567890',
         'SELL',
         'MGT-ERROR-1',
-        () => resolve(),
+        () => { resolve() },
         (error: unknown) => {
           callbackError(error)
           resolve()
@@ -533,7 +541,7 @@ describe('taxinvoice runtime methods', () => {
       toJsonResponse({ code: -12345, message: 'Bad request' }, 400),
     )
 
-    compat.TaxinvoiceService().getViewURL('1234567890', 'SELL', 'MGT-ERROR-2', () => {})
+    compat.TaxinvoiceService().getViewURL('1234567890', 'SELL', 'MGT-ERROR-2', () => undefined)
 
     await new Promise(resolve => setTimeout(resolve, 0))
     expect(defaultErrorHandler).toHaveBeenCalledTimes(1)
@@ -570,7 +578,7 @@ describe('taxinvoice runtime methods', () => {
       compat.TaxinvoiceService().getURL(
         '1234567890',
         'TBOX',
-        () => resolve(),
+        () => { resolve() },
         (error: unknown) => {
           callbackError(error)
           resolve()

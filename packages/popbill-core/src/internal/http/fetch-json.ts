@@ -7,6 +7,18 @@ export interface HttpErrorPayload {
   body: unknown
 }
 
+class HttpResponseError extends Error implements HttpErrorPayload {
+  readonly status: number
+  readonly body: unknown
+
+  constructor(status: number, body: unknown) {
+    super(`HTTP ${String(status)}`)
+    this.name = 'HttpResponseError'
+    this.status = status
+    this.body = body
+  }
+}
+
 export async function fetchJson<T>(
   requestUrl: string,
   requestInit: RequestInit,
@@ -43,7 +55,9 @@ async function fetchWithTimeout(
   timeoutMs: number,
 ): Promise<Response> {
   const abortController = new AbortController()
-  const timer = setTimeout(() => abortController.abort(), timeoutMs)
+  const timer = setTimeout(() => {
+    abortController.abort()
+  }, timeoutMs)
 
   try {
     return await fetch(requestUrl, {
@@ -66,9 +80,6 @@ async function parseJsonResponse(response: Response): Promise<unknown> {
   return JSON.parse(responseText) as unknown
 }
 
-function createHttpErrorPayload(status: number, body: unknown): HttpErrorPayload {
-  return {
-    status,
-    body,
-  }
+function createHttpErrorPayload(status: number, body: unknown): HttpResponseError {
+  return new HttpResponseError(status, body)
 }

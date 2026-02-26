@@ -5,7 +5,7 @@ export interface PopbillApiError {
   message: string
   type?: PopbillErrorType
   operation?: string
-  stage?: PopbillErrorStage | string
+  stage?: PopbillErrorStage
   retriable?: boolean
   status?: number
   raw?: unknown

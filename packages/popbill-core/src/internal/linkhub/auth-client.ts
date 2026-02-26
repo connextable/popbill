@@ -111,10 +111,10 @@ function buildCanonicalHeaders(forwardedIp: string | undefined): Record<string, 
 }
 
 function canonicalizeLinkhubHeaderValues(headers: Record<string, string>): string {
-  const normalizedEntries: Array<[string, string]> = []
+  const normalizedEntries: [string, string][] = []
 
   for (const [name, value] of Object.entries(headers)) {
-    normalizedEntries.push([name.toLowerCase().trim(), String(value).trim()])
+    normalizedEntries.push([name.toLowerCase().trim(), value.trim()])
   }
 
   normalizedEntries.sort((a, b) => a[0].localeCompare(b[0]))
