@@ -4,32 +4,20 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "dist/**"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
     },
     "typecheck": {
-      "dependsOn": [
-        "^build",
-        "^typecheck"
-      ]
+      "dependsOn": ["^build", "^typecheck"]
     },
     "lint": {},
     "lint:fix": {},
     "fmt": {},
     "fmt:check": {},
     "test": {
-      "dependsOn": [
-        "^build"
-      ]
+      "cache": false
     },
     "test:coverage": {
-      "dependsOn": [
-        "^build"
-      ],
       "cache": false
     },
     "clean": {
