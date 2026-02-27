@@ -1,33 +1,28 @@
-import type { LinkhubAuthScope } from './enums'
+import type {
+  PopbillAuthScope,
+  PopbillIssueTokenApiResponse,
+  PopbillServiceId,
+  PopbillUtcDateTimeString,
+} from '@connextable/popbill-spec'
 
-export interface LinkhubTokenApiResponse {
-  session_token: string
-  serviceID: 'POPBILL_TEST' | 'POPBILL'
-  linkID: string
-  userID: string
-  partnerCode: string
-  usercode: string
-  scope: LinkhubAuthScope[]
-  ipaddress: string
-  expiration: string
-}
+export type LinkhubTokenApiResponse = PopbillIssueTokenApiResponse
 
 export interface LinkhubTokenResponse {
   sessionToken: string
-  serviceId: 'POPBILL_TEST' | 'POPBILL'
+  serviceId: PopbillServiceId
   linkId: string
   userId: string
   partnerCode: string
   userCode: string
-  scopes: LinkhubAuthScope[]
+  scopes: PopbillAuthScope[]
   ipAddress: string
-  expiredAt: string
+  expiredAt: PopbillUtcDateTimeString
 }
 
 export interface IssueTokenRequest {
-  serviceId: string
+  serviceId: PopbillServiceId
   accessId: string
-  scopes: readonly LinkhubAuthScope[]
+  scopes: readonly PopbillAuthScope[]
   forwardedIp?: string
 }
 
@@ -72,8 +67,8 @@ export interface TokenProvider {
 
 export interface CreateTokenProviderInput {
   authClient: LinkhubAuthClient
-  serviceId: string
-  scopes: readonly LinkhubAuthScope[]
+  serviceId: PopbillServiceId
+  scopes: readonly PopbillAuthScope[]
   forwardedIp?: string
 }
 

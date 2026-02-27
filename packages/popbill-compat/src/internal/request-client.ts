@@ -1,5 +1,6 @@
 import { createLinkhubAuthClient, createTokenProvider, LinkhubAuthScope } from '@/internal/linkhub'
 import { createPopbillRequestClient, type PopbillRequestClient } from '@/internal/popbill'
+import { PopbillApiBaseUrls, PopbillServiceIds, type PopbillApiBaseUrl } from '@connextable/popbill-spec'
 import type { CompatConfig } from '@/config'
 
 const DEFAULT_REQUEST_TIMEOUT_MS = 180_000
@@ -30,7 +31,7 @@ export function createTaxinvoiceRequestClient(config: CompatConfig): PopbillRequ
 
   const tokenProvider = createTokenProvider({
     authClient,
-    serviceId: resolvedConfig.isTest ? 'POPBILL_TEST' : 'POPBILL',
+    serviceId: resolvedConfig.isTest ? PopbillServiceIds.Test : PopbillServiceIds.Production,
     scopes: [LinkhubAuthScope.Member, LinkhubAuthScope.TaxInvoice],
     forwardedIp: resolvedConfig.ipRestrictOnOff ? undefined : '*',
   })
@@ -57,14 +58,16 @@ function resolveCompatRequestConfig(config: CompatConfig): ResolvedCompatRequest
   }
 }
 
-function resolveApiBaseUrl(config: Pick<ResolvedCompatRequestConfig, 'isTest' | 'useGaIp' | 'useStaticIp'>): string {
+function resolveApiBaseUrl(
+  config: Pick<ResolvedCompatRequestConfig, 'isTest' | 'useGaIp' | 'useStaticIp'>
+): PopbillApiBaseUrl {
   if (config.useGaIp) {
-    return config.isTest ? 'https://ga-popbill-test.linkhub.co.kr' : 'https://ga-popbill.linkhub.co.kr'
+    return config.isTest ? PopbillApiBaseUrls.GaTest : PopbillApiBaseUrls.GaProduction
   }
 
   if (config.useStaticIp) {
-    return config.isTest ? 'https://static-popbill-test.linkhub.co.kr' : 'https://static-popbill.linkhub.co.kr'
+    return config.isTest ? PopbillApiBaseUrls.StaticTest : PopbillApiBaseUrls.StaticProduction
   }
 
-  return config.isTest ? 'https://popbill-test.linkhub.co.kr' : 'https://popbill.linkhub.co.kr'
+  return config.isTest ? PopbillApiBaseUrls.Test : PopbillApiBaseUrls.Production
 }

@@ -1,5 +1,14 @@
 import { fetchJson, fetchText } from '../http/fetch-json'
 import { hmacSha256Base64, sha256Base64, stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
+import {
+  PopbillAuthBaseUrls,
+  PopbillAuthScopes,
+  PopbillLinkhubApiVersion,
+  PopbillServiceIds,
+  type PopbillAuthBaseUrl,
+  type PopbillIssueTokenApiRequestBody,
+  type PopbillUtcDateTimeString,
+} from '@connextable/popbill-spec'
 import type {
   IssueTokenRequest,
   LinkhubAuthClient,
@@ -9,9 +18,11 @@ import type {
   ResolvedLinkhubAuthClientConfig,
 } from './types'
 
-const LINKHUB_VERSION = '2.0'
+const LINKHUB_VERSION = PopbillLinkhubApiVersion
 const LINKHUB_USER_AGENT = 'NODEJS LINKHUB SDK'
 const DEFAULT_TIMEOUT_MS = 180_000
+const POPBILL_SERVICE_ID_SET = new Set([PopbillServiceIds.Test, PopbillServiceIds.Production])
+const POPBILL_SCOPE_SET = new Set(Object.values(PopbillAuthScopes))
 
 export function createLinkhubAuthClient(config: LinkhubAuthClientConfig): LinkhubAuthClient {
   return {
@@ -31,22 +42,25 @@ export function createLinkhubAuthClient(config: LinkhubAuthClientConfig): Linkhu
   }
 }
 
-function resolveAuthBaseUrl(useStaticIp: boolean, useGaIp: boolean): string {
-  if (useGaIp) return 'https://ga-auth.linkhub.co.kr'
-  if (useStaticIp) return 'https://static-auth.linkhub.co.kr'
-  return 'https://auth.linkhub.co.kr'
+function resolveAuthBaseUrl(useStaticIp: boolean, useGaIp: boolean): PopbillAuthBaseUrl {
+  if (useGaIp) return PopbillAuthBaseUrls.Ga
+  if (useStaticIp) return PopbillAuthBaseUrls.Static
+  return PopbillAuthBaseUrls.Default
 }
 
 async function issueTokenRequest(
   config: ResolvedLinkhubAuthClientConfig,
   request: IssueTokenRequest
 ): Promise<LinkhubTokenResponse> {
+  validateIssueTokenRequest(request)
+
   const authBaseUrl = resolveAuthBaseUrl(config.useStaticIp, config.useGaIp)
   const resourceUri = `/${request.serviceId}/Token`
-  const body = stringifyWithoutEmptyValues({
+  const requestBody: PopbillIssueTokenApiRequestBody = {
     access_id: request.accessId,
-    scope: request.scopes,
-  })
+    scope: [...request.scopes],
+  }
+  const body = stringifyWithoutEmptyValues(requestBody)
 
   const bodyDigest = sha256Base64(body)
   const dateHeader = await resolveDateHeader(config, authBaseUrl)
@@ -81,22 +95,25 @@ async function issueTokenRequest(
   return mapToLinkhubTokenResponse(rawResponse)
 }
 
-async function resolveDateHeader(config: ResolvedLinkhubAuthClientConfig, authBaseUrl: string): Promise<string> {
+async function resolveDateHeader(
+  config: ResolvedLinkhubAuthClientConfig,
+  authBaseUrl: PopbillAuthBaseUrl
+): Promise<PopbillUtcDateTimeString> {
   if (config.useLocalTime) {
-    return new Date().toISOString()
+    return formatUtcDateTime(new Date())
   }
 
   try {
     const serverTime = await fetchText(`${authBaseUrl}/Time`, { method: 'GET' }, { timeoutMs: config.timeoutMs })
-    const trimmed = serverTime.trim()
-    if (trimmed.length > 0) {
-      return trimmed
+    const normalizedServerTime = normalizeUtcDateTime(serverTime)
+    if (normalizedServerTime) {
+      return normalizedServerTime
     }
   } catch {
     // Fallback to local UTC timestamp when server time API is not reachable.
   }
 
-  return new Date().toISOString()
+  return formatUtcDateTime(new Date())
 }
 
 function buildCanonicalHeaders(forwardedIp: string | undefined): Record<string, string> {
@@ -167,4 +184,34 @@ function mapToLinkhubTokenResponse(response: LinkhubTokenApiResponse): LinkhubTo
     ipAddress: response.ipaddress,
     expiredAt: response.expiration,
   }
+}
+
+function validateIssueTokenRequest(request: IssueTokenRequest): void {
+  if (!POPBILL_SERVICE_ID_SET.has(request.serviceId)) {
+    throw new Error(`Unsupported Popbill serviceId: ${request.serviceId}`)
+  }
+
+  if (request.scopes.length === 0) {
+    throw new Error('At least one Popbill auth scope is required.')
+  }
+
+  for (const scope of request.scopes) {
+    if (!POPBILL_SCOPE_SET.has(scope)) {
+      throw new Error(`Unsupported Popbill auth scope: ${scope}`)
+    }
+  }
+}
+
+function formatUtcDateTime(date: Date): PopbillUtcDateTimeString {
+  return date.toISOString().replace(/\.\d{3}Z$/, 'Z') as PopbillUtcDateTimeString
+}
+
+function normalizeUtcDateTime(value: string): PopbillUtcDateTimeString | undefined {
+  const trimmed = value.trim()
+  const parsedMilliseconds = Date.parse(trimmed)
+  if (Number.isNaN(parsedMilliseconds)) {
+    return undefined
+  }
+
+  return formatUtcDateTime(new Date(parsedMilliseconds))
 }

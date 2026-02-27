@@ -2,8 +2,8 @@
  * Popbill Common Header Raw Types
  *
  * Source
- * - https://developers.popbill.com/api-reference/cashbill/getting-started/authorization
- * - https://developers.popbill.com/api-reference/cashbill/getting-started/etc-header
+ * - https://developers.popbill.com/api-reference/taxinvoice/getting-started/authorization
+ * - https://developers.popbill.com/api-reference/taxinvoice/getting-started/etc-header
  */
 
 /**
@@ -52,6 +52,18 @@ export interface PopbillAcceptLanguageMap {
 export type PopbillAcceptLanguage = PopbillAcceptLanguageMap[keyof PopbillAcceptLanguageMap] | (string & {})
 
 /**
+ * X-HTTP-Method-Override 헤더 값(raw).
+ */
+export const PopbillHttpMethodOverrides = {
+  BulkIssue: 'BULKISSUE',
+} as const
+
+/**
+ * X-HTTP-Method-Override 헤더 값(raw).
+ */
+export type PopbillHttpMethodOverride = (typeof PopbillHttpMethodOverrides)[keyof typeof PopbillHttpMethodOverrides]
+
+/**
  * 팝빌 공통 API 요청 헤더(raw).
  */
 export interface PopbillApiRequestHeaders {
@@ -79,6 +91,13 @@ export interface PopbillApiRequestHeaders {
  * 대량발행(Bulk) 요청 헤더(raw).
  */
 export interface PopbillBulkIssueRequestHeaders extends PopbillApiRequestHeaders {
+  /**
+   * 대량발행 API 메서드 오버라이드.
+   *
+   * HTTP 헤더 `X-HTTP-Method-Override`로 전달한다.
+   */
+  MethodOverride: PopbillHttpMethodOverride
+
   /**
    * 요청 본문 무결성 검증용 Message Digest.
    *

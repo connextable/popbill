@@ -2,7 +2,7 @@
  * Popbill Authentication Raw Types
  *
  * Source
- * - https://developers.popbill.com/api-reference/cashbill/getting-started/authorization
+ * - https://developers.popbill.com/api-reference/taxinvoice/getting-started/authorization
  */
 
 /**
@@ -21,9 +21,92 @@ export interface PopbillServiceIdMap {
 }
 
 /**
+ * 팝빌 서비스 환경 식별자 상수(raw).
+ */
+export const PopbillServiceIds = {
+  Test: 'POPBILL_TEST',
+  Production: 'POPBILL',
+} as const satisfies PopbillServiceIdMap
+
+/**
  * 팝빌 서비스 환경 식별자(raw).
  */
 export type PopbillServiceId = PopbillServiceIdMap[keyof PopbillServiceIdMap]
+
+/**
+ * LINKHUB 인증 서버 Base URL 맵(raw).
+ */
+export interface PopbillAuthBaseUrlMap {
+  /**
+   * 기본 인증 서버.
+   */
+  Default: 'https://auth.linkhub.co.kr'
+
+  /**
+   * 고정 IP 인증 서버.
+   */
+  Static: 'https://static-auth.linkhub.co.kr'
+
+  /**
+   * GA 인증 서버.
+   */
+  Ga: 'https://ga-auth.linkhub.co.kr'
+}
+
+/**
+ * LINKHUB 인증 서버 Base URL 상수(raw).
+ */
+export const PopbillAuthBaseUrls = {
+  Default: 'https://auth.linkhub.co.kr',
+  Static: 'https://static-auth.linkhub.co.kr',
+  Ga: 'https://ga-auth.linkhub.co.kr',
+} as const satisfies PopbillAuthBaseUrlMap
+
+/**
+ * LINKHUB 인증 서버 Base URL(raw).
+ */
+export type PopbillAuthBaseUrl = PopbillAuthBaseUrlMap[keyof PopbillAuthBaseUrlMap]
+
+/**
+ * 팝빌 API Base URL 맵(raw).
+ */
+export interface PopbillApiBaseUrlMap {
+  Test: 'https://popbill-test.linkhub.co.kr'
+  Production: 'https://popbill.linkhub.co.kr'
+  StaticTest: 'https://static-popbill-test.linkhub.co.kr'
+  StaticProduction: 'https://static-popbill.linkhub.co.kr'
+  GaTest: 'https://ga-popbill-test.linkhub.co.kr'
+  GaProduction: 'https://ga-popbill.linkhub.co.kr'
+}
+
+/**
+ * 팝빌 API Base URL 상수(raw).
+ */
+export const PopbillApiBaseUrls = {
+  Test: 'https://popbill-test.linkhub.co.kr',
+  Production: 'https://popbill.linkhub.co.kr',
+  StaticTest: 'https://static-popbill-test.linkhub.co.kr',
+  StaticProduction: 'https://static-popbill.linkhub.co.kr',
+  GaTest: 'https://ga-popbill-test.linkhub.co.kr',
+  GaProduction: 'https://ga-popbill.linkhub.co.kr',
+} as const satisfies PopbillApiBaseUrlMap
+
+/**
+ * 팝빌 API Base URL(raw).
+ */
+export type PopbillApiBaseUrl = PopbillApiBaseUrlMap[keyof PopbillApiBaseUrlMap]
+
+/**
+ * LINKHUB API 버전(raw).
+ */
+export const PopbillLinkhubApiVersion = '2.0' as const
+
+/**
+ * UTC 일시 포맷(raw).
+ *
+ * 형식: `yyyy-MM-ddTHH:mm:ssZ`
+ */
+export type PopbillUtcDateTimeString = `${number}-${number}-${number}T${number}:${number}:${number}Z`
 
 /**
  * LINKHUB 인증 서명 헤더(raw).
@@ -46,14 +129,14 @@ export interface PopbillLinkhubRequestHeaders {
    *
    * HTTP 헤더 `X-LH-Version`로 전달한다.
    */
-  XLHVersion: '2.0'
+  XLHVersion: typeof PopbillLinkhubApiVersion
 
   /**
    * 요청 일시(UTC).
    *
    * HTTP 헤더 `X-LH-Date`로 전달한다.
    */
-  XLHDate: string
+  XLHDate: PopbillUtcDateTimeString
 
   /**
    * 토큰 사용 허용 IP.
@@ -133,6 +216,37 @@ export interface PopbillAuthScopeMap {
  * 팝빌 인증 scope(raw).
  */
 export type PopbillAuthScope = PopbillAuthScopeMap[keyof PopbillAuthScopeMap]
+
+/**
+ * 팝빌 인증 scope 상수(raw).
+ */
+export const PopbillAuthScopes = {
+  Member: 'member',
+  TaxInvoice: '110',
+  CashReceipt: '140',
+  TradeStatement: '121',
+  Invoice: '122',
+  Estimate: '123',
+  PurchaseOrder: '124',
+  Deposit: '125',
+  Receipt: '126',
+  HomeTaxTaxInvoice: '111',
+  HomeTaxCashReceipt: '141',
+  BusinessCheck: '170',
+  CorporateInfo: '171',
+  DepositorNameCheck: '182',
+  DepositorRealNameCheck: '183',
+  AccountCheck: '180',
+  AlimTalk: '153',
+  BrandMessageI: '156',
+  BrandMessageN: '157',
+  BrandMessageM: '158',
+  SMS: '150',
+  LMS: '151',
+  MMS: '152',
+  Fax: '160',
+  IntelligentFax: '161',
+} as const satisfies Record<string, PopbillAuthScope>
 
 /**
  * 토큰 발급 API path 파라미터(raw).
@@ -254,5 +368,5 @@ export interface PopbillIssueTokenApiResponse {
    *
    * 형식: `yyyy-MM-ddTHH:mm:ssZ`
    */
-  expiration: string
+  expiration: PopbillUtcDateTimeString
 }

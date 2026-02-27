@@ -1,6 +1,11 @@
 import { fetchJson } from '@/internal/http/fetch-json'
 import type { TokenProvider } from '@/internal/linkhub'
 import { isBlank, normalizeOptionalString, sha1Base64, trimTrailingSlash } from '@connextable/popbill-utils'
+import {
+  PopbillHttpMethodOverrides,
+  type PopbillAcceptEncoding,
+  type PopbillAcceptLanguage,
+} from '@connextable/popbill-spec'
 
 const POPBILL_USER_AGENT = 'NODEJS POPBILL SDK'
 
@@ -15,8 +20,8 @@ export interface PopbillRequestClientConfig {
   apiBaseUrl: string
   timeoutMs: number
   tokenProvider: TokenProvider
-  acceptEncoding?: string | null
-  acceptLanguage?: string
+  acceptEncoding?: PopbillAcceptEncoding | null
+  acceptLanguage?: PopbillAcceptLanguage
 }
 
 export interface PopbillRequestOptions {
@@ -69,7 +74,7 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
       if (method !== 'GET' && method !== 'POST') {
         requestHeaders['X-HTTP-Method-Override'] = method
 
-        if (method === 'BULKISSUE') {
+        if (method === PopbillHttpMethodOverrides.BulkIssue) {
           const messageSource = typeof options.body === 'string' ? options.body : ''
           requestHeaders['X-PB-MESSAGE-DIGEST'] = sha1Base64(messageSource)
           if (isNonBlankString(options.submitId)) {
