@@ -9,7 +9,7 @@ import {
   isKnownPopbillErrorCode,
   type PopbillErrorCategory,
   type PopbillErrorCodeDefinition,
-} from './error-codes'
+} from '@connextable/popbill-spec'
 
 export type { PopbillErrorCategory, PopbillErrorCodeDefinition }
 

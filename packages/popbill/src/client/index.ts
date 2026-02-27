@@ -2,7 +2,7 @@ import type { PopbillClient, PopbillClientConfig } from './types'
 import { createTaxInvoiceService } from '@/services/tax-invoice'
 import { createCompatTaxInvoiceService } from '@/internal/compat'
 import type { PopbillApiError } from '@/errors'
-import { normalizeOptionalString, normalizeRequiredString } from '@connextable/popbill-core'
+import { normalizeOptionalString, normalizeRequiredString } from '@connextable/popbill-utils'
 
 const DEFAULT_REQUEST_TIMEOUT_MILLISECONDS = 180_000
 const DEFAULT_ACCEPT_ENCODING = 'gzip'

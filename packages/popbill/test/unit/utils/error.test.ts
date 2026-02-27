@@ -1,4 +1,4 @@
-import { normalizeErrorMessage } from '@connextable/popbill-core'
+import { normalizeErrorMessage } from '@connextable/popbill-utils'
 
 describe('error utils', () => {
   test('normalizeErrorMessage returns error code and message for Error instances', () => {

@@ -27,6 +27,12 @@
       "require": "./dist/promise/index.cjs",
       "default": "./dist/promise/index.mjs"
     },
+    "./errors": {
+      "types": "./dist/errors.d.mts",
+      "import": "./dist/errors.mjs",
+      "require": "./dist/errors.cjs",
+      "default": "./dist/errors.mjs"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -43,7 +49,7 @@
     "clean": "del node_modules dist"
   },
   "dependencies": {
-    "@connextable/popbill-core": "workspace:*",
-    "@connextable/popbill-spec": "workspace:*"
+    "@connextable/popbill-spec": "workspace:*",
+    "@connextable/popbill-utils": "workspace:*"
   }
 }

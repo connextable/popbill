@@ -1,8 +1,8 @@
 {
-  "name": "@connextable/popbill-core",
+  "name": "@connextable/popbill-utils",
   "version": "1.0.0",
   "private": true,
-  "description": "Internal core modules for Popbill SDKs",
+  "description": "Shared utility helpers for Popbill SDKs",
   "files": [
     "dist"
   ],

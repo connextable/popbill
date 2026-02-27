@@ -1,8 +1,6 @@
 import { fetchJson } from '@/internal/http/fetch-json'
 import type { TokenProvider } from '@/internal/linkhub'
-import { sha1Base64 } from '@/utils/crypto'
-import { normalizeOptionalString, trimTrailingSlash } from '@/utils/string'
-import { isBlank } from '@/utils/validation'
+import { isBlank, normalizeOptionalString, sha1Base64, trimTrailingSlash } from '@connextable/popbill-utils'
 
 const POPBILL_USER_AGENT = 'NODEJS POPBILL SDK'
 

@@ -8,3 +8,5 @@ export class NotImplementedError extends Error {
     this.operation = operation
   }
 }
+
+export * from './popbill-error'

@@ -1,4 +1,4 @@
-import { isBlank } from '@connextable/popbill-core'
+import { isBlank } from '@connextable/popbill-utils'
 import type { TaxInvoiceGetUrlTogo, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
 import { createLegacyValidationError, type LegacyCompatError } from './errors'
 

@@ -21,8 +21,9 @@ import {
   mapTaxInvoiceXmlResult,
 } from './mappers/response'
 import type { TaxInvoiceCloseDownStateCode, TaxInvoiceService } from './types'
+import { createInputValidationError } from '@connextable/popbill-compat/errors'
 import type { TaxinvoicePromiseService as CompatTaxInvoiceService } from '@connextable/popbill-compat/factory'
-import { PopbillErrorStage, createInputValidationError, type PopbillApiError } from '@/errors'
+import { PopbillErrorStage, type PopbillApiError } from '@/errors'
 
 interface CreateTaxInvoiceServiceInput {
   compatTaxInvoiceService: CompatTaxInvoiceService

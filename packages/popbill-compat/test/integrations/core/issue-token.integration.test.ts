@@ -8,7 +8,7 @@ import {
 
 const integrationEnv = getCoreIntegrationEnv()
 
-describeCoreIntegration('popbill-core integration: issueToken', () => {
+describeCoreIntegration('popbill-compat integration: issueToken', () => {
   test('issues a real test token from Linkhub', async () => {
     const authClient = createCoreAuthClient()
 

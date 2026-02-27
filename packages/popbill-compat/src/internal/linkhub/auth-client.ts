@@ -1,6 +1,5 @@
 import { fetchJson, fetchText } from '../http/fetch-json'
-import { hmacSha256Base64, sha256Base64 } from '../../utils/crypto'
-import { stringifyWithoutEmptyValues } from '../../utils/json'
+import { hmacSha256Base64, sha256Base64, stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
 import type {
   IssueTokenRequest,
   LinkhubAuthClient,

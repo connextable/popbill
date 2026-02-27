@@ -2,7 +2,7 @@ import { createCoreRequestClient, describeCoreIntegration, getCoreIntegrationEnv
 
 const integrationEnv = getCoreIntegrationEnv()
 
-describeCoreIntegration('popbill-core integration: requestJson', () => {
+describeCoreIntegration('popbill-compat integration: requestJson', () => {
   test('calls real test Taxinvoice API with issued token', async () => {
     const requestClient = createCoreRequestClient()
 

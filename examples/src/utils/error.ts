@@ -1,7 +1,7 @@
-import { isPopbillApiError } from '@connextable/popbill'
+import type { PopbillApiError } from '@connextable/popbill'
 
 export function formatError(error: unknown): Record<string, unknown> {
-  if (isPopbillApiError(error)) {
+  if (isPopbillApiErrorLike(error)) {
     return {
       code: error.code,
       message: error.message,
@@ -25,4 +25,20 @@ export function formatError(error: unknown): Record<string, unknown> {
   }
 
   return { raw: error }
+}
+
+function isPopbillApiErrorLike(error: unknown): error is PopbillApiError {
+  if (typeof error !== 'object' || error === null) {
+    return false
+  }
+
+  if (!('code' in error) || !('message' in error) || !('userMessage' in error)) {
+    return false
+  }
+
+  return (
+    typeof (error as { code: unknown }).code === 'number' &&
+    typeof (error as { message: unknown }).message === 'string' &&
+    typeof (error as { userMessage: unknown }).userMessage === 'string'
+  )
 }

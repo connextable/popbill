@@ -1,4 +1,4 @@
-import type { PopbillApiError } from '@connextable/popbill-core'
+import type { PopbillApiError } from '@/errors'
 
 export interface CompatConfig {
   LinkID: string

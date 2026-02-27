@@ -68,25 +68,25 @@ importers:
       '@connextable/popbill-compat':
         specifier: workspace:*
         version: link:../popbill-compat
-      '@connextable/popbill-core':
-        specifier: workspace:*
-        version: link:../popbill-core
       '@connextable/popbill-spec':
         specifier: workspace:*
         version: link:../popbill-spec
+      '@connextable/popbill-utils':
+        specifier: workspace:*
+        version: link:../popbill-utils
 
   packages/popbill-compat:
     dependencies:
-      '@connextable/popbill-core':
-        specifier: workspace:*
-        version: link:../popbill-core
       '@connextable/popbill-spec':
         specifier: workspace:*
         version: link:../popbill-spec
-
-  packages/popbill-core: {}
+      '@connextable/popbill-utils':
+        specifier: workspace:*
+        version: link:../popbill-utils
 
   packages/popbill-spec: {}
+
+  packages/popbill-utils: {}
 
 packages:
 

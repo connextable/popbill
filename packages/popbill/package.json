@@ -65,8 +65,8 @@
   },
   "dependencies": {
     "@connextable/popbill-compat": "workspace:*",
-    "@connextable/popbill-core": "workspace:*",
-    "@connextable/popbill-spec": "workspace:*"
+    "@connextable/popbill-spec": "workspace:*",
+    "@connextable/popbill-utils": "workspace:*"
   },
   "engines": {
     "node": ">=20"

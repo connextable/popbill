@@ -1,4 +1,4 @@
-import { normalizeOptionalString, normalizeRequiredString, trimTrailingSlash } from '@connextable/popbill-core'
+import { normalizeOptionalString, normalizeRequiredString, trimTrailingSlash } from '@connextable/popbill-utils'
 
 describe('string utils', () => {
   test('trimTrailingSlash removes trailing slashes only', () => {

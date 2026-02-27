@@ -1,5 +1,6 @@
 import { TAX_INVOICE_METHODS } from '@/constants'
-import { PopbillErrorStage, PopbillErrorType, createInputValidationError } from '@/errors'
+import { createInputValidationError } from '@connextable/popbill-compat/errors'
+import { PopbillErrorStage, PopbillErrorType } from '@/errors'
 import { createTaxInvoiceService } from '@/services/tax-invoice'
 import { mapTaxInvoiceDocument } from '@/services/tax-invoice/mappers/document'
 import type { TaxInvoiceDocumentInput, TaxInvoiceService } from '@/services/tax-invoice/types'

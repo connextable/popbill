@@ -1,4 +1,4 @@
-import { normalizeErrorMessage } from '@/utils/error'
+import { normalizeErrorMessage } from '@connextable/popbill-utils'
 import { getPopbillErrorCodeDefinition, POPBILL_ERROR_CATEGORIES } from './code-catalog'
 import { getPopbillErrorDomainLabel, resolvePopbillErrorDomainFromCategory } from './domains'
 import { PopbillErrorDomain, PopbillErrorStage, PopbillErrorType } from './enums'

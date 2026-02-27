@@ -1,10 +1,5 @@
-import {
-  createLinkhubAuthClient,
-  createPopbillRequestClient,
-  createTokenProvider,
-  LinkhubAuthScope,
-  type PopbillRequestClient,
-} from '@connextable/popbill-core'
+import { createLinkhubAuthClient, createTokenProvider, LinkhubAuthScope } from '@/internal/linkhub'
+import { createPopbillRequestClient, type PopbillRequestClient } from '@/internal/popbill'
 import type { CompatConfig } from '@/config'
 
 const DEFAULT_REQUEST_TIMEOUT_MS = 180_000

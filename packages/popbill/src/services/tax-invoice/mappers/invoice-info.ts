@@ -1,4 +1,4 @@
-import { toBoolean } from '@connextable/popbill-core'
+import { toBoolean } from '@connextable/popbill-utils'
 import type { TaxInvoiceGetInfoApiResponse } from '@connextable/popbill-spec'
 import type { TaxInvoiceInfo } from '@/services/tax-invoice/types'
 

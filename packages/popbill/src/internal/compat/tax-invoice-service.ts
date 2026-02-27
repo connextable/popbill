@@ -3,7 +3,7 @@ import {
   type CompatConfig,
   type TaxinvoicePromiseService,
 } from '@connextable/popbill-compat/factory'
-import { normalizeOptionalString } from '@connextable/popbill-core'
+import { normalizeOptionalString } from '@connextable/popbill-utils'
 
 const DEFAULT_REQUEST_TIMEOUT_MILLISECONDS = 180_000
 const DEFAULT_ACCEPT_ENCODING = 'gzip'

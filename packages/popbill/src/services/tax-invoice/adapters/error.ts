@@ -1,4 +1,5 @@
-import { normalizePopbillError, type PopbillApiError } from '@/errors'
+import { normalizePopbillError } from '@connextable/popbill-compat/errors'
+import type { PopbillApiError } from '@/errors'
 
 /**
  * TaxInvoice facade 메서드 공통 에러 처리 컨텍스트입니다.

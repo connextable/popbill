@@ -1,4 +1,4 @@
-import { stringifyWithoutEmptyValues } from '@connextable/popbill-core'
+import { stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
 import type { TaxInvoiceApiModel, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
 import { validateTaxinvoicePayload } from '@/internal/validation'
 import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
