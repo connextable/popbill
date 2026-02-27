@@ -63,6 +63,13 @@ export const TaxinvoiceBoxScopes = {
  */
 export type TaxinvoiceBoxScope = (typeof TaxinvoiceBoxScopes)[keyof typeof TaxinvoiceBoxScopes]
 
+/**
+ * 검색 휴폐업상태 코드입니다.
+ *
+ * legacy 숫자 입력과 스펙 문자열 코드(`N`, `0`~`4`)를 모두 허용합니다.
+ */
+export type TaxinvoiceSearchCloseDownStateCode = 'N' | '0' | '1' | '2' | '3' | '4' | 0 | 1 | 2 | 3 | 4
+
 export type LegacySuccessCallback<T> = (response: T) => void
 
 export type LegacyErrorCallback = (error: unknown) => void
@@ -261,7 +268,7 @@ interface LegacySearchCallback {
     userId?: string,
     issueType?: string[],
     regType?: string[],
-    closeDownState?: (0 | 1 | 2 | 3 | 4)[],
+    closeDownState?: TaxinvoiceSearchCloseDownStateCode[],
     mgtKey?: string,
     success?: LegacySuccessCallback<TaxInvoiceSearchApiResponse>,
     error?: LegacyErrorCallback
@@ -348,91 +355,223 @@ interface LegacyBulkSubmitCallback {
  * Callback 기반 legacy TaxinvoiceService 인터페이스.
  */
 export interface TaxinvoiceCallbackService extends CallbackService {
-  // 발행/전송
+  // ============================================================================
+  // [발행/전송]
+  // ============================================================================
+
+  /**
+   * 등록과 동시에 세금계산서를 즉시 발행합니다.
+   */
   registIssue: LegacyRegistIssueCallback
+
+  /**
+   * 초대량 발행을 접수합니다.
+   */
   bulkSubmit: LegacyBulkSubmitCallback
+
+  /**
+   * 초대량 발행 접수결과를 조회합니다.
+   */
   getBulkResult: LegacyCallbackWithUserId<[corpNum: string, submitID: string], TaxInvoiceGetBulkResultApiResponse>
+
+  /**
+   * 세금계산서를 임시저장합니다.
+   */
   register: LegacyCallbackWithUserId<[corpNum: string, taxinvoice: TaxInvoiceApiModel], TaxInvoiceApiResponseBase>
+
+  /**
+   * 임시저장 문서를 수정합니다.
+   */
   update: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, taxinvoice: TaxInvoiceApiModel],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 저장된 문서를 발행합니다.
+   */
   issue: LegacyIssueCallback
+
+  /**
+   * 발행된 문서를 취소합니다.
+   */
   cancelIssue: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 등록과 동시에 역발행 요청을 전송합니다.
+   */
   registRequest: LegacyCallbackWithUserId<
     [corpNum: string, taxinvoice: TaxInvoiceApiModel, memo: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 저장된 문서로 역발행 요청을 전송합니다.
+   */
   request: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 역발행 요청을 취소합니다.
+   */
   cancelRequest: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 역발행 요청을 거부합니다.
+   */
   refuse: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 세금계산서를 삭제합니다.
+   */
   delete: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 세금계산서를 국세청으로 즉시 전송합니다.
+   */
   sendToNTS: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     TaxInvoiceApiResponseBase
   >
 
-  // 정보확인
+  // ============================================================================
+  // [정보확인]
+  // ============================================================================
+
+  /**
+   * 문서 1건의 상태/요약정보를 조회합니다.
+   */
   getInfo: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     TaxInvoiceGetInfoApiResponse
   >
+
+  /**
+   * 문서 다건의 상태/요약정보를 조회합니다.
+   */
   getInfos: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKeyList: string[]],
     TaxInvoiceGetInfosApiResponse
   >
+
+  /**
+   * 문서 1건의 상세정보를 조회합니다.
+   */
   getDetailInfo: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     TaxInvoiceGetDetailInfoApiResponse
   >
+
+  /**
+   * 문서번호 사용 여부를 확인합니다.
+   */
   checkMgtKeyInUse: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     boolean
   >
+
+  /**
+   * 문서 1건의 XML 상세정보를 조회합니다.
+   */
   getXML: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     TaxInvoiceGetXmlApiResponse
   >
+
+  /**
+   * 검색조건으로 문서 목록을 조회합니다.
+   */
   search: LegacySearchCallback
+
+  /**
+   * 문서 상태 변경이력을 조회합니다.
+   */
   getLogs: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     TaxInvoiceGetLogsApiResponse
   >
+
+  /**
+   * 세금계산서 문서함 팝업 URL을 조회합니다.
+   */
   getURL: LegacyCallbackWithUserId<[corpNum: string, togo: TaxinvoiceBoxScope], string>
 
-  // 보기/인쇄
+  // ============================================================================
+  // [보기/인쇄]
+  // ============================================================================
+
+  /**
+   * 문서 팝업 URL을 조회합니다.
+   */
   getPopUpURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], string>
+
+  /**
+   * 문서 보기 전용 팝업 URL을 조회합니다.
+   */
   getViewURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], string>
+
+  /**
+   * 공급자 인쇄 팝업 URL을 조회합니다.
+   */
   getPrintURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], string>
+
+  /**
+   * 공급받는자 인쇄 팝업 URL을 조회합니다.
+   */
   getEPrintURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], string>
+
+  /**
+   * 다건 인쇄 팝업 URL을 조회합니다.
+   */
   getMassPrintURL: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKeyList: string[]],
     string
   >
+
+  /**
+   * 메일 보기 URL을 조회합니다.
+   */
   getMailURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], string>
+
+  /**
+   * PDF 다운로드 URL을 조회합니다.
+   */
   getPDFURL: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], string>
 
-  // 부가기능
+  // ============================================================================
+  // [부가기능]
+  // ============================================================================
+
+  /**
+   * 인감 및 첨부문서 등록 URL을 조회합니다.
+   */
   getSealURL: LegacyCallbackWithUserId<[corpNum: string], TaxInvoiceGetSealUrlApiResponse>
+
+  /**
+   * 파일 경로로 첨부파일을 업로드합니다.
+   */
   attachFile: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, displayName: string, filePath: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 바이너리 데이터로 첨부파일을 업로드합니다.
+   */
   attachFileBinary: LegacyCallbackWithUserId<
     [
       corpNum: string,
@@ -442,18 +581,34 @@ export interface TaxinvoiceCallbackService extends CallbackService {
     ],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 첨부파일을 삭제합니다.
+   */
   deleteFile: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, fileID: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 첨부파일 목록을 조회합니다.
+   */
   getFiles: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     TaxInvoiceGetFilesApiResponse
   >
+
+  /**
+   * 세금계산서 안내메일을 재전송합니다.
+   */
   sendEmail: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, receiver: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 세금계산서 안내문자를 재전송합니다.
+   */
   sendSMS: LegacyCallbackWithUserId<
     [
       corpNum: string,
@@ -465,56 +620,140 @@ export interface TaxinvoiceCallbackService extends CallbackService {
     ],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 세금계산서 안내팩스를 재전송합니다.
+   */
   sendFAX: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, sender: string, receiver: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 전자명세서를 첨부합니다.
+   */
   attachStatement: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, subItemCode: number, subMgtKey: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 전자명세서 첨부를 해제합니다.
+   */
   detachStatement: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, subItemCode: number, subMgtKey: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 팝빌 문서 식별키에 문서번호를 할당합니다.
+   */
   assignMgtKey: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, itemKey: string, mgtKey: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 메일 전송설정 목록을 조회합니다.
+   */
   listEmailConfig: LegacyCallbackWithUserId<[corpNum: string], TaxInvoiceListEmailConfigApiResponse>
+
+  /**
+   * 메일 전송설정을 수정합니다.
+   */
   updateEmailConfig: LegacyCallbackWithUserId<
     [corpNum: string, emailType: string, sendYN: boolean],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 국세청 전송설정을 조회합니다.
+   */
   getSendToNTSConfig: LegacyCallbackWithUserId<[corpNum: string], TaxInvoiceGetSendToNTSConfigApiResponse>
 
-  // 인증서 관리
+  // ============================================================================
+  // [인증서 관리]
+  // ============================================================================
+
+  /**
+   * 공동인증서 등록 URL을 조회합니다.
+   */
   getTaxCertURL: LegacyCallbackWithUserId<[corpNum: string], TaxInvoiceGetTaxCertUrlApiResponse>
+
+  /**
+   * 공동인증서 만료일을 조회합니다.
+   */
   getCertificateExpireDate: LegacyCallbackWithUserId<[corpNum: string], string>
+
+  /**
+   * 공동인증서 유효성을 확인합니다.
+   */
   checkCertValidation: LegacyCallbackWithUserId<[corpNum: string], TaxInvoiceApiResponseBase>
+
+  /**
+   * 공동인증서 정보를 조회합니다.
+   */
   getTaxCertInfo: LegacyCallbackWithUserId<[corpNum: string], TaxInvoiceGetTaxCertInfoApiResponse>
 
-  // 기타(legacy 호환)
+  // ============================================================================
+  // [기타(legacy 호환)]
+  // ============================================================================
+
+  /**
+   * 과금정보를 조회합니다. (legacy)
+   */
   getChargeInfo: LegacyCallbackWithUserId<[corpNum: string], TaxInvoiceApiResponseBase>
+
+  /**
+   * 단가를 조회합니다. (legacy)
+   */
   getUnitCost: LegacyCallbackWithUserId<[corpNum: string], number>
+
+  /**
+   * 발행안함 처리합니다. (legacy)
+   */
   send: LegacySendCallback
+
+  /**
+   * 발행안함 처리를 취소합니다. (legacy)
+   */
   cancelSend: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 역발행을 승인합니다. (legacy)
+   */
   accept: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 역발행을 거부합니다. (legacy)
+   */
   deny: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
     TaxInvoiceApiResponseBase
   >
+
+  /**
+   * 구버전 인쇄 팝업 URL을 조회합니다. (legacy)
+   */
   getOldPrintURL: LegacyCallbackWithUserId<
     [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
     string
   >
+
+  /**
+   * 이메일 공개키를 조회합니다. (legacy)
+   */
   getEmailPublicKeys: LegacyCallbackWithUserId<[corpNum: string], TaxInvoiceApiResponseBase>
+
+  /**
+   * PDF 바이너리를 조회합니다. (legacy)
+   */
   getPDF: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], Buffer>
 }
 
@@ -522,7 +761,13 @@ export interface TaxinvoiceCallbackService extends CallbackService {
  * Promise 기반 legacy TaxinvoiceService 인터페이스.
  */
 export interface TaxinvoicePromiseService extends PromiseService {
-  // 발행/전송
+  // ============================================================================
+  // [발행/전송]
+  // ============================================================================
+
+  /**
+   * 등록과 동시에 세금계산서를 즉시 발행합니다.
+   */
   registIssue(
     corpNum: string,
     taxinvoice: TaxInvoiceApiModel,
@@ -533,6 +778,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     dealInvoiceMgtKey?: string,
     userId?: string
   ): Promise<TaxInvoiceRegistIssueApiResponse>
+
+  /**
+   * 초대량 발행을 접수합니다.
+   */
   bulkSubmit(
     corpNum: string,
     submitID: string,
@@ -540,8 +789,20 @@ export interface TaxinvoicePromiseService extends PromiseService {
     forceIssue?: boolean,
     userId?: string
   ): Promise<TaxInvoiceBulkSubmitApiResponse>
+
+  /**
+   * 초대량 발행 접수결과를 조회합니다.
+   */
   getBulkResult(corpNum: string, submitID: string, userId?: string): Promise<TaxInvoiceGetBulkResultApiResponse>
+
+  /**
+   * 세금계산서를 임시저장합니다.
+   */
   register(corpNum: string, taxinvoice: TaxInvoiceApiModel, userId?: string): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 임시저장 문서를 수정합니다.
+   */
   update(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -549,6 +810,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     taxinvoice: TaxInvoiceApiModel,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 저장된 문서를 발행합니다.
+   */
   issue(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -558,6 +823,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     forceIssue?: boolean,
     userId?: string
   ): Promise<TaxInvoiceIssueApiResponse>
+
+  /**
+   * 발행된 문서를 취소합니다.
+   */
   cancelIssue(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -565,12 +834,20 @@ export interface TaxinvoicePromiseService extends PromiseService {
     memo: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 등록과 동시에 역발행 요청을 전송합니다.
+   */
   registRequest(
     corpNum: string,
     taxinvoice: TaxInvoiceApiModel,
     memo: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 저장된 문서로 역발행 요청을 전송합니다.
+   */
   request(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -578,6 +855,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     memo: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 역발행 요청을 취소합니다.
+   */
   cancelRequest(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -585,6 +866,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     memo: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 역발행 요청을 거부합니다.
+   */
   refuse(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -592,12 +877,20 @@ export interface TaxinvoicePromiseService extends PromiseService {
     memo: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 세금계산서를 삭제합니다.
+   */
   delete(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 세금계산서를 국세청으로 즉시 전송합니다.
+   */
   sendToNTS(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -605,37 +898,63 @@ export interface TaxinvoicePromiseService extends PromiseService {
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
 
-  // 정보확인
+  // ============================================================================
+  // [정보확인]
+  // ============================================================================
+
+  /**
+   * 문서 1건의 상태/요약정보를 조회합니다.
+   */
   getInfo(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceGetInfoApiResponse>
+
+  /**
+   * 문서 다건의 상태/요약정보를 조회합니다.
+   */
   getInfos(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
     mgtKeyList: string[],
     userId?: string
   ): Promise<TaxInvoiceGetInfosApiResponse>
+
+  /**
+   * 문서 1건의 상세정보를 조회합니다.
+   */
   getDetailInfo(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceGetDetailInfoApiResponse>
+
+  /**
+   * 문서번호 사용 여부를 확인합니다.
+   */
   checkMgtKeyInUse(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId?: string
   ): Promise<boolean>
+
+  /**
+   * 문서 1건의 XML 상세정보를 조회합니다.
+   */
   getXML(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceGetXmlApiResponse>
+
+  /**
+   * 검색조건으로 문서 목록을 조회합니다.
+   */
   search(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -657,33 +976,81 @@ export interface TaxinvoicePromiseService extends PromiseService {
     userId?: string,
     issueType?: string[],
     regType?: string[],
-    closeDownState?: (0 | 1 | 2 | 3 | 4)[],
+    closeDownState?: TaxinvoiceSearchCloseDownStateCode[],
     mgtKey?: string
   ): Promise<TaxInvoiceSearchApiResponse>
+
+  /**
+   * 문서 상태 변경이력을 조회합니다.
+   */
   getLogs(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceGetLogsApiResponse>
+
+  /**
+   * 세금계산서 문서함 팝업 URL을 조회합니다.
+   */
   getURL(corpNum: string, togo: TaxinvoiceBoxScope, userId?: string): Promise<string>
 
-  // 보기/인쇄
+  // ============================================================================
+  // [보기/인쇄]
+  // ============================================================================
+
+  /**
+   * 문서 팝업 URL을 조회합니다.
+   */
   getPopUpURL(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<string>
+
+  /**
+   * 문서 보기 전용 팝업 URL을 조회합니다.
+   */
   getViewURL(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<string>
+
+  /**
+   * 공급자 인쇄 팝업 URL을 조회합니다.
+   */
   getPrintURL(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<string>
+
+  /**
+   * 공급받는자 인쇄 팝업 URL을 조회합니다.
+   */
   getEPrintURL(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<string>
+
+  /**
+   * 다건 인쇄 팝업 URL을 조회합니다.
+   */
   getMassPrintURL(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
     mgtKeyList: string[],
     userId?: string
   ): Promise<string>
+
+  /**
+   * 메일 보기 URL을 조회합니다.
+   */
   getMailURL(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<string>
+
+  /**
+   * PDF 다운로드 URL을 조회합니다.
+   */
   getPDFURL(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<string>
 
-  // 부가기능
+  // ============================================================================
+  // [부가기능]
+  // ============================================================================
+
+  /**
+   * 인감 및 첨부문서 등록 URL을 조회합니다.
+   */
   getSealURL(corpNum: string, userId?: string): Promise<TaxInvoiceGetSealUrlApiResponse>
+
+  /**
+   * 파일 경로로 첨부파일을 업로드합니다.
+   */
   attachFile(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -692,6 +1059,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     filePath: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 바이너리 데이터로 첨부파일을 업로드합니다.
+   */
   attachFileBinary(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -699,6 +1070,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     binaryFile: { fileName: string; fileData: Buffer },
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 첨부파일을 삭제합니다.
+   */
   deleteFile(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -706,12 +1081,20 @@ export interface TaxinvoicePromiseService extends PromiseService {
     fileID: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 첨부파일 목록을 조회합니다.
+   */
   getFiles(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
     mgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceGetFilesApiResponse>
+
+  /**
+   * 세금계산서 안내메일을 재전송합니다.
+   */
   sendEmail(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -719,6 +1102,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     receiver: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 세금계산서 안내문자를 재전송합니다.
+   */
   sendSMS(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -728,6 +1115,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     contents: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 세금계산서 안내팩스를 재전송합니다.
+   */
   sendFAX(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -736,6 +1127,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     receiver: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 전자명세서를 첨부합니다.
+   */
   attachStatement(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -744,6 +1139,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     subMgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 전자명세서 첨부를 해제합니다.
+   */
   detachStatement(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -752,6 +1151,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     subMgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 팝빌 문서 식별키에 문서번호를 할당합니다.
+   */
   assignMgtKey(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -759,24 +1162,68 @@ export interface TaxinvoicePromiseService extends PromiseService {
     mgtKey: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 메일 전송설정 목록을 조회합니다.
+   */
   listEmailConfig(corpNum: string, userId?: string): Promise<TaxInvoiceListEmailConfigApiResponse>
+
+  /**
+   * 메일 전송설정을 수정합니다.
+   */
   updateEmailConfig(
     corpNum: string,
     emailType: string,
     sendYN: boolean,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 국세청 전송설정을 조회합니다.
+   */
   getSendToNTSConfig(corpNum: string, userId?: string): Promise<TaxInvoiceGetSendToNTSConfigApiResponse>
 
-  // 인증서 관리
+  // ============================================================================
+  // [인증서 관리]
+  // ============================================================================
+
+  /**
+   * 공동인증서 등록 URL을 조회합니다.
+   */
   getTaxCertURL(corpNum: string, userId?: string): Promise<TaxInvoiceGetTaxCertUrlApiResponse>
+
+  /**
+   * 공동인증서 만료일을 조회합니다.
+   */
   getCertificateExpireDate(corpNum: string, userId?: string): Promise<string>
+
+  /**
+   * 공동인증서 유효성을 확인합니다.
+   */
   checkCertValidation(corpNum: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 공동인증서 정보를 조회합니다.
+   */
   getTaxCertInfo(corpNum: string, userId?: string): Promise<TaxInvoiceGetTaxCertInfoApiResponse>
 
-  // 기타(legacy 호환)
+  // ============================================================================
+  // [기타(legacy 호환)]
+  // ============================================================================
+
+  /**
+   * 과금정보를 조회합니다. (legacy)
+   */
   getChargeInfo(corpNum: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 단가를 조회합니다. (legacy)
+   */
   getUnitCost(corpNum: string, userId?: string): Promise<number>
+
+  /**
+   * 발행안함 처리합니다. (legacy)
+   */
   send(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -785,6 +1232,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     emailSubject?: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 발행안함 처리를 취소합니다. (legacy)
+   */
   cancelSend(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -792,6 +1243,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     memo: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 역발행을 승인합니다. (legacy)
+   */
   accept(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -799,6 +1254,10 @@ export interface TaxinvoicePromiseService extends PromiseService {
     memo: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 역발행을 거부합니다. (legacy)
+   */
   deny(
     corpNum: string,
     keyType: TaxinvoiceDocumentKeyType,
@@ -806,7 +1265,19 @@ export interface TaxinvoicePromiseService extends PromiseService {
     memo: string,
     userId?: string
   ): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * 구버전 인쇄 팝업 URL을 조회합니다. (legacy)
+   */
   getOldPrintURL(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<string>
+
+  /**
+   * 이메일 공개키를 조회합니다. (legacy)
+   */
   getEmailPublicKeys(corpNum: string, userId?: string): Promise<TaxInvoiceApiResponseBase>
+
+  /**
+   * PDF 바이너리를 조회합니다. (legacy)
+   */
   getPDF(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<Buffer>
 }

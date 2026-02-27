@@ -1,4 +1,11 @@
-import type { ExampleContext, Runner, ScenarioDefinition } from '../types.ts'
+import {
+  DEFAULT_TAX_INVOICE_EMAIL_TYPE,
+  type ExampleContext,
+  type Runner,
+  type ScenarioDefinition,
+  type TaxInvoiceEmailType,
+  type UpdateEmailSendSettingsInput,
+} from '../types.ts'
 import { ensureIssuedInvoice } from '../workflows/invoice.ts'
 import { summarizeArrayLength, summarizeGenericObject, summarizeOperationResult } from '../utils/summarizers.ts'
 
@@ -64,12 +71,14 @@ export const notifyScenario: ScenarioDefinition = {
 
     const emailType =
       settingsResult.ok && Array.isArray(settingsResult.value)
-        ? settingsResult.value.find((setting) => typeof setting.emailTypeCode === 'string')?.emailTypeCode
+        ? (settingsResult.value.find((setting) => typeof setting.emailTypeCode === 'string')?.emailTypeCode as
+            | TaxInvoiceEmailType
+            | undefined)
         : undefined
 
-    const updateEmailSendSettingsInput = {
+    const updateEmailSendSettingsInput: UpdateEmailSendSettingsInput = {
       businessNumber: context.businessNumber,
-      emailType: emailType ?? 'TAX_ISSUE',
+      emailType: emailType ?? DEFAULT_TAX_INVOICE_EMAIL_TYPE,
       sendEnabled: true,
     }
     await runner.run(

@@ -1,4 +1,9 @@
-import type { RuntimeConfig } from '../types.ts'
+import {
+  DEFAULT_TAX_INVOICE_STATEMENT_ITEM_CODE,
+  TAX_INVOICE_STATEMENT_ITEM_CODES,
+  type RuntimeConfig,
+  type TaxInvoiceStatementItemCode,
+} from '../types.ts'
 
 const REQUIRED_ENV_NAMES = ['POPBILL_LINK_ID', 'POPBILL_SECRET_KEY', 'POPBILL_CORP_NUM', 'POPBILL_USER_ID'] as const
 
@@ -27,7 +32,10 @@ export function loadRuntimeConfig(): RuntimeConfig {
     receiverPhoneNumber: readEnv('POPBILL_RECEIVER_PHONE', '01043042991'),
     senderFaxNumber: readEnv('POPBILL_SENDER_FAX', '07043042991'),
     receiverFaxNumber: readEnv('POPBILL_RECEIVER_FAX', '07043042991'),
-    statementItemCode: parsePositiveInteger(readEnv('POPBILL_STATEMENT_ITEM_CODE', '121'), 121),
+    statementItemCode: parseStatementItemCode(
+      readEnv('POPBILL_STATEMENT_ITEM_CODE', String(DEFAULT_TAX_INVOICE_STATEMENT_ITEM_CODE)),
+      DEFAULT_TAX_INVOICE_STATEMENT_ITEM_CODE
+    ),
     statementManagementKey: readEnv('POPBILL_STATEMENT_MGT_KEY', ''),
     missingNames,
   }
@@ -61,5 +69,19 @@ function parsePositiveInteger(value: string, fallbackValue: number): number {
   if (Number.isInteger(parsed) && parsed > 0) {
     return parsed
   }
+  return fallbackValue
+}
+
+function parseStatementItemCode(
+  value: string,
+  fallbackValue: TaxInvoiceStatementItemCode
+): TaxInvoiceStatementItemCode {
+  const parsed = Number.parseInt(value, 10)
+  for (const allowedCode of TAX_INVOICE_STATEMENT_ITEM_CODES) {
+    if (parsed === allowedCode) {
+      return allowedCode
+    }
+  }
+
   return fallbackValue
 }

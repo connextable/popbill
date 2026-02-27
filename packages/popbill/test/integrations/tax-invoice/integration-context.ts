@@ -1,4 +1,5 @@
 import { createPopbillClient } from '@/index'
+import { TaxInvoiceStatementItemCodes, type TaxInvoiceStatementItemCode } from '@/services/tax-invoice/types'
 
 const REQUIRED_ENV_NAMES = ['POPBILL_LINK_ID', 'POPBILL_SECRET_KEY', 'POPBILL_CORP_NUM', 'POPBILL_USER_ID'] as const
 const RUN_INTEGRATION_TESTS = normalizeBooleanEnv(process.env['POPBILL_RUN_INTEGRATION_TESTS'])
@@ -14,7 +15,7 @@ interface IntegrationEnv {
   receiverPhoneNumber: string
   senderFaxNumber: string
   receiverFaxNumber: string
-  statementItemCode: number
+  statementItemCode: TaxInvoiceStatementItemCode
   statementManagementKey: string
   missingNames: string[]
 }
@@ -77,10 +78,19 @@ function loadIntegrationEnv(): IntegrationEnv {
     receiverPhoneNumber: process.env['POPBILL_RECEIVER_PHONE']?.trim() || '01043042991',
     senderFaxNumber: process.env['POPBILL_SENDER_FAX']?.trim() || '07043042991',
     receiverFaxNumber: process.env['POPBILL_RECEIVER_FAX']?.trim() || '07043042991',
-    statementItemCode: Number.isInteger(statementItemCode) ? statementItemCode : 121,
+    statementItemCode: normalizeStatementItemCode(statementItemCode),
     statementManagementKey: process.env['POPBILL_STATEMENT_MGT_KEY']?.trim() || 'STATEMENT-001',
     missingNames,
   }
+}
+
+function normalizeStatementItemCode(statementItemCode: number): TaxInvoiceStatementItemCode {
+  const allowedCodes = new Set<number>(Object.values(TaxInvoiceStatementItemCodes))
+  if (allowedCodes.has(statementItemCode)) {
+    return statementItemCode as TaxInvoiceStatementItemCode
+  }
+
+  return TaxInvoiceStatementItemCodes.TradeStatement
 }
 
 function normalizeBooleanEnv(value: string | undefined): boolean {

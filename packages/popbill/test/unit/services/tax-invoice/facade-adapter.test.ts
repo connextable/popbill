@@ -3,7 +3,22 @@ import { createInputValidationError } from '@connextable/popbill-compat/errors'
 import { PopbillErrorStage, PopbillErrorType } from '@/errors'
 import { createTaxInvoiceService } from '@/services/tax-invoice'
 import { mapTaxInvoiceDocument } from '@/services/tax-invoice/mappers/document'
-import type { TaxInvoiceDocumentInput, TaxInvoiceService } from '@/services/tax-invoice/types'
+import {
+  TaxInvoiceCloseDownStateCodes,
+  TaxInvoiceDateType,
+  TaxInvoiceEmailTypes,
+  TaxInvoiceSearchInteroperabilityTypes,
+  TaxInvoiceSearchInvoiceTypeCodes,
+  TaxInvoiceSearchIssueTypeCodes,
+  TaxInvoiceSearchRegistrationTypeCodes,
+  TaxInvoiceSearchTaxationTypeCodes,
+  TaxInvoiceSearchTaxRegistrationIdentifierAvailabilities,
+  TaxInvoiceSearchTaxRegistrationIdentifierTypes,
+  TaxInvoiceSortOrder,
+  TaxInvoiceStatementItemCodes,
+  type TaxInvoiceDocumentInput,
+  type TaxInvoiceService,
+} from '@/services/tax-invoice/types'
 import { createTaxinvoicePromiseService } from '@connextable/popbill-compat/factory'
 import type { TaxInvoiceGetInfoApiResponse } from '@connextable/popbill-spec'
 
@@ -308,24 +323,24 @@ const FORWARDING_CASES: ForwardingCase[] = [
       service.searchInvoices({
         businessNumber: BUSINESS_NUMBER,
         invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-        searchDateType: 'R',
+        searchDateType: TaxInvoiceDateType.Registered,
         startDate: '20260201',
         endDate: '20260228',
         invoiceStateCodes: ['100', '300'],
-        invoiceTypeCodes: ['N'],
-        taxationTypeCodes: ['T'],
+        invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal],
+        taxationTypeCodes: [TaxInvoiceSearchTaxationTypeCodes.Taxable],
         lateIssueOnly: null,
-        sortOrder: 'D',
+        sortOrder: TaxInvoiceSortOrder.Descending,
         pageNumber: 1,
         pageSize: 500,
-        taxRegistrationIdentifierType: 'S',
-        taxRegistrationIdentifierAvailability: '1',
+        taxRegistrationIdentifierType: TaxInvoiceSearchTaxRegistrationIdentifierTypes.Supplier,
+        taxRegistrationIdentifierAvailability: TaxInvoiceSearchTaxRegistrationIdentifierAvailabilities.Yes,
         taxRegistrationIdentifier: '0001',
         queryText: 'query',
-        interoperabilityType: '1',
-        issueTypeCodes: ['N'],
-        registrationTypeCodes: ['P'],
-        closeDownStateCodes: ['0', '4'],
+        interoperabilityType: TaxInvoiceSearchInteroperabilityTypes.Api,
+        issueTypeCodes: [TaxInvoiceSearchIssueTypeCodes.Normal],
+        registrationTypeCodes: [TaxInvoiceSearchRegistrationTypeCodes.Popbill],
+        closeDownStateCodes: [TaxInvoiceCloseDownStateCodes.NotChecked, TaxInvoiceCloseDownStateCodes.NotRegistered],
         invoiceManagementKeyOrNationalTaxServiceConfirmationNumber: 'MGT-001',
       }),
     expectedArgs: [
@@ -349,7 +364,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
       USER_ID,
       ['N'],
       ['P'],
-      [0, 4],
+      ['N', '0'],
       'MGT-001',
     ],
     response: SEARCH_RESPONSE,
@@ -552,7 +567,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
     invoke: (service) =>
       service.attachInvoiceStatement({
         ...BASE_DOCUMENT_INPUT,
-        statementItemCode: 121,
+        statementItemCode: TaxInvoiceStatementItemCodes.TradeStatement,
         statementManagementKey: 'STMT-1',
       }),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, 121, 'STMT-1', USER_ID],
@@ -564,7 +579,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
     invoke: (service) =>
       service.detachInvoiceStatement({
         ...BASE_DOCUMENT_INPUT,
-        statementItemCode: 121,
+        statementItemCode: TaxInvoiceStatementItemCodes.TradeStatement,
         statementManagementKey: 'STMT-1',
       }),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, 121, 'STMT-1', USER_ID],
@@ -596,7 +611,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
     invoke: (service) =>
       service.updateEmailSendSettings({
         businessNumber: BUSINESS_NUMBER,
-        emailType: 'TAX_ISSUE',
+        emailType: TaxInvoiceEmailTypes.TaxIssue,
         sendEnabled: true,
       }),
     expectedArgs: [BUSINESS_NUMBER, 'TAX_ISSUE', true, USER_ID],
@@ -749,17 +764,17 @@ describe('tax-invoice facade adapter', () => {
     const invalidSearchInput = {
       businessNumber: BUSINESS_NUMBER,
       invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-      searchDateType: 'R',
+      searchDateType: TaxInvoiceDateType.Registered,
       startDate: '20260201',
       endDate: '20260228',
       invoiceStateCodes: ['100'],
-      invoiceTypeCodes: ['N'],
-      taxationTypeCodes: ['T'],
+      invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal],
+      taxationTypeCodes: [TaxInvoiceSearchTaxationTypeCodes.Taxable],
       lateIssueOnly: null,
-      sortOrder: 'D',
+      sortOrder: TaxInvoiceSortOrder.Descending,
       pageNumber: 1,
       pageSize: 500,
-      closeDownStateCodes: ['N'],
+      closeDownStateCodes: ['X'],
     } as unknown as Parameters<TaxInvoiceService['searchInvoices']>[0]
 
     await expect(service.searchInvoices(invalidSearchInput)).rejects.toMatchObject({
@@ -782,14 +797,14 @@ describe('tax-invoice facade adapter', () => {
     await service.searchInvoices({
       businessNumber: BUSINESS_NUMBER,
       invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-      searchDateType: 'R',
+      searchDateType: TaxInvoiceDateType.Registered,
       startDate: '20260201',
       endDate: '20260228',
       invoiceStateCodes: ['100'],
-      invoiceTypeCodes: ['N'],
-      taxationTypeCodes: ['T'],
+      invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal],
+      taxationTypeCodes: [TaxInvoiceSearchTaxationTypeCodes.Taxable],
       lateIssueOnly: null,
-      sortOrder: 'D',
+      sortOrder: TaxInvoiceSortOrder.Descending,
       pageNumber: 1,
       pageSize: 500,
     })
@@ -797,6 +812,168 @@ describe('tax-invoice facade adapter', () => {
     expect(search).toHaveBeenCalledTimes(1)
     const firstCallArgs = search.mock.calls[0] as unknown[] | undefined
     expect(firstCallArgs?.[20]).toBeUndefined()
+  })
+
+  test('normalizes Date inputs to KST yyyyMMdd before forwarding search call', async () => {
+    const search = vi.fn((..._args: unknown[]) => Promise.resolve(SEARCH_RESPONSE))
+    const service = createTaxInvoiceService({
+      defaultUserId: USER_ID,
+      compatTaxInvoiceService: createCompatServiceStub({ search }),
+    })
+
+    await service.searchInvoices({
+      businessNumber: BUSINESS_NUMBER,
+      invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+      searchDateType: TaxInvoiceDateType.Registered,
+      startDate: new Date('2026-01-31T15:00:00.000Z'),
+      endDate: new Date('2026-02-28T15:00:00.000Z'),
+      invoiceStateCodes: ['100'],
+      invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal],
+      taxationTypeCodes: [TaxInvoiceSearchTaxationTypeCodes.Taxable],
+      lateIssueOnly: null,
+      sortOrder: TaxInvoiceSortOrder.Descending,
+      pageNumber: 1,
+      pageSize: 500,
+    })
+
+    expect(search).toHaveBeenCalledTimes(1)
+    expect(search).toHaveBeenCalledWith(
+      BUSINESS_NUMBER,
+      INVOICE_DOCUMENT_KEY_TYPE,
+      TaxInvoiceDateType.Registered,
+      '20260201',
+      '20260301',
+      ['100'],
+      [TaxInvoiceSearchInvoiceTypeCodes.Normal],
+      [TaxInvoiceSearchTaxationTypeCodes.Taxable],
+      null,
+      TaxInvoiceSortOrder.Descending,
+      1,
+      500,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      USER_ID,
+      undefined,
+      undefined,
+      undefined,
+      undefined
+    )
+  })
+
+  test('throws input validation error when sortOrder is invalid', async () => {
+    const search = vi.fn((..._args: unknown[]) => Promise.resolve(SEARCH_RESPONSE))
+    const service = createTaxInvoiceService({
+      defaultUserId: USER_ID,
+      compatTaxInvoiceService: createCompatServiceStub({ search }),
+    })
+
+    await expect(
+      service.searchInvoices({
+        businessNumber: BUSINESS_NUMBER,
+        invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+        searchDateType: TaxInvoiceDateType.Registered,
+        startDate: '20260201',
+        endDate: '20260228',
+        invoiceStateCodes: ['100'],
+        invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal],
+        taxationTypeCodes: [TaxInvoiceSearchTaxationTypeCodes.Taxable],
+        lateIssueOnly: null,
+        sortOrder: 'X' as unknown as (typeof TaxInvoiceSortOrder)[keyof typeof TaxInvoiceSortOrder],
+        pageNumber: 1,
+        pageSize: 500,
+      })
+    ).rejects.toMatchObject({
+      code: -99999999,
+      type: PopbillErrorType.InputValidation,
+      stage: PopbillErrorStage.ValidateInput,
+      operation: 'taxInvoice.searchInvoices',
+    })
+
+    expect(search).not.toHaveBeenCalled()
+  })
+
+  test('throws input validation error when taxationTypeCodes include unsupported value', async () => {
+    const search = vi.fn((..._args: unknown[]) => Promise.resolve(SEARCH_RESPONSE))
+    const service = createTaxInvoiceService({
+      defaultUserId: USER_ID,
+      compatTaxInvoiceService: createCompatServiceStub({ search }),
+    })
+
+    await expect(
+      service.searchInvoices({
+        businessNumber: BUSINESS_NUMBER,
+        invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+        searchDateType: TaxInvoiceDateType.Registered,
+        startDate: '20260201',
+        endDate: '20260228',
+        invoiceStateCodes: ['100'],
+        invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal],
+        taxationTypeCodes: [
+          'Q',
+        ] as unknown as (typeof TaxInvoiceSearchTaxationTypeCodes)[keyof typeof TaxInvoiceSearchTaxationTypeCodes][],
+        lateIssueOnly: null,
+        sortOrder: TaxInvoiceSortOrder.Descending,
+        pageNumber: 1,
+        pageSize: 500,
+      })
+    ).rejects.toMatchObject({
+      code: -99999999,
+      type: PopbillErrorType.InputValidation,
+      stage: PopbillErrorStage.ValidateInput,
+      operation: 'taxInvoice.searchInvoices',
+    })
+
+    expect(search).not.toHaveBeenCalled()
+  })
+
+  test('throws input validation error when emailType is invalid', async () => {
+    const updateEmailConfig = vi.fn((..._args: unknown[]) => Promise.resolve(API_RESPONSE))
+    const service = createTaxInvoiceService({
+      defaultUserId: USER_ID,
+      compatTaxInvoiceService: createCompatServiceStub({ updateEmailConfig }),
+    })
+
+    await expect(
+      service.updateEmailSendSettings({
+        businessNumber: BUSINESS_NUMBER,
+        emailType: 'INVALID' as unknown as (typeof TaxInvoiceEmailTypes)[keyof typeof TaxInvoiceEmailTypes],
+        sendEnabled: true,
+      })
+    ).rejects.toMatchObject({
+      code: -99999999,
+      type: PopbillErrorType.InputValidation,
+      stage: PopbillErrorStage.ValidateInput,
+      operation: 'taxInvoice.updateEmailSendSettings',
+    })
+
+    expect(updateEmailConfig).not.toHaveBeenCalled()
+  })
+
+  test('throws input validation error when statementItemCode is invalid', async () => {
+    const attachStatement = vi.fn((..._args: unknown[]) => Promise.resolve(API_RESPONSE))
+    const service = createTaxInvoiceService({
+      defaultUserId: USER_ID,
+      compatTaxInvoiceService: createCompatServiceStub({ attachStatement }),
+    })
+
+    await expect(
+      service.attachInvoiceStatement({
+        ...BASE_DOCUMENT_INPUT,
+        statementItemCode:
+          999 as unknown as (typeof TaxInvoiceStatementItemCodes)[keyof typeof TaxInvoiceStatementItemCodes],
+        statementManagementKey: 'STMT-1',
+      })
+    ).rejects.toMatchObject({
+      code: -99999999,
+      type: PopbillErrorType.InputValidation,
+      stage: PopbillErrorStage.ValidateInput,
+      operation: 'taxInvoice.attachInvoiceStatement',
+    })
+
+    expect(attachStatement).not.toHaveBeenCalled()
   })
 
   test('normalizes compat error even when onError is not provided', async () => {

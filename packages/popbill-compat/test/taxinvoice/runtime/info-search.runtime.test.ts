@@ -75,7 +75,7 @@ describe('taxinvoice runtime: info-search', () => {
         'search-user',
         ['N'],
         ['P'],
-        [0],
+        ['N', 0],
         'MGT-SEARCH',
         () => {
           resolve()
@@ -95,6 +95,7 @@ describe('taxinvoice runtime: info-search', () => {
     expect(requestUrl).toContain('TaxRegIDYN=1')
     expect(requestUrl).toContain('TaxRegID=0001')
     expect(requestUrl).toContain('InterOPYN=1')
+    expect(requestUrl).toContain('CloseDownState=N%2C0')
     expect(requestUrl).toContain('MgtKey=MGT-SEARCH')
 
     const requestHeaders = getTaxinvoiceRequestInit(fetchMock).headers as Record<string, string>

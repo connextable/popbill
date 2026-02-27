@@ -1,6 +1,35 @@
-import { createPopbillClient } from '@connextable/popbill'
+import {
+  createPopbillClient,
+  TaxInvoiceCloseDownStateCodes,
+  TaxInvoiceDateType,
+  TaxInvoiceEmailTypes,
+  TaxInvoiceSearchInvoiceTypeCodes,
+  TaxInvoiceSearchTaxationTypeCodes,
+  TaxInvoiceSortOrder,
+  TaxInvoiceStatementItemCodes,
+} from '@connextable/popbill'
+
+export {
+  TaxInvoiceCloseDownStateCodes,
+  TaxInvoiceDateType,
+  TaxInvoiceSearchInvoiceTypeCodes,
+  TaxInvoiceSearchTaxationTypeCodes,
+  TaxInvoiceSortOrder,
+}
 
 export type TaxInvoiceService = ReturnType<typeof createPopbillClient>['services']['taxInvoice']
+export type SearchInvoicesInput = Parameters<TaxInvoiceService['searchInvoices']>[0]
+export type AttachInvoiceStatementInput = Parameters<TaxInvoiceService['attachInvoiceStatement']>[0]
+export type UpdateEmailSendSettingsInput = Parameters<TaxInvoiceService['updateEmailSendSettings']>[0]
+export type TaxInvoiceStatementItemCode = AttachInvoiceStatementInput['statementItemCode']
+export type TaxInvoiceEmailType = UpdateEmailSendSettingsInput['emailType']
+
+export const TAX_INVOICE_STATEMENT_ITEM_CODES = Object.values(
+  TaxInvoiceStatementItemCodes
+) as readonly TaxInvoiceStatementItemCode[]
+export const DEFAULT_TAX_INVOICE_STATEMENT_ITEM_CODE: TaxInvoiceStatementItemCode =
+  TaxInvoiceStatementItemCodes.TradeStatement
+export const DEFAULT_TAX_INVOICE_EMAIL_TYPE: TaxInvoiceEmailType = TaxInvoiceEmailTypes.TaxIssue
 
 export interface RuntimeConfig {
   linkId: string
@@ -17,7 +46,7 @@ export interface RuntimeConfig {
   receiverPhoneNumber: string
   senderFaxNumber: string
   receiverFaxNumber: string
-  statementItemCode: number
+  statementItemCode: TaxInvoiceStatementItemCode
   statementManagementKey: string
   missingNames: string[]
 }

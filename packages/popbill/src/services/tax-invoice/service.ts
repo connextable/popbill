@@ -20,10 +20,47 @@ import {
   mapTaxInvoiceTaxCertificateInfo,
   mapTaxInvoiceXmlResult,
 } from './mappers/response'
-import type { TaxInvoiceCloseDownStateCode, TaxInvoiceService } from './types'
+import {
+  TaxInvoiceCloseDownStateCodes,
+  TaxInvoiceDateType,
+  TaxInvoiceEmailTypes,
+  TaxInvoiceSearchInteroperabilityTypes,
+  TaxInvoiceSearchInvoiceTypeCodes,
+  TaxInvoiceSearchIssueTypeCodes,
+  TaxInvoiceSearchRegistrationTypeCodes,
+  TaxInvoiceSearchTaxationTypeCodes,
+  TaxInvoiceSearchTaxRegistrationIdentifierAvailabilities,
+  TaxInvoiceSearchTaxRegistrationIdentifierTypes,
+  TaxInvoiceSortOrder,
+  TaxInvoiceStatementItemCodes,
+  type SearchInvoicesInput,
+  type TaxInvoiceCloseDownStateCode,
+  type TaxInvoiceDateInput,
+  type TaxInvoiceEmailType,
+  type TaxInvoiceSearchInteroperabilityType,
+  type TaxInvoiceSearchInvoiceTypeCode,
+  type TaxInvoiceSearchIssueTypeCode,
+  type TaxInvoiceSearchRegistrationTypeCode,
+  type TaxInvoiceSearchStateCode,
+  type TaxInvoiceSearchTaxationTypeCode,
+  type TaxInvoiceSearchTaxRegistrationIdentifierAvailability,
+  type TaxInvoiceSearchTaxRegistrationIdentifierType,
+  type TaxInvoiceService,
+  type TaxInvoiceStatementItemCode,
+} from './types'
 import { createInputValidationError } from '@connextable/popbill-compat/errors'
 import type { TaxinvoicePromiseService as CompatTaxInvoiceService } from '@connextable/popbill-compat/factory'
 import { PopbillErrorStage, type PopbillApiError } from '@/errors'
+
+const KOREA_TIME_ZONE = 'Asia/Seoul'
+const SEARCH_STATE_CODE_PATTERN = /^\d[\d*][\d*]$/
+const KOREA_DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
+  timeZone: KOREA_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+const SEARCH_INVOICES_OPERATION = 'taxInvoice.searchInvoices'
 
 interface CreateTaxInvoiceServiceInput {
   compatTaxInvoiceService: CompatTaxInvoiceService
@@ -288,29 +325,30 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
 
     searchInvoices(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.searchInvoices', async () => {
+        const normalizedSearchRequest = normalizeSearchInvoicesRequest(request)
         const taxInvoiceApiResponse = await compatTaxInvoiceService.search(
           request.businessNumber,
           request.invoiceDocumentKeyType,
-          request.searchDateType,
-          request.startDate,
-          request.endDate,
-          request.invoiceStateCodes,
-          request.invoiceTypeCodes,
-          request.taxationTypeCodes,
-          request.lateIssueOnly,
-          request.sortOrder,
-          request.pageNumber,
-          request.pageSize,
-          request.taxRegistrationIdentifierType,
-          request.taxRegistrationIdentifierAvailability,
-          request.taxRegistrationIdentifier,
-          request.queryText,
-          request.interoperabilityType,
+          normalizedSearchRequest.searchDateType,
+          normalizedSearchRequest.startDate,
+          normalizedSearchRequest.endDate,
+          normalizedSearchRequest.invoiceStateCodes,
+          normalizedSearchRequest.invoiceTypeCodes,
+          normalizedSearchRequest.taxationTypeCodes,
+          normalizedSearchRequest.lateIssueOnly,
+          normalizedSearchRequest.sortOrder,
+          normalizedSearchRequest.pageNumber,
+          normalizedSearchRequest.pageSize,
+          normalizedSearchRequest.taxRegistrationIdentifierType,
+          normalizedSearchRequest.taxRegistrationIdentifierAvailability,
+          normalizedSearchRequest.taxRegistrationIdentifier,
+          normalizedSearchRequest.queryText,
+          normalizedSearchRequest.interoperabilityType,
           input.defaultUserId,
-          request.issueTypeCodes,
-          request.registrationTypeCodes,
-          mapSearchCloseDownStateCodes(request.closeDownStateCodes),
-          request.invoiceManagementKeyOrNationalTaxServiceConfirmationNumber
+          normalizedSearchRequest.issueTypeCodes,
+          normalizedSearchRequest.registrationTypeCodes,
+          toCompatCloseDownStateCodes(normalizedSearchRequest.closeDownStateCodes),
+          normalizedSearchRequest.invoiceManagementKeyOrNationalTaxServiceConfirmationNumber
         )
 
         return mapTaxInvoiceSearchResult(taxInvoiceApiResponse)
@@ -549,11 +587,15 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
 
     attachInvoiceStatement(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.attachInvoiceStatement', async () => {
+        const statementItemCode = normalizeStatementItemCode(
+          request.statementItemCode,
+          'taxInvoice.attachInvoiceStatement'
+        )
         const taxInvoiceApiResponse = await compatTaxInvoiceService.attachStatement(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
-          request.statementItemCode,
+          statementItemCode,
           request.statementManagementKey,
           input.defaultUserId
         )
@@ -564,11 +606,15 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
 
     detachInvoiceStatement(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.detachInvoiceStatement', async () => {
+        const statementItemCode = normalizeStatementItemCode(
+          request.statementItemCode,
+          'taxInvoice.detachInvoiceStatement'
+        )
         const taxInvoiceApiResponse = await compatTaxInvoiceService.detachStatement(
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
-          request.statementItemCode,
+          statementItemCode,
           request.statementManagementKey,
           input.defaultUserId
         )
@@ -603,9 +649,10 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
 
     updateEmailSendSettings(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.updateEmailSendSettings', async () => {
+        const emailType = normalizeEmailType(request.emailType, 'taxInvoice.updateEmailSendSettings')
         const taxInvoiceApiResponse = await compatTaxInvoiceService.updateEmailConfig(
           request.businessNumber,
-          request.emailType,
+          emailType,
           request.sendEnabled,
           input.defaultUserId
         )
@@ -666,42 +713,281 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
   }
 }
 
-/**
- * 검색조건의 휴폐업상태 코드를 compat 입력 형식(`0 | 1 | 2 | 3 | 4`)으로 정규화합니다.
- */
-function mapSearchCloseDownStateCodes(
+interface NormalizedSearchInvoicesRequest {
+  searchDateType: TaxInvoiceDateType
+  startDate: string
+  endDate: string
+  invoiceStateCodes: TaxInvoiceSearchStateCode[]
+  invoiceTypeCodes: TaxInvoiceSearchInvoiceTypeCode[]
+  taxationTypeCodes: TaxInvoiceSearchTaxationTypeCode[]
+  lateIssueOnly: boolean | null
+  sortOrder: TaxInvoiceSortOrder
+  pageNumber: number
+  pageSize: number
+  taxRegistrationIdentifierType?: TaxInvoiceSearchTaxRegistrationIdentifierType
+  taxRegistrationIdentifierAvailability?: TaxInvoiceSearchTaxRegistrationIdentifierAvailability
+  taxRegistrationIdentifier?: string
+  queryText?: string
+  interoperabilityType?: TaxInvoiceSearchInteroperabilityType
+  issueTypeCodes?: TaxInvoiceSearchIssueTypeCode[]
+  registrationTypeCodes?: TaxInvoiceSearchRegistrationTypeCode[]
+  closeDownStateCodes?: TaxInvoiceCloseDownStateCode[]
+  invoiceManagementKeyOrNationalTaxServiceConfirmationNumber?: string
+}
+
+function normalizeSearchInvoicesRequest(request: SearchInvoicesInput): NormalizedSearchInvoicesRequest {
+  return {
+    searchDateType: normalizeCodeValue(
+      request.searchDateType,
+      Object.values(TaxInvoiceDateType),
+      'searchDateType',
+      SEARCH_INVOICES_OPERATION
+    ),
+    startDate: normalizeSearchDateInput(request.startDate, 'startDate', SEARCH_INVOICES_OPERATION),
+    endDate: normalizeSearchDateInput(request.endDate, 'endDate', SEARCH_INVOICES_OPERATION),
+    invoiceStateCodes: normalizeSearchStateCodes(request.invoiceStateCodes),
+    invoiceTypeCodes: normalizeCodeArray(
+      request.invoiceTypeCodes,
+      Object.values(TaxInvoiceSearchInvoiceTypeCodes),
+      'invoiceTypeCodes',
+      SEARCH_INVOICES_OPERATION
+    ),
+    taxationTypeCodes: normalizeCodeArray(
+      request.taxationTypeCodes,
+      Object.values(TaxInvoiceSearchTaxationTypeCodes),
+      'taxationTypeCodes',
+      SEARCH_INVOICES_OPERATION
+    ),
+    lateIssueOnly: request.lateIssueOnly,
+    sortOrder: normalizeCodeValue(
+      request.sortOrder,
+      Object.values(TaxInvoiceSortOrder),
+      'sortOrder',
+      SEARCH_INVOICES_OPERATION
+    ),
+    pageNumber: request.pageNumber,
+    pageSize: request.pageSize,
+    taxRegistrationIdentifierType: normalizeOptionalCodeValue(
+      request.taxRegistrationIdentifierType,
+      Object.values(TaxInvoiceSearchTaxRegistrationIdentifierTypes),
+      'taxRegistrationIdentifierType',
+      SEARCH_INVOICES_OPERATION
+    ),
+    taxRegistrationIdentifierAvailability: normalizeOptionalCodeValue(
+      request.taxRegistrationIdentifierAvailability,
+      Object.values(TaxInvoiceSearchTaxRegistrationIdentifierAvailabilities),
+      'taxRegistrationIdentifierAvailability',
+      SEARCH_INVOICES_OPERATION
+    ),
+    taxRegistrationIdentifier: request.taxRegistrationIdentifier,
+    queryText: request.queryText,
+    interoperabilityType: normalizeOptionalCodeValue(
+      request.interoperabilityType,
+      Object.values(TaxInvoiceSearchInteroperabilityTypes),
+      'interoperabilityType',
+      SEARCH_INVOICES_OPERATION
+    ),
+    issueTypeCodes: normalizeOptionalCodeArray(
+      request.issueTypeCodes,
+      Object.values(TaxInvoiceSearchIssueTypeCodes),
+      'issueTypeCodes',
+      SEARCH_INVOICES_OPERATION
+    ),
+    registrationTypeCodes: normalizeOptionalCodeArray(
+      request.registrationTypeCodes,
+      Object.values(TaxInvoiceSearchRegistrationTypeCodes),
+      'registrationTypeCodes',
+      SEARCH_INVOICES_OPERATION
+    ),
+    closeDownStateCodes: normalizeOptionalCodeArray(
+      request.closeDownStateCodes,
+      Object.values(TaxInvoiceCloseDownStateCodes),
+      'closeDownStateCodes',
+      SEARCH_INVOICES_OPERATION
+    ),
+    invoiceManagementKeyOrNationalTaxServiceConfirmationNumber:
+      request.invoiceManagementKeyOrNationalTaxServiceConfirmationNumber,
+  }
+}
+
+function toCompatCloseDownStateCodes(
   closeDownStateCodes: TaxInvoiceCloseDownStateCode[] | undefined
 ): (0 | 1 | 2 | 3 | 4)[] | undefined {
-  if (!closeDownStateCodes) {
+  return closeDownStateCodes as unknown as (0 | 1 | 2 | 3 | 4)[] | undefined
+}
+
+function normalizeSearchStateCodes(searchStateCodes: unknown): TaxInvoiceSearchStateCode[] {
+  if (!Array.isArray(searchStateCodes)) {
+    throw createInputValidationError('invoiceStateCodes는 배열이어야 해.', {
+      operation: SEARCH_INVOICES_OPERATION,
+      stage: PopbillErrorStage.ValidateInput,
+    })
+  }
+
+  return searchStateCodes.map((searchStateCode, index) => {
+    if (typeof searchStateCode !== 'string' || !SEARCH_STATE_CODE_PATTERN.test(searchStateCode)) {
+      throw createInputValidationError(
+        `invoiceStateCodes[${index}]에 유효하지 않은 상태코드가 있어. 허용 패턴: 숫자 3자리 또는 2/3자리 와일드카드 (예: 300, 3**, 60*)`,
+        {
+          operation: SEARCH_INVOICES_OPERATION,
+          stage: PopbillErrorStage.ValidateInput,
+        }
+      )
+    }
+
+    return searchStateCode
+  })
+}
+
+function normalizeSearchDateInput(dateInput: TaxInvoiceDateInput, fieldName: string, operation: string): string {
+  if (dateInput instanceof Date) {
+    if (!Number.isFinite(dateInput.getTime())) {
+      throw createInputValidationError(`${fieldName}는 유효한 Date여야 해.`, {
+        operation,
+        stage: PopbillErrorStage.ValidateInput,
+      })
+    }
+
+    return formatDateToKoreaDateString(dateInput)
+  }
+
+  if (typeof dateInput !== 'string') {
+    throw createInputValidationError(`${fieldName}는 yyyyMMdd 문자열 또는 Date여야 해.`, {
+      operation,
+      stage: PopbillErrorStage.ValidateInput,
+    })
+  }
+
+  const normalizedDateInput = dateInput.trim()
+  if (!isValidDateString(normalizedDateInput)) {
+    throw createInputValidationError(`${fieldName}는 yyyyMMdd 형식의 유효한 날짜여야 해.`, {
+      operation,
+      stage: PopbillErrorStage.ValidateInput,
+    })
+  }
+
+  return normalizedDateInput
+}
+
+function formatDateToKoreaDateString(date: Date): string {
+  let year = ''
+  let month = ''
+  let day = ''
+
+  for (const datePart of KOREA_DATE_FORMATTER.formatToParts(date)) {
+    if (datePart.type === 'year') {
+      year = datePart.value
+      continue
+    }
+
+    if (datePart.type === 'month') {
+      month = datePart.value
+      continue
+    }
+
+    if (datePart.type === 'day') {
+      day = datePart.value
+    }
+  }
+
+  return `${year}${month}${day}`
+}
+
+function isValidDateString(dateString: string): boolean {
+  const match = /^(\d{4})(\d{2})(\d{2})$/.exec(dateString)
+  if (!match) {
+    return false
+  }
+
+  const year = Number(match[1])
+  const month = Number(match[2])
+  const day = Number(match[3])
+  const normalizedDate = new Date(Date.UTC(year, month - 1, day))
+
+  return (
+    normalizedDate.getUTCFullYear() === year &&
+    normalizedDate.getUTCMonth() === month - 1 &&
+    normalizedDate.getUTCDate() === day
+  )
+}
+
+function normalizeStatementItemCode(
+  statementItemCode: unknown,
+  operation: 'taxInvoice.attachInvoiceStatement' | 'taxInvoice.detachInvoiceStatement'
+): TaxInvoiceStatementItemCode {
+  return normalizeCodeValue(
+    statementItemCode,
+    Object.values(TaxInvoiceStatementItemCodes),
+    'statementItemCode',
+    operation
+  )
+}
+
+function normalizeEmailType(emailType: unknown, operation: 'taxInvoice.updateEmailSendSettings'): TaxInvoiceEmailType {
+  return normalizeCodeValue(emailType, Object.values(TaxInvoiceEmailTypes), 'emailType', operation)
+}
+
+function normalizeOptionalCodeValue<T extends string | number>(
+  codeValue: unknown,
+  allowedValues: readonly T[],
+  fieldName: string,
+  operation: string
+): T | undefined {
+  if (codeValue === undefined) {
     return undefined
   }
 
-  const normalizedCloseDownStateCodes: (0 | 1 | 2 | 3 | 4)[] = []
-  for (const closeDownStateCode of closeDownStateCodes) {
-    const normalizedCloseDownStateCode = Number(closeDownStateCode)
+  return normalizeCodeValue(codeValue, allowedValues, fieldName, operation)
+}
 
-    if (
-      normalizedCloseDownStateCode === 0 ||
-      normalizedCloseDownStateCode === 1 ||
-      normalizedCloseDownStateCode === 2
-    ) {
-      normalizedCloseDownStateCodes.push(normalizedCloseDownStateCode)
-      continue
-    }
-
-    if (normalizedCloseDownStateCode === 3 || normalizedCloseDownStateCode === 4) {
-      normalizedCloseDownStateCodes.push(normalizedCloseDownStateCode)
-      continue
-    }
-
-    throw createInputValidationError(
-      `closeDownStateCodes에 유효하지 않은 값이 있어. 허용값: 0, 1, 2, 3, 4 (입력값: ${String(closeDownStateCode)})`,
-      {
-        operation: 'taxInvoice.searchInvoices',
-        stage: PopbillErrorStage.ValidateInput,
-      }
-    )
+function normalizeOptionalCodeArray<T extends string | number>(
+  codeValues: unknown,
+  allowedValues: readonly T[],
+  fieldName: string,
+  operation: string
+): T[] | undefined {
+  if (codeValues === undefined) {
+    return undefined
   }
 
-  return normalizedCloseDownStateCodes.length > 0 ? normalizedCloseDownStateCodes : undefined
+  return normalizeCodeArray(codeValues, allowedValues, fieldName, operation)
+}
+
+function normalizeCodeArray<T extends string | number>(
+  codeValues: unknown,
+  allowedValues: readonly T[],
+  fieldName: string,
+  operation: string
+): T[] {
+  if (!Array.isArray(codeValues)) {
+    throw createInputValidationError(`${fieldName}는 배열이어야 해.`, {
+      operation,
+      stage: PopbillErrorStage.ValidateInput,
+    })
+  }
+
+  return codeValues.map((codeValue, index) =>
+    normalizeCodeValue(codeValue, allowedValues, `${fieldName}[${index}]`, operation)
+  )
+}
+
+function normalizeCodeValue<T extends string | number>(
+  codeValue: unknown,
+  allowedValues: readonly T[],
+  fieldName: string,
+  operation: string
+): T {
+  for (const allowedValue of allowedValues) {
+    if (codeValue === allowedValue) {
+      return allowedValue
+    }
+  }
+
+  throw createInputValidationError(
+    `${fieldName}에 유효하지 않은 값이 있어. 허용값: ${allowedValues.map((allowedValue) => String(allowedValue)).join(', ')} (입력값: ${String(codeValue)})`,
+    {
+      operation,
+      stage: PopbillErrorStage.ValidateInput,
+    }
+  )
 }

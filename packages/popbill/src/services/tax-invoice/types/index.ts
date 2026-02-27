@@ -1,6 +1,6 @@
-import type { TaxInvoiceDateString, TaxInvoiceDateType } from '@connextable/popbill-spec'
 import {
   TaxInvoiceModificationReasonCodes,
+  type TaxInvoiceDateString,
   type TaxInvoiceDocumentInput,
   type TaxInvoiceModificationReasonCode,
 } from './document'
@@ -35,6 +35,7 @@ export type {
   TaxInvoiceAdditionalContactInput,
   TaxInvoiceBusinessStatus,
   TaxInvoiceChargeDirection,
+  TaxInvoiceDateString,
   TaxInvoiceDocumentInput,
   TaxInvoiceIssueType,
   TaxInvoiceLineItemInput,
@@ -108,9 +109,174 @@ export const TaxInvoiceBoxScopes = {
 export type TaxInvoiceBoxScope = (typeof TaxInvoiceBoxScopes)[keyof typeof TaxInvoiceBoxScopes]
 
 /**
+ * 검색일자 유형 상수입니다.
+ */
+export const TaxInvoiceDateType = {
+  /** 코드: `R`, 설명: 등록일자 */
+  Registered: 'R',
+  /** 코드: `W`, 설명: 작성일자 */
+  Written: 'W',
+  /** 코드: `I`, 설명: 발행일자 */
+  Issued: 'I',
+} as const
+
+/**
+ * 검색일자 유형입니다.
+ */
+export type TaxInvoiceDateType = (typeof TaxInvoiceDateType)[keyof typeof TaxInvoiceDateType]
+
+/**
+ * `packages/popbill` 검색 입력에서 허용하는 일자 타입입니다.
+ */
+export type TaxInvoiceDateInput = TaxInvoiceDateString | Date
+
+/**
+ * 검색 정렬 방향 상수입니다.
+ */
+export const TaxInvoiceSortOrder = {
+  /** 코드: `D`, 설명: 내림차순 */
+  Descending: 'D',
+  /** 코드: `A`, 설명: 오름차순 */
+  Ascending: 'A',
+} as const
+
+/**
+ * 검색 정렬 방향 코드입니다.
+ */
+export type TaxInvoiceSortOrder = (typeof TaxInvoiceSortOrder)[keyof typeof TaxInvoiceSortOrder]
+
+/**
+ * 검색 상태코드 패턴입니다.
+ *
+ * 첫 자리는 숫자, 2/3번째 자리는 숫자 또는 `*`를 허용합니다.
+ * 예) `300`, `3**`, `60*`
+ */
+export type TaxInvoiceSearchStateCode = string
+
+/**
+ * 검색 문서유형 코드 상수입니다.
+ */
+export const TaxInvoiceSearchInvoiceTypeCodes = {
+  /** 코드: `N`, 설명: 세금계산서 */
+  Normal: 'N',
+  /** 코드: `M`, 설명: 수정세금계산서 */
+  Modified: 'M',
+} as const
+
+/**
+ * 검색 문서유형 코드입니다.
+ */
+export type TaxInvoiceSearchInvoiceTypeCode =
+  (typeof TaxInvoiceSearchInvoiceTypeCodes)[keyof typeof TaxInvoiceSearchInvoiceTypeCodes]
+
+/**
+ * 검색 과세형태 코드 상수입니다.
+ */
+export const TaxInvoiceSearchTaxationTypeCodes = {
+  /** 코드: `T`, 설명: 과세 */
+  Taxable: 'T',
+  /** 코드: `N`, 설명: 면세 */
+  Exempt: 'N',
+  /** 코드: `Z`, 설명: 영세 */
+  ZeroRated: 'Z',
+} as const
+
+/**
+ * 검색 과세형태 코드입니다.
+ */
+export type TaxInvoiceSearchTaxationTypeCode =
+  (typeof TaxInvoiceSearchTaxationTypeCodes)[keyof typeof TaxInvoiceSearchTaxationTypeCodes]
+
+/**
+ * 검색 발행형태 코드 상수입니다.
+ */
+export const TaxInvoiceSearchIssueTypeCodes = {
+  /** 코드: `N`, 설명: 정발행 */
+  Normal: 'N',
+  /** 코드: `R`, 설명: 역발행 */
+  Reverse: 'R',
+  /** 코드: `T`, 설명: 위수탁 */
+  Trustee: 'T',
+} as const
+
+/**
+ * 검색 발행형태 코드입니다.
+ */
+export type TaxInvoiceSearchIssueTypeCode =
+  (typeof TaxInvoiceSearchIssueTypeCodes)[keyof typeof TaxInvoiceSearchIssueTypeCodes]
+
+/**
+ * 검색 종사업장번호 주체 코드 상수입니다.
+ */
+export const TaxInvoiceSearchTaxRegistrationIdentifierTypes = {
+  /** 코드: `S`, 설명: 공급자 */
+  Supplier: 'S',
+  /** 코드: `B`, 설명: 공급받는자 */
+  Buyer: 'B',
+  /** 코드: `T`, 설명: 수탁자 */
+  Trustee: 'T',
+} as const
+
+/**
+ * 검색 종사업장번호 주체 코드입니다.
+ */
+export type TaxInvoiceSearchTaxRegistrationIdentifierType =
+  (typeof TaxInvoiceSearchTaxRegistrationIdentifierTypes)[keyof typeof TaxInvoiceSearchTaxRegistrationIdentifierTypes]
+
+/**
+ * 검색 종사업장번호 유무 코드 상수입니다.
+ */
+export const TaxInvoiceSearchTaxRegistrationIdentifierAvailabilities = {
+  /** 코드: `0`, 설명: 종사업장번호 없음 */
+  No: '0',
+  /** 코드: `1`, 설명: 종사업장번호 있음 */
+  Yes: '1',
+} as const
+
+/**
+ * 검색 종사업장번호 유무 코드입니다.
+ */
+export type TaxInvoiceSearchTaxRegistrationIdentifierAvailability =
+  (typeof TaxInvoiceSearchTaxRegistrationIdentifierAvailabilities)[keyof typeof TaxInvoiceSearchTaxRegistrationIdentifierAvailabilities]
+
+/**
+ * 검색 작성유형 코드 상수입니다.
+ */
+export const TaxInvoiceSearchInteroperabilityTypes = {
+  /** 코드: `0`, 설명: 팝빌 웹 작성 */
+  PopbillWeb: '0',
+  /** 코드: `1`, 설명: API 작성 */
+  Api: '1',
+} as const
+
+/**
+ * 검색 작성유형 코드입니다.
+ */
+export type TaxInvoiceSearchInteroperabilityType =
+  (typeof TaxInvoiceSearchInteroperabilityTypes)[keyof typeof TaxInvoiceSearchInteroperabilityTypes]
+
+/**
+ * 검색 등록유형 코드 상수입니다.
+ */
+export const TaxInvoiceSearchRegistrationTypeCodes = {
+  /** 코드: `P`, 설명: 팝빌 등록(발행) */
+  Popbill: 'P',
+  /** 코드: `H`, 설명: 홈택스/ASP 등록(발행) */
+  HomeTax: 'H',
+} as const
+
+/**
+ * 검색 등록유형 코드입니다.
+ */
+export type TaxInvoiceSearchRegistrationTypeCode =
+  (typeof TaxInvoiceSearchRegistrationTypeCodes)[keyof typeof TaxInvoiceSearchRegistrationTypeCodes]
+
+/**
  * 검색 조건의 휴폐업 상태 상수입니다.
  */
 export const TaxInvoiceCloseDownStateCodes = {
+  /** 코드: `N`, 설명: 미확인 */
+  NotChecked: 'N',
   /** 코드: `0`, 설명: 미등록 */
   NotRegistered: '0',
   /** 코드: `1`, 설명: 사업중 */
@@ -128,6 +294,79 @@ export const TaxInvoiceCloseDownStateCodes = {
  */
 export type TaxInvoiceCloseDownStateCode =
   (typeof TaxInvoiceCloseDownStateCodes)[keyof typeof TaxInvoiceCloseDownStateCodes]
+
+/**
+ * 전자명세서 문서유형 코드 상수입니다.
+ */
+export const TaxInvoiceStatementItemCodes = {
+  /** 코드: `121`, 설명: 거래명세서 */
+  TradeStatement: 121,
+  /** 코드: `122`, 설명: 청구서 */
+  Invoice: 122,
+  /** 코드: `123`, 설명: 견적서 */
+  Estimate: 123,
+  /** 코드: `124`, 설명: 발주서 */
+  PurchaseOrder: 124,
+  /** 코드: `125`, 설명: 입금표 */
+  Deposit: 125,
+  /** 코드: `126`, 설명: 영수증 */
+  Receipt: 126,
+} as const
+
+/**
+ * 전자명세서 문서유형 코드입니다.
+ */
+export type TaxInvoiceStatementItemCode =
+  (typeof TaxInvoiceStatementItemCodes)[keyof typeof TaxInvoiceStatementItemCodes]
+
+/**
+ * 메일 전송 유형 코드 상수입니다.
+ */
+export const TaxInvoiceEmailTypes = {
+  /** 코드: `ETC_CERT_EXPIRATION`, 설명: 인증서 만료 안내 */
+  EtcCertExpiration: 'ETC_CERT_EXPIRATION',
+  /** 코드: `TAX_CANCEL_ISSUE`, 설명: 발행취소 */
+  TaxCancelIssue: 'TAX_CANCEL_ISSUE',
+  /** 코드: `TAX_CANCEL_REQUEST`, 설명: 역발행 요청 취소 */
+  TaxCancelRequest: 'TAX_CANCEL_REQUEST',
+  /** 코드: `TAX_CHECK`, 설명: 수신확인 */
+  TaxCheck: 'TAX_CHECK',
+  /** 코드: `TAX_CLOSEDOWN`, 설명: 휴폐업 알림 */
+  TaxClosedown: 'TAX_CLOSEDOWN',
+  /** 코드: `TAX_ISSUE`, 설명: 발행완료(수신자) */
+  TaxIssue: 'TAX_ISSUE',
+  /** 코드: `TAX_ISSUE_INVOICER`, 설명: 발행완료(공급자) */
+  TaxIssueInvoicer: 'TAX_ISSUE_INVOICER',
+  /** 코드: `TAX_NTSFAIL_INVOICER`, 설명: 국세청 전송실패(공급자) */
+  TaxNtsFailInvoicer: 'TAX_NTSFAIL_INVOICER',
+  /** 코드: `TAX_REFUSE`, 설명: 역발행 거부 */
+  TaxRefuse: 'TAX_REFUSE',
+  /** 코드: `TAX_REQUEST`, 설명: 역발행 요청 */
+  TaxRequest: 'TAX_REQUEST',
+  /** 코드: `TAX_REVERSE_ISSUE`, 설명: 역발행 완료 */
+  TaxReverseIssue: 'TAX_REVERSE_ISSUE',
+  /** 코드: `TAX_TRUST_CANCEL_ISSUE`, 설명: 위수탁 발행취소 */
+  TaxTrustCancelIssue: 'TAX_TRUST_CANCEL_ISSUE',
+  /** 코드: `TAX_TRUST_CANCEL_ISSUE_INVOICER`, 설명: 위수탁 발행취소(공급자) */
+  TaxTrustCancelIssueInvoicer: 'TAX_TRUST_CANCEL_ISSUE_INVOICER',
+  /** 코드: `TAX_TRUST_ISSUE`, 설명: 위수탁 발행완료 */
+  TaxTrustIssue: 'TAX_TRUST_ISSUE',
+  /** 코드: `TAX_TRUST_ISSUE_INVOICER`, 설명: 위수탁 발행완료(공급자) */
+  TaxTrustIssueInvoicer: 'TAX_TRUST_ISSUE_INVOICER',
+  /** 코드: `TAX_TRUST_ISSUE_TRUSTEE`, 설명: 위수탁 발행완료(수탁자) */
+  TaxTrustIssueTrustee: 'TAX_TRUST_ISSUE_TRUSTEE',
+  /** 코드: `TAX_ACCEPT`, 설명: 역발행 승인(legacy) */
+  TaxAccept: 'TAX_ACCEPT',
+  /** 코드: `TAX_DENY`, 설명: 역발행 거부(legacy) */
+  TaxDeny: 'TAX_DENY',
+  /** 코드: `TAX_CANCEL_SEND`, 설명: 발행안함 취소(legacy) */
+  TaxCancelSend: 'TAX_CANCEL_SEND',
+} as const
+
+/**
+ * 메일 전송 유형 코드입니다.
+ */
+export type TaxInvoiceEmailType = (typeof TaxInvoiceEmailTypes)[keyof typeof TaxInvoiceEmailTypes]
 
 /**
  * 수정세금계산서 사유코드입니다.
@@ -289,38 +528,38 @@ export interface SearchInvoicesInput extends TaxInvoiceBusinessRequest {
   invoiceDocumentKeyType: TaxInvoiceDocumentKeyType
   /** 검색 기준 일자 유형입니다. */
   searchDateType: TaxInvoiceDateType
-  /** 검색 시작일자(yyyyMMdd)입니다. */
-  startDate: TaxInvoiceDateString
-  /** 검색 종료일자(yyyyMMdd)입니다. */
-  endDate: TaxInvoiceDateString
-  /** 세금계산서 상태코드 필터입니다. */
-  invoiceStateCodes: string[]
+  /** 검색 시작일자(yyyyMMdd)입니다. `Date` 입력 시 KST 기준으로 변환됩니다. */
+  startDate: TaxInvoiceDateInput
+  /** 검색 종료일자(yyyyMMdd)입니다. `Date` 입력 시 KST 기준으로 변환됩니다. */
+  endDate: TaxInvoiceDateInput
+  /** 세금계산서 상태코드 필터입니다. 2/3번째 자리는 와일드카드(`*`)를 허용합니다. 예) `3**`, `60*` */
+  invoiceStateCodes: TaxInvoiceSearchStateCode[]
   /** 문서 유형 필터입니다. */
-  invoiceTypeCodes: string[]
+  invoiceTypeCodes: TaxInvoiceSearchInvoiceTypeCode[]
   /** 과세형태 필터입니다. */
-  taxationTypeCodes: string[]
+  taxationTypeCodes: TaxInvoiceSearchTaxationTypeCode[]
   /** 지연발행 문서만 조회할지 여부입니다. */
   lateIssueOnly: boolean | null
   /** 정렬 방향입니다. */
-  sortOrder: string
+  sortOrder: TaxInvoiceSortOrder
   /** 조회할 페이지 번호입니다. */
   pageNumber: number
   /** 페이지당 조회 건수입니다. */
   pageSize: number
   /** 종사업장번호 주체 필터입니다. */
-  taxRegistrationIdentifierType?: string
+  taxRegistrationIdentifierType?: TaxInvoiceSearchTaxRegistrationIdentifierType
   /** 종사업장번호 존재 여부 필터입니다. */
-  taxRegistrationIdentifierAvailability?: string
+  taxRegistrationIdentifierAvailability?: TaxInvoiceSearchTaxRegistrationIdentifierAvailability
   /** 종사업장번호 필터입니다. */
   taxRegistrationIdentifier?: string
   /** 검색어(상호/사업자번호/문서번호 등)입니다. */
   queryText?: string
   /** 작성유형(연동/API) 필터입니다. */
-  interoperabilityType?: string
+  interoperabilityType?: TaxInvoiceSearchInteroperabilityType
   /** 발행형태 필터입니다. */
-  issueTypeCodes?: string[]
+  issueTypeCodes?: TaxInvoiceSearchIssueTypeCode[]
   /** 등록유형 필터입니다. */
-  registrationTypeCodes?: string[]
+  registrationTypeCodes?: TaxInvoiceSearchRegistrationTypeCode[]
   /** 휴폐업상태 필터입니다. */
   closeDownStateCodes?: TaxInvoiceCloseDownStateCode[]
   /** 문서번호 또는 국세청승인번호 필터입니다. */
@@ -413,7 +652,7 @@ export interface ResendInvoiceFAXInput extends TaxInvoiceDocumentRequest {
  */
 export interface AttachInvoiceStatementInput extends TaxInvoiceDocumentRequest {
   /** 첨부할 전자명세서 문서 유형 코드입니다. */
-  statementItemCode: number
+  statementItemCode: TaxInvoiceStatementItemCode
   /** 첨부할 전자명세서 관리번호입니다. */
   statementManagementKey: string
 }
@@ -423,7 +662,7 @@ export interface AttachInvoiceStatementInput extends TaxInvoiceDocumentRequest {
  */
 export interface DetachInvoiceStatementInput extends TaxInvoiceDocumentRequest {
   /** 첨부해제할 전자명세서 문서 유형 코드입니다. */
-  statementItemCode: number
+  statementItemCode: TaxInvoiceStatementItemCode
   /** 첨부해제할 전자명세서 관리번호입니다. */
   statementManagementKey: string
 }
@@ -445,7 +684,7 @@ export interface AssignInvoiceManagementKeyInput extends TaxInvoiceBusinessReque
  */
 export interface UpdateEmailSendSettingsInput extends TaxInvoiceBusinessRequest {
   /** 수정할 메일 전송 유형 코드입니다. */
-  emailType: string
+  emailType: TaxInvoiceEmailType
   /** 전송 활성화 여부입니다. */
   sendEnabled: boolean
 }

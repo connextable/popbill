@@ -1,5 +1,12 @@
 import { createManagementKey, createTempAttachmentFile } from '../taxinvoice-fixtures.ts'
-import type { ExampleContext, Runner } from '../types.ts'
+import {
+  TaxInvoiceCloseDownStateCodes,
+  TaxInvoiceDateType,
+  TaxInvoiceSearchInvoiceTypeCodes,
+  TaxInvoiceSearchTaxationTypeCodes,
+  TaxInvoiceSortOrder,
+} from '../types.ts'
+import type { ExampleContext, Runner, SearchInvoicesInput } from '../types.ts'
 import {
   createDocument,
   createDraftInvoice,
@@ -25,21 +32,25 @@ export function createDocumentRequest(
   }
 }
 
-export function createSearchInput(context: ExampleContext) {
+export function createSearchInput(context: ExampleContext): SearchInvoicesInput {
   return {
     businessNumber: context.businessNumber,
     invoiceDocumentKeyType: context.invoiceDocumentKeyType,
-    searchDateType: 'R' as const,
+    searchDateType: TaxInvoiceDateType.Registered,
     startDate: context.searchStartDate,
     endDate: context.today,
     invoiceStateCodes: ['3**'],
-    invoiceTypeCodes: ['N', 'M'],
-    taxationTypeCodes: ['T', 'N', 'Z'],
+    invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal, TaxInvoiceSearchInvoiceTypeCodes.Modified],
+    taxationTypeCodes: [
+      TaxInvoiceSearchTaxationTypeCodes.Taxable,
+      TaxInvoiceSearchTaxationTypeCodes.Exempt,
+      TaxInvoiceSearchTaxationTypeCodes.ZeroRated,
+    ],
     lateIssueOnly: null,
-    sortOrder: 'D',
+    sortOrder: TaxInvoiceSortOrder.Descending,
     pageNumber: 1,
     pageSize: 100,
-    closeDownStateCodes: ['0' as const],
+    closeDownStateCodes: [TaxInvoiceCloseDownStateCodes.NotRegistered],
   }
 }
 

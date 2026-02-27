@@ -1,5 +1,12 @@
 import { describeTaxInvoiceIntegration } from './integration-context'
 import * as testkit from './method-testkit'
+import {
+  TaxInvoiceCloseDownStateCodes,
+  TaxInvoiceDateType,
+  TaxInvoiceSearchInvoiceTypeCodes,
+  TaxInvoiceSearchTaxationTypeCodes,
+  TaxInvoiceSortOrder,
+} from '@/services/tax-invoice/types'
 
 describeTaxInvoiceIntegration('popbill tax-invoice integration: searchInvoices', () => {
   test('searchInvoices succeeds', async () => {
@@ -7,17 +14,21 @@ describeTaxInvoiceIntegration('popbill tax-invoice integration: searchInvoices',
     const response = await context.service.searchInvoices({
       businessNumber: context.businessNumber,
       invoiceDocumentKeyType: context.invoiceDocumentKeyType,
-      searchDateType: 'R',
+      searchDateType: TaxInvoiceDateType.Registered,
       startDate: context.searchStartDate,
       endDate: context.today,
       invoiceStateCodes: ['3**'],
-      invoiceTypeCodes: ['N', 'M'],
-      taxationTypeCodes: ['T', 'N', 'Z'],
+      invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal, TaxInvoiceSearchInvoiceTypeCodes.Modified],
+      taxationTypeCodes: [
+        TaxInvoiceSearchTaxationTypeCodes.Taxable,
+        TaxInvoiceSearchTaxationTypeCodes.Exempt,
+        TaxInvoiceSearchTaxationTypeCodes.ZeroRated,
+      ],
       lateIssueOnly: null,
-      sortOrder: 'D',
+      sortOrder: TaxInvoiceSortOrder.Descending,
       pageNumber: 1,
       pageSize: 100,
-      closeDownStateCodes: ['0'],
+      closeDownStateCodes: [TaxInvoiceCloseDownStateCodes.NotRegistered],
     })
 
     expect(typeof response.operationResult.resultCode).toBe('number')

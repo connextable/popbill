@@ -1,4 +1,7 @@
-import type { TaxInvoiceDateString } from '@connextable/popbill-spec'
+/**
+ * 작성일/일시 문자열 타입입니다.
+ */
+export type TaxInvoiceDateString = string
 
 /**
  * 세금계산서 과금 방향 값입니다.

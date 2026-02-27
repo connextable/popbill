@@ -2,6 +2,8 @@ import type { TaxInvoiceSearchApiResponse } from '@connextable/popbill-spec'
 import type { LegacyErrorCallback, LegacySuccessCallback } from '@/services/taxinvoice/types'
 import { asErrorCallback, asSuccessCallback } from '@/services/taxinvoice/runtime/common'
 
+type NormalizedCloseDownStateCode = 'N' | '0' | '1' | '2' | '3' | '4'
+
 export interface ParsedSearchOptions {
   taxRegIDType: string
   taxRegIDYN: string
@@ -11,7 +13,7 @@ export interface ParsedSearchOptions {
   userId: string
   issueType?: string[]
   regType?: string[]
-  closeDownState?: (0 | 1 | 2 | 3 | 4)[]
+  closeDownState?: NormalizedCloseDownStateCode[]
   mgtKey: string
 }
 
@@ -121,14 +123,46 @@ function asStringArray(value: unknown): string[] | undefined {
   return value.filter((entry): entry is string => typeof entry === 'string')
 }
 
-function asCloseDownStateArray(value: unknown): (0 | 1 | 2 | 3 | 4)[] | undefined {
+function asCloseDownStateArray(value: unknown): NormalizedCloseDownStateCode[] | undefined {
   if (!Array.isArray(value)) {
     return undefined
   }
 
-  return value
-    .filter((entry): entry is number => typeof entry === 'number')
-    .filter(
-      (entry): entry is 0 | 1 | 2 | 3 | 4 => entry === 0 || entry === 1 || entry === 2 || entry === 3 || entry === 4
-    )
+  const normalizedCodes: NormalizedCloseDownStateCode[] = []
+  for (const rawCode of value) {
+    const normalizedCode = normalizeCloseDownStateCode(rawCode)
+    if (normalizedCode) {
+      normalizedCodes.push(normalizedCode)
+    }
+  }
+
+  return normalizedCodes
+}
+
+function normalizeCloseDownStateCode(rawCode: unknown): NormalizedCloseDownStateCode | undefined {
+  if (rawCode === 'N') {
+    return 'N'
+  }
+
+  if (rawCode === 0 || rawCode === '0') {
+    return '0'
+  }
+
+  if (rawCode === 1 || rawCode === '1') {
+    return '1'
+  }
+
+  if (rawCode === 2 || rawCode === '2') {
+    return '2'
+  }
+
+  if (rawCode === 3 || rawCode === '3') {
+    return '3'
+  }
+
+  if (rawCode === 4 || rawCode === '4') {
+    return '4'
+  }
+
+  return undefined
 }
