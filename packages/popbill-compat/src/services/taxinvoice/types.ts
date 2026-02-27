@@ -27,11 +27,17 @@ import type { PromiseService } from '@/adapters/promise-adapter'
  * 세금계산서 문서번호 유형 상수입니다.
  */
 export const TaxinvoiceDocumentKeyTypes = {
-  /** 코드: `SELL`, 설명: 매출 문서번호 유형 */
+  /**
+   * 코드: `SELL`, 설명: 매출 문서번호 유형
+   */
   Sales: 'SELL',
-  /** 코드: `BUY`, 설명: 매입 문서번호 유형 */
+  /**
+   * 코드: `BUY`, 설명: 매입 문서번호 유형
+   */
   Purchase: 'BUY',
-  /** 코드: `TRUSTEE`, 설명: 위수탁 문서번호 유형 */
+  /**
+   * 코드: `TRUSTEE`, 설명: 위수탁 문서번호 유형
+   */
   Trustee: 'TRUSTEE',
 } as const
 
@@ -44,17 +50,29 @@ export type TaxinvoiceDocumentKeyType = (typeof TaxinvoiceDocumentKeyTypes)[keyo
  * 세금계산서 문서함 접근 메뉴 상수입니다.
  */
 export const TaxinvoiceBoxScopes = {
-  /** 코드: `TBOX`, 설명: 임시 문서함 */
+  /**
+   * 코드: `TBOX`, 설명: 임시 문서함
+   */
   TemporaryDocumentBox: 'TBOX',
-  /** 코드: `SWBOX`, 설명: 매출 발행 대기함 */
+  /**
+   * 코드: `SWBOX`, 설명: 매출 발행 대기함
+   */
   SalesIssueWaitingBox: 'SWBOX',
-  /** 코드: `SBOX`, 설명: 매출 문서함 */
+  /**
+   * 코드: `SBOX`, 설명: 매출 문서함
+   */
   SalesDocumentBox: 'SBOX',
-  /** 코드: `PWBOX`, 설명: 매입 발행 대기함 */
+  /**
+   * 코드: `PWBOX`, 설명: 매입 발행 대기함
+   */
   PurchaseIssueWaitingBox: 'PWBOX',
-  /** 코드: `PBOX`, 설명: 매입 문서함 */
+  /**
+   * 코드: `PBOX`, 설명: 매입 문서함
+   */
   PurchaseDocumentBox: 'PBOX',
-  /** 코드: `WRITE`, 설명: 정발행 작성 */
+  /**
+   * 코드: `WRITE`, 설명: 정발행 작성
+   */
   WriteInvoice: 'WRITE',
 } as const
 
