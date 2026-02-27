@@ -1,6 +1,12 @@
 import { createLinkhubAuthClient, createTokenProvider, LinkhubAuthScope } from '@/internal/linkhub'
 import { createPopbillRequestClient, type PopbillRequestClient } from '@/internal/popbill'
-import { PopbillApiBaseUrls, PopbillServiceIds, type PopbillApiBaseUrl } from '@connextable/popbill-spec'
+import {
+  PopbillAcceptLanguages,
+  PopbillApiBaseUrls,
+  PopbillServiceIds,
+  type PopbillAcceptLanguage,
+  type PopbillApiBaseUrl,
+} from '@connextable/popbill-spec'
 import type { CompatConfig } from '@/config'
 
 const DEFAULT_REQUEST_TIMEOUT_MS = 180_000
@@ -14,7 +20,7 @@ interface ResolvedCompatRequestConfig {
   ipRestrictOnOff: boolean
   requestTimeoutMs: number
   acceptEncoding: string | null
-  acceptLanguage?: string
+  acceptLanguage?: PopbillAcceptLanguage
 }
 
 export function createTaxinvoiceRequestClient(config: CompatConfig): PopbillRequestClient {
@@ -54,8 +60,29 @@ function resolveCompatRequestConfig(config: CompatConfig): ResolvedCompatRequest
     ipRestrictOnOff: config.IPRestrictOnOff ?? true,
     requestTimeoutMs: config.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS,
     acceptEncoding: config.acceptEncoding === undefined ? DEFAULT_ACCEPT_ENCODING : config.acceptEncoding,
-    acceptLanguage: typeof config.acceptLanguage === 'string' ? config.acceptLanguage : undefined,
+    acceptLanguage: resolveAcceptLanguage(config.acceptLanguage),
   }
+}
+
+function resolveAcceptLanguage(value: unknown): PopbillAcceptLanguage | undefined {
+  if (typeof value !== 'string') {
+    return undefined
+  }
+
+  const trimmed = value.trim()
+  if (trimmed.length === 0) {
+    return undefined
+  }
+
+  if (trimmed === PopbillAcceptLanguages.KoreanKorea) {
+    return PopbillAcceptLanguages.KoreanKorea
+  }
+
+  if (trimmed === PopbillAcceptLanguages.EnglishUnitedStates) {
+    return PopbillAcceptLanguages.EnglishUnitedStates
+  }
+
+  throw new Error(`Invalid acceptLanguage. Allowed values: ${Object.values(PopbillAcceptLanguages).join(', ')}`)
 }
 
 function resolveApiBaseUrl(

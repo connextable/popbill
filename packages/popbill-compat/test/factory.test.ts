@@ -29,4 +29,33 @@ describe('compat factory subpath', () => {
     expect(typeof callbackService.getInfo).toBe('function')
     expect(typeof promiseService.getInfo).toBe('function')
   })
+
+  test('acceptLanguage allows ko-KR and en-US, and rejects unknown values', () => {
+    const baseConfig: CompatConfig = {
+      LinkID: 'TEST_LINK_ID',
+      SecretKey: Buffer.from('secret').toString('base64'),
+      IsTest: true,
+    }
+
+    expect(() => {
+      createTaxinvoicePromiseService({
+        ...baseConfig,
+        acceptLanguage: 'en-US',
+      })
+    }).not.toThrow()
+
+    expect(() => {
+      createTaxinvoicePromiseService({
+        ...baseConfig,
+        acceptLanguage: 'ko-KR',
+      })
+    }).not.toThrow()
+
+    expect(() => {
+      createTaxinvoicePromiseService({
+        ...baseConfig,
+        acceptLanguage: 'ja-JP',
+      })
+    }).toThrow(/acceptLanguage/)
+  })
 })

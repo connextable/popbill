@@ -33,11 +33,23 @@ export interface PopbillAcceptEncodingMap {
 export type PopbillAcceptEncoding = PopbillAcceptEncodingMap[keyof PopbillAcceptEncodingMap] | (string & {})
 
 /**
+ * 팝빌 응답 메시지 기본 언어(raw).
+ *
+ * `Accept-Language` 헤더를 생략하면 기본값 `ko-KR`(한글)로 응답한다.
+ */
+export const PopbillDefaultResponseLanguage = 'ko-KR' as const
+
+/**
  * 응답 언어 설정 헤더 값(raw).
  *
- * 문서 예시는 `en-US`이며, 런타임 호환을 위해 일반 문자열 확장을 허용한다.
+ * 기본은 `ko-KR`이며, `en-US`를 설정하면 영문 응답을 요청할 수 있다.
  */
 export interface PopbillAcceptLanguageMap {
+  /**
+   * 한글 응답.
+   */
+  KoreanKorea: typeof PopbillDefaultResponseLanguage
+
   /**
    * 영문 응답.
    */
@@ -45,11 +57,20 @@ export interface PopbillAcceptLanguageMap {
 }
 
 /**
+ * 응답 언어 설정 헤더 값 상수(raw).
+ */
+export const PopbillAcceptLanguages = {
+  KoreanKorea: PopbillDefaultResponseLanguage,
+  EnglishUnitedStates: 'en-US',
+} as const satisfies PopbillAcceptLanguageMap
+
+/**
  * 응답 언어 설정 헤더 값(raw).
  *
- * 문서 예시는 `en-US`이며, 런타임 호환을 위해 일반 문자열 확장을 허용한다.
+ * `Accept-Language` 헤더는 선택사항이다.
+ * 헤더를 명시할 때는 `ko-KR` 또는 `en-US`를 사용한다.
  */
-export type PopbillAcceptLanguage = PopbillAcceptLanguageMap[keyof PopbillAcceptLanguageMap] | (string & {})
+export type PopbillAcceptLanguage = (typeof PopbillAcceptLanguages)[keyof typeof PopbillAcceptLanguages]
 
 /**
  * X-HTTP-Method-Override 헤더 값(raw).
@@ -83,6 +104,7 @@ export interface PopbillApiRequestHeaders {
    * 응답 메시지 언어.
    *
    * HTTP 헤더 `Accept-Language`로 전달한다.
+   * 헤더를 생략하면 기본 한글(`ko-KR`) 응답을 사용한다.
    */
   AcceptLanguage?: PopbillAcceptLanguage
 }
