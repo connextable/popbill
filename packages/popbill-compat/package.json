@@ -2,12 +2,20 @@
   "name": "@connextable/popbill-compat",
   "version": "1.0.0",
   "description": "Compatibility SDK for legacy Popbill interfaces",
+  "bugs": {
+    "url": "https://github.com/connextable/node-popbill/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/connextable/node-popbill.git"
+  },
   "files": [
     "dist"
   ],
   "type": "module",
   "sideEffects": false,
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
@@ -35,6 +43,9 @@
     },
     "./package.json": "./package.json"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsdown",
     "test": "vitest run",
@@ -51,5 +62,8 @@
   "dependencies": {
     "@connextable/popbill-spec": "workspace:*",
     "@connextable/popbill-utils": "workspace:*"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

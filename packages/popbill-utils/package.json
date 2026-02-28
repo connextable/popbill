@@ -1,8 +1,15 @@
 {
   "name": "@connextable/popbill-utils",
   "version": "1.0.0",
-  "private": true,
   "description": "Shared utility helpers for Popbill SDKs",
+  "bugs": {
+    "url": "https://github.com/connextable/node-popbill/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/connextable/node-popbill.git"
+  },
   "files": [
     "dist"
   ],
@@ -12,6 +19,9 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "tsdown",
@@ -25,5 +35,8 @@
     "typecheck:lib": "tsgo -p tsconfig.lib.json --noEmit",
     "typecheck:test": "tsgo -p tsconfig.test.json --noEmit",
     "clean": "del node_modules dist"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

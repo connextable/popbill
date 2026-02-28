@@ -13,6 +13,9 @@
     "test": "dotenvx run -- turbo run test",
     "test:coverage": "dotenvx run -- turbo run test:coverage",
     "docs:generate": "jiti ./scripts/generate-sdk-docs.ts",
+    "release:verify-manifests": "jiti ./scripts/release/verify-manifests.ts",
+    "release:verify-tarballs": "jiti ./scripts/release/verify-tarballs.ts",
+    "release:check-readiness": "jiti ./scripts/release/check-readiness.ts",
     "clean": "turbo run clean && del node_modules .turbo"
   },
   "devDependencies": {

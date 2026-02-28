@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify publish manifests
+        run: pnpm run release:verify-manifests
+
+      - name: Build
+        run: pnpm build
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test popbill
+        run: pnpm -C packages/popbill test
+
+      - name: Test popbill-compat
+        run: pnpm -C packages/popbill-compat test
+
+      - name: Test popbill-utils
+        run: pnpm -C packages/popbill-utils test
+
+      - name: Pack publish targets
+        run: |
+          set -euo pipefail
+          PACK_DIR="${RUNNER_TEMP}/popbill-pack"
+          rm -rf "${PACK_DIR}"
+          mkdir -p "${PACK_DIR}"
+          pnpm -C packages/popbill-spec pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill-utils pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill-compat pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill pack --pack-destination "${PACK_DIR}"
+          pnpm run release:verify-tarballs -- "${PACK_DIR}"
+
+      - name: npm publish dry-run
+        env:
+          npm_config_cache: ${{ runner.temp }}/.npm
+        run: |
+          set -euo pipefail
+          (cd packages/popbill-spec && npm publish --dry-run)
+          (cd packages/popbill-utils && npm publish --dry-run)
+          (cd packages/popbill-compat && npm publish --dry-run)
+          (cd packages/popbill && npm publish --dry-run)

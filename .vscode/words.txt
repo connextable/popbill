@@ -24,6 +24,7 @@ oxfmt
 oxlint
 PBOX
 pdfurl
+pipefail
 popbill
 PWBOX
 regist

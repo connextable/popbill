@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify publish manifests
+        run: pnpm run release:verify-manifests
+
+      - name: Check release readiness
+        id: readiness
+        env:
+          npm_config_cache: ${{ runner.temp }}/.npm
+        run: pnpm run release:check-readiness
+
+      - name: Build
+        if: steps.readiness.outputs.publish_any == 'true'
+        run: pnpm build
+
+      - name: Publish @connextable/popbill-spec
+        if: steps.readiness.outputs.publish_popbill_spec == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm -C packages/popbill-spec publish --access public --no-git-checks
+
+      - name: Publish @connextable/popbill-utils
+        if: steps.readiness.outputs.publish_popbill_utils == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm -C packages/popbill-utils publish --access public --no-git-checks
+
+      - name: Publish @connextable/popbill-compat
+        if: steps.readiness.outputs.publish_popbill_compat == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm -C packages/popbill-compat publish --access public --no-git-checks
+
+      - name: Publish @connextable/popbill
+        if: steps.readiness.outputs.publish_popbill == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm -C packages/popbill publish --access public --no-git-checks
+
+      - name: Release summary
+        run: |
+          echo "version=${{ steps.readiness.outputs.version }}"
+          echo "publish_spec=${{ steps.readiness.outputs.publish_popbill_spec }}"
+          echo "publish_utils=${{ steps.readiness.outputs.publish_popbill_utils }}"
+          echo "publish_compat=${{ steps.readiness.outputs.publish_popbill_compat }}"
+          echo "publish_popbill=${{ steps.readiness.outputs.publish_popbill }}"

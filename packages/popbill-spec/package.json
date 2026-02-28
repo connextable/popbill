@@ -2,6 +2,14 @@
   "name": "@connextable/popbill-spec",
   "version": "1.0.0",
   "description": "Raw Popbill API request/response types",
+  "bugs": {
+    "url": "https://github.com/connextable/node-popbill/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/connextable/node-popbill.git"
+  },
   "files": [
     "dist"
   ],
@@ -14,6 +22,9 @@
     "./tax-invoice/shims": "./dist/tax-invoice/shims/index.mjs",
     "./package.json": "./package.json"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsdown",
     "lint": "oxlint --type-aware",
@@ -22,5 +33,8 @@
     "fmt:check": "oxfmt --check",
     "typecheck": "tsgo -b --noEmit",
     "clean": "del node_modules dist"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
