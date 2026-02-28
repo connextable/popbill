@@ -1,18 +1,8 @@
-import {
-  asError,
-  compat,
-  configureCompat,
-  createTokenResponseBody,
-  getTaxinvoiceRequestInit,
-  expectTaxinvoiceRequestPath,
-  promiseCompat,
-  stubFetchResponses,
-  toJsonResponse,
-} from './helpers'
+import * as helpers from './helpers'
 
 describe('taxinvoice runtime: info-search', () => {
   beforeEach(() => {
-    configureCompat()
+    helpers.configureCompat()
   })
 
   afterEach(() => {
@@ -21,29 +11,29 @@ describe('taxinvoice runtime: info-search', () => {
   })
 
   test('promise getInfo calls info endpoint and returns response object', async () => {
-    const fetchMock = stubFetchResponses(
-      toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({
+    const fetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({
         itemKey: '025102114360700001',
         stateCode: 300,
       })
     )
 
-    const response = await promiseCompat.TaxinvoiceService().getInfo('1234567890', 'SELL', 'MGT-INFO', 'info-user')
+    const response = await helpers.promiseCompat.TaxinvoiceService().getInfo('1234567890', 'SELL', 'MGT-INFO', 'info-user')
 
     expect(response).toMatchObject({
       itemKey: '025102114360700001',
       stateCode: 300,
     })
-    expectTaxinvoiceRequestPath(fetchMock, '/Taxinvoice/SELL/MGT-INFO')
-    const requestHeaders = getTaxinvoiceRequestInit(fetchMock).headers as Record<string, string>
+    helpers.expectTaxinvoiceRequestPath(fetchMock, '/Taxinvoice/SELL/MGT-INFO')
+    const requestHeaders = helpers.getTaxinvoiceRequestInit(fetchMock).headers as Record<string, string>
     expect(requestHeaders['x-pb-userid']).toBe('info-user')
   })
 
   test('callback search builds query string with legacy parameters', async () => {
-    const fetchMock = stubFetchResponses(
-      toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({
+    const fetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({
         code: 1,
         total: 1,
         perPage: 500,
@@ -54,7 +44,7 @@ describe('taxinvoice runtime: info-search', () => {
     )
 
     await new Promise<void>((resolve, reject) => {
-      compat.TaxinvoiceService().search(
+      helpers.compat.TaxinvoiceService().search(
         '1234567890',
         'SELL',
         'W',
@@ -81,7 +71,7 @@ describe('taxinvoice runtime: info-search', () => {
           resolve()
         },
         (error: unknown) => {
-          reject(asError(error))
+          reject(helpers.asError(error))
         }
       )
     })
@@ -98,7 +88,7 @@ describe('taxinvoice runtime: info-search', () => {
     expect(requestUrl).toContain('CloseDownState=N%2C0')
     expect(requestUrl).toContain('MgtKey=MGT-SEARCH')
 
-    const requestHeaders = getTaxinvoiceRequestInit(fetchMock).headers as Record<string, string>
+    const requestHeaders = helpers.getTaxinvoiceRequestInit(fetchMock).headers as Record<string, string>
     expect(requestHeaders['x-pb-userid']).toBe('search-user')
   })
 })

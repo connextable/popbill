@@ -1,17 +1,18 @@
-import type { TaxInvoiceGetPrintUrlApiResponse, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
+
 import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
+import type * as Spec from '@connextable/popbill-spec'
 
 export async function requestGetPrintUrl(
   context: TaxinvoiceRuntimeContext,
   corpNum: string,
-  keyType: TaxInvoiceMgtKeyType,
+  keyType: Spec.TaxInvoiceMgtKeyType,
   mgtKey: string,
   userId: string
 ): Promise<string> {
   validateRequiredTaxinvoiceInputs(corpNum, keyType, mgtKey)
 
-  const response = await context.requestClient.requestJson<TaxInvoiceGetPrintUrlApiResponse>({
+  const response = await context.requestClient.requestJson<Spec.TaxInvoiceGetPrintUrlApiResponse>({
     uri: `/Taxinvoice/${keyType}/${mgtKey}?TG=PRINT`,
     corpNum,
     userId,

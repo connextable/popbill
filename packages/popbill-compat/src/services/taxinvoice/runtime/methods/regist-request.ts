@@ -1,16 +1,15 @@
 import { stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
-import type { TaxInvoiceApiModel, TaxInvoiceApiResponseBase } from '@connextable/popbill-spec'
-import { validateTaxinvoicePayload } from '@/internal/validation'
-import { validateCorpNum } from '@/internal/validation'
+import { validateTaxinvoicePayload, validateCorpNum } from '@/internal/validation'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
+import type * as Spec from '@connextable/popbill-spec'
 
 export async function requestRegistRequest(
   context: TaxinvoiceRuntimeContext,
   corpNum: string,
-  taxinvoice: TaxInvoiceApiModel,
+  taxinvoice: Spec.TaxInvoiceApiModel,
   memo: string,
   userId: string
-): Promise<TaxInvoiceApiResponseBase> {
+): Promise<Spec.TaxInvoiceApiResponseBase> {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {
     throw corpNumError
@@ -21,7 +20,7 @@ export async function requestRegistRequest(
     throw taxinvoiceError
   }
 
-  const requestBody: TaxInvoiceApiModel & { memo?: string } = {
+  const requestBody: Spec.TaxInvoiceApiModel & { memo?: string } = {
     ...taxinvoice,
   }
 
@@ -29,7 +28,7 @@ export async function requestRegistRequest(
     requestBody.memo = memo
   }
 
-  return context.requestClient.requestJson<TaxInvoiceApiResponseBase>({
+  return context.requestClient.requestJson<Spec.TaxInvoiceApiResponseBase>({
     uri: '/Taxinvoice',
     corpNum,
     userId,

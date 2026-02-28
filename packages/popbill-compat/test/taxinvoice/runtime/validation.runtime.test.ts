@@ -1,4 +1,5 @@
 import { compat, configureCompat, promiseCompat } from './helpers'
+import type * as Spec from '@connextable/popbill-spec'
 
 describe('taxinvoice runtime: validation', () => {
   beforeEach(() => {
@@ -46,7 +47,7 @@ describe('taxinvoice runtime: validation', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     // @ts-expect-error runtime validation case for non-TS caller
-    const emptyTogo: import('@connextable/popbill-spec').TaxInvoiceGetUrlTogo = ''
+    const emptyTogo: Spec.TaxInvoiceGetUrlTogo = ''
     const missingTogoError = await new Promise<unknown>((resolve) => {
       compat.TaxinvoiceService().getURL(
         '1234567890',
@@ -66,7 +67,7 @@ describe('taxinvoice runtime: validation', () => {
     })
 
     // @ts-expect-error runtime validation case for non-TS caller
-    const invalidTogo: import('@connextable/popbill-spec').TaxInvoiceGetUrlTogo = 'INVALID'
+    const invalidTogo: Spec.TaxInvoiceGetUrlTogo = 'INVALID'
     const invalidTogoError = await new Promise<unknown>((resolve) => {
       compat.TaxinvoiceService().getURL(
         '1234567890',

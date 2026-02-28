@@ -32,11 +32,7 @@ export type TaxInvoiceGetSealUrlApiRequestBody = never
  * GetSealURL API 요청(raw).
  */
 export type TaxInvoiceGetSealUrlApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceGetSealUrlApiRequestPath,
-    TaxInvoiceGetSealUrlApiRequestQuery,
-    TaxInvoiceGetSealUrlApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceGetSealUrlApiRequestPath, TaxInvoiceGetSealUrlApiRequestQuery, TaxInvoiceGetSealUrlApiRequestBody>,
   'query'
 >
 

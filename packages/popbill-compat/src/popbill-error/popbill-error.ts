@@ -196,10 +196,7 @@ function isPopbillApiErrorPayload(payload: unknown): payload is PopbillApiErrorI
     return false
   }
 
-  return (
-    typeof (payload as { code: unknown }).code === 'number' &&
-    typeof (payload as { message: unknown }).message === 'string'
-  )
+  return typeof (payload as { code: unknown }).code === 'number' && typeof (payload as { message: unknown }).message === 'string'
 }
 
 function isHttpErrorPayload(payload: unknown): payload is HttpErrorPayload {
@@ -219,10 +216,7 @@ function isApiErrorBody(payload: unknown): payload is { code: number; message: s
     return false
   }
 
-  return (
-    typeof (payload as { code: unknown }).code === 'number' &&
-    typeof (payload as { message: unknown }).message === 'string'
-  )
+  return typeof (payload as { code: unknown }).code === 'number' && typeof (payload as { message: unknown }).message === 'string'
 }
 
 function isTimeoutError(error: unknown): error is Error {

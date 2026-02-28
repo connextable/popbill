@@ -1,12 +1,8 @@
-import type { TaxInvoiceMgtKeyType, TaxInvoiceSearchApiResponse } from '@connextable/popbill-spec'
-import {
-  validateCorpNum,
-  validateSearchDate,
-  validateSearchDateType,
-  validateTaxInvoiceKeyType,
-} from '@/internal/validation'
+
+import { validateCorpNum, validateSearchDate, validateSearchDateType, validateTaxInvoiceKeyType } from '@/internal/validation'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import type { ParsedSearchOptions } from '@/services/taxinvoice/runtime/parsers/search'
+import type * as Spec from '@connextable/popbill-spec'
 
 export interface TaxinvoiceSearchBaseParams {
   dType: string
@@ -24,10 +20,10 @@ export interface TaxinvoiceSearchBaseParams {
 export async function requestSearch(
   context: TaxinvoiceRuntimeContext,
   corpNum: string,
-  keyType: TaxInvoiceMgtKeyType,
+  keyType: Spec.TaxInvoiceMgtKeyType,
   base: TaxinvoiceSearchBaseParams,
   options: ParsedSearchOptions
-): Promise<TaxInvoiceSearchApiResponse> {
+): Promise<Spec.TaxInvoiceSearchApiResponse> {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {
     throw corpNumError
@@ -43,20 +39,12 @@ export async function requestSearch(
     throw dTypeError
   }
 
-  const startDateError = validateSearchDate(
-    base.startDate,
-    '시작일자가 입력되지 않았습니다.',
-    '시작일자 유형이 올바르지 않습니다.'
-  )
+  const startDateError = validateSearchDate(base.startDate, '시작일자가 입력되지 않았습니다.', '시작일자 유형이 올바르지 않습니다.')
   if (startDateError) {
     throw startDateError
   }
 
-  const endDateError = validateSearchDate(
-    base.endDate,
-    '종료일자가 입력되지 않았습니다.',
-    '종료일자 유형이 올바르지 않습니다.'
-  )
+  const endDateError = validateSearchDate(base.endDate, '종료일자가 입력되지 않았습니다.', '종료일자 유형이 올바르지 않습니다.')
   if (endDateError) {
     throw endDateError
   }
@@ -126,7 +114,7 @@ export async function requestSearch(
     searchParams.set('InterOPYN', options.interOPYN)
   }
 
-  return context.requestClient.requestJson<TaxInvoiceSearchApiResponse>({
+  return context.requestClient.requestJson<Spec.TaxInvoiceSearchApiResponse>({
     uri: `/Taxinvoice/${keyType}?${searchParams.toString()}`,
     corpNum,
     userId: options.userId,

@@ -44,12 +44,9 @@ export const POPBILL_ERROR_CODE_DEFINITIONS: readonly PopbillErrorCodeDefinition
   normalizeErrorCodeDefinition(definition)
 )
 
-export const POPBILL_ERROR_CODE_DEFINITIONS_BY_CATEGORY =
-  createErrorCodeDefinitionsByCategory(POPBILL_ERROR_CODE_DEFINITIONS)
+export const POPBILL_ERROR_CODE_DEFINITIONS_BY_CATEGORY = createErrorCodeDefinitionsByCategory(POPBILL_ERROR_CODE_DEFINITIONS)
 
-export const POPBILL_ERROR_CODE_COUNTS_BY_CATEGORY = createErrorCodeCountsByCategory(
-  POPBILL_ERROR_CODE_DEFINITIONS_BY_CATEGORY
-)
+export const POPBILL_ERROR_CODE_COUNTS_BY_CATEGORY = createErrorCodeCountsByCategory(POPBILL_ERROR_CODE_DEFINITIONS_BY_CATEGORY)
 
 /**
  * 오류코드로 단건 조회하기 위한 맵입니다.
@@ -62,9 +59,7 @@ export function getPopbillErrorCodeDefinition(code: number): PopbillErrorCodeDef
   return POPBILL_ERROR_CODE_MAP.get(code)
 }
 
-export function getPopbillErrorCodeDefinitionsByCategory(
-  category: PopbillErrorCategory
-): readonly PopbillErrorCodeDefinition[] {
+export function getPopbillErrorCodeDefinitionsByCategory(category: PopbillErrorCategory): readonly PopbillErrorCodeDefinition[] {
   return POPBILL_ERROR_CODE_DEFINITIONS_BY_CATEGORY[category]
 }
 
@@ -102,9 +97,7 @@ function createErrorCodeCountsByCategory(
   return createEmptyCategoryRecord((category) => definitionsByCategory[category].length)
 }
 
-function createEmptyCategoryRecord<T>(
-  initializer: (category: PopbillErrorCategory) => T
-): Record<PopbillErrorCategory, T> {
+function createEmptyCategoryRecord<T>(initializer: (category: PopbillErrorCategory) => T): Record<PopbillErrorCategory, T> {
   const record = {} as Record<PopbillErrorCategory, T>
 
   for (const category of POPBILL_ERROR_CATEGORIES) {

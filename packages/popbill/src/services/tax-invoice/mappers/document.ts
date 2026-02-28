@@ -1,4 +1,4 @@
-import type { TaxInvoiceApiModel } from '@connextable/popbill-spec'
+
 import type {
   TaxInvoiceAdditionalContactInput,
   TaxInvoiceBuyerInput,
@@ -6,11 +6,12 @@ import type {
   TaxInvoiceLineItemInput,
   TaxInvoicePartyInput,
 } from '@/services/tax-invoice/types'
+import type * as Spec from '@connextable/popbill-spec'
 
 /**
  * modern 세금계산서 문서 입력을 compat 세금계산서 API 모델로 변환합니다.
  */
-export function mapTaxInvoiceDocument(taxInvoiceDocumentInput: TaxInvoiceDocumentInput): TaxInvoiceApiModel {
+export function mapTaxInvoiceDocument(taxInvoiceDocumentInput: TaxInvoiceDocumentInput): Spec.TaxInvoiceApiModel {
   return removeUndefinedProperties({
     writeSpecification: taxInvoiceDocumentInput.writeSpecificationEnabled,
     writeDate: taxInvoiceDocumentInput.writtenDate,
@@ -47,14 +48,14 @@ export function mapTaxInvoiceDocument(taxInvoiceDocumentInput: TaxInvoiceDocumen
 /**
  * modern 세금계산서 문서 입력 목록을 compat 세금계산서 API 모델 목록으로 변환합니다.
  */
-export function mapTaxInvoiceDocuments(taxInvoiceDocumentInputs: TaxInvoiceDocumentInput[]): TaxInvoiceApiModel[] {
+export function mapTaxInvoiceDocuments(taxInvoiceDocumentInputs: TaxInvoiceDocumentInput[]): Spec.TaxInvoiceApiModel[] {
   return taxInvoiceDocumentInputs.map(mapTaxInvoiceDocument)
 }
 
 /**
  * 공급자 입력을 raw 공급자 필드로 변환합니다.
  */
-function mapSupplierFields(supplierInput: TaxInvoicePartyInput | undefined): Partial<TaxInvoiceApiModel> {
+function mapSupplierFields(supplierInput: TaxInvoicePartyInput | undefined): Partial<Spec.TaxInvoiceApiModel> {
   if (!supplierInput) {
     return {}
   }
@@ -86,7 +87,7 @@ function mapSupplierFields(supplierInput: TaxInvoicePartyInput | undefined): Par
 /**
  * 공급받는자 입력을 raw 공급받는자 필드로 변환합니다.
  */
-function mapBuyerFields(buyerInput: TaxInvoiceBuyerInput | undefined): Partial<TaxInvoiceApiModel> {
+function mapBuyerFields(buyerInput: TaxInvoiceBuyerInput | undefined): Partial<Spec.TaxInvoiceApiModel> {
   if (!buyerInput) {
     return {}
   }
@@ -126,7 +127,7 @@ function mapBuyerFields(buyerInput: TaxInvoiceBuyerInput | undefined): Partial<T
 /**
  * 수탁자 입력을 raw 수탁자 필드로 변환합니다.
  */
-function mapTrusteeFields(trusteeInput: TaxInvoicePartyInput | undefined): Partial<TaxInvoiceApiModel> {
+function mapTrusteeFields(trusteeInput: TaxInvoicePartyInput | undefined): Partial<Spec.TaxInvoiceApiModel> {
   if (!trusteeInput) {
     return {}
   }
@@ -158,7 +159,7 @@ function mapTrusteeFields(trusteeInput: TaxInvoicePartyInput | undefined): Parti
 /**
  * 상세 품목 입력을 raw 상세 품목 모델로 변환합니다.
  */
-function mapLineItem(lineItemInput: TaxInvoiceLineItemInput): NonNullable<TaxInvoiceApiModel['detailList']>[number] {
+function mapLineItem(lineItemInput: TaxInvoiceLineItemInput): NonNullable<Spec.TaxInvoiceApiModel['detailList']>[number] {
   return {
     serialNum: lineItemInput.lineNumber,
     purchaseDT: lineItemInput.transactionDate,
@@ -175,9 +176,7 @@ function mapLineItem(lineItemInput: TaxInvoiceLineItemInput): NonNullable<TaxInv
 /**
  * 추가 담당자 입력을 raw 추가 담당자 모델로 변환합니다.
  */
-function mapAdditionalContact(
-  additionalContactInput: TaxInvoiceAdditionalContactInput
-): NonNullable<TaxInvoiceApiModel['addContactList']>[number] {
+function mapAdditionalContact(additionalContactInput: TaxInvoiceAdditionalContactInput): NonNullable<Spec.TaxInvoiceApiModel['addContactList']>[number] {
   return {
     serialNum: additionalContactInput.sequenceNumber,
     contactName: additionalContactInput.contactName,

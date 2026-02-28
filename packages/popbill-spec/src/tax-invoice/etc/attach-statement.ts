@@ -1,9 +1,4 @@
-import type {
-  TaxInvoiceApiRequest,
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceMgtKeyType,
-  TaxInvoiceRequireRequestFields,
-} from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice AttachStatement Raw Spec
@@ -106,11 +101,7 @@ export interface TaxInvoiceAttachStatementApiRequestBody {
  * AttachStatement API 요청(raw).
  */
 export type TaxInvoiceAttachStatementApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceAttachStatementApiRequestPath,
-    TaxInvoiceAttachStatementApiRequestQuery,
-    TaxInvoiceAttachStatementApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceAttachStatementApiRequestPath, TaxInvoiceAttachStatementApiRequestQuery, TaxInvoiceAttachStatementApiRequestBody>,
   'path' | 'body'
 >
 

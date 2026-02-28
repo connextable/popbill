@@ -20,8 +20,7 @@ export const TaxInvoiceChargeDirectionValues = {
 /**
  * 세금계산서 과금 방향 타입입니다.
  */
-export type TaxInvoiceChargeDirection =
-  (typeof TaxInvoiceChargeDirectionValues)[keyof typeof TaxInvoiceChargeDirectionValues]
+export type TaxInvoiceChargeDirection = (typeof TaxInvoiceChargeDirectionValues)[keyof typeof TaxInvoiceChargeDirectionValues]
 
 /**
  * 세금계산서 발행 형태 값입니다.
@@ -148,8 +147,7 @@ export const TaxInvoiceBusinessStatusValues = {
 /**
  * 공급받는자 휴폐업 상태 타입입니다.
  */
-export type TaxInvoiceBusinessStatus =
-  (typeof TaxInvoiceBusinessStatusValues)[keyof typeof TaxInvoiceBusinessStatusValues]
+export type TaxInvoiceBusinessStatus = (typeof TaxInvoiceBusinessStatusValues)[keyof typeof TaxInvoiceBusinessStatusValues]
 
 /**
  * 수정세금계산서 사유코드 값입니다.
@@ -184,8 +182,7 @@ export const TaxInvoiceModificationReasonCodes = {
 /**
  * 수정세금계산서 사유코드 타입입니다.
  */
-export type TaxInvoiceModificationReasonCode =
-  (typeof TaxInvoiceModificationReasonCodes)[keyof typeof TaxInvoiceModificationReasonCodes]
+export type TaxInvoiceModificationReasonCode = (typeof TaxInvoiceModificationReasonCodes)[keyof typeof TaxInvoiceModificationReasonCodes]
 
 /**
  * 세금계산서 상세 품목 입력입니다.

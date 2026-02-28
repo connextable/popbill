@@ -1,11 +1,4 @@
-import type {
-  TaxInvoiceBusinessStatus,
-  TaxInvoiceDocumentInput,
-  TaxInvoiceIssueType,
-  TaxInvoiceModificationReasonCode,
-  TaxInvoicePurposeType,
-  TaxInvoiceTaxationType,
-} from './document'
+import type * as document from './document'
 
 /**
  * 세금계산서 공통 처리 결과입니다.
@@ -164,7 +157,7 @@ export interface TaxInvoiceInfo {
   /**
    * 과세유형입니다.
    */
-  taxType: TaxInvoiceTaxationType
+  taxType: document.TaxInvoiceTaxationType
   /**
    * 작성일자(yyyyMMdd)입니다.
    */
@@ -176,7 +169,7 @@ export interface TaxInvoiceInfo {
   /**
    * 발행유형입니다.
    */
-  issueType: TaxInvoiceIssueType
+  issueType: document.TaxInvoiceIssueType
   /**
    * 공급가액 합계입니다.
    */
@@ -188,7 +181,7 @@ export interface TaxInvoiceInfo {
   /**
    * 영수/청구 구분입니다.
    */
-  purposeType: TaxInvoicePurposeType
+  purposeType: document.TaxInvoicePurposeType
   /**
    * 발행일시(yyyyMMddHHmmss)입니다.
    */
@@ -240,7 +233,7 @@ export interface TaxInvoiceInfo {
   /**
    * 수정사유코드입니다.
    */
-  modificationCode?: TaxInvoiceModificationReasonCode
+  modificationCode?: document.TaxInvoiceModificationReasonCode
   /**
    * 연동 문서 여부입니다.
    */
@@ -280,7 +273,7 @@ export interface TaxInvoiceInfo {
   /**
    * 공급받는자 휴폐업 상태입니다.
    */
-  buyerBusinessStatus?: TaxInvoiceBusinessStatus
+  buyerBusinessStatus?: document.TaxInvoiceBusinessStatus
   /**
    * 공급받는자 휴폐업일자(yyyyMMdd)입니다.
    */
@@ -306,7 +299,7 @@ export interface TaxInvoiceInfo {
 /**
  * 문서 상세조회 결과입니다.
  */
-export interface TaxInvoiceDocumentOutput extends TaxInvoiceDocumentInput {
+export interface TaxInvoiceDocumentOutput extends document.TaxInvoiceDocumentInput {
   /**
    * 발행일시(yyyyMMddHHmmss)입니다.
    */

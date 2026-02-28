@@ -113,8 +113,6 @@ describe('popbill error catalog integration', () => {
       expect(definitions.every((definition) => definition.category === typedCategory)).toBe(true)
     }
 
-    expect(
-      getPopbillErrorCodeDefinitionsByCategory('전자세금계산서').some((definition) => definition.code === -11000000)
-    ).toBe(true)
+    expect(getPopbillErrorCodeDefinitionsByCategory('전자세금계산서').some((definition) => definition.code === -11000000)).toBe(true)
   })
 })

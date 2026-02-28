@@ -8,13 +8,7 @@ describeTaxinvoiceIntegration('taxinvoice compat integration: deleteFile', () =>
     const fileIdentifier = await testkit.attachFileAndFindIdentifier(context, managementKey)
 
     testkit.expectApiSuccess(
-      await context.service.deleteFile(
-        context.businessNumber,
-        context.invoiceDocumentKeyType,
-        managementKey,
-        fileIdentifier,
-        context.userId
-      )
+      await context.service.deleteFile(context.businessNumber, context.invoiceDocumentKeyType, managementKey, fileIdentifier, context.userId)
     )
   }, 180_000)
 })

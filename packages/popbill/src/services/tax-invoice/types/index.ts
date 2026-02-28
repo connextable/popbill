@@ -4,24 +4,7 @@ import {
   type TaxInvoiceDocumentInput,
   type TaxInvoiceModificationReasonCode,
 } from './document'
-import type {
-  TaxInvoiceAccessUrl,
-  TaxInvoiceAttachedFile,
-  TaxInvoiceBulkIssueSubmissionResult,
-  TaxInvoiceBulkSubmitResult,
-  TaxInvoiceDocumentOutput,
-  TaxInvoiceEmailSendSetting,
-  TaxInvoiceInfo,
-  TaxInvoiceInvoiceManagementKeyUsage,
-  TaxInvoiceIssueResult,
-  TaxInvoiceLogEntry,
-  TaxInvoiceOperationResult,
-  TaxInvoiceSearchResult,
-  TaxInvoiceSendToNationalTaxServiceSetting,
-  TaxInvoiceTaxCertificateExpiration,
-  TaxInvoiceTaxCertificateInfo,
-  TaxInvoiceXmlResult,
-} from './response'
+import type * as response from './response'
 export {
   TaxInvoiceBusinessStatusValues,
   TaxInvoiceChargeDirectionValues,
@@ -46,27 +29,7 @@ export type {
   TaxInvoiceTaxationType,
   TaxInvoiceBuyerInput,
 } from './document'
-export type {
-  TaxInvoiceAccessUrl,
-  TaxInvoiceAttachedFile,
-  TaxInvoiceBulkIssueSubmissionResult,
-  TaxInvoiceBulkIssueSubmissionResultItem,
-  TaxInvoiceBulkIssueSubmissionTransactionState,
-  TaxInvoiceBulkSubmitResult,
-  TaxInvoiceDocumentOutput,
-  TaxInvoiceEmailSendSetting,
-  TaxInvoiceInfo,
-  TaxInvoiceInvoiceManagementKeyUsage,
-  TaxInvoiceIssueResult,
-  TaxInvoiceLogEntry,
-  TaxInvoiceOperationResult,
-  TaxInvoiceSearchResult,
-  TaxInvoiceSendToNationalTaxServiceSetting,
-  TaxInvoiceTaxCertificateExpiration,
-  TaxInvoiceTaxCertificateInfo,
-  TaxInvoiceXmlResult,
-} from './response'
-export { TaxInvoiceBulkIssueSubmissionTransactionStates } from './response'
+export * from './response'
 
 /**
  * 세금계산서 문서번호 유형 상수입니다.
@@ -198,8 +161,7 @@ export const TaxInvoiceSearchInvoiceTypeCodes = {
 /**
  * 검색 문서유형 코드입니다.
  */
-export type TaxInvoiceSearchInvoiceTypeCode =
-  (typeof TaxInvoiceSearchInvoiceTypeCodes)[keyof typeof TaxInvoiceSearchInvoiceTypeCodes]
+export type TaxInvoiceSearchInvoiceTypeCode = (typeof TaxInvoiceSearchInvoiceTypeCodes)[keyof typeof TaxInvoiceSearchInvoiceTypeCodes]
 
 /**
  * 검색 과세형태 코드 상수입니다.
@@ -222,8 +184,7 @@ export const TaxInvoiceSearchTaxationTypeCodes = {
 /**
  * 검색 과세형태 코드입니다.
  */
-export type TaxInvoiceSearchTaxationTypeCode =
-  (typeof TaxInvoiceSearchTaxationTypeCodes)[keyof typeof TaxInvoiceSearchTaxationTypeCodes]
+export type TaxInvoiceSearchTaxationTypeCode = (typeof TaxInvoiceSearchTaxationTypeCodes)[keyof typeof TaxInvoiceSearchTaxationTypeCodes]
 
 /**
  * 검색 발행형태 코드 상수입니다.
@@ -246,8 +207,7 @@ export const TaxInvoiceSearchIssueTypeCodes = {
 /**
  * 검색 발행형태 코드입니다.
  */
-export type TaxInvoiceSearchIssueTypeCode =
-  (typeof TaxInvoiceSearchIssueTypeCodes)[keyof typeof TaxInvoiceSearchIssueTypeCodes]
+export type TaxInvoiceSearchIssueTypeCode = (typeof TaxInvoiceSearchIssueTypeCodes)[keyof typeof TaxInvoiceSearchIssueTypeCodes]
 
 /**
  * 검색 종사업장번호 주체 코드 상수입니다.
@@ -310,8 +270,7 @@ export const TaxInvoiceSearchInteroperabilityTypes = {
 /**
  * 검색 작성유형 코드입니다.
  */
-export type TaxInvoiceSearchInteroperabilityType =
-  (typeof TaxInvoiceSearchInteroperabilityTypes)[keyof typeof TaxInvoiceSearchInteroperabilityTypes]
+export type TaxInvoiceSearchInteroperabilityType = (typeof TaxInvoiceSearchInteroperabilityTypes)[keyof typeof TaxInvoiceSearchInteroperabilityTypes]
 
 /**
  * 검색 등록유형 코드 상수입니다.
@@ -330,8 +289,7 @@ export const TaxInvoiceSearchRegistrationTypeCodes = {
 /**
  * 검색 등록유형 코드입니다.
  */
-export type TaxInvoiceSearchRegistrationTypeCode =
-  (typeof TaxInvoiceSearchRegistrationTypeCodes)[keyof typeof TaxInvoiceSearchRegistrationTypeCodes]
+export type TaxInvoiceSearchRegistrationTypeCode = (typeof TaxInvoiceSearchRegistrationTypeCodes)[keyof typeof TaxInvoiceSearchRegistrationTypeCodes]
 
 /**
  * 검색 조건의 휴폐업 상태 상수입니다.
@@ -366,8 +324,7 @@ export const TaxInvoiceCloseDownStateCodes = {
 /**
  * 검색 조건의 휴폐업 상태 코드입니다.
  */
-export type TaxInvoiceCloseDownStateCode =
-  (typeof TaxInvoiceCloseDownStateCodes)[keyof typeof TaxInvoiceCloseDownStateCodes]
+export type TaxInvoiceCloseDownStateCode = (typeof TaxInvoiceCloseDownStateCodes)[keyof typeof TaxInvoiceCloseDownStateCodes]
 
 /**
  * 전자명세서 문서유형 코드 상수입니다.
@@ -402,8 +359,7 @@ export const TaxInvoiceStatementItemCodes = {
 /**
  * 전자명세서 문서유형 코드입니다.
  */
-export type TaxInvoiceStatementItemCode =
-  (typeof TaxInvoiceStatementItemCodes)[keyof typeof TaxInvoiceStatementItemCodes]
+export type TaxInvoiceStatementItemCode = (typeof TaxInvoiceStatementItemCodes)[keyof typeof TaxInvoiceStatementItemCodes]
 
 /**
  * 메일 전송 유형 코드 상수입니다.
@@ -957,320 +913,320 @@ export interface TaxInvoiceService {
    *
    * Compat: `registIssue`
    */
-  issueInvoiceImmediately(input: IssueInvoiceImmediatelyInput): Promise<TaxInvoiceIssueResult>
+  issueInvoiceImmediately(input: IssueInvoiceImmediatelyInput): Promise<response.TaxInvoiceIssueResult>
 
   /**
    * 초대량 발행을 접수합니다.
    *
    * Compat: `bulkSubmit`
    */
-  submitBulkIssue(input: SubmitBulkIssueInput): Promise<TaxInvoiceBulkSubmitResult>
+  submitBulkIssue(input: SubmitBulkIssueInput): Promise<response.TaxInvoiceBulkSubmitResult>
 
   /**
    * 초대량 발행 접수결과를 조회합니다.
    *
    * Compat: `getBulkResult`
    */
-  getBulkIssueSubmissionResult(input: GetBulkIssueSubmissionResultInput): Promise<TaxInvoiceBulkIssueSubmissionResult>
+  getBulkIssueSubmissionResult(input: GetBulkIssueSubmissionResultInput): Promise<response.TaxInvoiceBulkIssueSubmissionResult>
 
   /**
    * 세금계산서를 임시저장합니다.
    *
    * Compat: `register`
    */
-  registerInvoice(input: RegisterInvoiceInput): Promise<TaxInvoiceOperationResult>
+  registerInvoice(input: RegisterInvoiceInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 임시저장 문서를 수정합니다.
    *
    * Compat: `update`
    */
-  updateInvoice(input: UpdateInvoiceInput): Promise<TaxInvoiceOperationResult>
+  updateInvoice(input: UpdateInvoiceInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 저장된 문서를 발행합니다.
    *
    * Compat: `issue`
    */
-  issueInvoice(input: IssueInvoiceInput): Promise<TaxInvoiceIssueResult>
+  issueInvoice(input: IssueInvoiceInput): Promise<response.TaxInvoiceIssueResult>
 
   /**
    * 발행된 문서를 취소합니다.
    *
    * Compat: `cancelIssue`
    */
-  cancelIssuedInvoice(input: CancelIssuedInvoiceInput): Promise<TaxInvoiceOperationResult>
+  cancelIssuedInvoice(input: CancelIssuedInvoiceInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 등록과 동시에 역발행 요청을 보냅니다.
    *
    * Compat: `registRequest`
    */
-  requestReverseIssueImmediately(input: RequestReverseIssueImmediatelyInput): Promise<TaxInvoiceOperationResult>
+  requestReverseIssueImmediately(input: RequestReverseIssueImmediatelyInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 저장된 문서로 역발행 요청을 보냅니다.
    *
    * Compat: `request`
    */
-  requestReverseIssue(input: RequestReverseIssueInput): Promise<TaxInvoiceOperationResult>
+  requestReverseIssue(input: RequestReverseIssueInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 역발행 요청을 취소합니다.
    *
    * Compat: `cancelRequest`
    */
-  cancelReverseIssueRequest(input: CancelReverseIssueRequestInput): Promise<TaxInvoiceOperationResult>
+  cancelReverseIssueRequest(input: CancelReverseIssueRequestInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 역발행 요청을 거부합니다.
    *
    * Compat: `refuse`
    */
-  refuseReverseIssueRequest(input: RefuseReverseIssueRequestInput): Promise<TaxInvoiceOperationResult>
+  refuseReverseIssueRequest(input: RefuseReverseIssueRequestInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 문서를 삭제합니다.
    *
    * Compat: `delete`
    */
-  deleteInvoice(input: TaxInvoiceDocumentRequest): Promise<TaxInvoiceOperationResult>
+  deleteInvoice(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 문서를 국세청으로 즉시 전송합니다.
    *
    * Compat: `sendToNTS`
    */
-  sendInvoiceToNTS(input: TaxInvoiceDocumentRequest): Promise<TaxInvoiceOperationResult>
+  sendInvoiceToNTS(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 문서 1건의 상태 요약정보를 조회합니다.
    *
    * Compat: `getInfo`
    */
-  getInvoiceInfo(input: TaxInvoiceDocumentRequest): Promise<TaxInvoiceInfo>
+  getInvoiceInfo(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceInfo>
 
   /**
    * 문서 다건의 상태 요약정보를 조회합니다.
    *
    * Compat: `getInfos`
    */
-  getInvoicesInfo(input: GetInvoicesInfoInput): Promise<TaxInvoiceInfo[]>
+  getInvoicesInfo(input: GetInvoicesInfoInput): Promise<response.TaxInvoiceInfo[]>
 
   /**
    * 문서 1건의 상세정보를 조회합니다.
    *
    * Compat: `getDetailInfo`
    */
-  getInvoiceDetailInfo(input: TaxInvoiceDocumentRequest): Promise<TaxInvoiceDocumentOutput>
+  getInvoiceDetailInfo(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceDocumentOutput>
 
   /**
    * 문서번호 사용 여부를 확인합니다.
    *
    * Compat: `checkMgtKeyInUse`
    */
-  checkInvoiceManagementKeyInUse(input: TaxInvoiceDocumentRequest): Promise<TaxInvoiceInvoiceManagementKeyUsage>
+  checkInvoiceManagementKeyInUse(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceInvoiceManagementKeyUsage>
 
   /**
    * 문서 XML 정보를 조회합니다.
    *
    * Compat: `getXML`
    */
-  getInvoiceXML(input: TaxInvoiceDocumentRequest): Promise<TaxInvoiceXmlResult>
+  getInvoiceXML(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceXmlResult>
 
   /**
    * 검색조건으로 문서를 조회합니다.
    *
    * Compat: `search`
    */
-  searchInvoices(input: SearchInvoicesInput): Promise<TaxInvoiceSearchResult>
+  searchInvoices(input: SearchInvoicesInput): Promise<response.TaxInvoiceSearchResult>
 
   /**
    * 문서 상태 변경이력을 조회합니다.
    *
    * Compat: `getLogs`
    */
-  getInvoiceLogs(input: TaxInvoiceDocumentRequest): Promise<TaxInvoiceLogEntry[]>
+  getInvoiceLogs(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceLogEntry[]>
 
   /**
    * 세금계산서 문서함 팝업 URL을 조회합니다.
    *
    * Compat: `getURL`
    */
-  getTaxInvoiceBoxURL(input: GetTaxInvoiceBoxURLInput): Promise<TaxInvoiceAccessUrl>
+  getTaxInvoiceBoxURL(input: GetTaxInvoiceBoxURLInput): Promise<response.TaxInvoiceAccessUrl>
 
   /**
    * 문서 팝업 URL을 조회합니다.
    *
    * Compat: `getPopUpURL`
    */
-  getInvoicePopupURL(input: TaxInvoiceDocumentRequest): Promise<TaxInvoiceAccessUrl>
+  getInvoicePopupURL(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceAccessUrl>
 
   /**
    * 보기 전용 팝업 URL을 조회합니다.
    *
    * Compat: `getViewURL`
    */
-  getInvoiceViewURL(input: TaxInvoiceDocumentRequest): Promise<TaxInvoiceAccessUrl>
+  getInvoiceViewURL(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceAccessUrl>
 
   /**
    * 공급자 인쇄 팝업 URL을 조회합니다.
    *
    * Compat: `getPrintURL`
    */
-  getSupplierInvoicePrintURL(input: TaxInvoiceDocumentRequest): Promise<TaxInvoiceAccessUrl>
+  getSupplierInvoicePrintURL(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceAccessUrl>
 
   /**
    * 공급받는자 인쇄 팝업 URL을 조회합니다.
    *
    * Compat: `getEPrintURL`
    */
-  getBuyerInvoicePrintURL(input: TaxInvoiceDocumentRequest): Promise<TaxInvoiceAccessUrl>
+  getBuyerInvoicePrintURL(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceAccessUrl>
 
   /**
    * 다건 인쇄 팝업 URL을 조회합니다.
    *
    * Compat: `getMassPrintURL`
    */
-  getBulkInvoicePrintURL(input: GetBulkInvoicePrintURLInput): Promise<TaxInvoiceAccessUrl>
+  getBulkInvoicePrintURL(input: GetBulkInvoicePrintURLInput): Promise<response.TaxInvoiceAccessUrl>
 
   /**
    * 메일 보기 URL을 조회합니다.
    *
    * Compat: `getMailURL`
    */
-  getInvoiceMailURL(input: TaxInvoiceDocumentRequest): Promise<TaxInvoiceAccessUrl>
+  getInvoiceMailURL(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceAccessUrl>
 
   /**
    * PDF 다운로드 URL을 조회합니다.
    *
    * Compat: `getPDFURL`
    */
-  getInvoicePDFURL(input: TaxInvoiceDocumentRequest): Promise<TaxInvoiceAccessUrl>
+  getInvoicePDFURL(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceAccessUrl>
 
   /**
    * 인감 및 첨부문서 등록 URL을 조회합니다.
    *
    * Compat: `getSealURL`
    */
-  getSealAndAttachmentRegistrationURL(input: GetSealAndAttachmentRegistrationURLInput): Promise<TaxInvoiceAccessUrl>
+  getSealAndAttachmentRegistrationURL(input: GetSealAndAttachmentRegistrationURLInput): Promise<response.TaxInvoiceAccessUrl>
 
   /**
    * 파일 경로 기반 첨부를 수행합니다.
    *
    * Compat: `attachFile`
    */
-  attachFileFromPath(input: AttachFileFromPathInput): Promise<TaxInvoiceOperationResult>
+  attachFileFromPath(input: AttachFileFromPathInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 바이너리 기반 첨부를 수행합니다.
    *
    * Compat: `attachFileBinary`
    */
-  attachFileFromBinary(input: AttachFileFromBinaryInput): Promise<TaxInvoiceOperationResult>
+  attachFileFromBinary(input: AttachFileFromBinaryInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 첨부파일을 삭제합니다.
    *
    * Compat: `deleteFile`
    */
-  deleteAttachedFile(input: DeleteAttachedFileInput): Promise<TaxInvoiceOperationResult>
+  deleteAttachedFile(input: DeleteAttachedFileInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 첨부파일 목록을 조회합니다.
    *
    * Compat: `getFiles`
    */
-  getAttachedFiles(input: TaxInvoiceDocumentRequest): Promise<TaxInvoiceAttachedFile[]>
+  getAttachedFiles(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceAttachedFile[]>
 
   /**
    * 안내 메일을 재전송합니다.
    *
    * Compat: `sendEmail`
    */
-  resendInvoiceEmail(input: ResendInvoiceEmailInput): Promise<TaxInvoiceOperationResult>
+  resendInvoiceEmail(input: ResendInvoiceEmailInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 안내 문자를 재전송합니다.
    *
    * Compat: `sendSMS`
    */
-  resendInvoiceSMS(input: ResendInvoiceSMSInput): Promise<TaxInvoiceOperationResult>
+  resendInvoiceSMS(input: ResendInvoiceSMSInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 안내 팩스를 재전송합니다.
    *
    * Compat: `sendFAX`
    */
-  resendInvoiceFAX(input: ResendInvoiceFAXInput): Promise<TaxInvoiceOperationResult>
+  resendInvoiceFAX(input: ResendInvoiceFAXInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 전자명세서를 첨부합니다.
    *
    * Compat: `attachStatement`
    */
-  attachInvoiceStatement(input: AttachInvoiceStatementInput): Promise<TaxInvoiceOperationResult>
+  attachInvoiceStatement(input: AttachInvoiceStatementInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 전자명세서 첨부를 해제합니다.
    *
    * Compat: `detachStatement`
    */
-  detachInvoiceStatement(input: DetachInvoiceStatementInput): Promise<TaxInvoiceOperationResult>
+  detachInvoiceStatement(input: DetachInvoiceStatementInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 문서번호를 할당합니다.
    *
    * Compat: `assignMgtKey`
    */
-  assignInvoiceManagementKey(input: AssignInvoiceManagementKeyInput): Promise<TaxInvoiceOperationResult>
+  assignInvoiceManagementKey(input: AssignInvoiceManagementKeyInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 이메일 발송설정을 조회합니다.
    *
    * Compat: `listEmailConfig`
    */
-  getEmailSendSettings(input: TaxInvoiceBusinessRequest): Promise<TaxInvoiceEmailSendSetting[]>
+  getEmailSendSettings(input: TaxInvoiceBusinessRequest): Promise<response.TaxInvoiceEmailSendSetting[]>
 
   /**
    * 이메일 발송설정을 수정합니다.
    *
    * Compat: `updateEmailConfig`
    */
-  updateEmailSendSettings(input: UpdateEmailSendSettingsInput): Promise<TaxInvoiceOperationResult>
+  updateEmailSendSettings(input: UpdateEmailSendSettingsInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 국세청 전송설정을 조회합니다.
    *
    * Compat: `getSendToNTSConfig`
    */
-  getSendToNTSSettings(input: TaxInvoiceBusinessRequest): Promise<TaxInvoiceSendToNationalTaxServiceSetting>
+  getSendToNTSSettings(input: TaxInvoiceBusinessRequest): Promise<response.TaxInvoiceSendToNationalTaxServiceSetting>
 
   /**
    * 인증서 등록 URL을 조회합니다.
    *
    * Compat: `getTaxCertURL`
    */
-  getTaxCertificateRegistrationURL(input: TaxInvoiceBusinessRequest): Promise<TaxInvoiceAccessUrl>
+  getTaxCertificateRegistrationURL(input: TaxInvoiceBusinessRequest): Promise<response.TaxInvoiceAccessUrl>
 
   /**
    * 인증서 만료일을 조회합니다.
    *
    * Compat: `getCertificateExpireDate`
    */
-  getTaxCertificateExpirationDate(input: TaxInvoiceBusinessRequest): Promise<TaxInvoiceTaxCertificateExpiration>
+  getTaxCertificateExpirationDate(input: TaxInvoiceBusinessRequest): Promise<response.TaxInvoiceTaxCertificateExpiration>
 
   /**
    * 인증서 유효성을 점검합니다.
    *
    * Compat: `checkCertValidation`
    */
-  checkTaxCertificateValidation(input: TaxInvoiceBusinessRequest): Promise<TaxInvoiceOperationResult>
+  checkTaxCertificateValidation(input: TaxInvoiceBusinessRequest): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 인증서 정보를 조회합니다.
    *
    * Compat: `getTaxCertInfo`
    */
-  getTaxCertificateInfo(input: TaxInvoiceBusinessRequest): Promise<TaxInvoiceTaxCertificateInfo>
+  getTaxCertificateInfo(input: TaxInvoiceBusinessRequest): Promise<response.TaxInvoiceTaxCertificateInfo>
 }

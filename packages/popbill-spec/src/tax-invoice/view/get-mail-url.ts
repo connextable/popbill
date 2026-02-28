@@ -49,11 +49,7 @@ export type TaxInvoiceGetMailUrlApiRequestBody = never
  * GetMailURL API 요청(raw).
  */
 export type TaxInvoiceGetMailUrlApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceGetMailUrlApiRequestPath,
-    TaxInvoiceGetMailUrlApiRequestQuery,
-    TaxInvoiceGetMailUrlApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceGetMailUrlApiRequestPath, TaxInvoiceGetMailUrlApiRequestQuery, TaxInvoiceGetMailUrlApiRequestBody>,
   'path' | 'query'
 >
 

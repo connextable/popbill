@@ -1,9 +1,4 @@
-import type {
-  TaxInvoiceApiRequest,
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceMgtKeyType,
-  TaxInvoiceRequireRequestFields,
-} from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice Delete Raw Spec

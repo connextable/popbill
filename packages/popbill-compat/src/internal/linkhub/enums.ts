@@ -1,5 +1,5 @@
-import { PopbillAuthScopes } from '@connextable/popbill-spec'
-import type { PopbillAuthScope } from '@connextable/popbill-spec'
+import { PopbillAuthScopes } from '@/internal/spec-constants'
+import type * as Spec from '@connextable/popbill-spec'
 
 export const LinkhubAuthScope = PopbillAuthScopes
-export type LinkhubAuthScope = PopbillAuthScope
+export type LinkhubAuthScope = Spec.PopbillAuthScope

@@ -34,11 +34,7 @@ export type TaxInvoiceGetBulkResultApiRequestBody = never
  * GetBulkResult API 요청(raw).
  */
 export type TaxInvoiceGetBulkResultApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceGetBulkResultApiRequestPath,
-    TaxInvoiceGetBulkResultApiRequestQuery,
-    TaxInvoiceGetBulkResultApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceGetBulkResultApiRequestPath, TaxInvoiceGetBulkResultApiRequestQuery, TaxInvoiceGetBulkResultApiRequestBody>,
   'path'
 >
 

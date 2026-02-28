@@ -6,12 +6,7 @@ describeTaxinvoiceIntegration('taxinvoice compat integration: getViewURL', () =>
     const context = testkit.createTaxinvoiceMethodContext()
     const managementKey = await testkit.createIssuedInvoice(context, 'VIW')
 
-    const response = await context.service.getViewURL(
-      context.businessNumber,
-      context.invoiceDocumentKeyType,
-      managementKey,
-      context.userId
-    )
+    const response = await context.service.getViewURL(context.businessNumber, context.invoiceDocumentKeyType, managementKey, context.userId)
 
     expect(typeof response).toBe('string')
     expect(response.startsWith('http')).toBe(true)

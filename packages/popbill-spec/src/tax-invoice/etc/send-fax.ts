@@ -1,9 +1,4 @@
-import type {
-  TaxInvoiceApiRequest,
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceMgtKeyType,
-  TaxInvoiceRequireRequestFields,
-} from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice SendFAX Raw Spec
@@ -57,11 +52,7 @@ export interface TaxInvoiceSendFaxApiRequestBody {
  * SendFAX API 요청(raw).
  */
 export type TaxInvoiceSendFaxApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceSendFaxApiRequestPath,
-    TaxInvoiceSendFaxApiRequestQuery,
-    TaxInvoiceSendFaxApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceSendFaxApiRequestPath, TaxInvoiceSendFaxApiRequestQuery, TaxInvoiceSendFaxApiRequestBody>,
   'path' | 'body'
 >
 

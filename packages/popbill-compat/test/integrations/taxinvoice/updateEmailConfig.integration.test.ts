@@ -7,8 +7,6 @@ describeTaxinvoiceIntegration('taxinvoice compat integration: updateEmailConfig'
     const settings = await context.service.listEmailConfig(context.businessNumber, context.userId)
     const emailType = settings.find((setting) => typeof setting.emailType === 'string')?.emailType ?? 'TAX_ISSUE'
 
-    testkit.expectApiSuccess(
-      await context.service.updateEmailConfig(context.businessNumber, emailType, true, context.userId)
-    )
+    testkit.expectApiSuccess(await context.service.updateEmailConfig(context.businessNumber, emailType, true, context.userId))
   }, 180_000)
 })

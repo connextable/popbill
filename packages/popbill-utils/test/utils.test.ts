@@ -50,8 +50,6 @@ describe('popbill utils', () => {
 
     expect(sha1Base64('abc')).toBe('qZk+NkcGgWq6PiVxeFDCbJzQ2J0=')
     expect(sha256Base64('abc')).toBe('ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=')
-    expect(hmacSha256Base64('abc', Buffer.from('secret').toString('base64'))).toBe(
-      'mUba1OAOkT/Ivo5dP34RCkqegy+D+wnDRShdeGONig4='
-    )
+    expect(hmacSha256Base64('abc', Buffer.from('secret').toString('base64'))).toBe('mUba1OAOkT/Ivo5dP34RCkqegy+D+wnDRShdeGONig4=')
   })
 })

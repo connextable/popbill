@@ -49,11 +49,7 @@ export type TaxInvoiceGetPopUpUrlApiRequestBody = never
  * GetPopUpURL API 요청(raw).
  */
 export type TaxInvoiceGetPopUpUrlApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceGetPopUpUrlApiRequestPath,
-    TaxInvoiceGetPopUpUrlApiRequestQuery,
-    TaxInvoiceGetPopUpUrlApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceGetPopUpUrlApiRequestPath, TaxInvoiceGetPopUpUrlApiRequestQuery, TaxInvoiceGetPopUpUrlApiRequestBody>,
   'path' | 'query'
 >
 

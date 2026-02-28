@@ -1,15 +1,15 @@
 import { stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
-import type { TaxInvoiceApiModel, TaxInvoiceRegistIssueApiResponse } from '@connextable/popbill-spec'
 import { validateCorpNum, validateTaxinvoicePayload } from '@/internal/validation'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import type { ParsedRegistIssueOptions } from '@/services/taxinvoice/runtime/parsers/regist-issue'
+import type * as Spec from '@connextable/popbill-spec'
 
 export async function requestRegistIssue(
   context: TaxinvoiceRuntimeContext,
   corpNum: string,
-  taxinvoice: TaxInvoiceApiModel,
+  taxinvoice: Spec.TaxInvoiceApiModel,
   options: ParsedRegistIssueOptions
-): Promise<TaxInvoiceRegistIssueApiResponse> {
+): Promise<Spec.TaxInvoiceRegistIssueApiResponse> {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {
     throw corpNumError
@@ -20,7 +20,7 @@ export async function requestRegistIssue(
     throw taxinvoiceError
   }
 
-  const requestBody: TaxInvoiceApiModel & {
+  const requestBody: Spec.TaxInvoiceApiModel & {
     memo?: string
     emailSubject?: string
     forceIssue?: boolean
@@ -50,7 +50,7 @@ export async function requestRegistIssue(
     requestBody.dealInvoiceMgtKey = options.dealInvoiceMgtKey
   }
 
-  return context.requestClient.requestJson<TaxInvoiceRegistIssueApiResponse>({
+  return context.requestClient.requestJson<Spec.TaxInvoiceRegistIssueApiResponse>({
     uri: '/Taxinvoice',
     corpNum,
     userId: options.userId,

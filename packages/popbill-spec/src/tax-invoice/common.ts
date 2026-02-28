@@ -29,12 +29,12 @@ export type TaxInvoiceBulkIssueRequestHeaders = PopbillBulkIssueRequestHeaders
 /**
  * Taxinvoice 공통 요청(raw).
  */
-export type TaxInvoiceApiRequest<
-  TPath = never,
-  TQuery = never,
-  TBody = never,
-  THeaders = TaxInvoiceApiRequestHeaders,
-> = PopbillApiRequest<TPath, TQuery, TBody, THeaders>
+export type TaxInvoiceApiRequest<TPath = never, TQuery = never, TBody = never, THeaders = TaxInvoiceApiRequestHeaders> = PopbillApiRequest<
+  TPath,
+  TQuery,
+  TBody,
+  THeaders
+>
 
 /**
  * Taxinvoice 요청 타입의 특정 필드를 필수화하는 유틸리티 타입.

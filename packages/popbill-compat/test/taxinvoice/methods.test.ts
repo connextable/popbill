@@ -45,8 +45,6 @@ describe('taxinvoice legacy method surface', () => {
     expect(onError).toHaveBeenCalledTimes(1)
     expect(onError).toHaveBeenCalledWith(expect.any(NotImplementedError))
 
-    await expect(promiseCompat.TaxinvoiceService().getChargeInfo('1234567890')).rejects.toBeInstanceOf(
-      NotImplementedError
-    )
+    await expect(promiseCompat.TaxinvoiceService().getChargeInfo('1234567890')).rejects.toBeInstanceOf(NotImplementedError)
   })
 })

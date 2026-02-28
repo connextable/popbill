@@ -1,26 +1,20 @@
-import {
-  createCoreAuthClient,
-  describeCoreIntegration,
-  getCoreIntegrationEnv,
-  coreIntegrationScopes,
-  coreIntegrationServiceId,
-} from './integration-context'
+import * as integrationContext from './integration-context'
 
-const integrationEnv = getCoreIntegrationEnv()
+const integrationEnv = integrationContext.getCoreIntegrationEnv()
 
-describeCoreIntegration('popbill-compat integration: issueToken', () => {
+integrationContext.describeCoreIntegration('popbill-compat integration: issueToken', () => {
   test('issues a real test token from Linkhub', async () => {
-    const authClient = createCoreAuthClient()
+    const authClient = integrationContext.createCoreAuthClient()
 
     const issuedToken = await authClient.issueToken({
-      serviceId: coreIntegrationServiceId,
+      serviceId: integrationContext.coreIntegrationServiceId,
       accessId: integrationEnv.corpNum,
-      scopes: [...coreIntegrationScopes],
+      scopes: [...integrationContext.coreIntegrationScopes],
     })
 
     const expiresAt = Date.parse(issuedToken.expiredAt)
 
-    expect(issuedToken.serviceId).toBe(coreIntegrationServiceId)
+    expect(issuedToken.serviceId).toBe(integrationContext.coreIntegrationServiceId)
     expect(issuedToken.sessionToken.length).toBeGreaterThan(0)
     expect(Number.isNaN(expiresAt)).toBe(false)
     expect(expiresAt).toBeGreaterThan(Date.now())

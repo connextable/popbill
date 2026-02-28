@@ -1,4 +1,5 @@
-import type { TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
+import type * as Spec from '@connextable/popbill-spec'
+
 
 /**
  * 문서번호 유형 상수.
@@ -6,7 +7,7 @@ import type { TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
  * Source
  * - https://developers.popbill.com/api-reference/taxinvoice/api/info#Search
  */
-export const MgtKeyType: Record<'SELL' | 'BUY' | 'TRUSTEE', TaxInvoiceMgtKeyType> = {
+export const MgtKeyType: Record<'SELL' | 'BUY' | 'TRUSTEE', Spec.TaxInvoiceMgtKeyType> = {
   SELL: 'SELL',
   BUY: 'BUY',
   TRUSTEE: 'TRUSTEE',

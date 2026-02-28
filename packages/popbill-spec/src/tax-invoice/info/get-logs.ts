@@ -43,11 +43,7 @@ export type TaxInvoiceGetLogsApiRequestBody = never
  * GetLogs API 요청(raw).
  */
 export type TaxInvoiceGetLogsApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceGetLogsApiRequestPath,
-    TaxInvoiceGetLogsApiRequestQuery,
-    TaxInvoiceGetLogsApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceGetLogsApiRequestPath, TaxInvoiceGetLogsApiRequestQuery, TaxInvoiceGetLogsApiRequestBody>,
   'path'
 >
 

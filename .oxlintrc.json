@@ -2,7 +2,10 @@
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["oxc", "eslint", "typescript", "unicorn", "node", "import", "promise", "vitest", "jsdoc"],
   "categories": {},
-  "rules": {},
+  "env": {
+    "builtin": true
+  },
+  "globals": {},
   "settings": {
     "jsdoc": {
       "ignorePrivate": false,
@@ -18,9 +21,10 @@
       "typecheck": true
     }
   },
-  "env": {
-    "builtin": true
+  "rules": {
+    "typescript/consistent-type-imports": "error",
+    "typescript/consistent-type-exports": "error",
+    "import/no-duplicates": "error"
   },
-  "globals": {},
   "ignorePatterns": [".temp"]
 }

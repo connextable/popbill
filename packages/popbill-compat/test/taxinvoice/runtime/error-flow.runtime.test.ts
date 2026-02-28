@@ -1,15 +1,8 @@
-import {
-  compat,
-  configureCompat,
-  createTokenResponseBody,
-  promiseCompat,
-  stubFetchResponses,
-  toJsonResponse,
-} from './helpers'
+import * as helpers from './helpers'
 
 describe('taxinvoice runtime: error-flow', () => {
   beforeEach(() => {
-    configureCompat()
+    helpers.configureCompat()
   })
 
   afterEach(() => {
@@ -19,15 +12,12 @@ describe('taxinvoice runtime: error-flow', () => {
 
   test('callback path prefers error callback over defaultErrorHandler', async () => {
     const defaultErrorHandler = vi.fn()
-    configureCompat(defaultErrorHandler)
-    const fetchMock = stubFetchResponses(
-      toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ code: -12345, message: 'Bad request' }, 400)
-    )
+    helpers.configureCompat(defaultErrorHandler)
+    const fetchMock = helpers.stubFetchResponses(helpers.toJsonResponse(helpers.createTokenResponseBody()), helpers.toJsonResponse({ code: -12345, message: 'Bad request' }, 400))
     const callbackError = vi.fn()
 
     await new Promise<void>((resolve) => {
-      compat.TaxinvoiceService().getViewURL(
+      helpers.compat.TaxinvoiceService().getViewURL(
         '1234567890',
         'SELL',
         'MGT-ERROR-1',
@@ -54,28 +44,26 @@ describe('taxinvoice runtime: error-flow', () => {
 
   test('callback and promise path use defaultErrorHandler fallback and reject', async () => {
     const defaultErrorHandler = vi.fn()
-    configureCompat(defaultErrorHandler)
+    helpers.configureCompat(defaultErrorHandler)
 
-    const callbackFetchMock = stubFetchResponses(
-      toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ code: -12345, message: 'Bad request' }, 400)
+    const callbackFetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ code: -12345, message: 'Bad request' }, 400)
     )
 
-    compat.TaxinvoiceService().getViewURL('1234567890', 'SELL', 'MGT-ERROR-2', () => undefined)
+    helpers.compat.TaxinvoiceService().getViewURL('1234567890', 'SELL', 'MGT-ERROR-2', () => undefined)
 
     await new Promise((resolve) => setTimeout(resolve, 0))
     expect(defaultErrorHandler).toHaveBeenCalledTimes(1)
 
     expect(callbackFetchMock).toHaveBeenCalledTimes(2)
 
-    const promiseFetchMock = stubFetchResponses(
-      toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ code: -22345, message: 'Promise bad request' }, 400)
+    const promiseFetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ code: -22345, message: 'Promise bad request' }, 400)
     )
 
-    await expect(
-      promiseCompat.TaxinvoiceService().getPDFURL('1234567890', 'SELL', 'MGT-ERROR-3')
-    ).rejects.toMatchObject({
+    await expect(helpers.promiseCompat.TaxinvoiceService().getPDFURL('1234567890', 'SELL', 'MGT-ERROR-3')).rejects.toMatchObject({
       code: -22345,
       stage: 'request_api',
     })
@@ -86,16 +74,16 @@ describe('taxinvoice runtime: error-flow', () => {
 
   test('getURL callback/promise error flow matches legacy order', async () => {
     const defaultErrorHandler = vi.fn()
-    configureCompat(defaultErrorHandler)
+    helpers.configureCompat(defaultErrorHandler)
 
-    const callbackFetchMock = stubFetchResponses(
-      toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ code: -12345, message: 'Bad request' }, 400)
+    const callbackFetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ code: -12345, message: 'Bad request' }, 400)
     )
     const callbackError = vi.fn()
 
     await new Promise<void>((resolve) => {
-      compat.TaxinvoiceService().getURL(
+      helpers.compat.TaxinvoiceService().getURL(
         '1234567890',
         'TBOX',
         () => {
@@ -118,12 +106,12 @@ describe('taxinvoice runtime: error-flow', () => {
     )
     expect(defaultErrorHandler).not.toHaveBeenCalled()
 
-    const promiseFetchMock = stubFetchResponses(
-      toJsonResponse(createTokenResponseBody()),
-      toJsonResponse({ code: -22345, message: 'Promise bad request' }, 400)
+    const promiseFetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ code: -22345, message: 'Promise bad request' }, 400)
     )
 
-    await expect(promiseCompat.TaxinvoiceService().getURL('1234567890', 'SBOX')).rejects.toMatchObject({
+    await expect(helpers.promiseCompat.TaxinvoiceService().getURL('1234567890', 'SBOX')).rejects.toMatchObject({
       code: -22345,
       stage: 'request_api',
     })

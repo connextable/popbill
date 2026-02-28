@@ -1,9 +1,4 @@
-import type {
-  TaxInvoiceApiRequest,
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceMgtKeyType,
-  TaxInvoiceRequireRequestFields,
-} from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 import type { TaxInvoiceStatementItemCode } from './attach-statement'
 
 /**
@@ -60,11 +55,7 @@ export interface TaxInvoiceDetachStatementApiRequestBody {
  * DetachStatement API 요청(raw).
  */
 export type TaxInvoiceDetachStatementApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceDetachStatementApiRequestPath,
-    TaxInvoiceDetachStatementApiRequestQuery,
-    TaxInvoiceDetachStatementApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceDetachStatementApiRequestPath, TaxInvoiceDetachStatementApiRequestQuery, TaxInvoiceDetachStatementApiRequestBody>,
   'path' | 'body'
 >
 

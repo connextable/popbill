@@ -20,7 +20,7 @@ import {
   type TaxInvoiceService,
 } from '@/services/tax-invoice/types'
 import { createTaxinvoicePromiseService } from '@connextable/popbill-compat/factory'
-import type { TaxInvoiceGetInfoApiResponse } from '@connextable/popbill-spec'
+import type * as Spec from '@connextable/popbill-spec'
 
 type CompatTaxInvoiceService = Parameters<typeof createTaxInvoiceService>[0]['compatTaxInvoiceService']
 
@@ -75,7 +75,7 @@ const FILES_RESPONSE = [{ attachedFile: 'FILE-1' }]
 const EMAIL_CONFIG_RESPONSE = [{ emailType: 'TAX_ISSUE', sendYN: true }]
 const SEND_TO_NTS_CONFIG_RESPONSE = { sendToNTS: true }
 
-const INVOICE_INFO_RAW_RESPONSE: TaxInvoiceGetInfoApiResponse = {
+const INVOICE_INFO_RAW_RESPONSE: Spec.TaxInvoiceGetInfoApiResponse = {
   itemKey: 'ITEM-1',
   taxType: '과세',
   writeDate: '20260225',
@@ -163,13 +163,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
         ...BASE_DOCUMENT_INPUT,
         taxInvoiceDocument: TAX_INVOICE_DOCUMENT,
       }),
-    expectedArgs: [
-      BUSINESS_NUMBER,
-      INVOICE_DOCUMENT_KEY_TYPE,
-      INVOICE_MANAGEMENT_KEY,
-      TAX_INVOICE_API_DOCUMENT,
-      USER_ID,
-    ],
+    expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, TAX_INVOICE_API_DOCUMENT, USER_ID],
     response: API_RESPONSE,
   },
   {
@@ -182,15 +176,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
         emailSubject: 'subject',
         forceIssue: true,
       }),
-    expectedArgs: [
-      BUSINESS_NUMBER,
-      INVOICE_DOCUMENT_KEY_TYPE,
-      INVOICE_MANAGEMENT_KEY,
-      'memo',
-      'subject',
-      true,
-      USER_ID,
-    ],
+    expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, 'memo', 'subject', true, USER_ID],
     response: ISSUE_RESPONSE,
   },
   {
@@ -461,14 +447,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
         displayName: 'invoice.pdf',
         filePath: '/tmp/invoice.pdf',
       }),
-    expectedArgs: [
-      BUSINESS_NUMBER,
-      INVOICE_DOCUMENT_KEY_TYPE,
-      INVOICE_MANAGEMENT_KEY,
-      'invoice.pdf',
-      '/tmp/invoice.pdf',
-      USER_ID,
-    ],
+    expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, 'invoice.pdf', '/tmp/invoice.pdf', USER_ID],
     response: API_RESPONSE,
   },
   {
@@ -531,15 +510,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
         receiverPhoneNumber: '01099998888',
         messageBody: '문자 테스트',
       }),
-    expectedArgs: [
-      BUSINESS_NUMBER,
-      INVOICE_DOCUMENT_KEY_TYPE,
-      INVOICE_MANAGEMENT_KEY,
-      '01012345678',
-      '01099998888',
-      '문자 테스트',
-      USER_ID,
-    ],
+    expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, '01012345678', '01099998888', '문자 테스트', USER_ID],
     response: API_RESPONSE,
   },
   {
@@ -551,14 +522,7 @@ const FORWARDING_CASES: ForwardingCase[] = [
         senderNumber: '0212345678',
         receiverNumber: '0288889999',
       }),
-    expectedArgs: [
-      BUSINESS_NUMBER,
-      INVOICE_DOCUMENT_KEY_TYPE,
-      INVOICE_MANAGEMENT_KEY,
-      '0212345678',
-      '0288889999',
-      USER_ID,
-    ],
+    expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, '0212345678', '0288889999', USER_ID],
     response: API_RESPONSE,
   },
   {
@@ -657,13 +621,10 @@ const FORWARDING_CASES: ForwardingCase[] = [
 ]
 
 const FORWARDING_CASES_WITH_EXPECTED_RESULT = FORWARDING_CASES.filter(
-  (testCase): testCase is ForwardingCase & Required<Pick<ForwardingCase, 'expectedResult'>> =>
-    testCase.expectedResult !== undefined
+  (testCase): testCase is ForwardingCase & Required<Pick<ForwardingCase, 'expectedResult'>> => testCase.expectedResult !== undefined
 )
 
-const FORWARDING_CASES_WITHOUT_EXPECTED_RESULT = FORWARDING_CASES.filter(
-  (testCase) => testCase.expectedResult === undefined
-)
+const FORWARDING_CASES_WITHOUT_EXPECTED_RESULT = FORWARDING_CASES.filter((testCase) => testCase.expectedResult === undefined)
 
 describe('tax-invoice facade adapter', () => {
   test('forwarding cases cover all public methods', () => {
@@ -911,9 +872,7 @@ describe('tax-invoice facade adapter', () => {
         endDate: '20260228',
         invoiceStateCodes: ['100'],
         invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal],
-        taxationTypeCodes: [
-          'Q',
-        ] as unknown as (typeof TaxInvoiceSearchTaxationTypeCodes)[keyof typeof TaxInvoiceSearchTaxationTypeCodes][],
+        taxationTypeCodes: ['Q'] as unknown as (typeof TaxInvoiceSearchTaxationTypeCodes)[keyof typeof TaxInvoiceSearchTaxationTypeCodes][],
         lateIssueOnly: null,
         sortOrder: TaxInvoiceSortOrder.Descending,
         pageNumber: 1,
@@ -962,8 +921,7 @@ describe('tax-invoice facade adapter', () => {
     await expect(
       service.attachInvoiceStatement({
         ...BASE_DOCUMENT_INPUT,
-        statementItemCode:
-          999 as unknown as (typeof TaxInvoiceStatementItemCodes)[keyof typeof TaxInvoiceStatementItemCodes],
+        statementItemCode: 999 as unknown as (typeof TaxInvoiceStatementItemCodes)[keyof typeof TaxInvoiceStatementItemCodes],
         statementManagementKey: 'STMT-1',
       })
     ).rejects.toMatchObject({

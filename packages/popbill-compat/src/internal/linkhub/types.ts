@@ -1,28 +1,24 @@
-import type {
-  PopbillAuthScope,
-  PopbillIssueTokenApiResponse,
-  PopbillServiceId,
-  PopbillUtcDateTimeString,
-} from '@connextable/popbill-spec'
+import type * as Spec from '@connextable/popbill-spec'
 
-export type LinkhubTokenApiResponse = PopbillIssueTokenApiResponse
+
+export type LinkhubTokenApiResponse = Spec.PopbillIssueTokenApiResponse
 
 export interface LinkhubTokenResponse {
   sessionToken: string
-  serviceId: PopbillServiceId
+  serviceId: Spec.PopbillServiceId
   linkId: string
   userId: string
   partnerCode: string
   userCode: string
-  scopes: PopbillAuthScope[]
+  scopes: Spec.PopbillAuthScope[]
   ipAddress: string
-  expiredAt: PopbillUtcDateTimeString
+  expiredAt: Spec.PopbillUtcDateTimeString
 }
 
 export interface IssueTokenRequest {
-  serviceId: PopbillServiceId
+  serviceId: Spec.PopbillServiceId
   accessId: string
-  scopes: readonly PopbillAuthScope[]
+  scopes: readonly Spec.PopbillAuthScope[]
   forwardedIp?: string
 }
 
@@ -67,8 +63,8 @@ export interface TokenProvider {
 
 export interface CreateTokenProviderInput {
   authClient: LinkhubAuthClient
-  serviceId: PopbillServiceId
-  scopes: readonly PopbillAuthScope[]
+  serviceId: Spec.PopbillServiceId
+  scopes: readonly Spec.PopbillAuthScope[]
   forwardedIp?: string
 }
 

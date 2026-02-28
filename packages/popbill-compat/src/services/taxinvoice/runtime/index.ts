@@ -1,70 +1,11 @@
-import type {
-  TaxInvoiceApiModel,
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceAttachFileBinaryPayload,
-  TaxInvoiceGetUrlTogo,
-  TaxInvoiceMgtKeyType,
-} from '@connextable/popbill-spec'
+
 import type { CompatConfig } from '@/config'
 import type { TaxinvoiceCallbackService, TaxinvoicePromiseService } from '@/services/taxinvoice/types'
-import {
-  handleCallbackError,
-  parseLegacyUserIdAndCallbacks,
-  throwPromiseError,
-  type TaxinvoiceRuntimeMethods,
-} from './common'
+import { handleCallbackError, parseLegacyUserIdAndCallbacks, throwPromiseError, type TaxinvoiceRuntimeMethods } from './common'
 import { createTaxinvoiceRuntimeContext } from './context'
-import { parseBulkSubmitCallbackArgs, parseBulkSubmitPromiseArgs } from './parsers/bulk-submit'
-import { parseIssueCallbackArgs, parseIssuePromiseArgs } from './parsers/issue'
-import { parseRegistIssueCallbackArgs, parseRegistIssuePromiseArgs } from './parsers/regist-issue'
-import { parseSearchCallbackArgs, parseSearchPromiseArgs } from './parsers/search'
-import { parseGetUrlCallbackArgs, parseUrlMethodCallbackArgs } from './parsers/url'
-import { requestAssignMgtKey } from './methods/assign-mgt-key'
-import { requestAttachFileBinary } from './methods/attach-file-binary'
-import { requestAttachFile } from './methods/attach-file'
-import { requestAttachStatement } from './methods/attach-statement'
-import { requestBulkSubmit } from './methods/bulk-submit'
-import { requestCancelIssue } from './methods/cancel-issue'
-import { requestCancelRequest } from './methods/cancel-request'
-import { requestCheckCertValidation } from './methods/check-cert-validation'
-import { requestCheckMgtKeyInUse } from './methods/check-mgt-key-in-use'
-import { requestDeleteFile } from './methods/delete-file'
-import { requestDelete } from './methods/delete'
-import { requestDetachStatement } from './methods/detach-statement'
-import { requestGetBulkResult } from './methods/get-bulk-result'
-import { requestGetCertificateExpireDate } from './methods/get-certificate-expire-date'
-import { requestGetDetailInfo } from './methods/get-detail-info'
-import { requestGetEPrintUrl } from './methods/get-e-print-url'
-import { requestGetFiles } from './methods/get-files'
-import { requestGetInfo } from './methods/get-info'
-import { requestGetInfos } from './methods/get-infos'
-import { requestGetLogs } from './methods/get-logs'
-import { requestGetMailUrl } from './methods/get-mail-url'
-import { requestGetMassPrintUrl } from './methods/get-mass-print-url'
-import { requestGetPdfUrl } from './methods/get-pdf-url'
-import { requestGetPopUpUrl } from './methods/get-pop-up-url'
-import { requestGetPrintUrl } from './methods/get-print-url'
-import { requestGetSealUrl } from './methods/get-seal-url'
-import { requestGetSendToNtsConfig } from './methods/get-send-to-nts-config'
-import { requestGetTaxCertInfo } from './methods/get-tax-cert-info'
-import { requestGetTaxCertUrl } from './methods/get-tax-cert-url'
-import { requestGetUrl } from './methods/get-url'
-import { requestGetViewUrl } from './methods/get-view-url'
-import { requestGetXml } from './methods/get-xml'
-import { requestIssue } from './methods/issue'
-import { requestListEmailConfig } from './methods/list-email-config'
-import { requestRefuse } from './methods/refuse'
-import { requestRegistIssue } from './methods/regist-issue'
-import { requestRegistRequest } from './methods/regist-request'
-import { requestRegister } from './methods/register'
-import { requestRequest } from './methods/request'
-import { requestSearch } from './methods/search'
-import { requestSendEmail } from './methods/send-email'
-import { requestSendFax } from './methods/send-fax'
-import { requestSendSms } from './methods/send-sms'
-import { requestSendToNts } from './methods/send-to-nts'
-import { requestUpdateEmailConfig } from './methods/update-email-config'
-import { requestUpdate } from './methods/update'
+import * as parsers from './parsers'
+import * as methods from './methods'
+import type * as Spec from '@connextable/popbill-spec'
 
 type TaxinvoiceRuntimeCallbackMethods = Pick<TaxinvoiceCallbackService, TaxinvoiceRuntimeMethods>
 type TaxinvoiceRuntimePromiseMethods = Pick<TaxinvoicePromiseService, TaxinvoiceRuntimeMethods>
@@ -85,10 +26,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
   return {
     callback: {
       // 발행/전송
-      registIssue(corpNum: string, taxinvoice: TaxInvoiceApiModel, ...args: unknown[]) {
-        const parsed = parseRegistIssueCallbackArgs(args)
+      registIssue(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, ...args: unknown[]) {
+        const parsed = parsers.parseRegistIssueCallbackArgs(args)
 
-        void requestRegistIssue(context, corpNum, taxinvoice, parsed)
+        void methods.requestRegistIssue(context, corpNum, taxinvoice, parsed)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -97,10 +38,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      bulkSubmit(corpNum: string, submitID: string, taxinvoiceList: TaxInvoiceApiModel[], ...args: unknown[]) {
-        const parsed = parseBulkSubmitCallbackArgs(args)
+      bulkSubmit(corpNum: string, submitID: string, taxinvoiceList: Spec.TaxInvoiceApiModel[], ...args: unknown[]) {
+        const parsed = parsers.parseBulkSubmitCallbackArgs(args)
 
-        void requestBulkSubmit(context, corpNum, submitID, taxinvoiceList, parsed)
+        void methods.requestBulkSubmit(context, corpNum, submitID, taxinvoiceList, parsed)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -112,7 +53,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       getBulkResult(corpNum: string, submitID: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
-        void requestGetBulkResult(context, corpNum, submitID, parsed.userId)
+        void methods.requestGetBulkResult(context, corpNum, submitID, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -121,10 +62,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      register(corpNum: string, taxinvoice: TaxInvoiceApiModel, ...args: unknown[]) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+      register(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, ...args: unknown[]) {
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestRegister(context, corpNum, taxinvoice, parsed.userId)
+        void methods.requestRegister(context, corpNum, taxinvoice, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -133,16 +74,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      update(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        taxinvoice: TaxInvoiceApiModel,
-        ...args: unknown[]
-      ) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+      update(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, taxinvoice: Spec.TaxInvoiceApiModel, ...args: unknown[]) {
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestUpdate(context, corpNum, keyType, mgtKey, taxinvoice, parsed.userId)
+        void methods.requestUpdate(context, corpNum, keyType, mgtKey, taxinvoice, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -151,10 +86,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      issue(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
-        const parsed = parseIssueCallbackArgs(args)
+      issue(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+        const parsed = parsers.parseIssueCallbackArgs(args)
 
-        void requestIssue(context, corpNum, keyType, mgtKey, parsed)
+        void methods.requestIssue(context, corpNum, keyType, mgtKey, parsed)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -163,16 +98,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      cancelIssue(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        maybeMemoOrSuccess?: unknown,
-        ...args: unknown[]
-      ) {
-        const parsed = parseMemoCallbackArgs<TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
+      cancelIssue(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
+        const parsed = parseMemoCallbackArgs<Spec.TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
-        void requestCancelIssue(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
+        void methods.requestCancelIssue(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -181,10 +110,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      registRequest(corpNum: string, taxinvoice: TaxInvoiceApiModel, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
-        const parsed = parseMemoCallbackArgs<TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
+      registRequest(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
+        const parsed = parseMemoCallbackArgs<Spec.TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
-        void requestRegistRequest(context, corpNum, taxinvoice, parsed.memo, parsed.userId)
+        void methods.requestRegistRequest(context, corpNum, taxinvoice, parsed.memo, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -193,16 +122,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      request(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        maybeMemoOrSuccess?: unknown,
-        ...args: unknown[]
-      ) {
-        const parsed = parseMemoCallbackArgs<TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
+      request(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
+        const parsed = parseMemoCallbackArgs<Spec.TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
-        void requestRequest(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
+        void methods.requestRequest(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -211,16 +134,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      cancelRequest(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        maybeMemoOrSuccess?: unknown,
-        ...args: unknown[]
-      ) {
-        const parsed = parseMemoCallbackArgs<TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
+      cancelRequest(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
+        const parsed = parseMemoCallbackArgs<Spec.TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
-        void requestCancelRequest(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
+        void methods.requestCancelRequest(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -229,16 +146,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      refuse(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        maybeMemoOrSuccess?: unknown,
-        ...args: unknown[]
-      ) {
-        const parsed = parseMemoCallbackArgs<TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
+      refuse(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
+        const parsed = parseMemoCallbackArgs<Spec.TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
-        void requestRefuse(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
+        void methods.requestRefuse(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -247,10 +158,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      delete(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+      delete(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestDelete(context, corpNum, keyType, mgtKey, parsed.userId)
+        void methods.requestDelete(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -259,10 +170,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      sendToNTS(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+      sendToNTS(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestSendToNts(context, corpNum, keyType, mgtKey, parsed.userId)
+        void methods.requestSendToNts(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -272,10 +183,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       },
 
       // 정보확인
-      getInfo(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+      getInfo(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
-        void requestGetInfo(context, corpNum, keyType, mgtKey, parsed.userId)
+        void methods.requestGetInfo(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -284,10 +195,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      getInfos(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[], ...args: unknown[]) {
+      getInfos(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKeyList: string[], ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
-        void requestGetInfos(context, corpNum, keyType, mgtKeyList, parsed.userId)
+        void methods.requestGetInfos(context, corpNum, keyType, mgtKeyList, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -296,10 +207,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      getDetailInfo(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+      getDetailInfo(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
-        void requestGetDetailInfo(context, corpNum, keyType, mgtKey, parsed.userId)
+        void methods.requestGetDetailInfo(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -308,10 +219,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      checkMgtKeyInUse(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+      checkMgtKeyInUse(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks<boolean>(args)
 
-        void requestCheckMgtKeyInUse(context, corpNum, keyType, mgtKey, parsed.userId)
+        void methods.requestCheckMgtKeyInUse(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -320,10 +231,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      getXML(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+      getXML(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
-        void requestGetXml(context, corpNum, keyType, mgtKey, parsed.userId)
+        void methods.requestGetXml(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -334,7 +245,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 
       search(
         corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
+        keyType: Spec.TaxInvoiceMgtKeyType,
         dType: string,
         startDate: string,
         endDate: string,
@@ -347,9 +258,9 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         perPage: number,
         ...args: unknown[]
       ) {
-        const parsed = parseSearchCallbackArgs(args)
+        const parsed = parsers.parseSearchCallbackArgs(args)
 
-        void requestSearch(
+        void methods.requestSearch(
           context,
           corpNum,
           keyType,
@@ -375,10 +286,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      getLogs(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+      getLogs(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
-        void requestGetLogs(context, corpNum, keyType, mgtKey, parsed.userId)
+        void methods.requestGetLogs(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -387,10 +298,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      getURL(corpNum: string, togo: TaxInvoiceGetUrlTogo, ...args: unknown[]) {
-        const parsed = parseGetUrlCallbackArgs(togo, args)
+      getURL(corpNum: string, togo: Spec.TaxInvoiceGetUrlTogo, ...args: unknown[]) {
+        const parsed = parsers.parseGetUrlCallbackArgs(togo, args)
 
-        void requestGetUrl(context, corpNum, parsed.togo, parsed.userId)
+        void methods.requestGetUrl(context, corpNum, parsed.togo, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
@@ -400,10 +311,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       },
 
       // 보기/인쇄
-      getPopUpURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
-        const parsed = parseUrlMethodCallbackArgs(args)
+      getPopUpURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+        const parsed = parsers.parseUrlMethodCallbackArgs(args)
 
-        void requestGetPopUpUrl(context, corpNum, keyType, mgtKey, parsed.userId)
+        void methods.requestGetPopUpUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
@@ -412,10 +323,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      getViewURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
-        const parsed = parseUrlMethodCallbackArgs(args)
+      getViewURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+        const parsed = parsers.parseUrlMethodCallbackArgs(args)
 
-        void requestGetViewUrl(context, corpNum, keyType, mgtKey, parsed.userId)
+        void methods.requestGetViewUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
@@ -424,10 +335,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      getPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
-        const parsed = parseUrlMethodCallbackArgs(args)
+      getPrintURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+        const parsed = parsers.parseUrlMethodCallbackArgs(args)
 
-        void requestGetPrintUrl(context, corpNum, keyType, mgtKey, parsed.userId)
+        void methods.requestGetPrintUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
@@ -436,10 +347,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      getPDFURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
-        const parsed = parseUrlMethodCallbackArgs(args)
+      getPDFURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+        const parsed = parsers.parseUrlMethodCallbackArgs(args)
 
-        void requestGetPdfUrl(context, corpNum, keyType, mgtKey, parsed.userId)
+        void methods.requestGetPdfUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
@@ -448,10 +359,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      getMassPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[], ...args: unknown[]) {
-        const parsed = parseUrlMethodCallbackArgs(args)
+      getMassPrintURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKeyList: string[], ...args: unknown[]) {
+        const parsed = parsers.parseUrlMethodCallbackArgs(args)
 
-        void requestGetMassPrintUrl(context, corpNum, keyType, mgtKeyList, parsed.userId)
+        void methods.requestGetMassPrintUrl(context, corpNum, keyType, mgtKeyList, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
@@ -460,10 +371,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      getEPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
-        const parsed = parseUrlMethodCallbackArgs(args)
+      getEPrintURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+        const parsed = parsers.parseUrlMethodCallbackArgs(args)
 
-        void requestGetEPrintUrl(context, corpNum, keyType, mgtKey, parsed.userId)
+        void methods.requestGetEPrintUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
@@ -472,10 +383,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      getMailURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
-        const parsed = parseUrlMethodCallbackArgs(args)
+      getMailURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+        const parsed = parsers.parseUrlMethodCallbackArgs(args)
 
-        void requestGetMailUrl(context, corpNum, keyType, mgtKey, parsed.userId)
+        void methods.requestGetMailUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
             parsed.success?.(url)
           })
@@ -488,7 +399,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       getSealURL(corpNum: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
-        void requestGetSealUrl(context, corpNum, parsed.userId)
+        void methods.requestGetSealUrl(context, corpNum, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -497,17 +408,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      attachFile(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        displayName: string,
-        filePath: string,
-        ...args: unknown[]
-      ) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+      attachFile(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, displayName: string, filePath: string, ...args: unknown[]) {
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestAttachFile(context, corpNum, keyType, mgtKey, displayName, filePath, parsed.userId)
+        void methods.requestAttachFile(context, corpNum, keyType, mgtKey, displayName, filePath, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -518,14 +422,14 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 
       attachFileBinary(
         corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
+        keyType: Spec.TaxInvoiceMgtKeyType,
         mgtKey: string,
-        binaryFile: TaxInvoiceAttachFileBinaryPayload,
+        binaryFile: Spec.TaxInvoiceAttachFileBinaryPayload,
         ...args: unknown[]
       ) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestAttachFileBinary(context, corpNum, keyType, mgtKey, binaryFile, parsed.userId)
+        void methods.requestAttachFileBinary(context, corpNum, keyType, mgtKey, binaryFile, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -534,10 +438,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      deleteFile(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, fileID: string, ...args: unknown[]) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+      deleteFile(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, fileID: string, ...args: unknown[]) {
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestDeleteFile(context, corpNum, keyType, mgtKey, fileID, parsed.userId)
+        void methods.requestDeleteFile(context, corpNum, keyType, mgtKey, fileID, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -546,10 +450,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      getFiles(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+      getFiles(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
-        void requestGetFiles(context, corpNum, keyType, mgtKey, parsed.userId)
+        void methods.requestGetFiles(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -558,10 +462,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      sendEmail(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, receiver: string, ...args: unknown[]) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+      sendEmail(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, receiver: string, ...args: unknown[]) {
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestSendEmail(context, corpNum, keyType, mgtKey, receiver, parsed.userId)
+        void methods.requestSendEmail(context, corpNum, keyType, mgtKey, receiver, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -572,16 +476,16 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 
       sendSMS(
         corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
+        keyType: Spec.TaxInvoiceMgtKeyType,
         mgtKey: string,
         sender: string,
         receiver: string,
         contents: string,
         ...args: unknown[]
       ) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestSendSms(context, corpNum, keyType, mgtKey, sender, receiver, contents, parsed.userId)
+        void methods.requestSendSms(context, corpNum, keyType, mgtKey, sender, receiver, contents, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -590,17 +494,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      sendFAX(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        sender: string,
-        receiver: string,
-        ...args: unknown[]
-      ) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+      sendFAX(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, sender: string, receiver: string, ...args: unknown[]) {
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestSendFax(context, corpNum, keyType, mgtKey, sender, receiver, parsed.userId)
+        void methods.requestSendFax(context, corpNum, keyType, mgtKey, sender, receiver, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -609,17 +506,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      attachStatement(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        subItemCode: number,
-        subMgtKey: string,
-        ...args: unknown[]
-      ) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+      attachStatement(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, subItemCode: number, subMgtKey: string, ...args: unknown[]) {
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestAttachStatement(context, corpNum, keyType, mgtKey, subItemCode, subMgtKey, parsed.userId)
+        void methods.requestAttachStatement(context, corpNum, keyType, mgtKey, subItemCode, subMgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -628,17 +518,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      detachStatement(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        subItemCode: number,
-        subMgtKey: string,
-        ...args: unknown[]
-      ) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+      detachStatement(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, subItemCode: number, subMgtKey: string, ...args: unknown[]) {
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestDetachStatement(context, corpNum, keyType, mgtKey, subItemCode, subMgtKey, parsed.userId)
+        void methods.requestDetachStatement(context, corpNum, keyType, mgtKey, subItemCode, subMgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -647,16 +530,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      assignMgtKey(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        itemKey: string,
-        mgtKey: string,
-        ...args: unknown[]
-      ) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+      assignMgtKey(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, itemKey: string, mgtKey: string, ...args: unknown[]) {
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestAssignMgtKey(context, corpNum, keyType, itemKey, mgtKey, parsed.userId)
+        void methods.requestAssignMgtKey(context, corpNum, keyType, itemKey, mgtKey, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -668,7 +545,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       listEmailConfig(corpNum: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
-        void requestListEmailConfig(context, corpNum, parsed.userId)
+        void methods.requestListEmailConfig(context, corpNum, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -678,9 +555,9 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       },
 
       updateEmailConfig(corpNum: string, emailType: string, sendYN: boolean, ...args: unknown[]) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestUpdateEmailConfig(context, corpNum, emailType, sendYN, parsed.userId)
+        void methods.requestUpdateEmailConfig(context, corpNum, emailType, sendYN, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -692,7 +569,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       getSendToNTSConfig(corpNum: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
-        void requestGetSendToNtsConfig(context, corpNum, parsed.userId)
+        void methods.requestGetSendToNtsConfig(context, corpNum, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -705,7 +582,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       getTaxCertURL(corpNum: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
-        void requestGetTaxCertUrl(context, corpNum, parsed.userId)
+        void methods.requestGetTaxCertUrl(context, corpNum, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -717,7 +594,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       getCertificateExpireDate(corpNum: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks<string>(args)
 
-        void requestGetCertificateExpireDate(context, corpNum, parsed.userId)
+        void methods.requestGetCertificateExpireDate(context, corpNum, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -727,9 +604,9 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       },
 
       checkCertValidation(corpNum: string, ...args: unknown[]) {
-        const parsed = parseLegacyUserIdAndCallbacks<TaxInvoiceApiResponseBase>(args)
+        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void requestCheckCertValidation(context, corpNum, parsed.userId)
+        void methods.requestCheckCertValidation(context, corpNum, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -741,7 +618,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       getTaxCertInfo(corpNum: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
-        void requestGetTaxCertInfo(context, corpNum, parsed.userId)
+        void methods.requestGetTaxCertInfo(context, corpNum, parsed.userId)
           .then((response) => {
             parsed.success?.(response)
           })
@@ -753,21 +630,21 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 
     promise: {
       // 발행/전송
-      async registIssue(corpNum: string, taxinvoice: TaxInvoiceApiModel, ...args: unknown[]) {
-        const parsed = parseRegistIssuePromiseArgs(args)
+      async registIssue(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, ...args: unknown[]) {
+        const parsed = parsers.parseRegistIssuePromiseArgs(args)
 
         try {
-          return await requestRegistIssue(context, corpNum, taxinvoice, parsed)
+          return await methods.requestRegistIssue(context, corpNum, taxinvoice, parsed)
         } catch (error) {
           return throwPromiseError(context, 'registIssue', error)
         }
       },
 
-      async bulkSubmit(corpNum: string, submitID: string, taxinvoiceList: TaxInvoiceApiModel[], ...args: unknown[]) {
-        const parsed = parseBulkSubmitPromiseArgs(args)
+      async bulkSubmit(corpNum: string, submitID: string, taxinvoiceList: Spec.TaxInvoiceApiModel[], ...args: unknown[]) {
+        const parsed = parsers.parseBulkSubmitPromiseArgs(args)
 
         try {
-          return await requestBulkSubmit(context, corpNum, submitID, taxinvoiceList, parsed)
+          return await methods.requestBulkSubmit(context, corpNum, submitID, taxinvoiceList, parsed)
         } catch (error) {
           return throwPromiseError(context, 'bulkSubmit', error)
         }
@@ -775,148 +652,130 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 
       async getBulkResult(corpNum: string, submitID: string, userId?: string) {
         try {
-          return await requestGetBulkResult(context, corpNum, submitID, userId ?? '')
+          return await methods.requestGetBulkResult(context, corpNum, submitID, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getBulkResult', error)
         }
       },
 
-      async register(corpNum: string, taxinvoice: TaxInvoiceApiModel, userId?: string) {
+      async register(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, userId?: string) {
         try {
-          return await requestRegister(context, corpNum, taxinvoice, userId ?? '')
+          return await methods.requestRegister(context, corpNum, taxinvoice, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'register', error)
         }
       },
 
-      async update(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        taxinvoice: TaxInvoiceApiModel,
-        userId?: string
-      ) {
+      async update(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, taxinvoice: Spec.TaxInvoiceApiModel, userId?: string) {
         try {
-          return await requestUpdate(context, corpNum, keyType, mgtKey, taxinvoice, userId ?? '')
+          return await methods.requestUpdate(context, corpNum, keyType, mgtKey, taxinvoice, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'update', error)
         }
       },
 
-      async issue(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
-        const parsed = parseIssuePromiseArgs(args)
+      async issue(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+        const parsed = parsers.parseIssuePromiseArgs(args)
 
         try {
-          return await requestIssue(context, corpNum, keyType, mgtKey, parsed)
+          return await methods.requestIssue(context, corpNum, keyType, mgtKey, parsed)
         } catch (error) {
           return throwPromiseError(context, 'issue', error)
         }
       },
 
-      async cancelIssue(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        memo?: string,
-        userId?: string
-      ) {
+      async cancelIssue(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, memo?: string, userId?: string) {
         try {
-          return await requestCancelIssue(context, corpNum, keyType, mgtKey, memo ?? '', userId ?? '')
+          return await methods.requestCancelIssue(context, corpNum, keyType, mgtKey, memo ?? '', userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'cancelIssue', error)
         }
       },
 
-      async registRequest(corpNum: string, taxinvoice: TaxInvoiceApiModel, memo?: string, userId?: string) {
+      async registRequest(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, memo?: string, userId?: string) {
         try {
-          return await requestRegistRequest(context, corpNum, taxinvoice, memo ?? '', userId ?? '')
+          return await methods.requestRegistRequest(context, corpNum, taxinvoice, memo ?? '', userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'registRequest', error)
         }
       },
 
-      async request(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo?: string, userId?: string) {
+      async request(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, memo?: string, userId?: string) {
         try {
-          return await requestRequest(context, corpNum, keyType, mgtKey, memo ?? '', userId ?? '')
+          return await methods.requestRequest(context, corpNum, keyType, mgtKey, memo ?? '', userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'request', error)
         }
       },
 
-      async cancelRequest(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        memo?: string,
-        userId?: string
-      ) {
+      async cancelRequest(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, memo?: string, userId?: string) {
         try {
-          return await requestCancelRequest(context, corpNum, keyType, mgtKey, memo ?? '', userId ?? '')
+          return await methods.requestCancelRequest(context, corpNum, keyType, mgtKey, memo ?? '', userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'cancelRequest', error)
         }
       },
 
-      async refuse(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, memo?: string, userId?: string) {
+      async refuse(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, memo?: string, userId?: string) {
         try {
-          return await requestRefuse(context, corpNum, keyType, mgtKey, memo ?? '', userId ?? '')
+          return await methods.requestRefuse(context, corpNum, keyType, mgtKey, memo ?? '', userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'refuse', error)
         }
       },
 
-      async delete(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async delete(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await requestDelete(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestDelete(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'delete', error)
         }
       },
 
-      async sendToNTS(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async sendToNTS(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await requestSendToNts(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestSendToNts(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'sendToNTS', error)
         }
       },
 
       // 정보확인
-      async getInfo(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async getInfo(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await requestGetInfo(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestGetInfo(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getInfo', error)
         }
       },
 
-      async getInfos(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[], userId?: string) {
+      async getInfos(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKeyList: string[], userId?: string) {
         try {
-          return await requestGetInfos(context, corpNum, keyType, mgtKeyList, userId ?? '')
+          return await methods.requestGetInfos(context, corpNum, keyType, mgtKeyList, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getInfos', error)
         }
       },
 
-      async getDetailInfo(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async getDetailInfo(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await requestGetDetailInfo(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestGetDetailInfo(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getDetailInfo', error)
         }
       },
 
-      async checkMgtKeyInUse(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async checkMgtKeyInUse(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await requestCheckMgtKeyInUse(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestCheckMgtKeyInUse(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'checkMgtKeyInUse', error)
         }
       },
 
-      async getXML(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async getXML(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await requestGetXml(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestGetXml(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getXML', error)
         }
@@ -924,7 +783,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 
       async search(
         corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
+        keyType: Spec.TaxInvoiceMgtKeyType,
         dType: string,
         startDate: string,
         endDate: string,
@@ -937,10 +796,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         perPage: number,
         ...args: unknown[]
       ) {
-        const parsed = parseSearchPromiseArgs(args)
+        const parsed = parsers.parseSearchPromiseArgs(args)
 
         try {
-          return await requestSearch(
+          return await methods.requestSearch(
             context,
             corpNum,
             keyType,
@@ -963,74 +822,74 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         }
       },
 
-      async getLogs(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async getLogs(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await requestGetLogs(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestGetLogs(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getLogs', error)
         }
       },
 
-      async getURL(corpNum: string, togo: TaxInvoiceGetUrlTogo, userId?: string) {
+      async getURL(corpNum: string, togo: Spec.TaxInvoiceGetUrlTogo, userId?: string) {
         try {
-          return await requestGetUrl(context, corpNum, togo, userId ?? '')
+          return await methods.requestGetUrl(context, corpNum, togo, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getURL', error)
         }
       },
 
       // 보기/인쇄
-      async getPopUpURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async getPopUpURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await requestGetPopUpUrl(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestGetPopUpUrl(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getPopUpURL', error)
         }
       },
 
-      async getViewURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async getViewURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await requestGetViewUrl(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestGetViewUrl(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getViewURL', error)
         }
       },
 
-      async getPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async getPrintURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await requestGetPrintUrl(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestGetPrintUrl(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getPrintURL', error)
         }
       },
 
-      async getPDFURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async getPDFURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await requestGetPdfUrl(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestGetPdfUrl(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getPDFURL', error)
         }
       },
 
-      async getMassPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKeyList: string[], userId?: string) {
+      async getMassPrintURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKeyList: string[], userId?: string) {
         try {
-          return await requestGetMassPrintUrl(context, corpNum, keyType, mgtKeyList, userId ?? '')
+          return await methods.requestGetMassPrintUrl(context, corpNum, keyType, mgtKeyList, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getMassPrintURL', error)
         }
       },
 
-      async getEPrintURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async getEPrintURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await requestGetEPrintUrl(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestGetEPrintUrl(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getEPrintURL', error)
         }
       },
 
-      async getMailURL(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async getMailURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await requestGetMailUrl(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestGetMailUrl(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getMailURL', error)
         }
@@ -1039,22 +898,15 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       // 부가기능
       async getSealURL(corpNum: string, userId?: string) {
         try {
-          return await requestGetSealUrl(context, corpNum, userId ?? '')
+          return await methods.requestGetSealUrl(context, corpNum, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getSealURL', error)
         }
       },
 
-      async attachFile(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        displayName: string,
-        filePath: string,
-        userId?: string
-      ) {
+      async attachFile(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, displayName: string, filePath: string, userId?: string) {
         try {
-          return await requestAttachFile(context, corpNum, keyType, mgtKey, displayName, filePath, userId ?? '')
+          return await methods.requestAttachFile(context, corpNum, keyType, mgtKey, displayName, filePath, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'attachFile', error)
         }
@@ -1062,49 +914,37 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 
       async attachFileBinary(
         corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
+        keyType: Spec.TaxInvoiceMgtKeyType,
         mgtKey: string,
-        binaryFile: TaxInvoiceAttachFileBinaryPayload,
+        binaryFile: Spec.TaxInvoiceAttachFileBinaryPayload,
         userId?: string
       ) {
         try {
-          return await requestAttachFileBinary(context, corpNum, keyType, mgtKey, binaryFile, userId ?? '')
+          return await methods.requestAttachFileBinary(context, corpNum, keyType, mgtKey, binaryFile, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'attachFileBinary', error)
         }
       },
 
-      async deleteFile(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        fileID: string,
-        userId?: string
-      ) {
+      async deleteFile(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, fileID: string, userId?: string) {
         try {
-          return await requestDeleteFile(context, corpNum, keyType, mgtKey, fileID, userId ?? '')
+          return await methods.requestDeleteFile(context, corpNum, keyType, mgtKey, fileID, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'deleteFile', error)
         }
       },
 
-      async getFiles(corpNum: string, keyType: TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async getFiles(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await requestGetFiles(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestGetFiles(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getFiles', error)
         }
       },
 
-      async sendEmail(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        receiver: string,
-        userId?: string
-      ) {
+      async sendEmail(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, receiver: string, userId?: string) {
         try {
-          return await requestSendEmail(context, corpNum, keyType, mgtKey, receiver, userId ?? '')
+          return await methods.requestSendEmail(context, corpNum, keyType, mgtKey, receiver, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'sendEmail', error)
         }
@@ -1112,7 +952,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 
       async sendSMS(
         corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
+        keyType: Spec.TaxInvoiceMgtKeyType,
         mgtKey: string,
         sender: string,
         receiver: string,
@@ -1120,66 +960,39 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         userId?: string
       ) {
         try {
-          return await requestSendSms(context, corpNum, keyType, mgtKey, sender, receiver, contents, userId ?? '')
+          return await methods.requestSendSms(context, corpNum, keyType, mgtKey, sender, receiver, contents, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'sendSMS', error)
         }
       },
 
-      async sendFAX(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        sender: string,
-        receiver: string,
-        userId?: string
-      ) {
+      async sendFAX(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, sender: string, receiver: string, userId?: string) {
         try {
-          return await requestSendFax(context, corpNum, keyType, mgtKey, sender, receiver, userId ?? '')
+          return await methods.requestSendFax(context, corpNum, keyType, mgtKey, sender, receiver, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'sendFAX', error)
         }
       },
 
-      async attachStatement(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        subItemCode: number,
-        subMgtKey: string,
-        userId?: string
-      ) {
+      async attachStatement(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, subItemCode: number, subMgtKey: string, userId?: string) {
         try {
-          return await requestAttachStatement(context, corpNum, keyType, mgtKey, subItemCode, subMgtKey, userId ?? '')
+          return await methods.requestAttachStatement(context, corpNum, keyType, mgtKey, subItemCode, subMgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'attachStatement', error)
         }
       },
 
-      async detachStatement(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        mgtKey: string,
-        subItemCode: number,
-        subMgtKey: string,
-        userId?: string
-      ) {
+      async detachStatement(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, subItemCode: number, subMgtKey: string, userId?: string) {
         try {
-          return await requestDetachStatement(context, corpNum, keyType, mgtKey, subItemCode, subMgtKey, userId ?? '')
+          return await methods.requestDetachStatement(context, corpNum, keyType, mgtKey, subItemCode, subMgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'detachStatement', error)
         }
       },
 
-      async assignMgtKey(
-        corpNum: string,
-        keyType: TaxInvoiceMgtKeyType,
-        itemKey: string,
-        mgtKey: string,
-        userId?: string
-      ) {
+      async assignMgtKey(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, itemKey: string, mgtKey: string, userId?: string) {
         try {
-          return await requestAssignMgtKey(context, corpNum, keyType, itemKey, mgtKey, userId ?? '')
+          return await methods.requestAssignMgtKey(context, corpNum, keyType, itemKey, mgtKey, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'assignMgtKey', error)
         }
@@ -1187,7 +1000,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 
       async listEmailConfig(corpNum: string, userId?: string) {
         try {
-          return await requestListEmailConfig(context, corpNum, userId ?? '')
+          return await methods.requestListEmailConfig(context, corpNum, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'listEmailConfig', error)
         }
@@ -1195,7 +1008,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 
       async updateEmailConfig(corpNum: string, emailType: string, sendYN: boolean, userId?: string) {
         try {
-          return await requestUpdateEmailConfig(context, corpNum, emailType, sendYN, userId ?? '')
+          return await methods.requestUpdateEmailConfig(context, corpNum, emailType, sendYN, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'updateEmailConfig', error)
         }
@@ -1203,7 +1016,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 
       async getSendToNTSConfig(corpNum: string, userId?: string) {
         try {
-          return await requestGetSendToNtsConfig(context, corpNum, userId ?? '')
+          return await methods.requestGetSendToNtsConfig(context, corpNum, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getSendToNTSConfig', error)
         }
@@ -1212,7 +1025,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       // 인증서 관리
       async getTaxCertURL(corpNum: string, userId?: string) {
         try {
-          return await requestGetTaxCertUrl(context, corpNum, userId ?? '')
+          return await methods.requestGetTaxCertUrl(context, corpNum, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getTaxCertURL', error)
         }
@@ -1220,7 +1033,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 
       async getCertificateExpireDate(corpNum: string, userId?: string) {
         try {
-          return await requestGetCertificateExpireDate(context, corpNum, userId ?? '')
+          return await methods.requestGetCertificateExpireDate(context, corpNum, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getCertificateExpireDate', error)
         }
@@ -1228,7 +1041,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 
       async checkCertValidation(corpNum: string, userId?: string) {
         try {
-          return await requestCheckCertValidation(context, corpNum, userId ?? '')
+          return await methods.requestCheckCertValidation(context, corpNum, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'checkCertValidation', error)
         }
@@ -1236,7 +1049,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 
       async getTaxCertInfo(corpNum: string, userId?: string) {
         try {
-          return await requestGetTaxCertInfo(context, corpNum, userId ?? '')
+          return await methods.requestGetTaxCertInfo(context, corpNum, userId ?? '')
         } catch (error) {
           return throwPromiseError(context, 'getTaxCertInfo', error)
         }

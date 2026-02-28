@@ -1,12 +1,13 @@
-import type { TaxInvoiceGetMassPrintUrlApiResponse, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
+
 import { validateMgtKeyList } from '@/internal/validation'
 import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
+import type * as Spec from '@connextable/popbill-spec'
 
 export async function requestGetMassPrintUrl(
   context: TaxinvoiceRuntimeContext,
   corpNum: string,
-  keyType: TaxInvoiceMgtKeyType,
+  keyType: Spec.TaxInvoiceMgtKeyType,
   mgtKeyList: string[],
   userId: string
 ): Promise<string> {
@@ -17,7 +18,7 @@ export async function requestGetMassPrintUrl(
     throw mgtKeyListError
   }
 
-  const response = await context.requestClient.requestJson<TaxInvoiceGetMassPrintUrlApiResponse>({
+  const response = await context.requestClient.requestJson<Spec.TaxInvoiceGetMassPrintUrlApiResponse>({
     uri: `/Taxinvoice/${keyType}?Print`,
     corpNum,
     userId,

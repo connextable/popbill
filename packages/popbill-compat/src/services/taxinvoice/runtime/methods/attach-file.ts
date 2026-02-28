@@ -1,21 +1,21 @@
 import { promises as fs } from 'node:fs'
 import { stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
-import type { TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
 import { createLegacyValidationError } from '@/internal/errors'
 import { validateAttachFilePath } from '@/internal/validation'
 import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import { buildSingleFileMultipartPayload } from './multipart'
+import type * as Spec from '@connextable/popbill-spec'
 
 export async function requestAttachFile(
   context: TaxinvoiceRuntimeContext,
   corpNum: string,
-  keyType: TaxInvoiceMgtKeyType,
+  keyType: Spec.TaxInvoiceMgtKeyType,
   mgtKey: string,
   displayName: string,
   filePath: string,
   userId: string
-): Promise<TaxInvoiceApiResponseBase> {
+): Promise<Spec.TaxInvoiceApiResponseBase> {
   validateRequiredTaxinvoiceInputs(corpNum, keyType, mgtKey)
 
   const filePathError = validateAttachFilePath(filePath)
@@ -42,7 +42,7 @@ export async function requestAttachFile(
   })
   const multipartBody = new Uint8Array(payload.body)
 
-  return context.requestClient.requestJson<TaxInvoiceApiResponseBase>({
+  return context.requestClient.requestJson<Spec.TaxInvoiceApiResponseBase>({
     uri: `/Taxinvoice/${keyType}/${mgtKey}/Files`,
     corpNum,
     userId,

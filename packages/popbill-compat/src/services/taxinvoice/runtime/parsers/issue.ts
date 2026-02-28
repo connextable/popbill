@@ -1,6 +1,7 @@
-import type { TaxInvoiceIssueApiResponse } from '@connextable/popbill-spec'
+
 import type { LegacyErrorCallback, LegacySuccessCallback } from '@/services/taxinvoice/types'
 import { asErrorCallback, asSuccessCallback } from '@/services/taxinvoice/runtime/common'
+import type * as Spec from '@connextable/popbill-spec'
 
 export interface ParsedIssueOptions {
   memo: string
@@ -10,7 +11,7 @@ export interface ParsedIssueOptions {
 }
 
 export interface ParsedIssueCallbackOptions extends ParsedIssueOptions {
-  success?: LegacySuccessCallback<TaxInvoiceIssueApiResponse>
+  success?: LegacySuccessCallback<Spec.TaxInvoiceIssueApiResponse>
   error?: LegacyErrorCallback
 }
 
@@ -24,7 +25,7 @@ export function parseIssueCallbackArgs(args: unknown[]): ParsedIssueCallbackOpti
 
   const first = args[0]
   if (typeof first === 'function') {
-    parsed.success = first as LegacySuccessCallback<TaxInvoiceIssueApiResponse>
+    parsed.success = first as LegacySuccessCallback<Spec.TaxInvoiceIssueApiResponse>
     parsed.error = asErrorCallback(args[1])
     return parsed
   }
@@ -41,14 +42,14 @@ export function parseIssueCallbackArgs(args: unknown[]): ParsedIssueCallbackOpti
   const option5 = rest[4]
 
   if (typeof option1 === 'function') {
-    parsed.success = option1 as LegacySuccessCallback<TaxInvoiceIssueApiResponse>
+    parsed.success = option1 as LegacySuccessCallback<Spec.TaxInvoiceIssueApiResponse>
     parsed.error = asErrorCallback(option2)
     return parsed
   }
 
   if (typeof option1 === 'string' && typeof option2 === 'function') {
     parsed.userId = option1
-    parsed.success = option2 as LegacySuccessCallback<TaxInvoiceIssueApiResponse>
+    parsed.success = option2 as LegacySuccessCallback<Spec.TaxInvoiceIssueApiResponse>
     parsed.error = asErrorCallback(option3)
     return parsed
   }
@@ -58,12 +59,12 @@ export function parseIssueCallbackArgs(args: unknown[]): ParsedIssueCallbackOpti
 
     if (typeof option2 === 'string') {
       parsed.userId = option2
-      parsed.success = asSuccessCallback<TaxInvoiceIssueApiResponse>(option3)
+      parsed.success = asSuccessCallback<Spec.TaxInvoiceIssueApiResponse>(option3)
       parsed.error = asErrorCallback(option4)
       return parsed
     }
 
-    parsed.success = asSuccessCallback<TaxInvoiceIssueApiResponse>(option2)
+    parsed.success = asSuccessCallback<Spec.TaxInvoiceIssueApiResponse>(option2)
     parsed.error = asErrorCallback(option3)
     return parsed
   }
@@ -76,19 +77,19 @@ export function parseIssueCallbackArgs(args: unknown[]): ParsedIssueCallbackOpti
 
       if (typeof option3 === 'string') {
         parsed.userId = option3
-        parsed.success = asSuccessCallback<TaxInvoiceIssueApiResponse>(option4)
+        parsed.success = asSuccessCallback<Spec.TaxInvoiceIssueApiResponse>(option4)
         parsed.error = asErrorCallback(option5)
         return parsed
       }
 
-      parsed.success = asSuccessCallback<TaxInvoiceIssueApiResponse>(option3)
+      parsed.success = asSuccessCallback<Spec.TaxInvoiceIssueApiResponse>(option3)
       parsed.error = asErrorCallback(option4)
       return parsed
     }
 
     if (typeof option2 === 'string') {
       parsed.userId = option2
-      parsed.success = asSuccessCallback<TaxInvoiceIssueApiResponse>(option3)
+      parsed.success = asSuccessCallback<Spec.TaxInvoiceIssueApiResponse>(option3)
       parsed.error = asErrorCallback(option4)
       return parsed
     }

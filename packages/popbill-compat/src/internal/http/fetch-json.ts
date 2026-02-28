@@ -19,11 +19,7 @@ class HttpResponseError extends Error implements HttpErrorPayload {
   }
 }
 
-export async function fetchJson<T>(
-  requestUrl: string,
-  requestInit: RequestInit,
-  options: FetchJsonOptions
-): Promise<T> {
+export async function fetchJson<T>(requestUrl: string, requestInit: RequestInit, options: FetchJsonOptions): Promise<T> {
   const response = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs)
   const responseBody = await parseJsonResponse(response)
 
@@ -34,11 +30,7 @@ export async function fetchJson<T>(
   return responseBody as T
 }
 
-export async function fetchText(
-  requestUrl: string,
-  requestInit: RequestInit,
-  options: FetchJsonOptions
-): Promise<string> {
+export async function fetchText(requestUrl: string, requestInit: RequestInit, options: FetchJsonOptions): Promise<string> {
   const response = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs)
   const responseText = await response.text()
 

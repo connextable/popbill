@@ -1,9 +1,4 @@
-import type {
-  TaxInvoiceApiRequest,
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceMgtKeyType,
-  TaxInvoiceRequireRequestFields,
-} from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice SendToNTS Raw Spec
@@ -44,11 +39,7 @@ export type TaxInvoiceSendToNTSApiRequestBody = never
  * SendToNTS API 요청(raw).
  */
 export type TaxInvoiceSendToNTSApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceSendToNTSApiRequestPath,
-    TaxInvoiceSendToNTSApiRequestQuery,
-    TaxInvoiceSendToNTSApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceSendToNTSApiRequestPath, TaxInvoiceSendToNTSApiRequestQuery, TaxInvoiceSendToNTSApiRequestBody>,
   'path'
 >
 

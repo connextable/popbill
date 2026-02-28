@@ -6,12 +6,7 @@ describeTaxinvoiceIntegration('taxinvoice compat integration: getInfo', () => {
     const context = testkit.createTaxinvoiceMethodContext()
     const managementKey = await testkit.createDraftInvoice(context, 'GIN')
 
-    const response = await context.service.getInfo(
-      context.businessNumber,
-      context.invoiceDocumentKeyType,
-      managementKey,
-      context.userId
-    )
+    const response = await context.service.getInfo(context.businessNumber, context.invoiceDocumentKeyType, managementKey, context.userId)
 
     expect(typeof response.itemKey).toBe('string')
     expect(response.itemKey.length).toBeGreaterThan(0)

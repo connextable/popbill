@@ -1,4 +1,4 @@
-import type { TaxInvoiceGetUrlTogo, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
+
 import {
   asThrowableCompatError,
   dispatchCallbackError,
@@ -6,14 +6,10 @@ import {
   toCompatRuntimeError,
   type CompatRuntimeError,
 } from '@/internal/errors'
-import {
-  validateCorpNum,
-  validateMgtKey,
-  validateTaxInvoiceKeyType,
-  validateTaxinvoiceTogo,
-} from '@/internal/validation'
+import { validateCorpNum, validateMgtKey, validateTaxInvoiceKeyType, validateTaxinvoiceTogo } from '@/internal/validation'
 import type { LegacyErrorCallback, LegacySuccessCallback } from '@/services/taxinvoice/types'
 import type { TaxinvoiceRuntimeContext } from './context'
+import type * as Spec from '@connextable/popbill-spec'
 
 export const SERVICE_NAME = 'TaxinvoiceService'
 
@@ -117,22 +113,14 @@ export function handleCallbackError(
   dispatchCallbackError(runtimeError, errorCallback, context.defaultErrorHandler)
 }
 
-export function throwPromiseError(
-  context: TaxinvoiceRuntimeContext,
-  methods: TaxinvoiceRuntimeMethods,
-  error: unknown
-): never {
+export function throwPromiseError(context: TaxinvoiceRuntimeContext, methods: TaxinvoiceRuntimeMethods, error: unknown): never {
   const runtimeError = toCompatRuntimeError(error, `${SERVICE_NAME}.${methods}`)
   const throwableError = asThrowableCompatError(runtimeError)
   context.defaultErrorHandler?.(throwableError)
   throw throwableError
 }
 
-export function validateRequiredTaxinvoiceInputs(
-  corpNum: string,
-  keyType: TaxInvoiceMgtKeyType,
-  mgtKey?: string
-): void {
+export function validateRequiredTaxinvoiceInputs(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey?: string): void {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {
     throw corpNumError
@@ -152,8 +140,8 @@ export function validateRequiredTaxinvoiceInputs(
 }
 
 export function validateTaxinvoiceKeyTypeAllowed(
-  keyType: TaxInvoiceMgtKeyType,
-  allowed: readonly TaxInvoiceMgtKeyType[],
+  keyType: Spec.TaxInvoiceMgtKeyType,
+  allowed: readonly Spec.TaxInvoiceMgtKeyType[],
   message = '문서번호유형이 올바르지 않습니다.'
 ): void {
   if (allowed.includes(keyType)) {
@@ -163,7 +151,7 @@ export function validateTaxinvoiceKeyTypeAllowed(
   throw createLegacyValidationError(message)
 }
 
-export function validateGetUrlInputs(corpNum: string, togo: TaxInvoiceGetUrlTogo): void {
+export function validateGetUrlInputs(corpNum: string, togo: Spec.TaxInvoiceGetUrlTogo): void {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {
     throw corpNumError

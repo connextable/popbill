@@ -6,13 +6,6 @@ describeTaxinvoiceIntegration('taxinvoice compat integration: delete', () => {
     const context = testkit.createTaxinvoiceMethodContext()
     const managementKey = await testkit.createDraftInvoice(context, 'DEL')
 
-    testkit.expectApiSuccess(
-      await context.service.delete(
-        context.businessNumber,
-        context.invoiceDocumentKeyType,
-        managementKey,
-        context.userId
-      )
-    )
+    testkit.expectApiSuccess(await context.service.delete(context.businessNumber, context.invoiceDocumentKeyType, managementKey, context.userId))
   }, 180_000)
 })

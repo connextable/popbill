@@ -1,7 +1,7 @@
 import { mapTaxInvoiceInfo } from '@/services/tax-invoice/mappers/invoice-info'
-import type { TaxInvoiceGetInfoApiResponse } from '@connextable/popbill-spec'
+import type * as Spec from '@connextable/popbill-spec'
 
-const BASE_RESPONSE: TaxInvoiceGetInfoApiResponse = {
+const BASE_RESPONSE: Spec.TaxInvoiceGetInfoApiResponse = {
   itemKey: 'ITEM-1',
   taxType: '과세',
   writeDate: '20260225',
@@ -42,7 +42,7 @@ describe('tax-invoice invoice-info mapper', () => {
       ...BASE_RESPONSE,
       stateCode: '301',
       trusteePrintYN: 'true',
-    } as unknown as TaxInvoiceGetInfoApiResponse)
+    } as unknown as Spec.TaxInvoiceGetInfoApiResponse)
 
     expect(result.stateCode).toBe(301)
     expect(result.isTrusteePrinted).toBe(true)
@@ -53,7 +53,7 @@ describe('tax-invoice invoice-info mapper', () => {
       mapTaxInvoiceInfo({
         ...BASE_RESPONSE,
         stateCode: 'invalid',
-      } as unknown as TaxInvoiceGetInfoApiResponse)
+      } as unknown as Spec.TaxInvoiceGetInfoApiResponse)
     ).toThrow('유효하지 않은 stateCode 응답값입니다.')
   })
 })

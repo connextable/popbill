@@ -1,9 +1,4 @@
-import type {
-  TaxInvoiceApiRequest,
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceMgtKeyType,
-  TaxInvoiceRequireRequestFields,
-} from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice AssignMgtKey Raw Spec
@@ -54,11 +49,7 @@ export interface TaxInvoiceAssignMgtKeyApiRequestBody {
  * AssignMgtKey API 요청(raw).
  */
 export type TaxInvoiceAssignMgtKeyApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceAssignMgtKeyApiRequestPath,
-    TaxInvoiceAssignMgtKeyApiRequestQuery,
-    TaxInvoiceAssignMgtKeyApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceAssignMgtKeyApiRequestPath, TaxInvoiceAssignMgtKeyApiRequestQuery, TaxInvoiceAssignMgtKeyApiRequestBody>,
   'path' | 'body'
 >
 

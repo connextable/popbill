@@ -1,21 +1,5 @@
 import { toBoolean } from '@connextable/popbill-utils'
 import { mapTaxInvoiceInfo } from './invoice-info'
-import type {
-  TaxInvoiceApiModel,
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceBulkSubmitApiResponse,
-  TaxInvoiceGetBulkResultApiResponse,
-  TaxInvoiceGetDetailInfoApiResponse,
-  TaxInvoiceGetFilesApiResponse,
-  TaxInvoiceGetInfosApiResponse,
-  TaxInvoiceGetLogsApiResponse,
-  TaxInvoiceGetSendToNTSConfigApiResponse,
-  TaxInvoiceGetTaxCertInfoApiResponse,
-  TaxInvoiceGetXmlApiResponse,
-  TaxInvoiceIssueApiResponse,
-  TaxInvoiceListEmailConfigApiResponse,
-  TaxInvoiceSearchApiResponse,
-} from '@connextable/popbill-spec'
 import { TaxInvoiceChargeDirectionValues } from '@/services/tax-invoice/types'
 import type {
   TaxInvoiceAccessUrl,
@@ -40,12 +24,13 @@ import type {
   TaxInvoiceTaxCertificateInfo,
   TaxInvoiceXmlResult,
 } from '@/services/tax-invoice/types'
+import type * as Spec from '@connextable/popbill-spec'
 
 /**
  * 공통 API 처리결과를 도메인 처리결과로 변환합니다.
  */
 export function mapTaxInvoiceOperationResult(
-  taxInvoiceApiResponse: TaxInvoiceApiResponseBase | { code: number | string; message: string }
+  taxInvoiceApiResponse: Spec.TaxInvoiceApiResponseBase | { code: number | string; message: string }
 ): TaxInvoiceOperationResult {
   return {
     resultCode: toRequiredNumber(taxInvoiceApiResponse.code, 'code'),
@@ -56,7 +41,7 @@ export function mapTaxInvoiceOperationResult(
 /**
  * 발행 결과를 도메인 발행 결과로 변환합니다.
  */
-export function mapTaxInvoiceIssueResult(taxInvoiceApiResponse: TaxInvoiceIssueApiResponse): TaxInvoiceIssueResult {
+export function mapTaxInvoiceIssueResult(taxInvoiceApiResponse: Spec.TaxInvoiceIssueApiResponse): TaxInvoiceIssueResult {
   return removeUndefinedProperties({
     ...mapTaxInvoiceOperationResult(taxInvoiceApiResponse),
     nationalTaxServiceConfirmationNumber: taxInvoiceApiResponse.ntsConfirmNum,
@@ -67,9 +52,7 @@ export function mapTaxInvoiceIssueResult(taxInvoiceApiResponse: TaxInvoiceIssueA
 /**
  * 초대량 접수 결과를 도메인 결과로 변환합니다.
  */
-export function mapTaxInvoiceBulkSubmitResult(
-  taxInvoiceApiResponse: TaxInvoiceBulkSubmitApiResponse
-): TaxInvoiceBulkSubmitResult {
+export function mapTaxInvoiceBulkSubmitResult(taxInvoiceApiResponse: Spec.TaxInvoiceBulkSubmitApiResponse): TaxInvoiceBulkSubmitResult {
   return removeUndefinedProperties({
     ...mapTaxInvoiceOperationResult(taxInvoiceApiResponse),
     receiptIdentifier: taxInvoiceApiResponse.receiptID,
@@ -80,7 +63,7 @@ export function mapTaxInvoiceBulkSubmitResult(
  * 초대량 접수결과 조회 응답을 도메인 결과로 변환합니다.
  */
 export function mapTaxInvoiceBulkIssueSubmissionResult(
-  taxInvoiceApiResponse: TaxInvoiceGetBulkResultApiResponse
+  taxInvoiceApiResponse: Spec.TaxInvoiceGetBulkResultApiResponse
 ): TaxInvoiceBulkIssueSubmissionResult {
   return removeUndefinedProperties({
     ...mapTaxInvoiceOperationResult(taxInvoiceApiResponse),
@@ -89,9 +72,7 @@ export function mapTaxInvoiceBulkIssueSubmissionResult(
     submittedDocumentCount: toOptionalNumber(taxInvoiceApiResponse.submitCount),
     succeededDocumentCount: toOptionalNumber(taxInvoiceApiResponse.successCount),
     failedDocumentCount: toOptionalNumber(taxInvoiceApiResponse.failCount),
-    transactionState: toOptionalNumber(taxInvoiceApiResponse.txState) as
-      | TaxInvoiceBulkIssueSubmissionTransactionState
-      | undefined,
+    transactionState: toOptionalNumber(taxInvoiceApiResponse.txState) as TaxInvoiceBulkIssueSubmissionTransactionState | undefined,
     transactionStartedAt: taxInvoiceApiResponse.txStartDT,
     transactionCompletedAt: taxInvoiceApiResponse.txEndDT,
     transactionResultCode: toOptionalNumber(taxInvoiceApiResponse.txResultCode),
@@ -102,16 +83,14 @@ export function mapTaxInvoiceBulkIssueSubmissionResult(
 /**
  * 다건 문서 요약 응답을 도메인 목록으로 변환합니다.
  */
-export function mapTaxInvoiceInfos(taxInvoiceApiResponse: TaxInvoiceGetInfosApiResponse): TaxInvoiceInfo[] {
+export function mapTaxInvoiceInfos(taxInvoiceApiResponse: Spec.TaxInvoiceGetInfosApiResponse): TaxInvoiceInfo[] {
   return taxInvoiceApiResponse.map(mapTaxInvoiceInfo)
 }
 
 /**
  * 문서 상세 응답을 도메인 문서 상세로 변환합니다.
  */
-export function mapTaxInvoiceDocumentOutput(
-  taxInvoiceApiResponse: TaxInvoiceGetDetailInfoApiResponse
-): TaxInvoiceDocumentOutput {
+export function mapTaxInvoiceDocumentOutput(taxInvoiceApiResponse: Spec.TaxInvoiceGetDetailInfoApiResponse): TaxInvoiceDocumentOutput {
   return removeUndefinedProperties({
     writeSpecificationEnabled: taxInvoiceApiResponse.writeSpecification,
     writtenDate: taxInvoiceApiResponse.writeDate,
@@ -182,9 +161,7 @@ export function mapTaxInvoiceDocumentOutput(
 /**
  * 문서번호 사용 여부 응답을 도메인 결과로 변환합니다.
  */
-export function mapTaxInvoiceInvoiceManagementKeyUsage(
-  taxInvoiceApiResponse: boolean | { itemKey?: string }
-): TaxInvoiceInvoiceManagementKeyUsage {
+export function mapTaxInvoiceInvoiceManagementKeyUsage(taxInvoiceApiResponse: boolean | { itemKey?: string }): TaxInvoiceInvoiceManagementKeyUsage {
   if (typeof taxInvoiceApiResponse === 'boolean') {
     return {
       isInUse: taxInvoiceApiResponse,
@@ -200,7 +177,7 @@ export function mapTaxInvoiceInvoiceManagementKeyUsage(
 /**
  * XML 조회 응답을 도메인 결과로 변환합니다.
  */
-export function mapTaxInvoiceXmlResult(taxInvoiceApiResponse: TaxInvoiceGetXmlApiResponse): TaxInvoiceXmlResult {
+export function mapTaxInvoiceXmlResult(taxInvoiceApiResponse: Spec.TaxInvoiceGetXmlApiResponse): TaxInvoiceXmlResult {
   return removeUndefinedProperties({
     operationResult:
       taxInvoiceApiResponse.code === undefined || taxInvoiceApiResponse.message === undefined
@@ -218,7 +195,7 @@ export function mapTaxInvoiceXmlResult(taxInvoiceApiResponse: TaxInvoiceGetXmlAp
 /**
  * 검색 응답을 도메인 검색 결과로 변환합니다.
  */
-export function mapTaxInvoiceSearchResult(taxInvoiceApiResponse: TaxInvoiceSearchApiResponse): TaxInvoiceSearchResult {
+export function mapTaxInvoiceSearchResult(taxInvoiceApiResponse: Spec.TaxInvoiceSearchApiResponse): TaxInvoiceSearchResult {
   return removeUndefinedProperties({
     operationResult: mapTaxInvoiceOperationResult(taxInvoiceApiResponse),
     totalCount: toOptionalNumber(taxInvoiceApiResponse.total),
@@ -232,7 +209,7 @@ export function mapTaxInvoiceSearchResult(taxInvoiceApiResponse: TaxInvoiceSearc
 /**
  * 문서 로그 응답을 도메인 로그 목록으로 변환합니다.
  */
-export function mapTaxInvoiceLogs(taxInvoiceApiResponse: TaxInvoiceGetLogsApiResponse): TaxInvoiceLogEntry[] {
+export function mapTaxInvoiceLogs(taxInvoiceApiResponse: Spec.TaxInvoiceGetLogsApiResponse): TaxInvoiceLogEntry[] {
   return taxInvoiceApiResponse.map((logEntry) =>
     removeUndefinedProperties({
       documentLogTypeCode: toOptionalNumber(logEntry.docLogType),
@@ -264,9 +241,7 @@ export function mapTaxInvoiceAccessUrl(taxInvoiceApiResponse: { url: string }): 
 /**
  * 첨부파일 목록 응답을 도메인 목록으로 변환합니다.
  */
-export function mapTaxInvoiceAttachedFiles(
-  taxInvoiceApiResponse: TaxInvoiceGetFilesApiResponse
-): TaxInvoiceAttachedFile[] {
+export function mapTaxInvoiceAttachedFiles(taxInvoiceApiResponse: Spec.TaxInvoiceGetFilesApiResponse): TaxInvoiceAttachedFile[] {
   return taxInvoiceApiResponse.map((attachedFile) =>
     removeUndefinedProperties({
       sequenceNumber: attachedFile.serialNum,
@@ -280,9 +255,7 @@ export function mapTaxInvoiceAttachedFiles(
 /**
  * 이메일 전송설정 응답을 도메인 목록으로 변환합니다.
  */
-export function mapTaxInvoiceEmailSendSettings(
-  taxInvoiceApiResponse: TaxInvoiceListEmailConfigApiResponse
-): TaxInvoiceEmailSendSetting[] {
+export function mapTaxInvoiceEmailSendSettings(taxInvoiceApiResponse: Spec.TaxInvoiceListEmailConfigApiResponse): TaxInvoiceEmailSendSetting[] {
   return taxInvoiceApiResponse.map((emailSendSetting) =>
     removeUndefinedProperties({
       emailTypeCode: emailSendSetting.emailType,
@@ -295,7 +268,7 @@ export function mapTaxInvoiceEmailSendSettings(
  * 국세청 전송설정 응답을 도메인 설정으로 변환합니다.
  */
 export function mapTaxInvoiceSendToNationalTaxServiceSetting(
-  taxInvoiceApiResponse: TaxInvoiceGetSendToNTSConfigApiResponse
+  taxInvoiceApiResponse: Spec.TaxInvoiceGetSendToNTSConfigApiResponse
 ): TaxInvoiceSendToNationalTaxServiceSetting {
   return {
     sendToNationalTaxServiceEnabled: toBoolean(taxInvoiceApiResponse.sendToNTS),
@@ -312,9 +285,7 @@ export function mapTaxInvoiceTaxCertificateExpiration(expirationDateTime: string
 /**
  * 인증서 정보 응답을 도메인 정보로 변환합니다.
  */
-export function mapTaxInvoiceTaxCertificateInfo(
-  taxInvoiceApiResponse: TaxInvoiceGetTaxCertInfoApiResponse
-): TaxInvoiceTaxCertificateInfo {
+export function mapTaxInvoiceTaxCertificateInfo(taxInvoiceApiResponse: Spec.TaxInvoiceGetTaxCertInfoApiResponse): TaxInvoiceTaxCertificateInfo {
   return removeUndefinedProperties({
     registeredAt: taxInvoiceApiResponse.regDT,
     expiredAt: taxInvoiceApiResponse.expireDT,
@@ -331,7 +302,7 @@ export function mapTaxInvoiceTaxCertificateInfo(
  * 초대량 개별 처리 결과를 도메인 항목으로 변환합니다.
  */
 function mapTaxInvoiceBulkIssueSubmissionResultItem(
-  taxInvoiceApiResponse: NonNullable<TaxInvoiceGetBulkResultApiResponse['issueResult']>[number]
+  taxInvoiceApiResponse: NonNullable<Spec.TaxInvoiceGetBulkResultApiResponse['issueResult']>[number]
 ): TaxInvoiceBulkIssueSubmissionResultItem {
   return removeUndefinedProperties({
     invoiceDocumentKeyTypeCode: taxInvoiceApiResponse.keyType,
@@ -348,7 +319,7 @@ function mapTaxInvoiceBulkIssueSubmissionResultItem(
 /**
  * 공급자 응답 필드를 도메인 공급자 정보로 변환합니다.
  */
-function mapSupplierOutput(taxInvoiceApiResponse: TaxInvoiceApiModel): TaxInvoicePartyInput | undefined {
+function mapSupplierOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxInvoicePartyInput | undefined {
   return compactOptionalObject({
     businessNumber: taxInvoiceApiResponse.invoicerCorpNum,
     managementKey: taxInvoiceApiResponse.invoicerMgtKey,
@@ -376,7 +347,7 @@ function mapSupplierOutput(taxInvoiceApiResponse: TaxInvoiceApiModel): TaxInvoic
 /**
  * 공급받는자 응답 필드를 도메인 공급받는자 정보로 변환합니다.
  */
-function mapBuyerOutput(taxInvoiceApiResponse: TaxInvoiceApiModel): TaxInvoiceBuyerInput | undefined {
+function mapBuyerOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxInvoiceBuyerInput | undefined {
   return compactOptionalObject({
     recipientType: taxInvoiceApiResponse.invoiceeType,
     businessNumber: taxInvoiceApiResponse.invoiceeCorpNum,
@@ -413,7 +384,7 @@ function mapBuyerOutput(taxInvoiceApiResponse: TaxInvoiceApiModel): TaxInvoiceBu
 /**
  * 수탁자 응답 필드를 도메인 수탁자 정보로 변환합니다.
  */
-function mapTrusteeOutput(taxInvoiceApiResponse: TaxInvoiceApiModel): TaxInvoicePartyInput | undefined {
+function mapTrusteeOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxInvoicePartyInput | undefined {
   return compactOptionalObject({
     businessNumber: taxInvoiceApiResponse.trusteeCorpNum,
     managementKey: taxInvoiceApiResponse.trusteeMgtKey,

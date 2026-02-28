@@ -1,11 +1,11 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { TAXINVOICE_REQUIRED_METHODS } from '@/services/taxinvoice/methods'
+import type { TAXINVOICE_REQUIRED_METHODS } from '@/services/taxinvoice/methods'
 import { TaxinvoiceDocumentKeyTypes } from '@/services/taxinvoice/types'
 import type { TaxinvoicePromiseService } from '@connextable/popbill-compat/factory'
-import type { TaxInvoiceApiModel } from '@connextable/popbill-spec'
 import { createTaxinvoicePromiseIntegrationService, getTaxinvoiceIntegrationEnv } from './integration-context'
+import type * as Spec from '@connextable/popbill-spec'
 
 export type TaxinvoiceCompatMethodName = (typeof TAXINVOICE_REQUIRED_METHODS)[number]
 
@@ -110,10 +110,7 @@ export async function createReverseRequestedInvoice(context: TaxinvoiceMethodCon
   return managementKey
 }
 
-export async function attachFileAndFindIdentifier(
-  context: TaxinvoiceMethodContext,
-  managementKey: string
-): Promise<string> {
+export async function attachFileAndFindIdentifier(context: TaxinvoiceMethodContext, managementKey: string): Promise<string> {
   const filePath = await createTempFilePath(`attach-${managementKey}`)
 
   expectApiSuccess(
@@ -127,12 +124,7 @@ export async function attachFileAndFindIdentifier(
     )
   )
 
-  const files = await context.service.getFiles(
-    context.businessNumber,
-    context.invoiceDocumentKeyType,
-    managementKey,
-    context.userId
-  )
+  const files = await context.service.getFiles(context.businessNumber, context.invoiceDocumentKeyType, managementKey, context.userId)
 
   const fileIdentifier = files.find((file) => typeof file.attachedFile === 'string')?.attachedFile
 
@@ -153,7 +145,7 @@ interface CreateTaxInvoiceDocumentInput {
   remark?: string
 }
 
-export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): TaxInvoiceApiModel {
+export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): Spec.TaxInvoiceApiModel {
   return {
     writeDate: input.writeDate,
     chargeDirection: '정과금',

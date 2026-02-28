@@ -6,12 +6,7 @@ describeTaxinvoiceIntegration('taxinvoice compat integration: getMassPrintURL', 
     const context = testkit.createTaxinvoiceMethodContext()
     const managementKey = await testkit.createIssuedInvoice(context, 'BPR')
 
-    const response = await context.service.getMassPrintURL(
-      context.businessNumber,
-      context.invoiceDocumentKeyType,
-      [managementKey],
-      context.userId
-    )
+    const response = await context.service.getMassPrintURL(context.businessNumber, context.invoiceDocumentKeyType, [managementKey], context.userId)
 
     expect(typeof response).toBe('string')
     expect(response.startsWith('http')).toBe(true)

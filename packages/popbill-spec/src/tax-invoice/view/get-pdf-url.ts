@@ -49,11 +49,7 @@ export type TaxInvoiceGetPdfUrlApiRequestBody = never
  * GetPDFURL API 요청(raw).
  */
 export type TaxInvoiceGetPdfUrlApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceGetPdfUrlApiRequestPath,
-    TaxInvoiceGetPdfUrlApiRequestQuery,
-    TaxInvoiceGetPdfUrlApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceGetPdfUrlApiRequestPath, TaxInvoiceGetPdfUrlApiRequestQuery, TaxInvoiceGetPdfUrlApiRequestBody>,
   'path' | 'query'
 >
 

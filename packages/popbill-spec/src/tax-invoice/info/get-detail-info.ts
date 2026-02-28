@@ -50,11 +50,7 @@ export type TaxInvoiceGetDetailInfoApiRequestBody = never
  * GetDetailInfo API 요청(raw).
  */
 export type TaxInvoiceGetDetailInfoApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceGetDetailInfoApiRequestPath,
-    TaxInvoiceGetDetailInfoApiRequestQuery,
-    TaxInvoiceGetDetailInfoApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceGetDetailInfoApiRequestPath, TaxInvoiceGetDetailInfoApiRequestQuery, TaxInvoiceGetDetailInfoApiRequestBody>,
   'path' | 'query'
 >
 

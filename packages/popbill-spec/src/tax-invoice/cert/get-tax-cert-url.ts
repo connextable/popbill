@@ -32,11 +32,7 @@ export type TaxInvoiceGetTaxCertUrlApiRequestBody = never
  * GetTaxCertURL API 요청(raw).
  */
 export type TaxInvoiceGetTaxCertUrlApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceGetTaxCertUrlApiRequestPath,
-    TaxInvoiceGetTaxCertUrlApiRequestQuery,
-    TaxInvoiceGetTaxCertUrlApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceGetTaxCertUrlApiRequestPath, TaxInvoiceGetTaxCertUrlApiRequestQuery, TaxInvoiceGetTaxCertUrlApiRequestBody>,
   'query'
 >
 

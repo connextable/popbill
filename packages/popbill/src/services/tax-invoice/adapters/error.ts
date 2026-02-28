@@ -11,11 +11,7 @@ export interface TaxInvoiceErrorHandlingContext {
 /**
  * TaxInvoice facade 메서드를 실행하고 예외를 `PopbillApiError`로 표준화합니다.
  */
-export async function invokeTaxInvoiceMethod<T>(
-  context: TaxInvoiceErrorHandlingContext,
-  operation: string,
-  handler: () => Promise<T>
-): Promise<T> {
+export async function invokeTaxInvoiceMethod<T>(context: TaxInvoiceErrorHandlingContext, operation: string, handler: () => Promise<T>): Promise<T> {
   try {
     return await handler()
   } catch (error) {

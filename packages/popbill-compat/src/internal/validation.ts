@@ -1,6 +1,6 @@
 import { isBlank } from '@connextable/popbill-utils'
-import type { TaxInvoiceGetUrlTogo, TaxInvoiceMgtKeyType } from '@connextable/popbill-spec'
 import { createLegacyValidationError, type LegacyCompatError } from './errors'
+import type * as Spec from '@connextable/popbill-spec'
 
 const TAX_INVOICE_EMAIL_TYPES = new Set([
   'ETC_CERT_EXPIRATION',
@@ -88,11 +88,7 @@ export function validateItemKey(itemKey: string): LegacyCompatError | undefined 
   return undefined
 }
 
-export function validateSearchDate(
-  value: string,
-  missingMessage: string,
-  invalidMessage: string
-): LegacyCompatError | undefined {
+export function validateSearchDate(value: string, missingMessage: string, invalidMessage: string): LegacyCompatError | undefined {
   if (isBlank(value)) {
     return createLegacyValidationError(missingMessage)
   }
@@ -152,19 +148,12 @@ export function validateTaxinvoiceTogo(togo: string): LegacyCompatError | undefi
   return undefined
 }
 
-function isTaxInvoiceKeyType(value: string): value is TaxInvoiceMgtKeyType {
+function isTaxInvoiceKeyType(value: string): value is Spec.TaxInvoiceMgtKeyType {
   return value === 'SELL' || value === 'BUY' || value === 'TRUSTEE'
 }
 
-function isTaxinvoiceTogo(value: string): value is TaxInvoiceGetUrlTogo {
-  return (
-    value === 'TBOX' ||
-    value === 'SWBOX' ||
-    value === 'SBOX' ||
-    value === 'PWBOX' ||
-    value === 'PBOX' ||
-    value === 'WRITE'
-  )
+function isTaxinvoiceTogo(value: string): value is Spec.TaxInvoiceGetUrlTogo {
+  return value === 'TBOX' || value === 'SWBOX' || value === 'SBOX' || value === 'PWBOX' || value === 'PBOX' || value === 'WRITE'
 }
 
 function isValidDate(value: string): boolean {

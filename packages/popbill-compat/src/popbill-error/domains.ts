@@ -60,10 +60,7 @@ export function isKnownPopbillApiError(error: PopbillApiError): error is Popbill
   return error.knownCode
 }
 
-export function matchPopbillErrorByDomain<T>(
-  error: PopbillApiError,
-  handlers: PopbillErrorDomainHandlers<T>
-): T | undefined {
+export function matchPopbillErrorByDomain<T>(error: PopbillApiError, handlers: PopbillErrorDomainHandlers<T>): T | undefined {
   const domainHandler = handlers[error.domain]
   if (domainHandler) {
     return domainHandler(error)

@@ -5,12 +5,7 @@ describeTaxinvoiceIntegration('taxinvoice compat integration: assignMgtKey', () 
   test('assignMgtKey succeeds', async () => {
     const context = testkit.createTaxinvoiceMethodContext()
     const managementKey = await testkit.createDraftInvoice(context, 'AMK')
-    const info = await context.service.getInfo(
-      context.businessNumber,
-      context.invoiceDocumentKeyType,
-      managementKey,
-      context.userId
-    )
+    const info = await context.service.getInfo(context.businessNumber, context.invoiceDocumentKeyType, managementKey, context.userId)
 
     testkit.expectApiSuccess(
       await context.service.assignMgtKey(

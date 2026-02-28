@@ -1,8 +1,4 @@
-import {
-  createTaxinvoicePromiseService,
-  type CompatConfig,
-  type TaxinvoicePromiseService,
-} from '@connextable/popbill-compat/factory'
+import { createTaxinvoicePromiseService, type CompatConfig, type TaxinvoicePromiseService } from '@connextable/popbill-compat/factory'
 import { normalizeOptionalString } from '@connextable/popbill-utils'
 
 const DEFAULT_REQUEST_TIMEOUT_MILLISECONDS = 180_000

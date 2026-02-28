@@ -7,12 +7,7 @@ describeTaxinvoiceIntegration('taxinvoice compat integration: getFiles', () => {
     const managementKey = await testkit.createDraftInvoice(context, 'GAF')
     await testkit.attachFileAndFindIdentifier(context, managementKey)
 
-    const response = await context.service.getFiles(
-      context.businessNumber,
-      context.invoiceDocumentKeyType,
-      managementKey,
-      context.userId
-    )
+    const response = await context.service.getFiles(context.businessNumber, context.invoiceDocumentKeyType, managementKey, context.userId)
 
     expect(Array.isArray(response)).toBe(true)
     expect(response.length).toBeGreaterThan(0)

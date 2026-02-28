@@ -2,24 +2,10 @@ import { getConfiguration, setConfiguration, type CompatConfig } from './config'
 import { MgtKeyType, MessageType, KakaoType } from './constants'
 import type { CallbackService } from './adapters/callback-adapter'
 import { createSingleton } from './internal/singleton'
-import {
-  type TaxinvoiceCallbackService,
-  createAccountCheckService,
-  createBizInfoCheckService,
-  createCashbillService,
-  createClosedownService,
-  createEasyFinBankService,
-  createFaxService,
-  createHTCashbillService,
-  createHTTaxinvoiceService,
-  createKakaoService,
-  createMessageService,
-  createStatementService,
-  createTaxinvoiceService,
-} from './services'
+import * as services from './services'
 
 interface CallbackServices {
-  TaxinvoiceService: TaxinvoiceCallbackService
+  TaxinvoiceService: services.TaxinvoiceCallbackService
   StatementService: CallbackService
   CashbillService: CallbackService
   MessageService: CallbackService
@@ -34,18 +20,18 @@ interface CallbackServices {
 }
 
 const callbackServiceCreators = {
-  TaxinvoiceService: createTaxinvoiceService,
-  StatementService: createStatementService,
-  CashbillService: createCashbillService,
-  MessageService: createMessageService,
-  KakaoService: createKakaoService,
-  FaxService: createFaxService,
-  HTTaxinvoiceService: createHTTaxinvoiceService,
-  HTCashbillService: createHTCashbillService,
-  ClosedownService: createClosedownService,
-  BizInfoCheckService: createBizInfoCheckService,
-  EasyFinBankService: createEasyFinBankService,
-  AccountCheckService: createAccountCheckService,
+  TaxinvoiceService: services.createTaxinvoiceService,
+  StatementService: services.createStatementService,
+  CashbillService: services.createCashbillService,
+  MessageService: services.createMessageService,
+  KakaoService: services.createKakaoService,
+  FaxService: services.createFaxService,
+  HTTaxinvoiceService: services.createHTTaxinvoiceService,
+  HTCashbillService: services.createHTCashbillService,
+  ClosedownService: services.createClosedownService,
+  BizInfoCheckService: services.createBizInfoCheckService,
+  EasyFinBankService: services.createEasyFinBankService,
+  AccountCheckService: services.createAccountCheckService,
 } as const satisfies { [K in keyof CallbackServices]: (config: CompatConfig) => CallbackServices[K] }
 
 const singleton = createSingleton<CallbackServices>()
@@ -63,7 +49,7 @@ function getService<TServiceKey extends keyof CallbackServices>(service: TServic
   return singleton.get(service, () => creator(getConfiguration()))
 }
 
-export function TaxinvoiceService(): TaxinvoiceCallbackService {
+export function TaxinvoiceService(): services.TaxinvoiceCallbackService {
   return getService('TaxinvoiceService')
 }
 

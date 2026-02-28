@@ -1,11 +1,8 @@
 import { fetchJson } from '@/internal/http/fetch-json'
 import type { TokenProvider } from '@/internal/linkhub'
+import { PopbillHttpMethodOverrides } from '@/internal/spec-constants'
 import { isBlank, normalizeOptionalString, sha1Base64, trimTrailingSlash } from '@connextable/popbill-utils'
-import {
-  PopbillHttpMethodOverrides,
-  type PopbillAcceptEncoding,
-  type PopbillAcceptLanguage,
-} from '@connextable/popbill-spec'
+import type * as Spec from '@connextable/popbill-spec'
 
 const POPBILL_USER_AGENT = 'NODEJS POPBILL SDK'
 
@@ -20,8 +17,8 @@ export interface PopbillRequestClientConfig {
   apiBaseUrl: string
   timeoutMs: number
   tokenProvider: TokenProvider
-  acceptEncoding?: PopbillAcceptEncoding | null
-  acceptLanguage?: PopbillAcceptLanguage
+  acceptEncoding?: Spec.PopbillAcceptEncoding | null
+  acceptLanguage?: Spec.PopbillAcceptLanguage
 }
 
 export interface PopbillRequestOptions {

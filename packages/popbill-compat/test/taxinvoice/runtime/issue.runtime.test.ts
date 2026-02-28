@@ -1,19 +1,9 @@
-import type { TaxInvoiceIssueApiResponse } from '@connextable/popbill-spec'
-import {
-  asError,
-  compat,
-  configureCompat,
-  createTokenResponseBody,
-  getTaxinvoiceRequestInit,
-  expectTaxinvoiceRequestPath,
-  promiseCompat,
-  stubFetchResponses,
-  toJsonResponse,
-} from './helpers'
+import * as helpers from './helpers'
+import type * as Spec from '@connextable/popbill-spec'
 
 describe('taxinvoice runtime: issue', () => {
   beforeEach(() => {
-    configureCompat()
+    helpers.configureCompat()
   })
 
   afterEach(() => {
@@ -22,33 +12,33 @@ describe('taxinvoice runtime: issue', () => {
   })
 
   test('callback issue supports legacy overload without memo', async () => {
-    const issueResponse: TaxInvoiceIssueApiResponse = {
+    const issueResponse: Spec.TaxInvoiceIssueApiResponse = {
       code: 1,
       message: 'issued',
       ntsConfirmNum: '20260225-0001',
     }
-    const fetchMock = stubFetchResponses(toJsonResponse(createTokenResponseBody()), toJsonResponse(issueResponse))
-    const service = compat.TaxinvoiceService()
+    const fetchMock = helpers.stubFetchResponses(helpers.toJsonResponse(helpers.createTokenResponseBody()), helpers.toJsonResponse(issueResponse))
+    const service = helpers.compat.TaxinvoiceService()
 
-    const resolved = await new Promise<TaxInvoiceIssueApiResponse>((resolve, reject) => {
+    const resolved = await new Promise<Spec.TaxInvoiceIssueApiResponse>((resolve, reject) => {
       service.issue(
         '1234567890',
         'SELL',
         'MGT-001',
-        (response: TaxInvoiceIssueApiResponse) => {
+        (response: Spec.TaxInvoiceIssueApiResponse) => {
           resolve(response)
         },
         (error: unknown) => {
-          reject(asError(error))
+          reject(helpers.asError(error))
         }
       )
     })
 
     expect(resolved).toMatchObject(issueResponse)
     expect(fetchMock).toHaveBeenCalledTimes(2)
-    expectTaxinvoiceRequestPath(fetchMock, '/Taxinvoice/SELL/MGT-001')
+    helpers.expectTaxinvoiceRequestPath(fetchMock, '/Taxinvoice/SELL/MGT-001')
 
-    const requestInit = getTaxinvoiceRequestInit(fetchMock)
+    const requestInit = helpers.getTaxinvoiceRequestInit(fetchMock)
     const requestHeaders = requestInit.headers as Record<string, string>
     expect(requestHeaders['X-HTTP-Method-Override']).toBe('ISSUE')
     expect(requestHeaders).not.toHaveProperty('x-pb-userid')
@@ -56,12 +46,12 @@ describe('taxinvoice runtime: issue', () => {
   })
 
   test('callback issue prioritizes single optional string as userId', async () => {
-    const issueResponse: TaxInvoiceIssueApiResponse = {
+    const issueResponse: Spec.TaxInvoiceIssueApiResponse = {
       code: 1,
       message: 'issued',
     }
-    const fetchMock = stubFetchResponses(toJsonResponse(createTokenResponseBody()), toJsonResponse(issueResponse))
-    const service = compat.TaxinvoiceService()
+    const fetchMock = helpers.stubFetchResponses(helpers.toJsonResponse(helpers.createTokenResponseBody()), helpers.toJsonResponse(issueResponse))
+    const service = helpers.compat.TaxinvoiceService()
 
     await new Promise<void>((resolve, reject) => {
       service.issue(
@@ -74,12 +64,12 @@ describe('taxinvoice runtime: issue', () => {
           resolve()
         },
         (error: unknown) => {
-          reject(asError(error))
+          reject(helpers.asError(error))
         }
       )
     })
 
-    const requestInit = getTaxinvoiceRequestInit(fetchMock)
+    const requestInit = helpers.getTaxinvoiceRequestInit(fetchMock)
     const requestHeaders = requestInit.headers as Record<string, string>
     expect(requestHeaders['x-pb-userid']).toBe('test-user')
     expect(JSON.parse(requestInit.body as string)).toEqual({
@@ -89,12 +79,12 @@ describe('taxinvoice runtime: issue', () => {
   })
 
   test('callback issue supports full argument shape with emailSubject and forceIssue', async () => {
-    const issueResponse: TaxInvoiceIssueApiResponse = {
+    const issueResponse: Spec.TaxInvoiceIssueApiResponse = {
       code: 1,
       message: 'issued',
     }
-    const fetchMock = stubFetchResponses(toJsonResponse(createTokenResponseBody()), toJsonResponse(issueResponse))
-    const service = compat.TaxinvoiceService()
+    const fetchMock = helpers.stubFetchResponses(helpers.toJsonResponse(helpers.createTokenResponseBody()), helpers.toJsonResponse(issueResponse))
+    const service = helpers.compat.TaxinvoiceService()
 
     await new Promise<void>((resolve, reject) => {
       service.issue(
@@ -109,12 +99,12 @@ describe('taxinvoice runtime: issue', () => {
           resolve()
         },
         (error: unknown) => {
-          reject(asError(error))
+          reject(helpers.asError(error))
         }
       )
     })
 
-    const requestInit = getTaxinvoiceRequestInit(fetchMock)
+    const requestInit = helpers.getTaxinvoiceRequestInit(fetchMock)
     const requestHeaders = requestInit.headers as Record<string, string>
     expect(requestHeaders['x-pb-userid']).toBe('test-user')
     expect(JSON.parse(requestInit.body as string)).toEqual({
@@ -125,15 +115,15 @@ describe('taxinvoice runtime: issue', () => {
   })
 
   test('promise issue treats single optional string as userId', async () => {
-    const issueResponse: TaxInvoiceIssueApiResponse = {
+    const issueResponse: Spec.TaxInvoiceIssueApiResponse = {
       code: 1,
       message: 'issued',
     }
-    const fetchMock = stubFetchResponses(toJsonResponse(createTokenResponseBody()), toJsonResponse(issueResponse))
+    const fetchMock = helpers.stubFetchResponses(helpers.toJsonResponse(helpers.createTokenResponseBody()), helpers.toJsonResponse(issueResponse))
 
-    await promiseCompat.TaxinvoiceService().issue('1234567890', 'SELL', 'MGT-004', '발행메모', 'promise-user')
+    await helpers.promiseCompat.TaxinvoiceService().issue('1234567890', 'SELL', 'MGT-004', '발행메모', 'promise-user')
 
-    const requestInit = getTaxinvoiceRequestInit(fetchMock)
+    const requestInit = helpers.getTaxinvoiceRequestInit(fetchMock)
     const requestHeaders = requestInit.headers as Record<string, string>
     expect(requestHeaders['x-pb-userid']).toBe('promise-user')
     expect(JSON.parse(requestInit.body as string)).toEqual({
@@ -148,10 +138,10 @@ describe('taxinvoice runtime: issue', () => {
       message: 'issued',
       ntsConfirmNum: '20260225-0900',
     }
-    const fetchMock = stubFetchResponses(toJsonResponse(createTokenResponseBody()), toJsonResponse(issueResponse))
+    const fetchMock = helpers.stubFetchResponses(helpers.toJsonResponse(helpers.createTokenResponseBody()), helpers.toJsonResponse(issueResponse))
 
     await new Promise<void>((resolve, reject) => {
-      compat.TaxinvoiceService().registIssue(
+      helpers.compat.TaxinvoiceService().registIssue(
         '1234567890',
         { issueType: '정발행' } as never,
         true,
@@ -164,15 +154,15 @@ describe('taxinvoice runtime: issue', () => {
           resolve()
         },
         (error: unknown) => {
-          reject(asError(error))
+          reject(helpers.asError(error))
         }
       )
     })
 
     expect(fetchMock).toHaveBeenCalledTimes(2)
-    expectTaxinvoiceRequestPath(fetchMock, '/Taxinvoice')
+    helpers.expectTaxinvoiceRequestPath(fetchMock, '/Taxinvoice')
 
-    const requestInit = getTaxinvoiceRequestInit(fetchMock)
+    const requestInit = helpers.getTaxinvoiceRequestInit(fetchMock)
     const requestHeaders = requestInit.headers as Record<string, string>
     expect(requestHeaders['X-HTTP-Method-Override']).toBe('ISSUE')
     expect(requestHeaders['x-pb-userid']).toBe('regist-user')

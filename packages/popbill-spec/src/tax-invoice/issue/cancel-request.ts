@@ -1,9 +1,4 @@
-import type {
-  TaxInvoiceApiRequest,
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceMgtKeyType,
-  TaxInvoiceRequireRequestFields,
-} from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice CancelRequest Raw Spec
@@ -48,11 +43,7 @@ export interface TaxInvoiceCancelRequestApiRequestBody {
  * CancelRequest API 요청(raw).
  */
 export type TaxInvoiceCancelRequestApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceCancelRequestApiRequestPath,
-    TaxInvoiceCancelRequestApiRequestQuery,
-    TaxInvoiceCancelRequestApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceCancelRequestApiRequestPath, TaxInvoiceCancelRequestApiRequestQuery, TaxInvoiceCancelRequestApiRequestBody>,
   'path'
 >
 

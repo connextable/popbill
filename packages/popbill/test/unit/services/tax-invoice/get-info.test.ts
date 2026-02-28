@@ -85,9 +85,7 @@ describe('tax-invoice getInvoiceInfo', () => {
     expect(response).toMatchObject(expectedResponse)
     expect(fetchMock).toHaveBeenCalledTimes(2)
     expect(String(fetchMock.mock.calls[0]?.[0])).toContain('https://auth.linkhub.co.kr/POPBILL_TEST/Token')
-    expect(String(fetchMock.mock.calls[1]?.[0])).toContain(
-      'https://popbill-test.linkhub.co.kr/Taxinvoice/SELL/20260224-001'
-    )
+    expect(String(fetchMock.mock.calls[1]?.[0])).toContain('https://popbill-test.linkhub.co.kr/Taxinvoice/SELL/20260224-001')
 
     const secondRequestInit = fetchMock.mock.calls[1]?.[1] as RequestInit
     const secondRequestHeaders = secondRequestInit.headers as Record<string, string>

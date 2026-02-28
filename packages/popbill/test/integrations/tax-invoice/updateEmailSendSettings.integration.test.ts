@@ -9,9 +9,8 @@ describeTaxInvoiceIntegration('popbill tax-invoice integration: updateEmailSendS
       businessNumber: context.businessNumber,
     })
     const allowedEmailTypes = new Set<string>(Object.values(TaxInvoiceEmailTypes))
-    const emailType = (settings.find(
-      (setting) => typeof setting.emailTypeCode === 'string' && allowedEmailTypes.has(setting.emailTypeCode)
-    )?.emailTypeCode ?? TaxInvoiceEmailTypes.TaxIssue) as TaxInvoiceEmailType
+    const emailType = (settings.find((setting) => typeof setting.emailTypeCode === 'string' && allowedEmailTypes.has(setting.emailTypeCode))
+      ?.emailTypeCode ?? TaxInvoiceEmailTypes.TaxIssue) as TaxInvoiceEmailType
 
     testkit.expectApiSuccess(
       await context.service.updateEmailSendSettings({

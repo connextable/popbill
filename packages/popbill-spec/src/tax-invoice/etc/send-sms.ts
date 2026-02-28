@@ -1,9 +1,4 @@
-import type {
-  TaxInvoiceApiRequest,
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceMgtKeyType,
-  TaxInvoiceRequireRequestFields,
-} from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice SendSMS Raw Spec
@@ -64,11 +59,7 @@ export interface TaxInvoiceSendSmsApiRequestBody {
  * SendSMS API 요청(raw).
  */
 export type TaxInvoiceSendSmsApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceSendSmsApiRequestPath,
-    TaxInvoiceSendSmsApiRequestQuery,
-    TaxInvoiceSendSmsApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceSendSmsApiRequestPath, TaxInvoiceSendSmsApiRequestQuery, TaxInvoiceSendSmsApiRequestBody>,
   'path' | 'body'
 >
 

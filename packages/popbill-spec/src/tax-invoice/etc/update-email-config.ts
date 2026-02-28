@@ -1,9 +1,4 @@
-import type {
-  TaxInvoiceApiRequest,
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceEmailType,
-  TaxInvoiceRequireRequestFields,
-} from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceApiResponseBase, TaxInvoiceEmailType, TaxInvoiceRequireRequestFields } from '../common'
 
 /**
  * TaxInvoice UpdateEmailConfig Raw Spec

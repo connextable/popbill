@@ -42,11 +42,7 @@ export type TaxInvoiceCheckMgtKeyInUseApiRequestBody = never
  * CheckMgtKeyInUse API 요청(raw).
  */
 export type TaxInvoiceCheckMgtKeyInUseApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceCheckMgtKeyInUseApiRequestPath,
-    TaxInvoiceCheckMgtKeyInUseApiRequestQuery,
-    TaxInvoiceCheckMgtKeyInUseApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceCheckMgtKeyInUseApiRequestPath, TaxInvoiceCheckMgtKeyInUseApiRequestQuery, TaxInvoiceCheckMgtKeyInUseApiRequestBody>,
   'path'
 >
 

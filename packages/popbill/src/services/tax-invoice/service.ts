@@ -1,53 +1,8 @@
 import { invokeTaxInvoiceMethod } from './adapters/error'
-import { mapTaxInvoiceDocument, mapTaxInvoiceDocuments } from './mappers/document'
-import { mapTaxInvoiceInfo } from './mappers/invoice-info'
-import {
-  mapTaxInvoiceAccessUrl,
-  mapTaxInvoiceAccessUrlFromString,
-  mapTaxInvoiceAttachedFiles,
-  mapTaxInvoiceBulkIssueSubmissionResult,
-  mapTaxInvoiceBulkSubmitResult,
-  mapTaxInvoiceDocumentOutput,
-  mapTaxInvoiceEmailSendSettings,
-  mapTaxInvoiceInfos,
-  mapTaxInvoiceInvoiceManagementKeyUsage,
-  mapTaxInvoiceIssueResult,
-  mapTaxInvoiceLogs,
-  mapTaxInvoiceOperationResult,
-  mapTaxInvoiceSearchResult,
-  mapTaxInvoiceSendToNationalTaxServiceSetting,
-  mapTaxInvoiceTaxCertificateExpiration,
-  mapTaxInvoiceTaxCertificateInfo,
-  mapTaxInvoiceXmlResult,
-} from './mappers/response'
-import {
-  TaxInvoiceCloseDownStateCodes,
-  TaxInvoiceDateType,
-  TaxInvoiceEmailTypes,
-  TaxInvoiceSearchInteroperabilityTypes,
-  TaxInvoiceSearchInvoiceTypeCodes,
-  TaxInvoiceSearchIssueTypeCodes,
-  TaxInvoiceSearchRegistrationTypeCodes,
-  TaxInvoiceSearchTaxationTypeCodes,
-  TaxInvoiceSearchTaxRegistrationIdentifierAvailabilities,
-  TaxInvoiceSearchTaxRegistrationIdentifierTypes,
-  TaxInvoiceSortOrder,
-  TaxInvoiceStatementItemCodes,
-  type SearchInvoicesInput,
-  type TaxInvoiceCloseDownStateCode,
-  type TaxInvoiceDateInput,
-  type TaxInvoiceEmailType,
-  type TaxInvoiceSearchInteroperabilityType,
-  type TaxInvoiceSearchInvoiceTypeCode,
-  type TaxInvoiceSearchIssueTypeCode,
-  type TaxInvoiceSearchRegistrationTypeCode,
-  type TaxInvoiceSearchStateCode,
-  type TaxInvoiceSearchTaxationTypeCode,
-  type TaxInvoiceSearchTaxRegistrationIdentifierAvailability,
-  type TaxInvoiceSearchTaxRegistrationIdentifierType,
-  type TaxInvoiceService,
-  type TaxInvoiceStatementItemCode,
-} from './types'
+import * as documentMappers from './mappers/document'
+import * as invoiceInfoMappers from './mappers/invoice-info'
+import * as responseMappers from './mappers/response'
+import * as taxInvoiceTypes from './types'
 import { createInputValidationError } from '@connextable/popbill-compat/errors'
 import type { TaxinvoicePromiseService as CompatTaxInvoiceService } from '@connextable/popbill-compat/factory'
 import { PopbillErrorStage, type PopbillApiError } from '@/errors'
@@ -74,7 +29,7 @@ interface CreateTaxInvoiceServiceInput {
  * 입력 DTO를 compat positional 인자로 변환하고,
  * compat 에러를 `PopbillApiError`로 표준화하여 재throw 합니다.
  */
-export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): TaxInvoiceService {
+export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): taxInvoiceTypes.TaxInvoiceService {
   const compatTaxInvoiceService = input.compatTaxInvoiceService
 
   return {
@@ -82,7 +37,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       return invokeTaxInvoiceMethod(input, 'taxInvoice.issueInvoiceImmediately', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.registIssue(
           request.businessNumber,
-          mapTaxInvoiceDocument(request.taxInvoiceDocument),
+          documentMappers.mapTaxInvoiceDocument(request.taxInvoiceDocument),
           request.writeSpecification,
           request.forceIssue,
           request.historyMemo,
@@ -91,7 +46,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceIssueResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceIssueResult(taxInvoiceApiResponse)
       })
     },
 
@@ -100,12 +55,12 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
         const taxInvoiceApiResponse = await compatTaxInvoiceService.bulkSubmit(
           request.businessNumber,
           request.submissionIdentifier,
-          mapTaxInvoiceDocuments(request.taxInvoiceDocuments),
+          documentMappers.mapTaxInvoiceDocuments(request.taxInvoiceDocuments),
           request.forceIssue,
           input.defaultUserId
         )
 
-        return mapTaxInvoiceBulkSubmitResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceBulkSubmitResult(taxInvoiceApiResponse)
       })
     },
 
@@ -117,7 +72,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceBulkIssueSubmissionResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceBulkIssueSubmissionResult(taxInvoiceApiResponse)
       })
     },
 
@@ -125,11 +80,11 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       return invokeTaxInvoiceMethod(input, 'taxInvoice.registerInvoice', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.register(
           request.businessNumber,
-          mapTaxInvoiceDocument(request.taxInvoiceDocument),
+          documentMappers.mapTaxInvoiceDocument(request.taxInvoiceDocument),
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -139,11 +94,11 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           request.businessNumber,
           request.invoiceDocumentKeyType,
           request.invoiceManagementKey,
-          mapTaxInvoiceDocument(request.taxInvoiceDocument),
+          documentMappers.mapTaxInvoiceDocument(request.taxInvoiceDocument),
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -159,7 +114,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceIssueResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceIssueResult(taxInvoiceApiResponse)
       })
     },
 
@@ -173,7 +128,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -181,12 +136,12 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
       return invokeTaxInvoiceMethod(input, 'taxInvoice.requestReverseIssueImmediately', async () => {
         const taxInvoiceApiResponse = await compatTaxInvoiceService.registRequest(
           request.businessNumber,
-          mapTaxInvoiceDocument(request.taxInvoiceDocument),
+          documentMappers.mapTaxInvoiceDocument(request.taxInvoiceDocument),
           request.historyMemo,
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -200,7 +155,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -214,7 +169,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -228,7 +183,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -241,7 +196,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -254,7 +209,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -267,7 +222,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceInfo(apiResponse)
+        return invoiceInfoMappers.mapTaxInvoiceInfo(apiResponse)
       })
     },
 
@@ -280,7 +235,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceInfos(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceInfos(taxInvoiceApiResponse)
       })
     },
 
@@ -293,7 +248,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceDocumentOutput(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceDocumentOutput(taxInvoiceApiResponse)
       })
     },
 
@@ -306,7 +261,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceInvoiceManagementKeyUsage(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceInvoiceManagementKeyUsage(taxInvoiceApiResponse)
       })
     },
 
@@ -319,7 +274,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceXmlResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceXmlResult(taxInvoiceApiResponse)
       })
     },
 
@@ -351,7 +306,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           normalizedSearchRequest.invoiceManagementKeyOrNationalTaxServiceConfirmationNumber
         )
 
-        return mapTaxInvoiceSearchResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceSearchResult(taxInvoiceApiResponse)
       })
     },
 
@@ -364,19 +319,15 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceLogs(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceLogs(taxInvoiceApiResponse)
       })
     },
 
     getTaxInvoiceBoxURL(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxInvoiceBoxURL', async () => {
-        const taxInvoiceApiResponse = await compatTaxInvoiceService.getURL(
-          request.businessNumber,
-          request.taxInvoiceBoxScope,
-          input.defaultUserId
-        )
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getURL(request.businessNumber, request.taxInvoiceBoxScope, input.defaultUserId)
 
-        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
       })
     },
 
@@ -389,7 +340,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
       })
     },
 
@@ -402,7 +353,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
       })
     },
 
@@ -415,7 +366,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
       })
     },
 
@@ -428,7 +379,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
       })
     },
 
@@ -441,7 +392,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
       })
     },
 
@@ -454,7 +405,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
       })
     },
 
@@ -467,17 +418,14 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceAccessUrlFromString(taxInvoiceApiResponse)
       })
     },
 
     getSealAndAttachmentRegistrationURL(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getSealAndAttachmentRegistrationURL', async () => {
-        const taxInvoiceApiResponse = await compatTaxInvoiceService.getSealURL(
-          request.businessNumber,
-          input.defaultUserId
-        )
-        return mapTaxInvoiceAccessUrl(taxInvoiceApiResponse)
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getSealURL(request.businessNumber, input.defaultUserId)
+        return responseMappers.mapTaxInvoiceAccessUrl(taxInvoiceApiResponse)
       })
     },
 
@@ -492,7 +440,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -509,7 +457,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -523,7 +471,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -536,7 +484,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceAttachedFiles(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceAttachedFiles(taxInvoiceApiResponse)
       })
     },
 
@@ -550,7 +498,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -566,7 +514,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -581,16 +529,13 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
     attachInvoiceStatement(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.attachInvoiceStatement', async () => {
-        const statementItemCode = normalizeStatementItemCode(
-          request.statementItemCode,
-          'taxInvoice.attachInvoiceStatement'
-        )
+        const statementItemCode = normalizeStatementItemCode(request.statementItemCode, 'taxInvoice.attachInvoiceStatement')
         const taxInvoiceApiResponse = await compatTaxInvoiceService.attachStatement(
           request.businessNumber,
           request.invoiceDocumentKeyType,
@@ -600,16 +545,13 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
     detachInvoiceStatement(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.detachInvoiceStatement', async () => {
-        const statementItemCode = normalizeStatementItemCode(
-          request.statementItemCode,
-          'taxInvoice.detachInvoiceStatement'
-        )
+        const statementItemCode = normalizeStatementItemCode(request.statementItemCode, 'taxInvoice.detachInvoiceStatement')
         const taxInvoiceApiResponse = await compatTaxInvoiceService.detachStatement(
           request.businessNumber,
           request.invoiceDocumentKeyType,
@@ -619,7 +561,7 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
@@ -633,17 +575,14 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
     getEmailSendSettings(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getEmailSendSettings', async () => {
-        const taxInvoiceApiResponse = await compatTaxInvoiceService.listEmailConfig(
-          request.businessNumber,
-          input.defaultUserId
-        )
-        return mapTaxInvoiceEmailSendSettings(taxInvoiceApiResponse)
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.listEmailConfig(request.businessNumber, input.defaultUserId)
+        return responseMappers.mapTaxInvoiceEmailSendSettings(taxInvoiceApiResponse)
       })
     },
 
@@ -657,125 +596,100 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): Ta
           input.defaultUserId
         )
 
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
     getSendToNTSSettings(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getSendToNTSSettings', async () => {
-        const taxInvoiceApiResponse = await compatTaxInvoiceService.getSendToNTSConfig(
-          request.businessNumber,
-          input.defaultUserId
-        )
-        return mapTaxInvoiceSendToNationalTaxServiceSetting(taxInvoiceApiResponse)
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getSendToNTSConfig(request.businessNumber, input.defaultUserId)
+        return responseMappers.mapTaxInvoiceSendToNationalTaxServiceSetting(taxInvoiceApiResponse)
       })
     },
 
     getTaxCertificateRegistrationURL(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxCertificateRegistrationURL', async () => {
-        const taxInvoiceApiResponse = await compatTaxInvoiceService.getTaxCertURL(
-          request.businessNumber,
-          input.defaultUserId
-        )
-        return mapTaxInvoiceAccessUrl(taxInvoiceApiResponse)
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getTaxCertURL(request.businessNumber, input.defaultUserId)
+        return responseMappers.mapTaxInvoiceAccessUrl(taxInvoiceApiResponse)
       })
     },
 
     getTaxCertificateExpirationDate(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxCertificateExpirationDate', async () => {
-        const taxInvoiceApiResponse = await compatTaxInvoiceService.getCertificateExpireDate(
-          request.businessNumber,
-          input.defaultUserId
-        )
-        return mapTaxInvoiceTaxCertificateExpiration(taxInvoiceApiResponse)
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getCertificateExpireDate(request.businessNumber, input.defaultUserId)
+        return responseMappers.mapTaxInvoiceTaxCertificateExpiration(taxInvoiceApiResponse)
       })
     },
 
     checkTaxCertificateValidation(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.checkTaxCertificateValidation', async () => {
-        const taxInvoiceApiResponse = await compatTaxInvoiceService.checkCertValidation(
-          request.businessNumber,
-          input.defaultUserId
-        )
-        return mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.checkCertValidation(request.businessNumber, input.defaultUserId)
+        return responseMappers.mapTaxInvoiceOperationResult(taxInvoiceApiResponse)
       })
     },
 
     getTaxCertificateInfo(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.getTaxCertificateInfo', async () => {
-        const taxInvoiceApiResponse = await compatTaxInvoiceService.getTaxCertInfo(
-          request.businessNumber,
-          input.defaultUserId
-        )
-        return mapTaxInvoiceTaxCertificateInfo(taxInvoiceApiResponse)
+        const taxInvoiceApiResponse = await compatTaxInvoiceService.getTaxCertInfo(request.businessNumber, input.defaultUserId)
+        return responseMappers.mapTaxInvoiceTaxCertificateInfo(taxInvoiceApiResponse)
       })
     },
   }
 }
 
 interface NormalizedSearchInvoicesRequest {
-  searchDateType: TaxInvoiceDateType
+  searchDateType: taxInvoiceTypes.TaxInvoiceDateType
   startDate: string
   endDate: string
-  invoiceStateCodes: TaxInvoiceSearchStateCode[]
-  invoiceTypeCodes: TaxInvoiceSearchInvoiceTypeCode[]
-  taxationTypeCodes: TaxInvoiceSearchTaxationTypeCode[]
+  invoiceStateCodes: taxInvoiceTypes.TaxInvoiceSearchStateCode[]
+  invoiceTypeCodes: taxInvoiceTypes.TaxInvoiceSearchInvoiceTypeCode[]
+  taxationTypeCodes: taxInvoiceTypes.TaxInvoiceSearchTaxationTypeCode[]
   lateIssueOnly: boolean | null
-  sortOrder: TaxInvoiceSortOrder
+  sortOrder: taxInvoiceTypes.TaxInvoiceSortOrder
   pageNumber: number
   pageSize: number
-  taxRegistrationIdentifierType?: TaxInvoiceSearchTaxRegistrationIdentifierType
-  taxRegistrationIdentifierAvailability?: TaxInvoiceSearchTaxRegistrationIdentifierAvailability
+  taxRegistrationIdentifierType?: taxInvoiceTypes.TaxInvoiceSearchTaxRegistrationIdentifierType
+  taxRegistrationIdentifierAvailability?: taxInvoiceTypes.TaxInvoiceSearchTaxRegistrationIdentifierAvailability
   taxRegistrationIdentifier?: string
   queryText?: string
-  interoperabilityType?: TaxInvoiceSearchInteroperabilityType
-  issueTypeCodes?: TaxInvoiceSearchIssueTypeCode[]
-  registrationTypeCodes?: TaxInvoiceSearchRegistrationTypeCode[]
-  closeDownStateCodes?: TaxInvoiceCloseDownStateCode[]
+  interoperabilityType?: taxInvoiceTypes.TaxInvoiceSearchInteroperabilityType
+  issueTypeCodes?: taxInvoiceTypes.TaxInvoiceSearchIssueTypeCode[]
+  registrationTypeCodes?: taxInvoiceTypes.TaxInvoiceSearchRegistrationTypeCode[]
+  closeDownStateCodes?: taxInvoiceTypes.TaxInvoiceCloseDownStateCode[]
   invoiceManagementKeyOrNationalTaxServiceConfirmationNumber?: string
 }
 
-function normalizeSearchInvoicesRequest(request: SearchInvoicesInput): NormalizedSearchInvoicesRequest {
+function normalizeSearchInvoicesRequest(request: taxInvoiceTypes.SearchInvoicesInput): NormalizedSearchInvoicesRequest {
   return {
-    searchDateType: normalizeCodeValue(
-      request.searchDateType,
-      Object.values(TaxInvoiceDateType),
-      'searchDateType',
-      SEARCH_INVOICES_OPERATION
-    ),
+    searchDateType: normalizeCodeValue(request.searchDateType, Object.values(taxInvoiceTypes.TaxInvoiceDateType), 'searchDateType', SEARCH_INVOICES_OPERATION),
     startDate: normalizeSearchDateInput(request.startDate, 'startDate', SEARCH_INVOICES_OPERATION),
     endDate: normalizeSearchDateInput(request.endDate, 'endDate', SEARCH_INVOICES_OPERATION),
     invoiceStateCodes: normalizeSearchStateCodes(request.invoiceStateCodes),
     invoiceTypeCodes: normalizeCodeArray(
       request.invoiceTypeCodes,
-      Object.values(TaxInvoiceSearchInvoiceTypeCodes),
+      Object.values(taxInvoiceTypes.TaxInvoiceSearchInvoiceTypeCodes),
       'invoiceTypeCodes',
       SEARCH_INVOICES_OPERATION
     ),
     taxationTypeCodes: normalizeCodeArray(
       request.taxationTypeCodes,
-      Object.values(TaxInvoiceSearchTaxationTypeCodes),
+      Object.values(taxInvoiceTypes.TaxInvoiceSearchTaxationTypeCodes),
       'taxationTypeCodes',
       SEARCH_INVOICES_OPERATION
     ),
     lateIssueOnly: request.lateIssueOnly,
-    sortOrder: normalizeCodeValue(
-      request.sortOrder,
-      Object.values(TaxInvoiceSortOrder),
-      'sortOrder',
-      SEARCH_INVOICES_OPERATION
-    ),
+    sortOrder: normalizeCodeValue(request.sortOrder, Object.values(taxInvoiceTypes.TaxInvoiceSortOrder), 'sortOrder', SEARCH_INVOICES_OPERATION),
     pageNumber: request.pageNumber,
     pageSize: request.pageSize,
     taxRegistrationIdentifierType: normalizeOptionalCodeValue(
       request.taxRegistrationIdentifierType,
-      Object.values(TaxInvoiceSearchTaxRegistrationIdentifierTypes),
+      Object.values(taxInvoiceTypes.TaxInvoiceSearchTaxRegistrationIdentifierTypes),
       'taxRegistrationIdentifierType',
       SEARCH_INVOICES_OPERATION
     ),
     taxRegistrationIdentifierAvailability: normalizeOptionalCodeValue(
       request.taxRegistrationIdentifierAvailability,
-      Object.values(TaxInvoiceSearchTaxRegistrationIdentifierAvailabilities),
+      Object.values(taxInvoiceTypes.TaxInvoiceSearchTaxRegistrationIdentifierAvailabilities),
       'taxRegistrationIdentifierAvailability',
       SEARCH_INVOICES_OPERATION
     ),
@@ -783,40 +697,37 @@ function normalizeSearchInvoicesRequest(request: SearchInvoicesInput): Normalize
     queryText: request.queryText,
     interoperabilityType: normalizeOptionalCodeValue(
       request.interoperabilityType,
-      Object.values(TaxInvoiceSearchInteroperabilityTypes),
+      Object.values(taxInvoiceTypes.TaxInvoiceSearchInteroperabilityTypes),
       'interoperabilityType',
       SEARCH_INVOICES_OPERATION
     ),
     issueTypeCodes: normalizeOptionalCodeArray(
       request.issueTypeCodes,
-      Object.values(TaxInvoiceSearchIssueTypeCodes),
+      Object.values(taxInvoiceTypes.TaxInvoiceSearchIssueTypeCodes),
       'issueTypeCodes',
       SEARCH_INVOICES_OPERATION
     ),
     registrationTypeCodes: normalizeOptionalCodeArray(
       request.registrationTypeCodes,
-      Object.values(TaxInvoiceSearchRegistrationTypeCodes),
+      Object.values(taxInvoiceTypes.TaxInvoiceSearchRegistrationTypeCodes),
       'registrationTypeCodes',
       SEARCH_INVOICES_OPERATION
     ),
     closeDownStateCodes: normalizeOptionalCodeArray(
       request.closeDownStateCodes,
-      Object.values(TaxInvoiceCloseDownStateCodes),
+      Object.values(taxInvoiceTypes.TaxInvoiceCloseDownStateCodes),
       'closeDownStateCodes',
       SEARCH_INVOICES_OPERATION
     ),
-    invoiceManagementKeyOrNationalTaxServiceConfirmationNumber:
-      request.invoiceManagementKeyOrNationalTaxServiceConfirmationNumber,
+    invoiceManagementKeyOrNationalTaxServiceConfirmationNumber: request.invoiceManagementKeyOrNationalTaxServiceConfirmationNumber,
   }
 }
 
-function toCompatCloseDownStateCodes(
-  closeDownStateCodes: TaxInvoiceCloseDownStateCode[] | undefined
-): (0 | 1 | 2 | 3 | 4)[] | undefined {
+function toCompatCloseDownStateCodes(closeDownStateCodes: taxInvoiceTypes.TaxInvoiceCloseDownStateCode[] | undefined): (0 | 1 | 2 | 3 | 4)[] | undefined {
   return closeDownStateCodes as unknown as (0 | 1 | 2 | 3 | 4)[] | undefined
 }
 
-function normalizeSearchStateCodes(searchStateCodes: unknown): TaxInvoiceSearchStateCode[] {
+function normalizeSearchStateCodes(searchStateCodes: unknown): taxInvoiceTypes.TaxInvoiceSearchStateCode[] {
   if (!Array.isArray(searchStateCodes)) {
     throw createInputValidationError('invoiceStateCodes는 배열이어야 해.', {
       operation: SEARCH_INVOICES_OPERATION,
@@ -839,7 +750,7 @@ function normalizeSearchStateCodes(searchStateCodes: unknown): TaxInvoiceSearchS
   })
 }
 
-function normalizeSearchDateInput(dateInput: TaxInvoiceDateInput, fieldName: string, operation: string): string {
+function normalizeSearchDateInput(dateInput: taxInvoiceTypes.TaxInvoiceDateInput, fieldName: string, operation: string): string {
   if (dateInput instanceof Date) {
     if (!Number.isFinite(dateInput.getTime())) {
       throw createInputValidationError(`${fieldName}는 유효한 Date여야 해.`, {
@@ -904,27 +815,18 @@ function isValidDateString(dateString: string): boolean {
   const day = Number(match[3])
   const normalizedDate = new Date(Date.UTC(year, month - 1, day))
 
-  return (
-    normalizedDate.getUTCFullYear() === year &&
-    normalizedDate.getUTCMonth() === month - 1 &&
-    normalizedDate.getUTCDate() === day
-  )
+  return normalizedDate.getUTCFullYear() === year && normalizedDate.getUTCMonth() === month - 1 && normalizedDate.getUTCDate() === day
 }
 
 function normalizeStatementItemCode(
   statementItemCode: unknown,
   operation: 'taxInvoice.attachInvoiceStatement' | 'taxInvoice.detachInvoiceStatement'
-): TaxInvoiceStatementItemCode {
-  return normalizeCodeValue(
-    statementItemCode,
-    Object.values(TaxInvoiceStatementItemCodes),
-    'statementItemCode',
-    operation
-  )
+): taxInvoiceTypes.TaxInvoiceStatementItemCode {
+  return normalizeCodeValue(statementItemCode, Object.values(taxInvoiceTypes.TaxInvoiceStatementItemCodes), 'statementItemCode', operation)
 }
 
-function normalizeEmailType(emailType: unknown, operation: 'taxInvoice.updateEmailSendSettings'): TaxInvoiceEmailType {
-  return normalizeCodeValue(emailType, Object.values(TaxInvoiceEmailTypes), 'emailType', operation)
+function normalizeEmailType(emailType: unknown, operation: 'taxInvoice.updateEmailSendSettings'): taxInvoiceTypes.TaxInvoiceEmailType {
+  return normalizeCodeValue(emailType, Object.values(taxInvoiceTypes.TaxInvoiceEmailTypes), 'emailType', operation)
 }
 
 function normalizeOptionalCodeValue<T extends string | number>(
@@ -953,12 +855,7 @@ function normalizeOptionalCodeArray<T extends string | number>(
   return normalizeCodeArray(codeValues, allowedValues, fieldName, operation)
 }
 
-function normalizeCodeArray<T extends string | number>(
-  codeValues: unknown,
-  allowedValues: readonly T[],
-  fieldName: string,
-  operation: string
-): T[] {
+function normalizeCodeArray<T extends string | number>(codeValues: unknown, allowedValues: readonly T[], fieldName: string, operation: string): T[] {
   if (!Array.isArray(codeValues)) {
     throw createInputValidationError(`${fieldName}는 배열이어야 해.`, {
       operation,
@@ -966,17 +863,10 @@ function normalizeCodeArray<T extends string | number>(
     })
   }
 
-  return codeValues.map((codeValue, index) =>
-    normalizeCodeValue(codeValue, allowedValues, `${fieldName}[${index}]`, operation)
-  )
+  return codeValues.map((codeValue, index) => normalizeCodeValue(codeValue, allowedValues, `${fieldName}[${index}]`, operation))
 }
 
-function normalizeCodeValue<T extends string | number>(
-  codeValue: unknown,
-  allowedValues: readonly T[],
-  fieldName: string,
-  operation: string
-): T {
+function normalizeCodeValue<T extends string | number>(codeValue: unknown, allowedValues: readonly T[], fieldName: string, operation: string): T {
   for (const allowedValue of allowedValues) {
     if (codeValue === allowedValue) {
       return allowedValue

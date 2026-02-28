@@ -49,11 +49,7 @@ export type TaxInvoiceGetEPrintUrlApiRequestBody = never
  * GetEPrintURL API 요청(raw).
  */
 export type TaxInvoiceGetEPrintUrlApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceGetEPrintUrlApiRequestPath,
-    TaxInvoiceGetEPrintUrlApiRequestQuery,
-    TaxInvoiceGetEPrintUrlApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceGetEPrintUrlApiRequestPath, TaxInvoiceGetEPrintUrlApiRequestQuery, TaxInvoiceGetEPrintUrlApiRequestBody>,
   'path' | 'query'
 >
 

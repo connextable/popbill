@@ -43,11 +43,7 @@ export type TaxInvoiceGetFilesApiRequestBody = never
  * GetFiles API 요청(raw).
  */
 export type TaxInvoiceGetFilesApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceGetFilesApiRequestPath,
-    TaxInvoiceGetFilesApiRequestQuery,
-    TaxInvoiceGetFilesApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceGetFilesApiRequestPath, TaxInvoiceGetFilesApiRequestQuery, TaxInvoiceGetFilesApiRequestBody>,
   'path'
 >
 

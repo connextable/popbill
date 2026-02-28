@@ -6,12 +6,7 @@ describeTaxinvoiceIntegration('taxinvoice compat integration: checkMgtKeyInUse',
     const context = testkit.createTaxinvoiceMethodContext()
     const managementKey = await testkit.createDraftInvoice(context, 'CHK')
 
-    const inUse = await context.service.checkMgtKeyInUse(
-      context.businessNumber,
-      context.invoiceDocumentKeyType,
-      managementKey,
-      context.userId
-    )
+    const inUse = await context.service.checkMgtKeyInUse(context.businessNumber, context.invoiceDocumentKeyType, managementKey, context.userId)
 
     expect(inUse).toBe(true)
   }, 180_000)

@@ -1,19 +1,8 @@
-import type {
-  CloseDownState,
-  InvoiceeType,
-  IssueType,
-  PurposeType,
-  TaxInvoiceApiResponseBase,
-  TaxInvoiceDateString,
-  TaxInvoiceEmailType,
-  TaxInvoiceModifyCode,
-  TaxInvoiceMgtKeyType,
-  TaxType,
-} from './common'
-import type { TaxInvoiceNtsResultCode, TaxInvoiceStateCode } from './response-codes'
+import type * as common from './common'
+import type * as responseCodes from './response-codes'
 
-type ExtensibleTaxInvoiceStateCode = TaxInvoiceStateCode | (number & {}) | (string & {})
-type ExtensibleTaxInvoiceNtsResultCode = TaxInvoiceNtsResultCode | (string & {}) // oxlint-disable-line
+type ExtensibleTaxInvoiceStateCode = responseCodes.TaxInvoiceStateCode | (number & {}) | (string & {})
+type ExtensibleTaxInvoiceNtsResultCode = responseCodes.TaxInvoiceNtsResultCode | (string & {}) // oxlint-disable-line
 
 /**
  * Tax Invoice Domain Raw Models
@@ -39,7 +28,7 @@ export interface TaxInvoiceDetailApiModel {
   /**
    * 거래일자
    */
-  purchaseDT?: TaxInvoiceDateString
+  purchaseDT?: common.TaxInvoiceDateString
 
   /**
    * 품목명
@@ -113,7 +102,7 @@ export interface TaxInvoiceApiModel {
   /**
    * 작성일자
    */
-  writeDate?: TaxInvoiceDateString
+  writeDate?: common.TaxInvoiceDateString
 
   /**
    * 정과금/역과금
@@ -123,12 +112,12 @@ export interface TaxInvoiceApiModel {
   /**
    * 발행형태 [정발행,역발행,위수탁]
    */
-  issueType?: IssueType
+  issueType?: common.IssueType
 
   /**
    * 영수/청구
    */
-  purposeType?: PurposeType
+  purposeType?: common.PurposeType
 
   /**
    * 발행시기
@@ -138,7 +127,7 @@ export interface TaxInvoiceApiModel {
   /**
    * 과세형태 [과세,영세,면세]
    */
-  taxType?: TaxType
+  taxType?: common.TaxType
 
   /**
    * 공급자 사업자번호
@@ -243,7 +232,7 @@ export interface TaxInvoiceApiModel {
   /**
    * 공급받는자 구분 [사업자,개인,외국인]
    */
-  invoiceeType?: InvoiceeType
+  invoiceeType?: common.InvoiceeType
 
   /**
    * 공급받는자 사업자번호 [개인:주민등록번호 / 외국인:외국인등록번호]
@@ -373,12 +362,12 @@ export interface TaxInvoiceApiModel {
   /**
    * 공급받는자 휴폐업 상태 [null,0,1,2,3,4]
    */
-  closeDownState?: CloseDownState
+  closeDownState?: common.CloseDownState
 
   /**
    * 공급받는자 휴폐업일자
    */
-  closeDownStateDate?: TaxInvoiceDateString
+  closeDownStateDate?: common.TaxInvoiceDateString
 
   /**
    * 수탁자 사업자번호
@@ -498,7 +487,7 @@ export interface TaxInvoiceApiModel {
   /**
    * 수정세금계산서 사유코드
    */
-  modifyCode?: TaxInvoiceModifyCode
+  modifyCode?: common.TaxInvoiceModifyCode
 
   /**
    * 수정세금계산서 작성시 원본세금계산서의 국세청승인번호
@@ -650,12 +639,12 @@ export interface TaxInvoiceInfoApiModel {
   /**
    * 과세형태 [과세,영세,면세]
    */
-  taxType: TaxType
+  taxType: common.TaxType
 
   /**
    * 작성일자
    */
-  writeDate: TaxInvoiceDateString
+  writeDate: common.TaxInvoiceDateString
 
   /**
    * 등록일시
@@ -665,7 +654,7 @@ export interface TaxInvoiceInfoApiModel {
   /**
    * 발행형태 [정발행,역발행,위수탁]
    */
-  issueType: IssueType
+  issueType: common.IssueType
 
   /**
    * 공급가액 합계
@@ -680,7 +669,7 @@ export interface TaxInvoiceInfoApiModel {
   /**
    * 영수/청구
    */
-  purposeType: PurposeType
+  purposeType: common.PurposeType
 
   /**
    * 발행일시
@@ -745,7 +734,7 @@ export interface TaxInvoiceInfoApiModel {
   /**
    * 수정세금계산서 사유코드
    */
-  modifyCode?: TaxInvoiceModifyCode
+  modifyCode?: common.TaxInvoiceModifyCode
 
   /**
    * 정발행 역발행 여부
@@ -795,12 +784,12 @@ export interface TaxInvoiceInfoApiModel {
   /**
    * 휴폐업 상태 [미등록, 휴업, 폐업]
    */
-  closeDownState?: CloseDownState
+  closeDownState?: common.CloseDownState
 
   /**
    * 휴폐업일자
    */
-  closeDownStateDate?: TaxInvoiceDateString
+  closeDownStateDate?: common.TaxInvoiceDateString
 
   /**
    * 수탁자 상호
@@ -912,7 +901,7 @@ export type TaxInvoiceSearchResultItemApiModel = TaxInvoiceInfoApiModel
  * Source
  * - https://developers.popbill.com/api-reference/taxinvoice/api/info#Search
  */
-export interface TaxInvoiceSearchResultApiModel extends TaxInvoiceApiResponseBase {
+export interface TaxInvoiceSearchResultApiModel extends common.TaxInvoiceApiResponseBase {
   /**
    * 검색결과 전체 건수
    */
@@ -942,7 +931,7 @@ export interface TaxInvoiceSearchResultApiModel extends TaxInvoiceApiResponseBas
 /**
  * 즉시발행 결과(raw).
  */
-export interface TaxInvoiceIssueResponseApiModel extends TaxInvoiceApiResponseBase {
+export interface TaxInvoiceIssueResponseApiModel extends common.TaxInvoiceApiResponseBase {
   /**
    * 국세청승인번호
    */
@@ -957,7 +946,7 @@ export interface TaxInvoiceIssueResponseApiModel extends TaxInvoiceApiResponseBa
 /**
  * 대량접수 결과(raw).
  */
-export interface TaxInvoiceBulkSubmitResponseApiModel extends TaxInvoiceApiResponseBase {
+export interface TaxInvoiceBulkSubmitResponseApiModel extends common.TaxInvoiceApiResponseBase {
   /**
    * 접수아이디
    */
@@ -971,7 +960,7 @@ export interface TaxInvoiceBulkResultItemApiModel {
   /**
    * 문서번호 유형
    */
-  keyType?: TaxInvoiceMgtKeyType
+  keyType?: common.TaxInvoiceMgtKeyType
 
   /**
    * [공급자] 문서번호
@@ -1013,7 +1002,7 @@ export interface TaxInvoiceBulkResultItemApiModel {
 /**
  * 대량접수 조회(raw).
  */
-export interface TaxInvoiceBulkResultApiModel extends TaxInvoiceApiResponseBase {
+export interface TaxInvoiceBulkResultApiModel extends common.TaxInvoiceApiResponseBase {
   /**
    * 접수아이디
    */
@@ -1123,7 +1112,7 @@ export interface TaxInvoiceEmailConfigApiModel {
   /**
    * 메일전송 설정 구분코드
    */
-  emailType?: TaxInvoiceEmailType
+  emailType?: common.TaxInvoiceEmailType
 
   /**
    * 전송여부

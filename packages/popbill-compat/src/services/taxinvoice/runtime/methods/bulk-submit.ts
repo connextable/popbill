@@ -1,16 +1,16 @@
 import { stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
-import type { TaxInvoiceApiModel, TaxInvoiceBulkSubmitApiResponse } from '@connextable/popbill-spec'
 import { validateCorpNum, validateSubmitId, validateTaxinvoicePayload } from '@/internal/validation'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import type { ParsedBulkSubmitOptions } from '@/services/taxinvoice/runtime/parsers/bulk-submit'
+import type * as Spec from '@connextable/popbill-spec'
 
 export async function requestBulkSubmit(
   context: TaxinvoiceRuntimeContext,
   corpNum: string,
   submitID: string,
-  taxinvoiceList: TaxInvoiceApiModel[],
+  taxinvoiceList: Spec.TaxInvoiceApiModel[],
   options: ParsedBulkSubmitOptions
-): Promise<TaxInvoiceBulkSubmitApiResponse> {
+): Promise<Spec.TaxInvoiceBulkSubmitApiResponse> {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {
     throw corpNumError
@@ -34,7 +34,7 @@ export async function requestBulkSubmit(
   }
 
   const requestBody: {
-    invoices: TaxInvoiceApiModel[]
+    invoices: Spec.TaxInvoiceApiModel[]
     forceIssue?: boolean
   } = {
     invoices: taxinvoiceList,
@@ -44,7 +44,7 @@ export async function requestBulkSubmit(
     requestBody.forceIssue = true
   }
 
-  return context.requestClient.requestJson<TaxInvoiceBulkSubmitApiResponse>({
+  return context.requestClient.requestJson<Spec.TaxInvoiceBulkSubmitApiResponse>({
     uri: '/Taxinvoice',
     corpNum,
     userId: options.userId,

@@ -46,11 +46,7 @@ export type TaxInvoiceGetMassPrintUrlApiRequestBody = string[]
  * GetMassPrintURL API 요청(raw).
  */
 export type TaxInvoiceGetMassPrintUrlApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceGetMassPrintUrlApiRequestPath,
-    TaxInvoiceGetMassPrintUrlApiRequestQuery,
-    TaxInvoiceGetMassPrintUrlApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceGetMassPrintUrlApiRequestPath, TaxInvoiceGetMassPrintUrlApiRequestQuery, TaxInvoiceGetMassPrintUrlApiRequestBody>,
   'path' | 'query' | 'body'
 >
 

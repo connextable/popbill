@@ -25,9 +25,11 @@
   "oxc.enable": true,
   "oxc.typeAware": true,
   "editor.formatOnSave": true,
+  "oxc.fmt.configPath": ".oxfmtrc.json",
   "editor.defaultFormatter": "oxc.oxc-vscode",
-  "[json][json]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
+  "[javascript][typescript][json][json]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+    "editor.formatOnSave": true
   },
   "editor.codeActionsOnSave": {
     "source.fixAll.oxc": "always"

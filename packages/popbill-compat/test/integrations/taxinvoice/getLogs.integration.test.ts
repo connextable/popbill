@@ -6,12 +6,7 @@ describeTaxinvoiceIntegration('taxinvoice compat integration: getLogs', () => {
     const context = testkit.createTaxinvoiceMethodContext()
     const managementKey = await testkit.createDraftInvoice(context, 'LOG')
 
-    const response = await context.service.getLogs(
-      context.businessNumber,
-      context.invoiceDocumentKeyType,
-      managementKey,
-      context.userId
-    )
+    const response = await context.service.getLogs(context.businessNumber, context.invoiceDocumentKeyType, managementKey, context.userId)
 
     expect(Array.isArray(response)).toBe(true)
   }, 180_000)

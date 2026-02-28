@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { TAX_INVOICE_METHODS } from '@/constants'
+import type { TAX_INVOICE_METHODS } from '@/constants'
 import { TaxInvoiceDocumentKeyTypes } from '@/services/tax-invoice'
 import {
   TaxInvoiceChargeDirectionValues,
@@ -116,10 +116,7 @@ export async function createReverseRequestedInvoice(context: TaxInvoiceMethodCon
   return managementKey
 }
 
-export async function attachFileAndFindIdentifier(
-  context: TaxInvoiceMethodContext,
-  managementKey: string
-): Promise<string> {
+export async function attachFileAndFindIdentifier(context: TaxInvoiceMethodContext, managementKey: string): Promise<string> {
   const filePath = await createTempFilePath(`attach-${managementKey}`)
 
   expectApiSuccess(
@@ -250,9 +247,7 @@ export function formatDate(date: Date): string {
   return `${year}${month}${day}`
 }
 
-export function expectApiSuccess(
-  response: TaxInvoiceOperationResult | TaxInvoiceIssueResult | TaxInvoiceBulkSubmitResult
-): void {
+export function expectApiSuccess(response: TaxInvoiceOperationResult | TaxInvoiceIssueResult | TaxInvoiceBulkSubmitResult): void {
   expect(response.resultCode).toBe(1)
   expect(typeof response.resultMessage).toBe('string')
 }

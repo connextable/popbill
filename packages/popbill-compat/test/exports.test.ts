@@ -3,12 +3,7 @@ import * as compat from '@/index'
 import * as promiseCompat from '@/promise/index'
 import { NotImplementedError } from '@/errors'
 import type { TaxinvoicePromiseService } from '@/services/taxinvoice/types'
-import type {
-  TaxInvoiceGetInfoApiResponse,
-  TaxInvoiceIssueApiResponse,
-  TaxInvoiceSearchApiResponse,
-  TaxInvoiceGetTaxCertInfoApiResponse,
-} from '@connextable/popbill-spec'
+import type * as Spec from '@connextable/popbill-spec'
 
 describe('compat exports', () => {
   test('matches legacy export keys at root', () => {
@@ -47,9 +42,7 @@ describe('compat exports', () => {
   })
 
   test('promise subpath returns rejected promise with NotImplementedError', async () => {
-    await expect(promiseCompat.TaxinvoiceService().getChargeInfo('1234567890')).rejects.toBeInstanceOf(
-      NotImplementedError
-    )
+    await expect(promiseCompat.TaxinvoiceService().getChargeInfo('1234567890')).rejects.toBeInstanceOf(NotImplementedError)
   })
 
   test('taxinvoice method typing is exposed at callback and promise entrypoints', () => {
@@ -59,7 +52,7 @@ describe('compat exports', () => {
       '1234567890',
       'SELL',
       'MGT-KEY-001',
-      (response: TaxInvoiceGetInfoApiResponse) => {
+      (response: Spec.TaxInvoiceGetInfoApiResponse) => {
         void response
       },
       (error: unknown) => {
@@ -73,7 +66,7 @@ describe('compat exports', () => {
       'memo',
       'subject',
       true,
-      (response: TaxInvoiceIssueApiResponse) => {
+      (response: Spec.TaxInvoiceIssueApiResponse) => {
         void response
       },
       (error: unknown) => {
@@ -93,7 +86,7 @@ describe('compat exports', () => {
       'D',
       1,
       100,
-      (response: TaxInvoiceSearchApiResponse) => {
+      (response: Spec.TaxInvoiceSearchApiResponse) => {
         void response
       }
     )
@@ -120,7 +113,7 @@ describe('compat exports', () => {
     )
     expectTypeOf(callbackService.getTaxCertInfo).toBeCallableWith(
       '1234567890',
-      (response: TaxInvoiceGetTaxCertInfoApiResponse) => {
+      (response: Spec.TaxInvoiceGetTaxCertInfoApiResponse) => {
         void response
       },
       (error: unknown) => {
@@ -128,13 +121,11 @@ describe('compat exports', () => {
       }
     )
 
-    expectTypeOf<TaxinvoicePromiseService['getInfo']>().returns.toEqualTypeOf<Promise<TaxInvoiceGetInfoApiResponse>>()
-    expectTypeOf<TaxinvoicePromiseService['issue']>().returns.toEqualTypeOf<Promise<TaxInvoiceIssueApiResponse>>()
-    expectTypeOf<TaxinvoicePromiseService['search']>().returns.toEqualTypeOf<Promise<TaxInvoiceSearchApiResponse>>()
+    expectTypeOf<TaxinvoicePromiseService['getInfo']>().returns.toEqualTypeOf<Promise<Spec.TaxInvoiceGetInfoApiResponse>>()
+    expectTypeOf<TaxinvoicePromiseService['issue']>().returns.toEqualTypeOf<Promise<Spec.TaxInvoiceIssueApiResponse>>()
+    expectTypeOf<TaxinvoicePromiseService['search']>().returns.toEqualTypeOf<Promise<Spec.TaxInvoiceSearchApiResponse>>()
     expectTypeOf<TaxinvoicePromiseService['getViewURL']>().returns.toEqualTypeOf<Promise<string>>()
     expectTypeOf<TaxinvoicePromiseService['getURL']>().returns.toEqualTypeOf<Promise<string>>()
-    expectTypeOf<TaxinvoicePromiseService['getTaxCertInfo']>().returns.toEqualTypeOf<
-      Promise<TaxInvoiceGetTaxCertInfoApiResponse>
-    >()
+    expectTypeOf<TaxinvoicePromiseService['getTaxCertInfo']>().returns.toEqualTypeOf<Promise<Spec.TaxInvoiceGetTaxCertInfoApiResponse>>()
   })
 })

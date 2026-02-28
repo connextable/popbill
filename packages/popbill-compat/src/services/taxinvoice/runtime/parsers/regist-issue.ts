@@ -1,6 +1,7 @@
-import type { TaxInvoiceRegistIssueApiResponse } from '@connextable/popbill-spec'
+
 import type { LegacyErrorCallback, LegacySuccessCallback } from '@/services/taxinvoice/types'
 import { asErrorCallback, asSuccessCallback } from '@/services/taxinvoice/runtime/common'
+import type * as Spec from '@connextable/popbill-spec'
 
 export interface ParsedRegistIssueOptions {
   writeSpecification: boolean
@@ -12,7 +13,7 @@ export interface ParsedRegistIssueOptions {
 }
 
 export interface ParsedRegistIssueCallbackOptions extends ParsedRegistIssueOptions {
-  success?: LegacySuccessCallback<TaxInvoiceRegistIssueApiResponse>
+  success?: LegacySuccessCallback<Spec.TaxInvoiceRegistIssueApiResponse>
   error?: LegacyErrorCallback
 }
 
@@ -28,14 +29,14 @@ export function parseRegistIssueCallbackArgs(args: unknown[]): ParsedRegistIssue
 
   const first = args[0]
   if (typeof first === 'function') {
-    parsed.success = first as LegacySuccessCallback<TaxInvoiceRegistIssueApiResponse>
+    parsed.success = first as LegacySuccessCallback<Spec.TaxInvoiceRegistIssueApiResponse>
     parsed.error = asErrorCallback(args[1])
     return parsed
   }
 
   if (typeof first === 'string' && typeof args[1] === 'function') {
     parsed.userId = first
-    parsed.success = args[1] as LegacySuccessCallback<TaxInvoiceRegistIssueApiResponse>
+    parsed.success = args[1] as LegacySuccessCallback<Spec.TaxInvoiceRegistIssueApiResponse>
     parsed.error = asErrorCallback(args[2])
     return parsed
   }
@@ -72,7 +73,7 @@ export function parseRegistIssueCallbackArgs(args: unknown[]): ParsedRegistIssue
     index += 1
   }
 
-  parsed.success = asSuccessCallback<TaxInvoiceRegistIssueApiResponse>(args[index])
+  parsed.success = asSuccessCallback<Spec.TaxInvoiceRegistIssueApiResponse>(args[index])
   parsed.error = asErrorCallback(args[index + 1])
 
   return parsed

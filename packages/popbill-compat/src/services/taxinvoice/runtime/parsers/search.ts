@@ -1,6 +1,7 @@
-import type { TaxInvoiceSearchApiResponse } from '@connextable/popbill-spec'
+
 import type { LegacyErrorCallback, LegacySuccessCallback } from '@/services/taxinvoice/types'
 import { asErrorCallback, asSuccessCallback } from '@/services/taxinvoice/runtime/common'
+import type * as Spec from '@connextable/popbill-spec'
 
 type NormalizedCloseDownStateCode = 'N' | '0' | '1' | '2' | '3' | '4'
 
@@ -18,7 +19,7 @@ export interface ParsedSearchOptions {
 }
 
 export interface ParsedSearchCallbackOptions extends ParsedSearchOptions {
-  success?: LegacySuccessCallback<TaxInvoiceSearchApiResponse>
+  success?: LegacySuccessCallback<Spec.TaxInvoiceSearchApiResponse>
   error?: LegacyErrorCallback
 }
 
@@ -37,7 +38,7 @@ export function parseSearchCallbackArgs(args: unknown[]): ParsedSearchCallbackOp
   const valueArgs = successIndex === -1 ? args : args.slice(0, successIndex)
 
   if (successIndex !== -1) {
-    parsed.success = asSuccessCallback<TaxInvoiceSearchApiResponse>(args[successIndex])
+    parsed.success = asSuccessCallback<Spec.TaxInvoiceSearchApiResponse>(args[successIndex])
     parsed.error = asErrorCallback(args[successIndex + 1])
   }
 

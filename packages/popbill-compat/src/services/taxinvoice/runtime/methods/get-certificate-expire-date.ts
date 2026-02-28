@@ -1,18 +1,15 @@
-import type { TaxInvoiceGetCertificateExpireDateApiResponse } from '@connextable/popbill-spec'
+
 import { validateCorpNum } from '@/internal/validation'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
+import type * as Spec from '@connextable/popbill-spec'
 
-export async function requestGetCertificateExpireDate(
-  context: TaxinvoiceRuntimeContext,
-  corpNum: string,
-  userId: string
-): Promise<string> {
+export async function requestGetCertificateExpireDate(context: TaxinvoiceRuntimeContext, corpNum: string, userId: string): Promise<string> {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {
     throw corpNumError
   }
 
-  const response = await context.requestClient.requestJson<TaxInvoiceGetCertificateExpireDateApiResponse>({
+  const response = await context.requestClient.requestJson<Spec.TaxInvoiceGetCertificateExpireDateApiResponse>({
     uri: '/Taxinvoice?cfg=CERT',
     corpNum,
     userId,

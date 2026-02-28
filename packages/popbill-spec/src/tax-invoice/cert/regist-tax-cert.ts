@@ -47,11 +47,7 @@ export interface TaxInvoiceRegistTaxCertApiRequestBody {
  * RegistTaxCert API 요청(raw).
  */
 export type TaxInvoiceRegistTaxCertApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceRegistTaxCertApiRequestPath,
-    TaxInvoiceRegistTaxCertApiRequestQuery,
-    TaxInvoiceRegistTaxCertApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceRegistTaxCertApiRequestPath, TaxInvoiceRegistTaxCertApiRequestQuery, TaxInvoiceRegistTaxCertApiRequestBody>,
   'body'
 >
 

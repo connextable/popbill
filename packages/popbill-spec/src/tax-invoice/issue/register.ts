@@ -59,11 +59,7 @@ export type TaxInvoiceRegisterApiRequestBody = TaxInvoiceApiModel & {
  * Register API 요청(raw).
  */
 export type TaxInvoiceRegisterApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<
-    TaxInvoiceRegisterApiRequestPath,
-    TaxInvoiceRegisterApiRequestQuery,
-    TaxInvoiceRegisterApiRequestBody
-  >,
+  TaxInvoiceApiRequest<TaxInvoiceRegisterApiRequestPath, TaxInvoiceRegisterApiRequestQuery, TaxInvoiceRegisterApiRequestBody>,
   'body'
 >
 

@@ -1,12 +1,5 @@
-import type {
-  TaxInvoiceApiRequest,
-  TaxInvoiceDateType,
-  TaxInvoiceMgtKeyType,
-  TaxInvoiceRequireRequestFields,
-  TaxInvoiceSearchCloseDownState,
-  TaxInvoiceSortOrder,
-} from '../common'
-import type { TaxInvoiceSearchResultApiModel } from '../models'
+import type * as common from '../common'
+import type * as models from '../models'
 
 /**
  * TaxInvoice Search Raw Spec
@@ -213,7 +206,7 @@ export interface TaxInvoiceSearchApiRequestPath {
    * - `BUY`: 매입
    * - `TRUSTEE`: 위수탁
    */
-  MgtKeyType: TaxInvoiceMgtKeyType
+  MgtKeyType: common.TaxInvoiceMgtKeyType
 }
 
 /**
@@ -227,7 +220,7 @@ export interface TaxInvoiceSearchApiRequestQuery {
    * - `W`: 작성일자
    * - `I`: 발행일자
    */
-  DType: TaxInvoiceDateType
+  DType: common.TaxInvoiceDateType
 
   /**
    * 검색 시작일자.
@@ -330,7 +323,7 @@ export interface TaxInvoiceSearchApiRequestQuery {
    * - `D`: 내림차순 (기본값)
    * - `A`: 오름차순
    */
-  Order?: TaxInvoiceSortOrder
+  Order?: common.TaxInvoiceSortOrder
 
   /**
    * 세금계산서 작성유형.
@@ -351,7 +344,7 @@ export interface TaxInvoiceSearchApiRequestQuery {
    *
    * 기본값은 전체조회다.
    */
-  CloseDownState?: TaxInvoiceSearchCloseDownState[]
+  CloseDownState?: common.TaxInvoiceSearchCloseDownState[]
 
   /**
    * 문서번호 또는 국세청승인번호.
@@ -373,12 +366,12 @@ export type TaxInvoiceSearchApiRequestBody = never
  *
  * `path/query/body`를 분리하여 전송 위치를 명확히 구분한다.
  */
-export type TaxInvoiceSearchApiRequest = TaxInvoiceRequireRequestFields<
-  TaxInvoiceApiRequest<TaxInvoiceSearchApiRequestPath, TaxInvoiceSearchApiRequestQuery, TaxInvoiceSearchApiRequestBody>,
+export type TaxInvoiceSearchApiRequest = common.TaxInvoiceRequireRequestFields<
+  common.TaxInvoiceApiRequest<TaxInvoiceSearchApiRequestPath, TaxInvoiceSearchApiRequestQuery, TaxInvoiceSearchApiRequestBody>,
   'path' | 'query'
 >
 
 /**
  * Search API 응답(raw).
  */
-export type TaxInvoiceSearchApiResponse = TaxInvoiceSearchResultApiModel
+export type TaxInvoiceSearchApiResponse = models.TaxInvoiceSearchResultApiModel

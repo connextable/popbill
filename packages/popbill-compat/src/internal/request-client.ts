@@ -1,13 +1,8 @@
 import { createLinkhubAuthClient, createTokenProvider, LinkhubAuthScope } from '@/internal/linkhub'
 import { createPopbillRequestClient, type PopbillRequestClient } from '@/internal/popbill'
-import {
-  PopbillAcceptLanguages,
-  PopbillApiBaseUrls,
-  PopbillServiceIds,
-  type PopbillAcceptLanguage,
-  type PopbillApiBaseUrl,
-} from '@connextable/popbill-spec'
+import { PopbillAcceptLanguages, PopbillApiBaseUrls, PopbillServiceIds } from '@/internal/spec-constants'
 import type { CompatConfig } from '@/config'
+import type * as Spec from '@connextable/popbill-spec'
 
 const DEFAULT_REQUEST_TIMEOUT_MS = 180_000
 const DEFAULT_ACCEPT_ENCODING = 'gzip,deflate'
@@ -20,7 +15,7 @@ interface ResolvedCompatRequestConfig {
   ipRestrictOnOff: boolean
   requestTimeoutMs: number
   acceptEncoding: string | null
-  acceptLanguage?: PopbillAcceptLanguage
+  acceptLanguage?: Spec.PopbillAcceptLanguage
 }
 
 export function createTaxinvoiceRequestClient(config: CompatConfig): PopbillRequestClient {
@@ -64,7 +59,7 @@ function resolveCompatRequestConfig(config: CompatConfig): ResolvedCompatRequest
   }
 }
 
-function resolveAcceptLanguage(value: unknown): PopbillAcceptLanguage | undefined {
+function resolveAcceptLanguage(value: unknown): Spec.PopbillAcceptLanguage | undefined {
   if (typeof value !== 'string') {
     return undefined
   }
@@ -85,9 +80,7 @@ function resolveAcceptLanguage(value: unknown): PopbillAcceptLanguage | undefine
   throw new Error(`Invalid acceptLanguage. Allowed values: ${Object.values(PopbillAcceptLanguages).join(', ')}`)
 }
 
-function resolveApiBaseUrl(
-  config: Pick<ResolvedCompatRequestConfig, 'isTest' | 'useGaIp' | 'useStaticIp'>
-): PopbillApiBaseUrl {
+function resolveApiBaseUrl(config: Pick<ResolvedCompatRequestConfig, 'isTest' | 'useGaIp' | 'useStaticIp'>): Spec.PopbillApiBaseUrl {
   if (config.useGaIp) {
     return config.isTest ? PopbillApiBaseUrls.GaTest : PopbillApiBaseUrls.GaProduction
   }
