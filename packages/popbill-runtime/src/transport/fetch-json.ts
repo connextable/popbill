@@ -21,13 +21,13 @@ class HttpResponseError extends Error implements HttpErrorPayload {
 
 export async function fetchJson<T>(requestUrl: string, requestInit: RequestInit, options: FetchJsonOptions): Promise<T> {
   const response = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs)
-  const responseBody = await parseJsonResponse(response)
+  const responseBodyText = await response.text()
 
   if (!response.ok) {
-    throw createHttpErrorPayload(response.status, responseBody)
+    throw createHttpErrorPayload(response.status, parseErrorResponseBody(responseBodyText))
   }
 
-  return responseBody as T
+  return parseJsonResponse(responseBodyText) as T
 }
 
 export async function fetchText(requestUrl: string, requestInit: RequestInit, options: FetchJsonOptions): Promise<string> {
@@ -42,7 +42,18 @@ export async function fetchText(requestUrl: string, requestInit: RequestInit, op
 }
 
 async function fetchWithTimeout(requestUrl: string, requestInit: RequestInit, timeoutMs: number): Promise<Response> {
+  const externalSignal = requestInit.signal
   const abortController = new AbortController()
+  const abortFromExternalSignal = () => {
+    abortController.abort(externalSignal?.reason)
+  }
+
+  if (externalSignal?.aborted) {
+    abortFromExternalSignal()
+  } else {
+    externalSignal?.addEventListener('abort', abortFromExternalSignal, { once: true })
+  }
+
   const timer = setTimeout(() => {
     abortController.abort()
   }, timeoutMs)
@@ -54,17 +65,28 @@ async function fetchWithTimeout(requestUrl: string, requestInit: RequestInit, ti
     })
   } finally {
     clearTimeout(timer)
+    externalSignal?.removeEventListener('abort', abortFromExternalSignal)
   }
 }
 
-async function parseJsonResponse(response: Response): Promise<unknown> {
-  const responseText = await response.text()
-
+function parseJsonResponse(responseText: string): unknown {
   if (responseText.length === 0) {
     return {}
   }
 
   return JSON.parse(responseText) as unknown
+}
+
+function parseErrorResponseBody(responseText: string): unknown {
+  if (responseText.length === 0) {
+    return {}
+  }
+
+  try {
+    return JSON.parse(responseText) as unknown
+  } catch {
+    return responseText
+  }
 }
 
 function createHttpErrorPayload(status: number, body: unknown): HttpResponseError {

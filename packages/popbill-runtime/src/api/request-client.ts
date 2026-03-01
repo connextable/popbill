@@ -42,7 +42,7 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
 
   return {
     async requestJson<T>(options: PopbillRequestOptions): Promise<T> {
-      const method = options.method ?? 'GET'
+      const method = (options.method ?? 'GET').toUpperCase()
       const requestHeaders: Record<string, string> = {
         ...options.headers,
         'User-Agent': POPBILL_USER_AGENT,

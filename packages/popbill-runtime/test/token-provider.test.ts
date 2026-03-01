@@ -36,6 +36,37 @@ describe('createTokenProvider', () => {
     expect(secondToken.sessionToken).toBe('fresh-token')
     expect(issueTokenMock).toHaveBeenCalledTimes(2)
   })
+
+  test('deduplicates concurrent token requests for same business number', async () => {
+    let resolveToken: ((token: LinkhubTokenResponse) => void) | undefined
+    const issueTokenMock = vi.fn(
+      () =>
+        new Promise<LinkhubTokenResponse>((resolve) => {
+          resolveToken = resolve
+        })
+    )
+
+    const tokenProvider = createTokenProvider({
+      authClient: {
+        issueToken: issueTokenMock,
+      },
+      serviceId: 'POPBILL_TEST',
+      scopes: [LinkhubAuthScope.Member],
+    })
+
+    const firstPromise = tokenProvider.getToken('1234567890')
+    const secondPromise = tokenProvider.getToken('1234567890')
+
+    expect(issueTokenMock).toHaveBeenCalledTimes(1)
+
+    resolveToken?.(createToken({ sessionToken: 'shared-token' }))
+
+    const [firstToken, secondToken] = await Promise.all([firstPromise, secondPromise])
+
+    expect(firstToken.sessionToken).toBe('shared-token')
+    expect(secondToken.sessionToken).toBe('shared-token')
+    expect(issueTokenMock).toHaveBeenCalledTimes(1)
+  })
 })
 
 function createMockAuthClient(tokens?: LinkhubTokenResponse[]): {
