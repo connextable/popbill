@@ -1,4 +1,3 @@
-
 import type { LegacyErrorCallback, LegacySuccessCallback } from '@/services/taxinvoice/types'
 import { asErrorCallback, asSuccessCallback } from '@/services/taxinvoice/runtime/common'
 import type * as Spec from '@connextable/popbill-spec'

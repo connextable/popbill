@@ -12,10 +12,7 @@ export const PopbillApiBaseUrls = {
   StaticProduction: 'https://static-popbill.linkhub.co.kr',
   GaTest: 'https://ga-popbill-test.linkhub.co.kr',
   GaProduction: 'https://ga-popbill.linkhub.co.kr',
-} as const satisfies Record<
-  'Test' | 'Production' | 'StaticTest' | 'StaticProduction' | 'GaTest' | 'GaProduction',
-  Spec.PopbillApiBaseUrl
->
+} as const satisfies Record<'Test' | 'Production' | 'StaticTest' | 'StaticProduction' | 'GaTest' | 'GaProduction', Spec.PopbillApiBaseUrl>
 
 export const PopbillAuthBaseUrls = {
   Default: 'https://auth.linkhub.co.kr',

@@ -1,6 +1,5 @@
 import type * as Spec from '@connextable/popbill-spec'
 
-
 /**
  * 문서번호 유형 상수.
  *

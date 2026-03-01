@@ -1,4 +1,3 @@
-
 import type {
   TaxInvoiceAdditionalContactInput,
   TaxInvoiceBuyerInput,
@@ -176,7 +175,9 @@ function mapLineItem(lineItemInput: TaxInvoiceLineItemInput): NonNullable<Spec.T
 /**
  * 추가 담당자 입력을 raw 추가 담당자 모델로 변환합니다.
  */
-function mapAdditionalContact(additionalContactInput: TaxInvoiceAdditionalContactInput): NonNullable<Spec.TaxInvoiceApiModel['addContactList']>[number] {
+function mapAdditionalContact(
+  additionalContactInput: TaxInvoiceAdditionalContactInput
+): NonNullable<Spec.TaxInvoiceApiModel['addContactList']>[number] {
   return {
     serialNum: additionalContactInput.sequenceNumber,
     contactName: additionalContactInput.contactName,

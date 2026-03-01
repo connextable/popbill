@@ -1,6 +1,5 @@
 import type * as Spec from '@connextable/popbill-spec'
 
-
 export type LinkhubTokenApiResponse = Spec.PopbillIssueTokenApiResponse
 
 export interface LinkhubTokenResponse {

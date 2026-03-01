@@ -1,4 +1,3 @@
-
 import type { CallbackService } from '@/adapters/callback-adapter'
 import type { PromiseService } from '@/adapters/promise-adapter'
 import type * as Spec from '@connextable/popbill-spec'
@@ -406,7 +405,10 @@ export interface TaxinvoiceCallbackService extends CallbackService {
   /**
    * 저장된 문서로 역발행 요청을 전송합니다.
    */
-  request: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string], Spec.TaxInvoiceApiResponseBase>
+  request: LegacyCallbackWithUserId<
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
+    Spec.TaxInvoiceApiResponseBase
+  >
 
   /**
    * 역발행 요청을 취소합니다.
@@ -419,7 +421,10 @@ export interface TaxinvoiceCallbackService extends CallbackService {
   /**
    * 역발행 요청을 거부합니다.
    */
-  refuse: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string], Spec.TaxInvoiceApiResponseBase>
+  refuse: LegacyCallbackWithUserId<
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
+    Spec.TaxInvoiceApiResponseBase
+  >
 
   /**
    * 세금계산서를 삭제합니다.
@@ -448,7 +453,10 @@ export interface TaxinvoiceCallbackService extends CallbackService {
   /**
    * 문서 1건의 상세정보를 조회합니다.
    */
-  getDetailInfo: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string], Spec.TaxInvoiceGetDetailInfoApiResponse>
+  getDetailInfo: LegacyCallbackWithUserId<
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string],
+    Spec.TaxInvoiceGetDetailInfoApiResponse
+  >
 
   /**
    * 문서번호 사용 여부를 확인합니다.
@@ -661,12 +669,18 @@ export interface TaxinvoiceCallbackService extends CallbackService {
   /**
    * 발행안함 처리를 취소합니다. (legacy)
    */
-  cancelSend: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string], Spec.TaxInvoiceApiResponseBase>
+  cancelSend: LegacyCallbackWithUserId<
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
+    Spec.TaxInvoiceApiResponseBase
+  >
 
   /**
    * 역발행을 승인합니다. (legacy)
    */
-  accept: LegacyCallbackWithUserId<[corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string], Spec.TaxInvoiceApiResponseBase>
+  accept: LegacyCallbackWithUserId<
+    [corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string],
+    Spec.TaxInvoiceApiResponseBase
+  >
 
   /**
    * 역발행을 거부합니다. (legacy)
@@ -759,7 +773,13 @@ export interface TaxinvoicePromiseService extends PromiseService {
   /**
    * 발행된 문서를 취소합니다.
    */
-  cancelIssue(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string, userId?: string): Promise<Spec.TaxInvoiceApiResponseBase>
+  cancelIssue(
+    corpNum: string,
+    keyType: TaxinvoiceDocumentKeyType,
+    mgtKey: string,
+    memo: string,
+    userId?: string
+  ): Promise<Spec.TaxInvoiceApiResponseBase>
 
   /**
    * 등록과 동시에 역발행 요청을 전송합니다.
@@ -814,7 +834,12 @@ export interface TaxinvoicePromiseService extends PromiseService {
   /**
    * 문서 1건의 상세정보를 조회합니다.
    */
-  getDetailInfo(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, userId?: string): Promise<Spec.TaxInvoiceGetDetailInfoApiResponse>
+  getDetailInfo(
+    corpNum: string,
+    keyType: TaxinvoiceDocumentKeyType,
+    mgtKey: string,
+    userId?: string
+  ): Promise<Spec.TaxInvoiceGetDetailInfoApiResponse>
 
   /**
    * 문서번호 사용 여부를 확인합니다.
@@ -938,7 +963,13 @@ export interface TaxinvoicePromiseService extends PromiseService {
   /**
    * 첨부파일을 삭제합니다.
    */
-  deleteFile(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, fileID: string, userId?: string): Promise<Spec.TaxInvoiceApiResponseBase>
+  deleteFile(
+    corpNum: string,
+    keyType: TaxinvoiceDocumentKeyType,
+    mgtKey: string,
+    fileID: string,
+    userId?: string
+  ): Promise<Spec.TaxInvoiceApiResponseBase>
 
   /**
    * 첨부파일 목록을 조회합니다.
@@ -1084,7 +1115,13 @@ export interface TaxinvoicePromiseService extends PromiseService {
   /**
    * 발행안함 처리를 취소합니다. (legacy)
    */
-  cancelSend(corpNum: string, keyType: TaxinvoiceDocumentKeyType, mgtKey: string, memo: string, userId?: string): Promise<Spec.TaxInvoiceApiResponseBase>
+  cancelSend(
+    corpNum: string,
+    keyType: TaxinvoiceDocumentKeyType,
+    mgtKey: string,
+    memo: string,
+    userId?: string
+  ): Promise<Spec.TaxInvoiceApiResponseBase>
 
   /**
    * 역발행을 승인합니다. (legacy)

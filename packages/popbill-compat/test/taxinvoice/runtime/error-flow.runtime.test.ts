@@ -13,7 +13,10 @@ describe('taxinvoice runtime: error-flow', () => {
   test('callback path prefers error callback over defaultErrorHandler', async () => {
     const defaultErrorHandler = vi.fn()
     helpers.configureCompat(defaultErrorHandler)
-    const fetchMock = helpers.stubFetchResponses(helpers.toJsonResponse(helpers.createTokenResponseBody()), helpers.toJsonResponse({ code: -12345, message: 'Bad request' }, 400))
+    const fetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ code: -12345, message: 'Bad request' }, 400)
+    )
     const callbackError = vi.fn()
 
     await new Promise<void>((resolve) => {

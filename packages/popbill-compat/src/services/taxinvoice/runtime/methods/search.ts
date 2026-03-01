@@ -1,4 +1,3 @@
-
 import { validateCorpNum, validateSearchDate, validateSearchDateType, validateTaxInvoiceKeyType } from '@/internal/validation'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import type { ParsedSearchOptions } from '@/services/taxinvoice/runtime/parsers/search'

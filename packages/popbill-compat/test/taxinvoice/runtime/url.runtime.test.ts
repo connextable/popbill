@@ -11,7 +11,10 @@ describe('taxinvoice runtime: url', () => {
   })
 
   test('promise getSealURL and getCertificateExpireDate call ETC/CERT endpoints', async () => {
-    const sealFetchMock = helpers.stubFetchResponses(helpers.toJsonResponse(helpers.createTokenResponseBody()), helpers.toJsonResponse({ url: 'https://example.com/seal' }))
+    const sealFetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ url: 'https://example.com/seal' })
+    )
 
     const seal = await helpers.promiseCompat.TaxinvoiceService().getSealURL('1234567890', 'seal-user')
     expect(seal).toMatchObject({ url: 'https://example.com/seal' })
@@ -26,7 +29,10 @@ describe('taxinvoice runtime: url', () => {
   })
 
   test('callback and promise URL methods return string URL', async () => {
-    const callbackFetchMock = helpers.stubFetchResponses(helpers.toJsonResponse(helpers.createTokenResponseBody()), helpers.toJsonResponse({ url: 'https://example.com/view' }))
+    const callbackFetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ url: 'https://example.com/view' })
+    )
 
     const callbackUrl = await new Promise<string>((resolve, reject) => {
       helpers.compat.TaxinvoiceService().getViewURL(
@@ -45,7 +51,10 @@ describe('taxinvoice runtime: url', () => {
     expect(callbackUrl).toBe('https://example.com/view')
     helpers.expectTaxinvoiceRequestPath(callbackFetchMock, '/Taxinvoice/SELL/MGT-VIEW?TG=VIEW')
 
-    const promiseFetchMock = helpers.stubFetchResponses(helpers.toJsonResponse(helpers.createTokenResponseBody()), helpers.toJsonResponse({ url: 'https://example.com/pdf' }))
+    const promiseFetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ url: 'https://example.com/pdf' })
+    )
 
     const promiseUrl = await helpers.promiseCompat.TaxinvoiceService().getPDFURL('1234567890', 'SELL', 'MGT-PDF', 'pdf-user')
     expect(promiseUrl).toBe('https://example.com/pdf')
@@ -55,7 +64,10 @@ describe('taxinvoice runtime: url', () => {
   })
 
   test('getURL returns string URL in callback and promise paths', async () => {
-    const callbackFetchMock = helpers.stubFetchResponses(helpers.toJsonResponse(helpers.createTokenResponseBody()), helpers.toJsonResponse({ url: 'https://example.com/tbox' }))
+    const callbackFetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ url: 'https://example.com/tbox' })
+    )
 
     const callbackUrl = await new Promise<string>((resolve, reject) => {
       helpers.compat.TaxinvoiceService().getURL(
@@ -73,7 +85,10 @@ describe('taxinvoice runtime: url', () => {
     expect(callbackUrl).toBe('https://example.com/tbox')
     helpers.expectTaxinvoiceRequestPath(callbackFetchMock, '/Taxinvoice?TG=TBOX')
 
-    const promiseFetchMock = helpers.stubFetchResponses(helpers.toJsonResponse(helpers.createTokenResponseBody()), helpers.toJsonResponse({ url: 'https://example.com/sbox' }))
+    const promiseFetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ url: 'https://example.com/sbox' })
+    )
 
     const promiseUrl = await helpers.promiseCompat.TaxinvoiceService().getURL('1234567890', 'SBOX', 'menu-user')
     expect(promiseUrl).toBe('https://example.com/sbox')
@@ -84,7 +99,10 @@ describe('taxinvoice runtime: url', () => {
   })
 
   test('getMassPrintURL sends POST body and returns URL string', async () => {
-    const fetchMock = helpers.stubFetchResponses(helpers.toJsonResponse(helpers.createTokenResponseBody()), helpers.toJsonResponse({ url: 'https://example.com/mass-print' }))
+    const fetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ url: 'https://example.com/mass-print' })
+    )
 
     const resultUrl = await new Promise<string>((resolve, reject) => {
       helpers.compat.TaxinvoiceService().getMassPrintURL(

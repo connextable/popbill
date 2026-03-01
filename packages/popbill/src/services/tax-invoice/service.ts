@@ -661,7 +661,12 @@ interface NormalizedSearchInvoicesRequest {
 
 function normalizeSearchInvoicesRequest(request: taxInvoiceTypes.SearchInvoicesInput): NormalizedSearchInvoicesRequest {
   return {
-    searchDateType: normalizeCodeValue(request.searchDateType, Object.values(taxInvoiceTypes.TaxInvoiceDateType), 'searchDateType', SEARCH_INVOICES_OPERATION),
+    searchDateType: normalizeCodeValue(
+      request.searchDateType,
+      Object.values(taxInvoiceTypes.TaxInvoiceDateType),
+      'searchDateType',
+      SEARCH_INVOICES_OPERATION
+    ),
     startDate: normalizeSearchDateInput(request.startDate, 'startDate', SEARCH_INVOICES_OPERATION),
     endDate: normalizeSearchDateInput(request.endDate, 'endDate', SEARCH_INVOICES_OPERATION),
     invoiceStateCodes: normalizeSearchStateCodes(request.invoiceStateCodes),
@@ -723,7 +728,9 @@ function normalizeSearchInvoicesRequest(request: taxInvoiceTypes.SearchInvoicesI
   }
 }
 
-function toCompatCloseDownStateCodes(closeDownStateCodes: taxInvoiceTypes.TaxInvoiceCloseDownStateCode[] | undefined): (0 | 1 | 2 | 3 | 4)[] | undefined {
+function toCompatCloseDownStateCodes(
+  closeDownStateCodes: taxInvoiceTypes.TaxInvoiceCloseDownStateCode[] | undefined
+): (0 | 1 | 2 | 3 | 4)[] | undefined {
   return closeDownStateCodes as unknown as (0 | 1 | 2 | 3 | 4)[] | undefined
 }
 
