@@ -6,26 +6,62 @@
  */
 
 /**
+ * 링크허브 서비스 식별자(raw).
+ */
+export interface LinkhubServiceIdMap {
+  /**
+   * 팝빌 테스트(Sandbox) 환경.
+   */
+  PopbillTest: 'POPBILL_TEST'
+
+  /**
+   * 팝빌 운영(Production) 환경.
+   */
+  PopbillProduction: 'POPBILL'
+
+  /**
+   * 주소링크 서비스.
+   */
+  JusoLink: 'JUSOLINK'
+}
+
+/**
+ * 링크허브 서비스 식별자 상수(raw).
+ */
+export const LinkhubServiceIds = {
+  PopbillTest: 'POPBILL_TEST',
+  PopbillProduction: 'POPBILL',
+  JusoLink: 'JUSOLINK',
+} as const satisfies LinkhubServiceIdMap
+
+/**
+ * 링크허브 서비스 식별자(raw).
+ */
+export type LinkhubServiceId = LinkhubServiceIdMap[keyof LinkhubServiceIdMap]
+
+/**
  * 팝빌 서비스 환경 식별자(raw).
+ *
+ * 링크허브 서비스 식별자 중 팝빌 도메인만 제한한 타입이다.
  */
 export interface PopbillServiceIdMap {
   /**
    * 테스트(Sandbox) 환경.
    */
-  Test: 'POPBILL_TEST'
+  Test: LinkhubServiceIdMap['PopbillTest']
 
   /**
    * 운영(Production) 환경.
    */
-  Production: 'POPBILL'
+  Production: LinkhubServiceIdMap['PopbillProduction']
 }
 
 /**
  * 팝빌 서비스 환경 식별자 상수(raw).
  */
 export const PopbillServiceIds = {
-  Test: 'POPBILL_TEST',
-  Production: 'POPBILL',
+  Test: LinkhubServiceIds.PopbillTest,
+  Production: LinkhubServiceIds.PopbillProduction,
 } as const satisfies PopbillServiceIdMap
 
 /**
@@ -303,9 +339,9 @@ export const PopbillAuthScopes = {
  */
 export interface PopbillIssueTokenApiRequestPath {
   /**
-   * 테스트/운영 환경 구분 고유식별정보.
+   * 토큰 발급 대상 링크허브 서비스 식별자.
    */
-  serviceId: PopbillServiceId
+  serviceId: LinkhubServiceId
 }
 
 /**
@@ -379,9 +415,9 @@ export interface PopbillIssueTokenApiResponse {
   session_token: string
 
   /**
-   * 테스트/운영 환경 구분 고유식별정보.
+   * 토큰이 발급된 링크허브 서비스 식별자.
    */
-  serviceID: PopbillServiceId
+  serviceID: LinkhubServiceId
 
   /**
    * 파트너 LinkID.

@@ -4,20 +4,20 @@ export type LinkhubTokenApiResponse = Spec.PopbillIssueTokenApiResponse
 
 export interface LinkhubTokenResponse {
   sessionToken: string
-  serviceId: Spec.PopbillServiceId
+  serviceId: Spec.PopbillIssueTokenApiResponse['serviceID']
   linkId: string
   userId: string
   partnerCode: string
   userCode: string
-  scopes: Spec.PopbillAuthScope[]
+  scopes: Spec.PopbillIssueTokenApiResponse['scope']
   ipAddress: string
-  expiredAt: Spec.PopbillUtcDateTimeString
+  expiredAt: Spec.PopbillIssueTokenApiResponse['expiration']
 }
 
 export interface IssueTokenRequest {
-  serviceId: Spec.PopbillServiceId
+  serviceId: Spec.PopbillIssueTokenApiRequestPath['serviceId']
   accessId: string
-  scopes: readonly Spec.PopbillAuthScope[]
+  scopes: readonly Spec.PopbillIssueTokenApiRequestBody['scope'][number][]
   forwardedIp?: string
 }
 
@@ -34,6 +34,10 @@ export interface LinkhubAuthClientConfig {
    * Linkhub SecretKey (required, base64-encoded).
    */
   secretKey: string
+  /**
+   * Override auth base URL.
+   */
+  authBaseUrl?: string
   /**
    * Use static outbound auth host.
    * @default false
@@ -62,14 +66,15 @@ export interface TokenProvider {
 
 export interface CreateTokenProviderInput {
   authClient: LinkhubAuthClient
-  serviceId: Spec.PopbillServiceId
-  scopes: readonly Spec.PopbillAuthScope[]
+  serviceId: Spec.PopbillIssueTokenApiRequestPath['serviceId']
+  scopes: readonly Spec.PopbillIssueTokenApiRequestBody['scope'][number][]
   forwardedIp?: string
 }
 
 export interface ResolvedLinkhubAuthClientConfig {
   linkId: string
   secretKey: string
+  authBaseUrl?: string
   useStaticIp: boolean
   useGaIp: boolean
   useLocalTime: boolean

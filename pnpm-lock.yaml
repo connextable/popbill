@@ -87,6 +87,15 @@ importers:
         specifier: workspace:*
         version: link:../popbill-utils
 
+  packages/popbill-juso:
+    dependencies:
+      '@connextable/popbill-runtime':
+        specifier: workspace:*
+        version: link:../popbill-runtime
+      '@connextable/popbill-utils':
+        specifier: workspace:*
+        version: link:../popbill-utils
+
   packages/popbill-runtime:
     dependencies:
       '@connextable/popbill-spec':
