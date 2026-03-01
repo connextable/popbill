@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "Shared utility helpers for Popbill SDKs",
   "bugs": {
-    "url": "https://github.com/connextable/node-popbill/issues"
+    "url": "https://github.com/connextable/popbill/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/connextable/node-popbill.git"
+    "url": "https://github.com/connextable/popbill.git"
   },
   "files": [
     "dist"
