@@ -52,6 +52,9 @@ jobs:
       - name: Test popbill-compat
         run: pnpm -C packages/popbill-compat test
 
+      - name: Test popbill-runtime
+        run: pnpm -C packages/popbill-runtime test
+
       - name: Test popbill-utils
         run: pnpm -C packages/popbill-utils test
 
@@ -63,6 +66,7 @@ jobs:
           mkdir -p "${PACK_DIR}"
           pnpm -C packages/popbill-spec pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill-utils pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill-runtime pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill-compat pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill pack --pack-destination "${PACK_DIR}"
           pnpm run release:verify-tarballs -- "${PACK_DIR}"
@@ -74,5 +78,6 @@ jobs:
           set -euo pipefail
           (cd packages/popbill-spec && npm publish --dry-run)
           (cd packages/popbill-utils && npm publish --dry-run)
+          (cd packages/popbill-runtime && npm publish --dry-run)
           (cd packages/popbill-compat && npm publish --dry-run)
           (cd packages/popbill && npm publish --dry-run)

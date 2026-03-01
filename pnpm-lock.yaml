@@ -77,6 +77,18 @@ importers:
 
   packages/popbill-compat:
     dependencies:
+      '@connextable/popbill-runtime':
+        specifier: workspace:*
+        version: link:../popbill-runtime
+      '@connextable/popbill-spec':
+        specifier: workspace:*
+        version: link:../popbill-spec
+      '@connextable/popbill-utils':
+        specifier: workspace:*
+        version: link:../popbill-utils
+
+  packages/popbill-runtime:
+    dependencies:
       '@connextable/popbill-spec':
         specifier: workspace:*
         version: link:../popbill-spec

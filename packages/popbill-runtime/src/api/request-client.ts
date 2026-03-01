@@ -1,6 +1,6 @@
-import { fetchJson } from '@/internal/http/fetch-json'
-import type { TokenProvider } from '@/internal/linkhub'
-import { PopbillHttpMethodOverrides } from '@/internal/spec-constants'
+import { fetchJson } from '@/transport/fetch-json'
+import type { TokenProvider } from '@/auth'
+import { PopbillHttpMethodOverrides } from '@/spec-constants'
 import { isBlank, normalizeOptionalString, sha1Base64, trimTrailingSlash } from '@connextable/popbill-utils'
 import type * as Spec from '@connextable/popbill-spec'
 

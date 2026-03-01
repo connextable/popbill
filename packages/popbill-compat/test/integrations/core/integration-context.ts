@@ -1,5 +1,4 @@
-import { createLinkhubAuthClient, createTokenProvider, LinkhubAuthScope } from '@/internal/linkhub'
-import { createPopbillRequestClient } from '@/internal/popbill'
+import { createLinkhubAuthClient, createPopbillRequestClient, createTokenProvider, LinkhubAuthScope } from '@connextable/popbill-runtime'
 
 const REQUIRED_ENV_NAMES = ['POPBILL_LINK_ID', 'POPBILL_SECRET_KEY', 'POPBILL_CORP_NUM', 'POPBILL_USER_ID'] as const
 const RUN_INTEGRATION_TESTS = normalizeBooleanEnv(process.env['POPBILL_RUN_INTEGRATION_TESTS'])

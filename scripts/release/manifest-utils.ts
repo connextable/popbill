@@ -53,6 +53,11 @@ export const publishPackages: PublishPackageTarget[] = [
     manifestPath: path.join(repoRoot, 'packages/popbill-utils/package.json'),
   },
   {
+    name: '@connextable/popbill-runtime',
+    alias: 'popbill_runtime',
+    manifestPath: path.join(repoRoot, 'packages/popbill-runtime/package.json'),
+  },
+  {
     name: '@connextable/popbill-compat',
     alias: 'popbill_compat',
     manifestPath: path.join(repoRoot, 'packages/popbill-compat/package.json'),

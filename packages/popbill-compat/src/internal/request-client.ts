@@ -1,6 +1,13 @@
-import { createLinkhubAuthClient, createTokenProvider, LinkhubAuthScope } from '@/internal/linkhub'
-import { createPopbillRequestClient, type PopbillRequestClient } from '@/internal/popbill'
-import { PopbillAcceptLanguages, PopbillApiBaseUrls, PopbillServiceIds } from '@/internal/spec-constants'
+import {
+  createLinkhubAuthClient,
+  createPopbillRequestClient,
+  createTokenProvider,
+  LinkhubAuthScope,
+  PopbillAcceptLanguages,
+  PopbillApiBaseUrls,
+  PopbillServiceIds,
+  type PopbillRequestClient,
+} from '@connextable/popbill-runtime'
 import type { CompatConfig } from '@/config'
 import type * as Spec from '@connextable/popbill-spec'
 

@@ -63,6 +63,12 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: pnpm -C packages/popbill-utils publish --access public --no-git-checks
 
+      - name: Publish @connextable/popbill-runtime
+        if: steps.readiness.outputs.publish_popbill_runtime == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm -C packages/popbill-runtime publish --access public --no-git-checks
+
       - name: Publish @connextable/popbill-compat
         if: steps.readiness.outputs.publish_popbill_compat == 'true'
         env:
@@ -80,5 +86,6 @@ jobs:
           echo "version=${{ steps.readiness.outputs.version }}"
           echo "publish_spec=${{ steps.readiness.outputs.publish_popbill_spec }}"
           echo "publish_utils=${{ steps.readiness.outputs.publish_popbill_utils }}"
+          echo "publish_runtime=${{ steps.readiness.outputs.publish_popbill_runtime }}"
           echo "publish_compat=${{ steps.readiness.outputs.publish_popbill_compat }}"
           echo "publish_popbill=${{ steps.readiness.outputs.publish_popbill }}"

@@ -1,5 +1,5 @@
-import { fetchJson, fetchText } from '../http/fetch-json'
-import { PopbillAuthBaseUrls, PopbillAuthScopes, PopbillLinkhubApiVersion, PopbillServiceIds } from '@/internal/spec-constants'
+import { fetchJson, fetchText } from '../transport/fetch-json'
+import { PopbillAuthBaseUrls, PopbillAuthScopes, PopbillLinkhubApiVersion, PopbillServiceIds } from '@/spec-constants'
 import { hmacSha256Base64, sha256Base64, stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
 import type * as linkhub from './types'
 import type * as Spec from '@connextable/popbill-spec'

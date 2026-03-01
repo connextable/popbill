@@ -1,5 +1,5 @@
 import { normalizePopbillError, PopbillErrorStage, type PopbillApiError } from '@/errors'
-import { isPopbillRequestStageError } from '@/internal/popbill'
+import { isPopbillRequestStageError } from '@connextable/popbill-runtime'
 
 export interface LegacyCompatError extends Error {
   code: number

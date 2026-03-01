@@ -1,7 +1,7 @@
 {
-  "name": "@connextable/popbill-compat",
+  "name": "@connextable/popbill-runtime",
   "version": "1.0.0",
-  "description": "Compatibility SDK for legacy Popbill interfaces",
+  "description": "Shared runtime clients for Popbill authentication and API transport",
   "bugs": {
     "url": "https://github.com/connextable/popbill/issues"
   },
@@ -17,30 +17,7 @@
   "sideEffects": false,
   "types": "./dist/index.d.mts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.mts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.mjs"
-    },
-    "./factory": {
-      "types": "./dist/factory/index.d.mts",
-      "import": "./dist/factory/index.mjs",
-      "require": "./dist/factory/index.cjs",
-      "default": "./dist/factory/index.mjs"
-    },
-    "./promise": {
-      "types": "./dist/promise/index.d.mts",
-      "import": "./dist/promise/index.mjs",
-      "require": "./dist/promise/index.cjs",
-      "default": "./dist/promise/index.mjs"
-    },
-    "./errors": {
-      "types": "./dist/errors.d.mts",
-      "import": "./dist/errors.mjs",
-      "require": "./dist/errors.cjs",
-      "default": "./dist/errors.mjs"
-    },
+    ".": "./dist/index.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -60,7 +37,6 @@
     "clean": "del node_modules dist"
   },
   "dependencies": {
-    "@connextable/popbill-runtime": "workspace:*",
     "@connextable/popbill-spec": "workspace:*",
     "@connextable/popbill-utils": "workspace:*"
   },
