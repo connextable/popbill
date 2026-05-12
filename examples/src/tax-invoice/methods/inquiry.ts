@@ -49,12 +49,7 @@ export const INQUIRY_METHODS = {
       }
 
       const input = createDocumentRequest(context, managementKey)
-      await runner.run(
-        'getInvoiceDetailInfo',
-        input,
-        () => context.service.getInvoiceDetailInfo(input),
-        summarizeDocumentOutput
-      )
+      await runner.run('getInvoiceDetailInfo', input, () => context.service.getInvoiceDetailInfo(input), summarizeDocumentOutput)
     },
   },
 
@@ -67,12 +62,7 @@ export const INQUIRY_METHODS = {
       }
 
       const input = createDocumentRequest(context, managementKey)
-      await runner.run(
-        'checkInvoiceManagementKeyInUse',
-        input,
-        () => context.service.checkInvoiceManagementKeyInUse(input),
-        summarizeKeyUsage
-      )
+      await runner.run('checkInvoiceManagementKeyInUse', input, () => context.service.checkInvoiceManagementKeyInUse(input), summarizeKeyUsage)
     },
   },
 

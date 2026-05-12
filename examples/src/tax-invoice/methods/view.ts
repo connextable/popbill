@@ -10,12 +10,7 @@ export const VIEW_METHODS = {
         businessNumber: context.businessNumber,
         taxInvoiceBoxScope: 'TBOX' as const,
       }
-      await runner.run(
-        'getTaxInvoiceBoxURL',
-        input,
-        () => context.service.getTaxInvoiceBoxURL(input),
-        summarizeAccessUrl
-      )
+      await runner.run('getTaxInvoiceBoxURL', input, () => context.service.getTaxInvoiceBoxURL(input), summarizeAccessUrl)
     },
   },
 
@@ -54,12 +49,7 @@ export const VIEW_METHODS = {
       }
 
       const input = createDocumentRequest(context, managementKey)
-      await runner.run(
-        'getSupplierInvoicePrintURL',
-        input,
-        () => context.service.getSupplierInvoicePrintURL(input),
-        summarizeAccessUrl
-      )
+      await runner.run('getSupplierInvoicePrintURL', input, () => context.service.getSupplierInvoicePrintURL(input), summarizeAccessUrl)
     },
   },
 
@@ -72,12 +62,7 @@ export const VIEW_METHODS = {
       }
 
       const input = createDocumentRequest(context, managementKey)
-      await runner.run(
-        'getBuyerInvoicePrintURL',
-        input,
-        () => context.service.getBuyerInvoicePrintURL(input),
-        summarizeAccessUrl
-      )
+      await runner.run('getBuyerInvoicePrintURL', input, () => context.service.getBuyerInvoicePrintURL(input), summarizeAccessUrl)
     },
   },
 
@@ -94,12 +79,7 @@ export const VIEW_METHODS = {
         invoiceDocumentKeyType: context.invoiceDocumentKeyType,
         invoiceManagementKeys: [managementKey],
       }
-      await runner.run(
-        'getBulkInvoicePrintURL',
-        input,
-        () => context.service.getBulkInvoicePrintURL(input),
-        summarizeAccessUrl
-      )
+      await runner.run('getBulkInvoicePrintURL', input, () => context.service.getBulkInvoicePrintURL(input), summarizeAccessUrl)
     },
   },
 

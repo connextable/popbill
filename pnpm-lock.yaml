@@ -62,6 +62,9 @@ importers:
       '@connextable/popbill':
         specifier: workspace:*
         version: link:../packages/popbill
+      '@connextable/popbill-juso':
+        specifier: workspace:*
+        version: link:../packages/popbill-juso
 
   packages/popbill:
     dependencies:

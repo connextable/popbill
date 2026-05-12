@@ -27,12 +27,7 @@ export const notifyScenario: ScenarioDefinition = {
       ...documentInput,
       receiverEmailAddress: context.config.receiverEmail,
     }
-    await runner.run(
-      'resendInvoiceEmail',
-      resendEmailInput,
-      () => context.service.resendInvoiceEmail(resendEmailInput),
-      summarizeOperationResult
-    )
+    await runner.run('resendInvoiceEmail', resendEmailInput, () => context.service.resendInvoiceEmail(resendEmailInput), summarizeOperationResult)
 
     const resendSMSInput = {
       ...documentInput,
@@ -40,24 +35,14 @@ export const notifyScenario: ScenarioDefinition = {
       receiverPhoneNumber: context.config.receiverPhoneNumber,
       messageBody: 'examples resend sms',
     }
-    await runner.run(
-      'resendInvoiceSMS',
-      resendSMSInput,
-      () => context.service.resendInvoiceSMS(resendSMSInput),
-      summarizeOperationResult
-    )
+    await runner.run('resendInvoiceSMS', resendSMSInput, () => context.service.resendInvoiceSMS(resendSMSInput), summarizeOperationResult)
 
     const resendFAXInput = {
       ...documentInput,
       senderNumber: context.config.senderFaxNumber,
       receiverNumber: context.config.receiverFaxNumber,
     }
-    await runner.run(
-      'resendInvoiceFAX',
-      resendFAXInput,
-      () => context.service.resendInvoiceFAX(resendFAXInput),
-      summarizeOperationResult
-    )
+    await runner.run('resendInvoiceFAX', resendFAXInput, () => context.service.resendInvoiceFAX(resendFAXInput), summarizeOperationResult)
 
     const emailSendSettingsInput = {
       businessNumber: context.businessNumber,
@@ -71,9 +56,7 @@ export const notifyScenario: ScenarioDefinition = {
 
     const emailType =
       settingsResult.ok && Array.isArray(settingsResult.value)
-        ? (settingsResult.value.find((setting) => typeof setting.emailTypeCode === 'string')?.emailTypeCode as
-            | TaxInvoiceEmailType
-            | undefined)
+        ? (settingsResult.value.find((setting) => typeof setting.emailTypeCode === 'string')?.emailTypeCode as TaxInvoiceEmailType | undefined)
         : undefined
 
     const updateEmailSendSettingsInput: UpdateEmailSendSettingsInput = {

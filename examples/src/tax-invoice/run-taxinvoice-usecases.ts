@@ -106,20 +106,18 @@ function isScenarioName(value: string, allScenarioNames: readonly ScenarioName[]
 }
 
 function printUsage(): void {
-  const available = (Object.entries(SCENARIOS) as Array<[ScenarioName, ScenarioDefinition]>).map(
-    ([name, scenario]) => ({
-      name,
-      description: scenario.description,
-    })
-  )
+  const available = (Object.entries(SCENARIOS) as Array<[ScenarioName, ScenarioDefinition]>).map(([name, scenario]) => ({
+    name,
+    description: scenario.description,
+  }))
 
   logInfo('사용법', {
-    command: 'dotenvx run -- jiti ./src/run-taxinvoice-usecases.ts [all|scenario[,scenario...]]',
+    command: 'dotenvx run -- jiti ./src/tax-invoice/run-taxinvoice-usecases.ts [all|scenario[,scenario...]]',
     available,
     examples: [
-      'dotenvx run -- jiti ./src/run-taxinvoice-usecases.ts all',
-      'dotenvx run -- jiti ./src/run-taxinvoice-usecases.ts issue',
-      'dotenvx run -- jiti ./src/run-taxinvoice-usecases.ts inquiry,urls,certificate',
+      'dotenvx run -- jiti ./src/tax-invoice/run-taxinvoice-usecases.ts all',
+      'dotenvx run -- jiti ./src/tax-invoice/run-taxinvoice-usecases.ts issue',
+      'dotenvx run -- jiti ./src/tax-invoice/run-taxinvoice-usecases.ts inquiry,urls,certificate',
     ],
   })
 }

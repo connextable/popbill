@@ -4,9 +4,11 @@
   "type": "module",
   "scripts": {
     "build:sdk": "pnpm -C ../packages/popbill build",
-    "taxinvoice:run": "dotenvx run -- jiti ./src/run-taxinvoice-usecases.ts",
-    "taxinvoice:method:run": "dotenvx run -- jiti ./src/run-taxinvoice-method.ts",
+    "taxinvoice:run": "dotenvx run -- jiti ./src/tax-invoice/run-taxinvoice-usecases.ts",
+    "taxinvoice:method:run": "dotenvx run -- jiti ./src/tax-invoice/run-taxinvoice-method.ts",
+    "juso:search": "dotenvx run -- jiti ./src/juso/run-search.ts",
     "taxinvoice": "pnpm run taxinvoice:run",
+    "juso": "pnpm run juso:search --",
     "taxinvoice:all": "pnpm run taxinvoice:run -- all",
     "taxinvoice:issue": "pnpm run taxinvoice:run -- issue",
     "taxinvoice:inquiry": "pnpm run taxinvoice:run -- inquiry",
@@ -23,6 +25,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@connextable/popbill": "workspace:*"
+    "@connextable/popbill": "workspace:*",
+    "@connextable/popbill-juso": "workspace:*"
   }
 }

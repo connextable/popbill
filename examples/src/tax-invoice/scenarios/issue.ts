@@ -42,12 +42,7 @@ export const issueScenario: ScenarioDefinition = {
         invoiceDocumentKeyType: context.invoiceDocumentKeyType,
         invoiceManagementKey: issuedKey,
       }
-      await runner.run(
-        'sendInvoiceToNTS',
-        sendToNTSInput,
-        () => context.service.sendInvoiceToNTS(sendToNTSInput),
-        summarizeOperationResult
-      )
+      await runner.run('sendInvoiceToNTS', sendToNTSInput, () => context.service.sendInvoiceToNTS(sendToNTSInput), summarizeOperationResult)
     }
 
     const cancelTargetKey = await createIssuedInvoice(context, runner, 'CNL')
@@ -58,12 +53,7 @@ export const issueScenario: ScenarioDefinition = {
         invoiceManagementKey: cancelTargetKey,
         historyMemo: 'examples cancel issue',
       }
-      await runner.run(
-        'cancelIssuedInvoice',
-        cancelInput,
-        () => context.service.cancelIssuedInvoice(cancelInput),
-        summarizeOperationResult
-      )
+      await runner.run('cancelIssuedInvoice', cancelInput, () => context.service.cancelIssuedInvoice(cancelInput), summarizeOperationResult)
     }
 
     const deleteTargetKey = await createDraftInvoice(context, runner, 'DEL')
@@ -73,12 +63,7 @@ export const issueScenario: ScenarioDefinition = {
         invoiceDocumentKeyType: context.invoiceDocumentKeyType,
         invoiceManagementKey: deleteTargetKey,
       }
-      await runner.run(
-        'deleteInvoice',
-        deleteInput,
-        () => context.service.deleteInvoice(deleteInput),
-        summarizeOperationResult
-      )
+      await runner.run('deleteInvoice', deleteInput, () => context.service.deleteInvoice(deleteInput), summarizeOperationResult)
     }
   },
 }

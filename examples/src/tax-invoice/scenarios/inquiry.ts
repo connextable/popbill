@@ -1,12 +1,6 @@
 import type { ExampleContext, Runner, ScenarioDefinition } from '../types.ts'
 import { ensureIssuedInvoice } from '../workflows/invoice.ts'
-import {
-  summarizeArrayLength,
-  summarizeDocumentOutput,
-  summarizeInvoiceInfo,
-  summarizeKeyUsage,
-  summarizeXmlOutput,
-} from '../utils/summarizers.ts'
+import { summarizeArrayLength, summarizeDocumentOutput, summarizeInvoiceInfo, summarizeKeyUsage, summarizeXmlOutput } from '../utils/summarizers.ts'
 
 export const inquiryScenario: ScenarioDefinition = {
   description: '상태조회/다건조회/상세조회/XML/로그/관리번호사용여부',
@@ -22,31 +16,16 @@ export const inquiryScenario: ScenarioDefinition = {
       invoiceManagementKey: managementKey,
     }
 
-    await runner.run(
-      'getInvoiceInfo',
-      documentInput,
-      () => context.service.getInvoiceInfo(documentInput),
-      summarizeInvoiceInfo
-    )
+    await runner.run('getInvoiceInfo', documentInput, () => context.service.getInvoiceInfo(documentInput), summarizeInvoiceInfo)
 
     const infosInput = {
       businessNumber: context.businessNumber,
       invoiceDocumentKeyType: context.invoiceDocumentKeyType,
       invoiceManagementKeys: [managementKey],
     }
-    await runner.run(
-      'getInvoicesInfo',
-      infosInput,
-      () => context.service.getInvoicesInfo(infosInput),
-      summarizeArrayLength
-    )
+    await runner.run('getInvoicesInfo', infosInput, () => context.service.getInvoicesInfo(infosInput), summarizeArrayLength)
 
-    await runner.run(
-      'getInvoiceDetailInfo',
-      documentInput,
-      () => context.service.getInvoiceDetailInfo(documentInput),
-      summarizeDocumentOutput
-    )
+    await runner.run('getInvoiceDetailInfo', documentInput, () => context.service.getInvoiceDetailInfo(documentInput), summarizeDocumentOutput)
 
     await runner.run(
       'checkInvoiceManagementKeyInUse',
@@ -55,18 +34,8 @@ export const inquiryScenario: ScenarioDefinition = {
       summarizeKeyUsage
     )
 
-    await runner.run(
-      'getInvoiceXML',
-      documentInput,
-      () => context.service.getInvoiceXML(documentInput),
-      summarizeXmlOutput
-    )
+    await runner.run('getInvoiceXML', documentInput, () => context.service.getInvoiceXML(documentInput), summarizeXmlOutput)
 
-    await runner.run(
-      'getInvoiceLogs',
-      documentInput,
-      () => context.service.getInvoiceLogs(documentInput),
-      summarizeArrayLength
-    )
+    await runner.run('getInvoiceLogs', documentInput, () => context.service.getInvoiceLogs(documentInput), summarizeArrayLength)
   },
 }

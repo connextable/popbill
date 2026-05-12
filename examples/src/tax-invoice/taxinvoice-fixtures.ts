@@ -117,10 +117,7 @@ export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): 
   }
 }
 
-function calculateLineItemAmountTotal(
-  items: TaxInvoiceLineItem[],
-  fieldName: 'supplyCostAmount' | 'taxAmount'
-): number {
+function calculateLineItemAmountTotal(items: TaxInvoiceLineItem[], fieldName: 'supplyCostAmount' | 'taxAmount'): number {
   return items.reduce((total, item) => {
     const parsed = Number.parseInt(item[fieldName] ?? '0', 10)
     return Number.isInteger(parsed) && parsed >= 0 ? total + parsed : total

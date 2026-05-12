@@ -1,9 +1,5 @@
 import type { MethodDefinition } from './types.ts'
-import {
-  DEFAULT_TAX_INVOICE_EMAIL_TYPE,
-  type TaxInvoiceEmailType,
-  type UpdateEmailSendSettingsInput,
-} from '../types.ts'
+import { DEFAULT_TAX_INVOICE_EMAIL_TYPE, type TaxInvoiceEmailType, type UpdateEmailSendSettingsInput } from '../types.ts'
 import { createDocumentRequest, prepareIssuedInvoiceKey } from './helpers.ts'
 import { summarizeArrayLength, summarizeGenericObject, summarizeOperationResult } from '../utils/summarizers.ts'
 
@@ -20,12 +16,7 @@ export const NOTIFY_METHODS = {
         ...createDocumentRequest(context, managementKey),
         receiverEmailAddress: context.config.receiverEmail,
       }
-      await runner.run(
-        'resendInvoiceEmail',
-        input,
-        () => context.service.resendInvoiceEmail(input),
-        summarizeOperationResult
-      )
+      await runner.run('resendInvoiceEmail', input, () => context.service.resendInvoiceEmail(input), summarizeOperationResult)
     },
   },
 
@@ -43,12 +34,7 @@ export const NOTIFY_METHODS = {
         receiverPhoneNumber: context.config.receiverPhoneNumber,
         messageBody: 'examples resend sms by method',
       }
-      await runner.run(
-        'resendInvoiceSMS',
-        input,
-        () => context.service.resendInvoiceSMS(input),
-        summarizeOperationResult
-      )
+      await runner.run('resendInvoiceSMS', input, () => context.service.resendInvoiceSMS(input), summarizeOperationResult)
     },
   },
 
@@ -65,12 +51,7 @@ export const NOTIFY_METHODS = {
         senderNumber: context.config.senderFaxNumber,
         receiverNumber: context.config.receiverFaxNumber,
       }
-      await runner.run(
-        'resendInvoiceFAX',
-        input,
-        () => context.service.resendInvoiceFAX(input),
-        summarizeOperationResult
-      )
+      await runner.run('resendInvoiceFAX', input, () => context.service.resendInvoiceFAX(input), summarizeOperationResult)
     },
   },
 
@@ -80,12 +61,7 @@ export const NOTIFY_METHODS = {
       const input = {
         businessNumber: context.businessNumber,
       }
-      await runner.run(
-        'getEmailSendSettings',
-        input,
-        () => context.service.getEmailSendSettings(input),
-        summarizeArrayLength
-      )
+      await runner.run('getEmailSendSettings', input, () => context.service.getEmailSendSettings(input), summarizeArrayLength)
     },
   },
 
@@ -105,9 +81,7 @@ export const NOTIFY_METHODS = {
 
       const emailType =
         settingsResult.ok && Array.isArray(settingsResult.value)
-          ? (settingsResult.value.find((setting) => typeof setting.emailTypeCode === 'string')?.emailTypeCode as
-              | TaxInvoiceEmailType
-              | undefined)
+          ? (settingsResult.value.find((setting) => typeof setting.emailTypeCode === 'string')?.emailTypeCode as TaxInvoiceEmailType | undefined)
           : undefined
 
       const input: UpdateEmailSendSettingsInput = {
@@ -115,12 +89,7 @@ export const NOTIFY_METHODS = {
         emailType: emailType ?? DEFAULT_TAX_INVOICE_EMAIL_TYPE,
         sendEnabled: true,
       }
-      await runner.run(
-        'updateEmailSendSettings',
-        input,
-        () => context.service.updateEmailSendSettings(input),
-        summarizeOperationResult
-      )
+      await runner.run('updateEmailSendSettings', input, () => context.service.updateEmailSendSettings(input), summarizeOperationResult)
     },
   },
 
@@ -130,12 +99,7 @@ export const NOTIFY_METHODS = {
       const input = {
         businessNumber: context.businessNumber,
       }
-      await runner.run(
-        'getSendToNTSSettings',
-        input,
-        () => context.service.getSendToNTSSettings(input),
-        summarizeGenericObject
-      )
+      await runner.run('getSendToNTSSettings', input, () => context.service.getSendToNTSSettings(input), summarizeGenericObject)
     },
   },
 } as const satisfies Record<string, MethodDefinition>

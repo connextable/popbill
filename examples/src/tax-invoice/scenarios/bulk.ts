@@ -10,19 +10,11 @@ export const bulkScenario: ScenarioDefinition = {
     const submitBulkIssueInput = {
       businessNumber: context.businessNumber,
       submissionIdentifier,
-      taxInvoiceDocuments: [
-        createDocument(context, createManagementKey('B01')),
-        createDocument(context, createManagementKey('B02')),
-      ],
+      taxInvoiceDocuments: [createDocument(context, createManagementKey('B01')), createDocument(context, createManagementKey('B02'))],
       forceIssue: false,
     }
 
-    await runner.run(
-      'submitBulkIssue',
-      submitBulkIssueInput,
-      () => context.service.submitBulkIssue(submitBulkIssueInput),
-      summarizeOperationResult
-    )
+    await runner.run('submitBulkIssue', submitBulkIssueInput, () => context.service.submitBulkIssue(submitBulkIssueInput), summarizeOperationResult)
 
     const getBulkIssueSubmissionResultInput = {
       businessNumber: context.businessNumber,

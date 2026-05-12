@@ -26,11 +26,6 @@ export const certificateScenario: ScenarioDefinition = {
       () => context.service.checkTaxCertificateValidation(businessInput),
       summarizeOperationResult
     )
-    await runner.run(
-      'getTaxCertificateInfo',
-      businessInput,
-      () => context.service.getTaxCertificateInfo(businessInput),
-      summarizeGenericObject
-    )
+    await runner.run('getTaxCertificateInfo', businessInput, () => context.service.getTaxCertificateInfo(businessInput), summarizeGenericObject)
   },
 }

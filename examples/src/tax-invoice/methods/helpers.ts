@@ -7,12 +7,7 @@ import {
   TaxInvoiceSortOrder,
 } from '../types.ts'
 import type { ExampleContext, Runner, SearchInvoicesInput } from '../types.ts'
-import {
-  createDocument,
-  createDraftInvoice,
-  createIssuedInvoice,
-  createReverseRequestedInvoice,
-} from '../workflows/invoice.ts'
+import { createDocument, createDraftInvoice, createIssuedInvoice, createReverseRequestedInvoice } from '../workflows/invoice.ts'
 import { summarizeArrayLength, summarizeOperationResult } from '../utils/summarizers.ts'
 
 export interface TaxInvoiceDocumentRequestInput {
@@ -21,10 +16,7 @@ export interface TaxInvoiceDocumentRequestInput {
   invoiceManagementKey: string
 }
 
-export function createDocumentRequest(
-  context: ExampleContext,
-  invoiceManagementKey: string
-): TaxInvoiceDocumentRequestInput {
+export function createDocumentRequest(context: ExampleContext, invoiceManagementKey: string): TaxInvoiceDocumentRequestInput {
   return {
     businessNumber: context.businessNumber,
     invoiceDocumentKeyType: context.invoiceDocumentKeyType,
@@ -54,29 +46,17 @@ export function createSearchInput(context: ExampleContext): SearchInvoicesInput 
   }
 }
 
-export async function prepareDraftInvoiceKey(
-  context: ExampleContext,
-  runner: Runner,
-  prefix: string
-): Promise<string | null> {
+export async function prepareDraftInvoiceKey(context: ExampleContext, runner: Runner, prefix: string): Promise<string | null> {
   const managementKey = await createDraftInvoice(context, runner, prefix)
   return managementKey || null
 }
 
-export async function prepareIssuedInvoiceKey(
-  context: ExampleContext,
-  runner: Runner,
-  prefix: string
-): Promise<string | null> {
+export async function prepareIssuedInvoiceKey(context: ExampleContext, runner: Runner, prefix: string): Promise<string | null> {
   const managementKey = await createIssuedInvoice(context, runner, prefix)
   return managementKey || null
 }
 
-export async function prepareReverseRequestedInvoiceKey(
-  context: ExampleContext,
-  runner: Runner,
-  prefix: string
-): Promise<string | null> {
+export async function prepareReverseRequestedInvoiceKey(context: ExampleContext, runner: Runner, prefix: string): Promise<string | null> {
   const managementKey = await createReverseRequestedInvoice(context, runner, prefix)
   return managementKey || null
 }
@@ -136,11 +116,7 @@ export function createUpdateDocumentInput(context: ExampleContext, managementKey
   }
 }
 
-export async function prepareAttachedFileIdentifier(
-  context: ExampleContext,
-  runner: Runner,
-  managementKey: string
-): Promise<string | null> {
+export async function prepareAttachedFileIdentifier(context: ExampleContext, runner: Runner, managementKey: string): Promise<string | null> {
   const documentInput = createDocumentRequest(context, managementKey)
   const filePath = await createTempAttachmentFile(managementKey)
 

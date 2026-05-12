@@ -17,12 +17,7 @@ export const ISSUE_METHODS = {
     description: '등록과 동시에 즉시 발행',
     async run(context, runner) {
       const input = createImmediateIssueInput(context, 'IMD')
-      await runner.run(
-        'issueInvoiceImmediately',
-        input,
-        () => context.service.issueInvoiceImmediately(input),
-        summarizeOperationResult
-      )
+      await runner.run('issueInvoiceImmediately', input, () => context.service.issueInvoiceImmediately(input), summarizeOperationResult)
     },
   },
 
@@ -84,12 +79,7 @@ export const ISSUE_METHODS = {
         ...createDocumentRequest(context, managementKey),
         historyMemo: 'examples cancel issue by method',
       }
-      await runner.run(
-        'cancelIssuedInvoice',
-        input,
-        () => context.service.cancelIssuedInvoice(input),
-        summarizeOperationResult
-      )
+      await runner.run('cancelIssuedInvoice', input, () => context.service.cancelIssuedInvoice(input), summarizeOperationResult)
     },
   },
 
@@ -115,12 +105,7 @@ export const ISSUE_METHODS = {
       }
 
       const input = createDocumentRequest(context, managementKey)
-      await runner.run(
-        'sendInvoiceToNTS',
-        input,
-        () => context.service.sendInvoiceToNTS(input),
-        summarizeOperationResult
-      )
+      await runner.run('sendInvoiceToNTS', input, () => context.service.sendInvoiceToNTS(input), summarizeOperationResult)
     },
   },
 
@@ -128,12 +113,7 @@ export const ISSUE_METHODS = {
     description: '등록과 동시에 역발행 요청',
     async run(context, runner) {
       const input = createImmediateReverseRequestInput(context, 'RIM')
-      await runner.run(
-        'requestReverseIssueImmediately',
-        input,
-        () => context.service.requestReverseIssueImmediately(input),
-        summarizeOperationResult
-      )
+      await runner.run('requestReverseIssueImmediately', input, () => context.service.requestReverseIssueImmediately(input), summarizeOperationResult)
     },
   },
 
@@ -151,12 +131,7 @@ export const ISSUE_METHODS = {
         ...createDocumentRequest(context, managementKey),
         historyMemo: 'examples reverse request by method',
       }
-      await runner.run(
-        'requestReverseIssue',
-        input,
-        () => context.service.requestReverseIssue(input),
-        summarizeOperationResult
-      )
+      await runner.run('requestReverseIssue', input, () => context.service.requestReverseIssue(input), summarizeOperationResult)
     },
   },
 
@@ -172,12 +147,7 @@ export const ISSUE_METHODS = {
         ...createDocumentRequest(context, managementKey),
         historyMemo: 'examples reverse request cancel by method',
       }
-      await runner.run(
-        'cancelReverseIssueRequest',
-        input,
-        () => context.service.cancelReverseIssueRequest(input),
-        summarizeOperationResult
-      )
+      await runner.run('cancelReverseIssueRequest', input, () => context.service.cancelReverseIssueRequest(input), summarizeOperationResult)
     },
   },
 
@@ -193,12 +163,7 @@ export const ISSUE_METHODS = {
         ...createDocumentRequest(context, managementKey),
         historyMemo: 'examples reverse request refuse by method',
       }
-      await runner.run(
-        'refuseReverseIssueRequest',
-        input,
-        () => context.service.refuseReverseIssueRequest(input),
-        summarizeOperationResult
-      )
+      await runner.run('refuseReverseIssueRequest', input, () => context.service.refuseReverseIssueRequest(input), summarizeOperationResult)
     },
   },
 
@@ -208,10 +173,7 @@ export const ISSUE_METHODS = {
       const input = {
         businessNumber: context.businessNumber,
         submissionIdentifier: createSubmissionIdentifier('BLK'),
-        taxInvoiceDocuments: [
-          createDocument(context, createManagementKey('B01')),
-          createDocument(context, createManagementKey('B02')),
-        ],
+        taxInvoiceDocuments: [createDocument(context, createManagementKey('B01')), createDocument(context, createManagementKey('B02'))],
         forceIssue: false,
       }
       await runner.run('submitBulkIssue', input, () => context.service.submitBulkIssue(input), summarizeOperationResult)
@@ -243,12 +205,7 @@ export const ISSUE_METHODS = {
         businessNumber: context.businessNumber,
         submissionIdentifier,
       }
-      await runner.run(
-        'getBulkIssueSubmissionResult',
-        input,
-        () => context.service.getBulkIssueSubmissionResult(input),
-        summarizeOperationResult
-      )
+      await runner.run('getBulkIssueSubmissionResult', input, () => context.service.getBulkIssueSubmissionResult(input), summarizeOperationResult)
     },
   },
 } as const satisfies Record<string, MethodDefinition>

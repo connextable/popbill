@@ -36,48 +36,13 @@ export const urlsScenario: ScenarioDefinition = {
       summarizeAccessUrl
     )
 
-    await runner.run(
-      'getInvoicePopupURL',
-      documentInput,
-      () => context.service.getInvoicePopupURL(documentInput),
-      summarizeAccessUrl
-    )
-    await runner.run(
-      'getInvoiceViewURL',
-      documentInput,
-      () => context.service.getInvoiceViewURL(documentInput),
-      summarizeAccessUrl
-    )
-    await runner.run(
-      'getSupplierInvoicePrintURL',
-      documentInput,
-      () => context.service.getSupplierInvoicePrintURL(documentInput),
-      summarizeAccessUrl
-    )
-    await runner.run(
-      'getBuyerInvoicePrintURL',
-      documentInput,
-      () => context.service.getBuyerInvoicePrintURL(documentInput),
-      summarizeAccessUrl
-    )
-    await runner.run(
-      'getBulkInvoicePrintURL',
-      bulkInput,
-      () => context.service.getBulkInvoicePrintURL(bulkInput),
-      summarizeAccessUrl
-    )
-    await runner.run(
-      'getInvoiceMailURL',
-      documentInput,
-      () => context.service.getInvoiceMailURL(documentInput),
-      summarizeAccessUrl
-    )
-    await runner.run(
-      'getInvoicePDFURL',
-      documentInput,
-      () => context.service.getInvoicePDFURL(documentInput),
-      summarizeAccessUrl
-    )
+    await runner.run('getInvoicePopupURL', documentInput, () => context.service.getInvoicePopupURL(documentInput), summarizeAccessUrl)
+    await runner.run('getInvoiceViewURL', documentInput, () => context.service.getInvoiceViewURL(documentInput), summarizeAccessUrl)
+    await runner.run('getSupplierInvoicePrintURL', documentInput, () => context.service.getSupplierInvoicePrintURL(documentInput), summarizeAccessUrl)
+    await runner.run('getBuyerInvoicePrintURL', documentInput, () => context.service.getBuyerInvoicePrintURL(documentInput), summarizeAccessUrl)
+    await runner.run('getBulkInvoicePrintURL', bulkInput, () => context.service.getBulkInvoicePrintURL(bulkInput), summarizeAccessUrl)
+    await runner.run('getInvoiceMailURL', documentInput, () => context.service.getInvoiceMailURL(documentInput), summarizeAccessUrl)
+    await runner.run('getInvoicePDFURL', documentInput, () => context.service.getInvoicePDFURL(documentInput), summarizeAccessUrl)
     await runner.run(
       'getSealAndAttachmentRegistrationURL',
       { businessNumber: context.businessNumber },

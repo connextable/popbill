@@ -18,12 +18,7 @@ export const ATTACHMENT_METHODS = {
         displayName: 'examples-path-file.txt',
         filePath: await createTempAttachmentFile(managementKey),
       }
-      await runner.run(
-        'attachFileFromPath',
-        input,
-        () => context.service.attachFileFromPath(input),
-        summarizeOperationResult
-      )
+      await runner.run('attachFileFromPath', input, () => context.service.attachFileFromPath(input), summarizeOperationResult)
     },
   },
 
@@ -69,12 +64,7 @@ export const ATTACHMENT_METHODS = {
         ...createDocumentRequest(context, managementKey),
         fileIdentifier,
       }
-      await runner.run(
-        'deleteAttachedFile',
-        input,
-        () => context.service.deleteAttachedFile(input),
-        summarizeOperationResult
-      )
+      await runner.run('deleteAttachedFile', input, () => context.service.deleteAttachedFile(input), summarizeOperationResult)
     },
   },
 
@@ -124,12 +114,7 @@ export const ATTACHMENT_METHODS = {
         statementItemCode: context.config.statementItemCode,
         statementManagementKey: context.config.statementManagementKey,
       }
-      await runner.run(
-        'attachInvoiceStatement',
-        input,
-        () => context.service.attachInvoiceStatement(input),
-        summarizeOperationResult
-      )
+      await runner.run('attachInvoiceStatement', input, () => context.service.attachInvoiceStatement(input), summarizeOperationResult)
     },
   },
 
@@ -161,12 +146,7 @@ export const ATTACHMENT_METHODS = {
         return
       }
 
-      await runner.run(
-        'detachInvoiceStatement',
-        setupInput,
-        () => context.service.detachInvoiceStatement(setupInput),
-        summarizeOperationResult
-      )
+      await runner.run('detachInvoiceStatement', setupInput, () => context.service.detachInvoiceStatement(setupInput), summarizeOperationResult)
     },
   },
 
@@ -179,12 +159,7 @@ export const ATTACHMENT_METHODS = {
       }
 
       const infoInput = createDocumentRequest(context, managementKey)
-      const infoResult = await runner.run(
-        'setup.getInvoiceInfo',
-        infoInput,
-        () => context.service.getInvoiceInfo(infoInput),
-        summarizeInvoiceInfo
-      )
+      const infoResult = await runner.run('setup.getInvoiceInfo', infoInput, () => context.service.getInvoiceInfo(infoInput), summarizeInvoiceInfo)
       if (!infoResult.ok) {
         return
       }
@@ -201,12 +176,7 @@ export const ATTACHMENT_METHODS = {
         itemKey,
         invoiceManagementKey: createManagementKey('NEW'),
       }
-      await runner.run(
-        'assignInvoiceManagementKey',
-        input,
-        () => context.service.assignInvoiceManagementKey(input),
-        summarizeOperationResult
-      )
+      await runner.run('assignInvoiceManagementKey', input, () => context.service.assignInvoiceManagementKey(input), summarizeOperationResult)
     },
   },
 } as const satisfies Record<string, MethodDefinition>

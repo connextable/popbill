@@ -31,12 +31,7 @@ export const searchScenario: ScenarioDefinition = {
       closeDownStateCodes: [TaxInvoiceCloseDownStateCodes.NotRegistered],
     }
 
-    await runner.run(
-      'searchInvoices',
-      searchInput,
-      () => context.service.searchInvoices(searchInput),
-      summarizeSearchResult
-    )
+    await runner.run('searchInvoices', searchInput, () => context.service.searchInvoices(searchInput), summarizeSearchResult)
 
     await runner.run(
       'getTaxInvoiceBoxURL',

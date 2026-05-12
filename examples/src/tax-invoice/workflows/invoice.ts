@@ -71,12 +71,7 @@ export async function createIssuedInvoice(context: ExampleContext, runner: Runne
       ],
     }),
   }
-  await runner.run(
-    `updateInvoice (${prefix})`,
-    updateInvoiceInput,
-    () => context.service.updateInvoice(updateInvoiceInput),
-    summarizeOperationResult
-  )
+  await runner.run(`updateInvoice (${prefix})`, updateInvoiceInput, () => context.service.updateInvoice(updateInvoiceInput), summarizeOperationResult)
 
   const issueInvoiceInput = {
     businessNumber: context.businessNumber,
@@ -100,11 +95,7 @@ export async function createIssuedInvoice(context: ExampleContext, runner: Runne
   return managementKey
 }
 
-export async function createReverseRequestedInvoice(
-  context: ExampleContext,
-  runner: Runner,
-  prefix: string
-): Promise<string> {
+export async function createReverseRequestedInvoice(context: ExampleContext, runner: Runner, prefix: string): Promise<string> {
   const reverseManagementKey = await createDraftInvoice(context, runner, `${prefix}REG`, {
     issueType: '역발행',
   })
