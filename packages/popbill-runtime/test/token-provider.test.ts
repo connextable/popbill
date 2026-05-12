@@ -2,6 +2,10 @@ import { createTokenProvider, LinkhubAuthScope } from '@connextable/popbill-runt
 import type { LinkhubAuthClient, LinkhubTokenResponse } from '@/auth/types'
 
 describe('createTokenProvider', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   test('returns cached token before expiration', async () => {
     const { authClient, issueTokenMock } = createMockAuthClient()
     const tokenProvider = createTokenProvider({
@@ -35,6 +39,75 @@ describe('createTokenProvider', () => {
     expect(firstToken.sessionToken).toBe('expired-token')
     expect(secondToken.sessionToken).toBe('fresh-token')
     expect(issueTokenMock).toHaveBeenCalledTimes(2)
+  })
+
+  test('reissues token inside refresh skew before expiration', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'))
+
+    const { authClient, issueTokenMock } = createMockAuthClient([
+      createToken({ sessionToken: 'nearly-expired-token', expiredAt: '2026-01-01T00:00:30Z' }),
+      createToken({ sessionToken: 'fresh-token', expiredAt: '2026-01-01T01:00:00Z' }),
+    ])
+
+    const tokenProvider = createTokenProvider({
+      authClient,
+      serviceId: 'POPBILL_TEST',
+      scopes: [LinkhubAuthScope.Member],
+    })
+
+    const firstToken = await tokenProvider.getToken('1234567890')
+    const secondToken = await tokenProvider.getToken('1234567890')
+
+    expect(firstToken.sessionToken).toBe('nearly-expired-token')
+    expect(secondToken.sessionToken).toBe('fresh-token')
+    expect(issueTokenMock).toHaveBeenCalledTimes(2)
+  })
+
+  test('honors custom refresh skew', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'))
+
+    const { authClient, issueTokenMock } = createMockAuthClient([
+      createToken({ sessionToken: 'nearly-expired-token', expiredAt: '2026-01-01T00:00:30Z' }),
+      createToken({ sessionToken: 'fresh-token', expiredAt: '2026-01-01T01:00:00Z' }),
+    ])
+
+    const tokenProvider = createTokenProvider({
+      authClient,
+      serviceId: 'POPBILL_TEST',
+      scopes: [LinkhubAuthScope.Member],
+      refreshSkewMs: 0,
+    })
+
+    const firstToken = await tokenProvider.getToken('1234567890')
+    const secondToken = await tokenProvider.getToken('1234567890')
+
+    expect(firstToken.sessionToken).toBe('nearly-expired-token')
+    expect(secondToken.sessionToken).toBe('nearly-expired-token')
+    expect(issueTokenMock).toHaveBeenCalledTimes(1)
+  })
+
+  test('rejects invalid refresh skew', () => {
+    const { authClient } = createMockAuthClient()
+
+    expect(() => {
+      createTokenProvider({
+        authClient,
+        serviceId: 'POPBILL_TEST',
+        scopes: [LinkhubAuthScope.Member],
+        refreshSkewMs: -1,
+      })
+    }).toThrow('refreshSkewMs must be a non-negative finite number.')
+
+    expect(() => {
+      createTokenProvider({
+        authClient,
+        serviceId: 'POPBILL_TEST',
+        scopes: [LinkhubAuthScope.Member],
+        refreshSkewMs: Number.NaN,
+      })
+    }).toThrow('refreshSkewMs must be a non-negative finite number.')
   })
 
   test('deduplicates concurrent token requests for same business number', async () => {

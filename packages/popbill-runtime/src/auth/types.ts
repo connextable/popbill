@@ -69,6 +69,11 @@ export interface CreateTokenProviderInput {
   serviceId: Spec.PopbillIssueTokenApiRequestPath['serviceId']
   scopes: readonly Spec.PopbillIssueTokenApiRequestBody['scope'][number][]
   forwardedIp?: string
+  /**
+   * Refresh cached tokens this many milliseconds before expiration.
+   * @default 60000
+   */
+  refreshSkewMs?: number
 }
 
 export interface ResolvedLinkhubAuthClientConfig {

@@ -6,6 +6,7 @@ export default defineConfig({
     environment: 'node',
     alias: {
       '@/': new URL('./src/', import.meta.url).pathname,
+      '@connextable/popbill-runtime': new URL('./src/index.ts', import.meta.url).pathname,
     },
   },
 })

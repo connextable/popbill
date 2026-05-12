@@ -1,13 +1,16 @@
 import type { CreateTokenProviderInput, LinkhubTokenResponse, TokenProvider } from './types'
 
+const DEFAULT_TOKEN_REFRESH_SKEW_MS = 60_000
+
 export function createTokenProvider(input: CreateTokenProviderInput): TokenProvider {
   const tokenCache = new Map<string, LinkhubTokenResponse>()
   const pendingRequests = new Map<string, Promise<LinkhubTokenResponse>>()
+  const refreshSkewMs = resolveRefreshSkewMs(input.refreshSkewMs)
 
   return {
     async getToken(businessNumber: string): Promise<LinkhubTokenResponse> {
       const cachedToken = tokenCache.get(businessNumber)
-      if (cachedToken && !isExpiredToken(cachedToken)) {
+      if (cachedToken && !isExpiredToken(cachedToken, refreshSkewMs)) {
         return cachedToken
       }
 
@@ -38,12 +41,24 @@ export function createTokenProvider(input: CreateTokenProviderInput): TokenProvi
   }
 }
 
-function isExpiredToken(token: LinkhubTokenResponse): boolean {
+function isExpiredToken(token: LinkhubTokenResponse, refreshSkewMs: number): boolean {
   const expiresAt = Date.parse(token.expiredAt)
 
   if (Number.isNaN(expiresAt)) {
     return true
   }
 
-  return Date.now() >= expiresAt
+  return Date.now() + refreshSkewMs >= expiresAt
+}
+
+function resolveRefreshSkewMs(value: number | undefined): number {
+  if (value === undefined) {
+    return DEFAULT_TOKEN_REFRESH_SKEW_MS
+  }
+
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error('refreshSkewMs must be a non-negative finite number.')
+  }
+
+  return value
 }
