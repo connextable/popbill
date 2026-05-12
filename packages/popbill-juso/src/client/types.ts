@@ -1,6 +1,5 @@
 import type { JusoApiError } from '@/errors'
 import type { JusoService } from '@/services/juso'
-import type { LinkhubAuthScope } from '@connextable/popbill-runtime'
 
 /**
  * 주소링크 클라이언트 설정입니다.
@@ -34,13 +33,6 @@ export interface JusoLinkClientConfig {
    * @default https://auth.linkhub.co.kr
    */
   authBaseUrl?: string
-
-  /**
-   * 토큰 권한 범위 목록입니다.
-   *
-   * @default ['member']
-   */
-  tokenScopes?: readonly LinkhubAuthScope[]
 
   /**
    * 토큰 사용 제한 아이피입니다.

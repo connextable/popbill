@@ -6,7 +6,6 @@ import {
   LinkhubAuthScope,
   LinkhubServiceIds,
 } from '@connextable/popbill-runtime'
-import type { LinkhubAuthScope as LinkhubAuthScopeType } from '@connextable/popbill-runtime'
 import { JusoLinkBaseUrls, JusoLinkDefaultRequestTimeoutMilliseconds, JusoLinkUserAgent } from '@/constants'
 import { createJusoService } from '@/services/juso'
 import { normalizeOptionalString, normalizeRequiredString, trimTrailingSlash } from '@connextable/popbill-utils'
@@ -38,11 +37,6 @@ interface ResolvedJusoLinkClientConfig {
    * 링크허브 인증 API 기본 URL 입니다.
    */
   authBaseUrl: string
-
-  /**
-   * 토큰 권한 범위 목록입니다.
-   */
-  tokenScopes: readonly LinkhubAuthScopeType[]
 
   /**
    * 토큰 사용 제한 아이피입니다.
@@ -87,7 +81,7 @@ export function createJusoLinkClient(configuration: JusoLinkClientConfig): JusoL
   const tokenProvider = createTokenProvider({
     authClient,
     serviceId: LinkhubServiceIds.JusoLink,
-    scopes: resolvedConfiguration.tokenScopes,
+    scopes: [LinkhubAuthScope.Member],
     forwardedIp: resolvedConfiguration.forwardedIpAddress,
   })
 
@@ -121,7 +115,6 @@ function resolveConfiguration(configuration: JusoLinkClientConfig): ResolvedJuso
     accessId,
     apiBaseUrl: trimTrailingSlash(configuration.apiBaseUrl ?? JusoLinkBaseUrls.Api),
     authBaseUrl: trimTrailingSlash(configuration.authBaseUrl ?? JusoLinkBaseUrls.Auth),
-    tokenScopes: normalizeTokenScopes(configuration.tokenScopes),
     forwardedIpAddress: normalizeOptionalString(configuration.forwardedIpAddress),
     useLocalTime: configuration.useLocalTime ?? true,
     requestTimeoutMilliseconds: normalizeRequestTimeoutMilliseconds(configuration.requestTimeoutMilliseconds),
@@ -140,20 +133,4 @@ function normalizeRequestTimeoutMilliseconds(value: number | undefined): number 
   }
 
   return value
-}
-
-function normalizeTokenScopes(value: readonly LinkhubAuthScopeType[] | undefined): readonly LinkhubAuthScopeType[] {
-  if (value === undefined) {
-    return [LinkhubAuthScope.Member]
-  }
-
-  if (value.length === 0) {
-    throw new Error('tokenScopes는 최소 1개 이상이어야 합니다.')
-  }
-
-  for (const scope of value) {
-    normalizeRequiredString(scope, 'tokenScopes 항목은 비어 있을 수 없습니다.')
-  }
-
-  return [...value]
 }
