@@ -1,5 +1,5 @@
 import { createLinkhubRequestClient } from '@/api'
-import type { LinkhubTokenResponse } from '@/auth'
+import type { LinkhubTokenResponse, TokenProvider } from '@/auth'
 
 describe('createLinkhubRequestClient', () => {
   afterEach(() => {
@@ -8,7 +8,7 @@ describe('createLinkhubRequestClient', () => {
 
   test('uses configured token cache key and api base url', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"ok":true}', { status: 200 }))
-    const getToken = vi.fn(async () => createMockTokenResponse('TOKEN'))
+    const getToken = vi.fn<TokenProvider['getToken']>(async () => createMockTokenResponse('TOKEN'))
 
     const requestClient = createLinkhubRequestClient({
       apiBaseUrl: 'https://jusolink.linkhub.co.kr',
@@ -44,7 +44,7 @@ describe('createLinkhubRequestClient', () => {
       apiBaseUrl: 'https://jusolink.linkhub.co.kr',
       timeoutMs: 1_000,
       tokenProvider: {
-        getToken: vi.fn(async () => {
+        getToken: vi.fn<TokenProvider['getToken']>(async () => {
           throw tokenIssueError
         }),
       },
@@ -72,7 +72,7 @@ describe('createLinkhubRequestClient', () => {
       apiBaseUrl: 'https://jusolink.linkhub.co.kr',
       timeoutMs: 1_000,
       tokenProvider: {
-        getToken: vi.fn(async () => createMockTokenResponse('TOKEN')),
+        getToken: vi.fn<TokenProvider['getToken']>(async () => createMockTokenResponse('TOKEN')),
       },
       tokenCacheKey: 'ACCESS_ID',
       acceptEncoding: null,

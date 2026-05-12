@@ -29,7 +29,7 @@ export function toJsonResponse(body: unknown, status = 200): Response {
 }
 
 export function stubFetchResponses(...responses: Response[]): ReturnType<typeof vi.fn> {
-  const fetchMock = vi.fn()
+  const fetchMock = vi.fn<typeof fetch>()
 
   for (const response of responses) {
     fetchMock.mockResolvedValueOnce(response)

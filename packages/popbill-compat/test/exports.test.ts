@@ -26,8 +26,8 @@ describe('compat exports', () => {
   })
 
   test('callback stub calls error callback when provided', () => {
-    const onSuccess = vi.fn()
-    const onError = vi.fn()
+    const onSuccess = vi.fn<() => void>()
+    const onError = vi.fn<(error: unknown) => void>()
     compat.TaxinvoiceService().getChargeInfo('1234567890', onSuccess, onError)
 
     expect(onSuccess).not.toHaveBeenCalled()
@@ -184,8 +184,8 @@ function createTokenResponseBody() {
   }
 }
 
-function stubFetchResponses(...bodies: unknown[]): ReturnType<typeof vi.fn> {
-  const fetchMock = vi.fn()
+function stubFetchResponses(...bodies: unknown[]) {
+  const fetchMock = vi.fn<typeof fetch>()
 
   for (const body of bodies) {
     fetchMock.mockResolvedValueOnce(

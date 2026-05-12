@@ -1,14 +1,18 @@
 const MOCK_ACCESS_URL = 'https://mock.popbill.local/taxinvoice'
 
+type MockRequestInput = Parameters<typeof fetch>[0]
+type MockRequestInit = Parameters<typeof fetch>[1]
+type MockHeadersInit = NonNullable<RequestInit['headers']>
+
 export function installTaxinvoiceMockFetch(): void {
-  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+  const fetchMock = vi.fn<typeof fetch>(async (input: MockRequestInput, init?: MockRequestInit) => {
     return toJsonResponse(createMockResponseBody(input, init))
   })
 
   vi.stubGlobal('fetch', fetchMock)
 }
 
-function createMockResponseBody(input: RequestInfo | URL, init?: RequestInit): unknown {
+function createMockResponseBody(input: MockRequestInput, init?: MockRequestInit): unknown {
   const url = toRequestUrl(input)
   const path = url.pathname
   const effectiveMethod = getEffectiveMethod(init)
@@ -108,7 +112,7 @@ function createMockResponseBody(input: RequestInfo | URL, init?: RequestInit): u
   return createOperationResult()
 }
 
-function toRequestUrl(input: RequestInfo | URL): URL {
+function toRequestUrl(input: MockRequestInput): URL {
   if (typeof input === 'string') {
     return new URL(input)
   }
@@ -120,11 +124,11 @@ function toRequestUrl(input: RequestInfo | URL): URL {
   return new URL(input.url)
 }
 
-function getEffectiveMethod(init: RequestInit | undefined): string {
+function getEffectiveMethod(init: MockRequestInit): string {
   return (getHeader(init?.headers, 'X-HTTP-Method-Override') ?? init?.method ?? 'GET').toUpperCase()
 }
 
-function getHeader(headers: HeadersInit | undefined, name: string): string | undefined {
+function getHeader(headers: MockHeadersInit | undefined, name: string): string | undefined {
   if (!headers) {
     return undefined
   }
@@ -136,12 +140,18 @@ function getHeader(headers: HeadersInit | undefined, name: string): string | und
   const normalizedName = name.toLowerCase()
 
   if (Array.isArray(headers)) {
-    return headers.find(([key]) => key.toLowerCase() === normalizedName)?.[1]
+    for (const [key, value] of headers) {
+      if (key?.toLowerCase() === normalizedName) {
+        return value
+      }
+    }
+
+    return undefined
   }
 
   for (const [key, value] of Object.entries(headers)) {
     if (key.toLowerCase() === normalizedName) {
-      return value
+      return typeof value === 'string' ? value : value.join(', ')
     }
   }
 

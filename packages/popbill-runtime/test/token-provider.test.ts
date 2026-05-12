@@ -112,7 +112,7 @@ describe('createTokenProvider', () => {
 
   test('deduplicates concurrent token requests for same business number', async () => {
     let resolveToken: ((token: LinkhubTokenResponse) => void) | undefined
-    const issueTokenMock = vi.fn(
+    const issueTokenMock = vi.fn<LinkhubAuthClient['issueToken']>(
       () =>
         new Promise<LinkhubTokenResponse>((resolve) => {
           resolveToken = resolve
@@ -149,7 +149,7 @@ function createMockAuthClient(tokens?: LinkhubTokenResponse[]): {
   const queue = tokens ?? [createToken({ sessionToken: 'token-1' })]
   const fallbackToken = queue[queue.length - 1] ?? createToken({ sessionToken: 'token-fallback' })
   let index = 0
-  const issueTokenMock = vi.fn(async () => {
+  const issueTokenMock = vi.fn<LinkhubAuthClient['issueToken']>(async () => {
     const token = queue[index] ?? fallbackToken
     index += 1
     return token

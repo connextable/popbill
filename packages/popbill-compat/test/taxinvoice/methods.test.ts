@@ -36,8 +36,8 @@ describe('taxinvoice legacy method surface', () => {
   })
 
   test('non-required compatibility method remains stubbed for callback and promise', async () => {
-    const onSuccess = vi.fn()
-    const onError = vi.fn()
+    const onSuccess = vi.fn<() => void>()
+    const onError = vi.fn<(error: unknown) => void>()
 
     compat.TaxinvoiceService().getChargeInfo('1234567890', onSuccess, onError)
 

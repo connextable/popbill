@@ -125,7 +125,7 @@ describe('createJusoLinkClient', () => {
   })
 
   test('원격 API 에러를 JusoApiError로 정규화한다', async () => {
-    const onError = vi.fn()
+    const onError = vi.fn<(error: unknown) => void>()
 
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (requestInput) => {
       const requestUrl = resolveRequestUrl(requestInput)

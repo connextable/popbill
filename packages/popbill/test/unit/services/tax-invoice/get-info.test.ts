@@ -38,7 +38,7 @@ describe('tax-invoice getInvoiceInfo', () => {
     }
 
     const fetchMock = vi
-      .fn()
+      .fn<typeof fetch>()
       .mockResolvedValueOnce(new Response(JSON.stringify(tokenResponse), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify(invoiceInfoApiResponse), { status: 200 }))
 
@@ -96,7 +96,7 @@ describe('tax-invoice getInvoiceInfo', () => {
 
   test('includes Accept-Language header when configured', async () => {
     const fetchMock = vi
-      .fn()
+      .fn<typeof fetch>()
       .mockResolvedValueOnce(
         new Response(
           JSON.stringify({
@@ -159,7 +159,7 @@ describe('tax-invoice getInvoiceInfo', () => {
 
   test('uses production popbill domain when isTest is omitted', async () => {
     const fetchMock = vi
-      .fn()
+      .fn<typeof fetch>()
       .mockResolvedValueOnce(
         new Response(
           JSON.stringify({
@@ -218,7 +218,7 @@ describe('tax-invoice getInvoiceInfo', () => {
 
   test('uses custom Accept-Encoding header when configured', async () => {
     const fetchMock = vi
-      .fn()
+      .fn<typeof fetch>()
       .mockResolvedValueOnce(
         new Response(
           JSON.stringify({
@@ -280,9 +280,9 @@ describe('tax-invoice getInvoiceInfo', () => {
   })
 
   test('throws on invalid input before requesting network', async () => {
-    const fetchMock = vi.fn()
+    const fetchMock = vi.fn<typeof fetch>()
     vi.stubGlobal('fetch', fetchMock)
-    const onError = vi.fn()
+    const onError = vi.fn<(error: unknown) => void>()
 
     const client = createPopbillClient({
       linkId: 'TEST_LINK_ID',
@@ -318,7 +318,7 @@ describe('tax-invoice getInvoiceInfo', () => {
   })
 
   test('normalizes issue-token failure and invokes onError', async () => {
-    const fetchMock = vi.fn().mockResolvedValueOnce(
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValueOnce(
       new Response(
         JSON.stringify({
           code: -11000000,
@@ -329,7 +329,7 @@ describe('tax-invoice getInvoiceInfo', () => {
     )
 
     vi.stubGlobal('fetch', fetchMock)
-    const onError = vi.fn()
+    const onError = vi.fn<(error: unknown) => void>()
 
     const client = createPopbillClient({
       linkId: 'TEST_LINK_ID',

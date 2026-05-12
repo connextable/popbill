@@ -639,7 +639,7 @@ describe('tax-invoice facade adapter', () => {
 
   for (const testCase of FORWARDING_CASES_WITH_EXPECTED_RESULT) {
     test(`${testCase.facadeMethod} forwards to ${testCase.compatMethod}`, async () => {
-      const compatMethodMock = vi.fn(() => Promise.resolve(testCase.response))
+      const compatMethodMock = vi.fn<(...args: unknown[]) => Promise<unknown>>(() => Promise.resolve(testCase.response))
       const service = createTaxInvoiceService({
         defaultUserId: USER_ID,
         compatTaxInvoiceService: createCompatServiceStub({
@@ -657,7 +657,7 @@ describe('tax-invoice facade adapter', () => {
 
   for (const testCase of FORWARDING_CASES_WITHOUT_EXPECTED_RESULT) {
     test(`${testCase.facadeMethod} forwards to ${testCase.compatMethod}`, async () => {
-      const compatMethodMock = vi.fn(() => Promise.resolve(testCase.response))
+      const compatMethodMock = vi.fn<(...args: unknown[]) => Promise<unknown>>(() => Promise.resolve(testCase.response))
       const service = createTaxInvoiceService({
         defaultUserId: USER_ID,
         compatTaxInvoiceService: createCompatServiceStub({
@@ -674,7 +674,7 @@ describe('tax-invoice facade adapter', () => {
   }
 
   test('uses client default userId when options are omitted', async () => {
-    const getURL = vi.fn(() => Promise.resolve(URL_RESPONSE))
+    const getURL = vi.fn<(...args: unknown[]) => Promise<string>>(() => Promise.resolve(URL_RESPONSE))
     const service = createTaxInvoiceService({
       defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ getURL }),
@@ -689,7 +689,7 @@ describe('tax-invoice facade adapter', () => {
   })
 
   test('uses default userId when options are omitted', async () => {
-    const getURL = vi.fn(() => Promise.resolve(URL_RESPONSE))
+    const getURL = vi.fn<(...args: unknown[]) => Promise<string>>(() => Promise.resolve(URL_RESPONSE))
     const service = createTaxInvoiceService({
       compatTaxInvoiceService: createCompatServiceStub({ getURL }),
       defaultUserId: 'default-user',
@@ -704,7 +704,7 @@ describe('tax-invoice facade adapter', () => {
   })
 
   test('uses default userId even when options object is passed', async () => {
-    const getURL = vi.fn(() => Promise.resolve(URL_RESPONSE))
+    const getURL = vi.fn<(...args: unknown[]) => Promise<string>>(() => Promise.resolve(URL_RESPONSE))
     const service = createTaxInvoiceService({
       compatTaxInvoiceService: createCompatServiceStub({ getURL }),
       defaultUserId: 'default-user',
@@ -719,7 +719,7 @@ describe('tax-invoice facade adapter', () => {
   })
 
   test('throws input validation error when closeDownStateCodes include unsupported value', async () => {
-    const search = vi.fn((..._args: unknown[]) => Promise.resolve(SEARCH_RESPONSE))
+    const search = vi.fn<(...args: unknown[]) => Promise<typeof SEARCH_RESPONSE>>((..._args) => Promise.resolve(SEARCH_RESPONSE))
     const service = createTaxInvoiceService({
       defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ search }),
@@ -751,7 +751,7 @@ describe('tax-invoice facade adapter', () => {
   })
 
   test('keeps closeDownStateCodes undefined when the option is omitted', async () => {
-    const search = vi.fn((..._args: unknown[]) => Promise.resolve(SEARCH_RESPONSE))
+    const search = vi.fn<(...args: unknown[]) => Promise<typeof SEARCH_RESPONSE>>((..._args) => Promise.resolve(SEARCH_RESPONSE))
     const service = createTaxInvoiceService({
       defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ search }),
@@ -778,7 +778,7 @@ describe('tax-invoice facade adapter', () => {
   })
 
   test('normalizes Date inputs to KST yyyyMMdd before forwarding search call', async () => {
-    const search = vi.fn((..._args: unknown[]) => Promise.resolve(SEARCH_RESPONSE))
+    const search = vi.fn<(...args: unknown[]) => Promise<typeof SEARCH_RESPONSE>>((..._args) => Promise.resolve(SEARCH_RESPONSE))
     const service = createTaxInvoiceService({
       defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ search }),
@@ -827,7 +827,7 @@ describe('tax-invoice facade adapter', () => {
   })
 
   test('throws input validation error when sortOrder is invalid', async () => {
-    const search = vi.fn((..._args: unknown[]) => Promise.resolve(SEARCH_RESPONSE))
+    const search = vi.fn<(...args: unknown[]) => Promise<typeof SEARCH_RESPONSE>>((..._args) => Promise.resolve(SEARCH_RESPONSE))
     const service = createTaxInvoiceService({
       defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ search }),
@@ -859,7 +859,7 @@ describe('tax-invoice facade adapter', () => {
   })
 
   test('throws input validation error when taxationTypeCodes include unsupported value', async () => {
-    const search = vi.fn((..._args: unknown[]) => Promise.resolve(SEARCH_RESPONSE))
+    const search = vi.fn<(...args: unknown[]) => Promise<typeof SEARCH_RESPONSE>>((..._args) => Promise.resolve(SEARCH_RESPONSE))
     const service = createTaxInvoiceService({
       defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ search }),
@@ -891,7 +891,7 @@ describe('tax-invoice facade adapter', () => {
   })
 
   test('throws input validation error when emailType is invalid', async () => {
-    const updateEmailConfig = vi.fn((..._args: unknown[]) => Promise.resolve(API_RESPONSE))
+    const updateEmailConfig = vi.fn<(...args: unknown[]) => Promise<typeof API_RESPONSE>>((..._args) => Promise.resolve(API_RESPONSE))
     const service = createTaxInvoiceService({
       defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ updateEmailConfig }),
@@ -914,7 +914,7 @@ describe('tax-invoice facade adapter', () => {
   })
 
   test('throws input validation error when statementItemCode is invalid', async () => {
-    const attachStatement = vi.fn((..._args: unknown[]) => Promise.resolve(API_RESPONSE))
+    const attachStatement = vi.fn<(...args: unknown[]) => Promise<typeof API_RESPONSE>>((..._args) => Promise.resolve(API_RESPONSE))
     const service = createTaxInvoiceService({
       defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ attachStatement }),
@@ -943,7 +943,7 @@ describe('tax-invoice facade adapter', () => {
         stage: PopbillErrorStage.ValidateInput,
       })
     )
-    const getInfo = vi.fn(() => Promise.reject(validationError))
+    const getInfo = vi.fn<(...args: unknown[]) => Promise<never>>(() => Promise.reject(validationError))
     const service = createTaxInvoiceService({
       defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ getInfo }),
@@ -971,8 +971,8 @@ describe('tax-invoice facade adapter', () => {
         stage: PopbillErrorStage.ValidateInput,
       })
     )
-    const getInfo = vi.fn(() => Promise.reject(validationError))
-    const onError = vi.fn(() => {
+    const getInfo = vi.fn<(...args: unknown[]) => Promise<never>>(() => Promise.reject(validationError))
+    const onError = vi.fn<(error: unknown) => void>(() => {
       throw new Error('onError should not override original error')
     })
     const service = createTaxInvoiceService({

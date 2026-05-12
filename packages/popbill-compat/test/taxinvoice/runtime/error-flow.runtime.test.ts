@@ -11,13 +11,13 @@ describe('taxinvoice runtime: error-flow', () => {
   })
 
   test('callback path prefers error callback over defaultErrorHandler', async () => {
-    const defaultErrorHandler = vi.fn()
+    const defaultErrorHandler = vi.fn<(error: unknown) => void>()
     helpers.configureCompat(defaultErrorHandler)
     const fetchMock = helpers.stubFetchResponses(
       helpers.toJsonResponse(helpers.createTokenResponseBody()),
       helpers.toJsonResponse({ code: -12345, message: 'Bad request' }, 400)
     )
-    const callbackError = vi.fn()
+    const callbackError = vi.fn<(error: unknown) => void>()
 
     await new Promise<void>((resolve) => {
       helpers.compat.TaxinvoiceService().getViewURL(
@@ -46,7 +46,7 @@ describe('taxinvoice runtime: error-flow', () => {
   })
 
   test('callback and promise path use defaultErrorHandler fallback and reject', async () => {
-    const defaultErrorHandler = vi.fn()
+    const defaultErrorHandler = vi.fn<(error: unknown) => void>()
     helpers.configureCompat(defaultErrorHandler)
 
     const callbackFetchMock = helpers.stubFetchResponses(
@@ -76,14 +76,14 @@ describe('taxinvoice runtime: error-flow', () => {
   })
 
   test('getURL callback/promise error flow matches legacy order', async () => {
-    const defaultErrorHandler = vi.fn()
+    const defaultErrorHandler = vi.fn<(error: unknown) => void>()
     helpers.configureCompat(defaultErrorHandler)
 
     const callbackFetchMock = helpers.stubFetchResponses(
       helpers.toJsonResponse(helpers.createTokenResponseBody()),
       helpers.toJsonResponse({ code: -12345, message: 'Bad request' }, 400)
     )
-    const callbackError = vi.fn()
+    const callbackError = vi.fn<(error: unknown) => void>()
 
     await new Promise<void>((resolve) => {
       helpers.compat.TaxinvoiceService().getURL(
@@ -124,13 +124,13 @@ describe('taxinvoice runtime: error-flow', () => {
   })
 
   test('scoped issue callback does not route success callback exceptions to error callback', async () => {
-    const defaultErrorHandler = vi.fn()
+    const defaultErrorHandler = vi.fn<(error: unknown) => void>()
     helpers.configureCompat(defaultErrorHandler)
     const fetchMock = helpers.stubFetchResponses(
       helpers.toJsonResponse(helpers.createTokenResponseBody()),
       helpers.toJsonResponse({ code: 1, message: 'issued' })
     )
-    const callbackError = vi.fn()
+    const callbackError = vi.fn<(error: unknown) => void>()
 
     helpers.compat.TaxinvoiceService().issue(
       '1234567890',
@@ -151,13 +151,13 @@ describe('taxinvoice runtime: error-flow', () => {
   })
 
   test('bulk result callback does not route success callback exceptions to error callback', async () => {
-    const defaultErrorHandler = vi.fn()
+    const defaultErrorHandler = vi.fn<(error: unknown) => void>()
     helpers.configureCompat(defaultErrorHandler)
     const fetchMock = helpers.stubFetchResponses(
       helpers.toJsonResponse(helpers.createTokenResponseBody()),
       helpers.toJsonResponse({ code: 1, message: 'complete', receiptID: 'RID-1', state: 2 })
     )
-    const callbackError = vi.fn()
+    const callbackError = vi.fn<(error: unknown) => void>()
 
     helpers.compat.TaxinvoiceService().getBulkResult(
       '1234567890',
@@ -176,13 +176,13 @@ describe('taxinvoice runtime: error-flow', () => {
   })
 
   test('bulk result callback observes async success callback rejections', async () => {
-    const defaultErrorHandler = vi.fn()
+    const defaultErrorHandler = vi.fn<(error: unknown) => void>()
     helpers.configureCompat(defaultErrorHandler)
     const fetchMock = helpers.stubFetchResponses(
       helpers.toJsonResponse(helpers.createTokenResponseBody()),
       helpers.toJsonResponse({ code: 1, message: 'complete', receiptID: 'RID-2', state: 2 })
     )
-    const callbackError = vi.fn()
+    const callbackError = vi.fn<(error: unknown) => void>()
 
     helpers.compat.TaxinvoiceService().getBulkResult(
       '1234567890',
@@ -201,13 +201,13 @@ describe('taxinvoice runtime: error-flow', () => {
   })
 
   test('info callback does not route success callback exceptions to error callback', async () => {
-    const defaultErrorHandler = vi.fn()
+    const defaultErrorHandler = vi.fn<(error: unknown) => void>()
     helpers.configureCompat(defaultErrorHandler)
     const fetchMock = helpers.stubFetchResponses(
       helpers.toJsonResponse(helpers.createTokenResponseBody()),
       helpers.toJsonResponse({ itemKey: 'ITEM-1' })
     )
-    const callbackError = vi.fn()
+    const callbackError = vi.fn<(error: unknown) => void>()
 
     helpers.compat.TaxinvoiceService().getInfo(
       '1234567890',

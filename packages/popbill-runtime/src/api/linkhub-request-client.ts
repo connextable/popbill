@@ -24,7 +24,7 @@ export interface LinkhubRequestClientConfig {
 export interface LinkhubRequestOptions {
   uri: string
   method?: string
-  body?: BodyInit | null
+  body?: RequestInit['body']
   contentType?: string | null
   headers?: Record<string, string>
 }

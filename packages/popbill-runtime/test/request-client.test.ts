@@ -1,5 +1,5 @@
 import { createPopbillRequestClient } from '@/api'
-import type { LinkhubTokenResponse } from '@/auth/types'
+import type { LinkhubTokenResponse, TokenProvider } from '@/auth/types'
 import { sha1Base64 } from '@connextable/popbill-utils'
 
 describe('createPopbillRequestClient', () => {
@@ -14,7 +14,7 @@ describe('createPopbillRequestClient', () => {
       apiBaseUrl: 'https://popbill.example.com',
       timeoutMs: 1_000,
       tokenProvider: {
-        getToken: vi.fn(),
+        getToken: vi.fn<TokenProvider['getToken']>(),
       },
       acceptEncoding: null,
     })
@@ -39,7 +39,7 @@ describe('createPopbillRequestClient', () => {
       apiBaseUrl: 'https://popbill.example.com',
       timeoutMs: 1_000,
       tokenProvider: {
-        getToken: vi.fn(),
+        getToken: vi.fn<TokenProvider['getToken']>(),
       },
       acceptEncoding: null,
     })
@@ -65,7 +65,7 @@ describe('createPopbillRequestClient', () => {
       apiBaseUrl: 'https://popbill.example.com',
       timeoutMs: 1_000,
       tokenProvider: {
-        getToken: vi.fn(),
+        getToken: vi.fn<TokenProvider['getToken']>(),
       },
       acceptEncoding: null,
     })
@@ -95,7 +95,7 @@ describe('createPopbillRequestClient', () => {
       apiBaseUrl: 'https://popbill.example.com',
       timeoutMs: 1_000,
       tokenProvider: {
-        getToken: vi.fn(async () => {
+        getToken: vi.fn<TokenProvider['getToken']>(async () => {
           throw tokenIssueError
         }),
       },
@@ -123,7 +123,7 @@ describe('createPopbillRequestClient', () => {
       apiBaseUrl: 'https://popbill.example.com',
       timeoutMs: 1_000,
       tokenProvider: {
-        getToken: vi.fn(async () => createMockTokenResponse('session-token')),
+        getToken: vi.fn<TokenProvider['getToken']>(async () => createMockTokenResponse('session-token')),
       },
       acceptEncoding: null,
     })

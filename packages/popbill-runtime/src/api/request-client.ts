@@ -26,7 +26,7 @@ export interface PopbillRequestOptions {
   corpNum?: string
   userId?: string
   method?: string
-  body?: BodyInit | null
+  body?: RequestInit['body']
   contentType?: string | null
   submitId?: string
   headers?: Record<string, string>

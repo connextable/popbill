@@ -12,7 +12,7 @@ describe('taxinvoice runtime: validation', () => {
   })
 
   test('validation errors block network for callback and promise', async () => {
-    const fetchMock = vi.fn()
+    const fetchMock = vi.fn<typeof fetch>()
     vi.stubGlobal('fetch', fetchMock)
 
     const callbackError = await new Promise<unknown>((resolve) => {
@@ -43,7 +43,7 @@ describe('taxinvoice runtime: validation', () => {
   })
 
   test('getURL validates TOGO and blocks network', async () => {
-    const fetchMock = vi.fn()
+    const fetchMock = vi.fn<typeof fetch>()
     vi.stubGlobal('fetch', fetchMock)
 
     // @ts-expect-error runtime validation case for non-TS caller
@@ -95,7 +95,7 @@ describe('taxinvoice runtime: validation', () => {
   })
 
   test('issue mutations reject BUY key type before network', async () => {
-    const fetchMock = vi.fn()
+    const fetchMock = vi.fn<typeof fetch>()
     vi.stubGlobal('fetch', fetchMock)
 
     await expect(
@@ -119,7 +119,7 @@ describe('taxinvoice runtime: validation', () => {
   })
 
   test('required management key rejects missing runtime value before network', async () => {
-    const fetchMock = vi.fn()
+    const fetchMock = vi.fn<typeof fetch>()
     vi.stubGlobal('fetch', fetchMock)
 
     await expect(
@@ -133,7 +133,7 @@ describe('taxinvoice runtime: validation', () => {
   })
 
   test('bulk submit validates submit id and invoice count before network', async () => {
-    const fetchMock = vi.fn()
+    const fetchMock = vi.fn<typeof fetch>()
     vi.stubGlobal('fetch', fetchMock)
     const taxinvoice = { issueType: '정발행' } as never
 
@@ -164,7 +164,7 @@ describe('taxinvoice runtime: validation', () => {
   })
 
   test('reverse issue mutations reject unsupported key types before network', async () => {
-    const fetchMock = vi.fn()
+    const fetchMock = vi.fn<typeof fetch>()
     vi.stubGlobal('fetch', fetchMock)
 
     await expect(promiseCompat.TaxinvoiceService().request('1234567890', 'SELL' as never, 'MGT-001', 'memo')).rejects.toMatchObject({
