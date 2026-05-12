@@ -12,14 +12,26 @@ import { summarizeArrayLength, summarizeOperationResult } from '../utils/summari
 
 export interface TaxInvoiceDocumentRequestInput {
   businessNumber: string
-  invoiceDocumentKeyType: 'SELL' | 'BUY' | 'TRUSTEE'
+  invoiceDocumentKeyType: TaxInvoiceDocumentKeyType
   invoiceManagementKey: string
 }
+
+type TaxInvoiceDocumentKeyType = 'SELL' | 'BUY' | 'TRUSTEE'
 
 export function createDocumentRequest(
   context: ExampleContext,
   invoiceManagementKey: string,
-  invoiceDocumentKeyType: TaxInvoiceDocumentRequestInput['invoiceDocumentKeyType'] = context.invoiceDocumentKeyType
+  invoiceDocumentKeyType?: ExampleContext['invoiceDocumentKeyType']
+): TaxInvoiceDocumentRequestInput & { invoiceDocumentKeyType: ExampleContext['invoiceDocumentKeyType'] }
+export function createDocumentRequest<TKeyType extends TaxInvoiceDocumentKeyType>(
+  context: ExampleContext,
+  invoiceManagementKey: string,
+  invoiceDocumentKeyType: TKeyType
+): TaxInvoiceDocumentRequestInput & { invoiceDocumentKeyType: TKeyType }
+export function createDocumentRequest(
+  context: ExampleContext,
+  invoiceManagementKey: string,
+  invoiceDocumentKeyType: TaxInvoiceDocumentKeyType = context.invoiceDocumentKeyType
 ): TaxInvoiceDocumentRequestInput {
   return {
     businessNumber: context.businessNumber,

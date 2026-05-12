@@ -6,7 +6,8 @@
     "tsBuildInfoFile": "./node_modules/.cache/tsconfig.lib.tsbuildinfo",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["node"]
   },
   "include": ["src", "src/**/*.json"]
 }

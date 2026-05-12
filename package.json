@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "build": "turbo run build",
-    "lint": "turbo run lint",
-    "lint:fix": "turbo run lint:fix",
-    "fmt": "turbo run fmt",
-    "fmt:check": "turbo run fmt:check",
-    "typecheck": "turbo run typecheck && tsgo -b --noEmit",
-    "test": "dotenvx run -- turbo run test",
-    "test:coverage": "dotenvx run -- turbo run test:coverage",
+    "lint": "turbo run lint --continue=dependencies-successful",
+    "lint:fix": "turbo run lint:fix --continue=dependencies-successful",
+    "fmt": "turbo run fmt --continue=dependencies-successful",
+    "fmt:check": "turbo run fmt:check --continue=dependencies-successful",
+    "typecheck": "turbo run typecheck --continue=dependencies-successful && tsgo -b --noEmit",
+    "test": "dotenvx run -- turbo run test --continue=dependencies-successful",
+    "test:coverage": "dotenvx run -- turbo run test:coverage --continue=dependencies-successful",
     "docs:generate": "jiti ./scripts/generate-sdk-docs.ts",
     "release:verify-manifests": "jiti ./scripts/release/verify-manifests.ts",
     "release:verify-tarballs": "jiti ./scripts/release/verify-tarballs.ts",
@@ -19,31 +19,25 @@
     "clean": "turbo run clean && del node_modules .turbo"
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "1.52.0",
+    "@dotenvx/dotenvx": "1.65.0",
     "@types/node": "20",
-    "@typescript/native-preview": "7.0.0-dev.20260226.1",
+    "@typescript/native-preview": "7.0.0-dev.20260512.1",
     "@vitest/coverage-v8": "4.0.18",
     "del-cli": "7.0.0",
-    "globals": "17.3.0",
-    "jiti": "2.6.1",
-    "nano-staged": "0.9.0",
-    "oxfmt": "0.35.0",
-    "oxlint": "1.50.0",
-    "oxlint-tsgolint": "0.15.0",
+    "globals": "17.6.0",
+    "jiti": "2.7.0",
+    "nano-staged": "1.0.2",
+    "oxfmt": "0.49.0",
+    "oxlint": "1.64.0",
+    "oxlint-tsgolint": "0.22.1",
     "simple-git-hooks": "2.13.1",
-    "tsdown": "0.20.3",
-    "turbo": "2.8.11",
-    "typescript": "5.9.3",
-    "vitest": "4.0.18"
+    "tsdown": "0.22.0",
+    "turbo": "2.9.12",
+    "typescript": "6.0.3",
+    "vitest": "4.1.6"
   },
   "simple-git-hooks": {
     "pre-commit": "nano-staged"
-  },
-  "nano-staged": {
-    "*": [
-      "pnpm fmt -- --no-error-on-unmatched-pattern",
-      "pnpm lint:fix --"
-    ]
   },
   "engines": {
     "node": ">=20"
