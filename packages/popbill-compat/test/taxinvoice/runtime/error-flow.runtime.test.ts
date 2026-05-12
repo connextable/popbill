@@ -199,4 +199,30 @@ describe('taxinvoice runtime: error-flow', () => {
     expect(callbackError).not.toHaveBeenCalled()
     expect(defaultErrorHandler).not.toHaveBeenCalled()
   })
+
+  test('info callback does not route success callback exceptions to error callback', async () => {
+    const defaultErrorHandler = vi.fn()
+    helpers.configureCompat(defaultErrorHandler)
+    const fetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ itemKey: 'ITEM-1' })
+    )
+    const callbackError = vi.fn()
+
+    helpers.compat.TaxinvoiceService().getInfo(
+      '1234567890',
+      'SELL',
+      'MGT-INFO-SUCCESS-THROW',
+      () => {
+        throw new Error('info success callback failed')
+      },
+      callbackError
+    )
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(callbackError).not.toHaveBeenCalled()
+    expect(defaultErrorHandler).not.toHaveBeenCalled()
+  })
 })

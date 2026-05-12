@@ -89,7 +89,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestRegister(context, corpNum, taxinvoice, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'register', error, parsed.error)
@@ -193,7 +193,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestDelete(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'delete', error, parsed.error)
@@ -206,7 +206,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestSendToNts(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'sendToNTS', error, parsed.error)
@@ -220,7 +220,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetInfo(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getInfo', error, parsed.error)
@@ -233,7 +233,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetInfos(context, corpNum, keyType, mgtKeyList, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getInfos', error, parsed.error)
@@ -246,7 +246,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetDetailInfo(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getDetailInfo', error, parsed.error)
@@ -259,7 +259,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestCheckMgtKeyInUse(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'checkMgtKeyInUse', error, parsed.error)
@@ -272,7 +272,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetXml(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getXML', error, parsed.error)
@@ -316,7 +316,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
             parsed
           )
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'search', error, parsed.error)
@@ -329,7 +329,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetLogs(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getLogs', error, parsed.error)
@@ -342,7 +342,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetUrl(context, corpNum, parsed.togo, parsed.userId)
           .then((url) => {
-            parsed.success?.(url)
+            handleCallbackSuccess(parsed.success, url)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getURL', error, parsed.error)
@@ -356,7 +356,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetPopUpUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
-            parsed.success?.(url)
+            handleCallbackSuccess(parsed.success, url)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getPopUpURL', error, parsed.error)
@@ -369,7 +369,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetViewUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
-            parsed.success?.(url)
+            handleCallbackSuccess(parsed.success, url)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getViewURL', error, parsed.error)
@@ -382,7 +382,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetPrintUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
-            parsed.success?.(url)
+            handleCallbackSuccess(parsed.success, url)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getPrintURL', error, parsed.error)
@@ -395,7 +395,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetPdfUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
-            parsed.success?.(url)
+            handleCallbackSuccess(parsed.success, url)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getPDFURL', error, parsed.error)
@@ -408,7 +408,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetMassPrintUrl(context, corpNum, keyType, mgtKeyList, parsed.userId)
           .then((url) => {
-            parsed.success?.(url)
+            handleCallbackSuccess(parsed.success, url)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getMassPrintURL', error, parsed.error)
@@ -421,7 +421,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetEPrintUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
-            parsed.success?.(url)
+            handleCallbackSuccess(parsed.success, url)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getEPrintURL', error, parsed.error)
@@ -434,7 +434,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetMailUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
-            parsed.success?.(url)
+            handleCallbackSuccess(parsed.success, url)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getMailURL', error, parsed.error)
@@ -448,7 +448,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetSealUrl(context, corpNum, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getSealURL', error, parsed.error)
@@ -461,7 +461,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestAttachFile(context, corpNum, keyType, mgtKey, displayName, filePath, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'attachFile', error, parsed.error)
@@ -480,7 +480,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestAttachFileBinary(context, corpNum, keyType, mgtKey, binaryFile, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'attachFileBinary', error, parsed.error)
@@ -493,7 +493,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestDeleteFile(context, corpNum, keyType, mgtKey, fileID, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'deleteFile', error, parsed.error)
@@ -506,7 +506,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetFiles(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getFiles', error, parsed.error)
@@ -519,7 +519,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestSendEmail(context, corpNum, keyType, mgtKey, receiver, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'sendEmail', error, parsed.error)
@@ -540,7 +540,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestSendSms(context, corpNum, keyType, mgtKey, sender, receiver, contents, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'sendSMS', error, parsed.error)
@@ -553,7 +553,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestSendFax(context, corpNum, keyType, mgtKey, sender, receiver, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'sendFAX', error, parsed.error)
@@ -573,7 +573,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestAttachStatement(context, corpNum, keyType, mgtKey, subItemCode, subMgtKey, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'attachStatement', error, parsed.error)
@@ -593,7 +593,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestDetachStatement(context, corpNum, keyType, mgtKey, subItemCode, subMgtKey, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'detachStatement', error, parsed.error)
@@ -606,7 +606,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestAssignMgtKey(context, corpNum, keyType, itemKey, mgtKey, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'assignMgtKey', error, parsed.error)
@@ -619,7 +619,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestListEmailConfig(context, corpNum, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'listEmailConfig', error, parsed.error)
@@ -632,7 +632,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestUpdateEmailConfig(context, corpNum, emailType, sendYN, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'updateEmailConfig', error, parsed.error)
@@ -645,7 +645,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetSendToNtsConfig(context, corpNum, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getSendToNTSConfig', error, parsed.error)
@@ -659,7 +659,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetTaxCertUrl(context, corpNum, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getTaxCertURL', error, parsed.error)
@@ -672,7 +672,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetCertificateExpireDate(context, corpNum, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getCertificateExpireDate', error, parsed.error)
@@ -685,7 +685,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestCheckCertValidation(context, corpNum, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'checkCertValidation', error, parsed.error)
@@ -698,7 +698,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         void methods
           .requestGetTaxCertInfo(context, corpNum, parsed.userId)
           .then((response) => {
-            parsed.success?.(response)
+            handleCallbackSuccess(parsed.success, response)
           })
           .catch((error: unknown) => {
             handleCallbackError(context, 'getTaxCertInfo', error, parsed.error)
