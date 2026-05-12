@@ -1,5 +1,5 @@
 import type { LegacyErrorCallback, LegacySuccessCallback } from '@/services/taxinvoice/types'
-import { asErrorCallback, asSuccessCallback } from '@/services/taxinvoice/runtime/common'
+import { asErrorCallback } from '@/services/taxinvoice/runtime/common'
 import type * as Spec from '@connextable/popbill-spec'
 
 export interface ParsedRegistIssueOptions {
@@ -40,40 +40,13 @@ export function parseRegistIssueCallbackArgs(args: unknown[]): ParsedRegistIssue
     return parsed
   }
 
-  let index = 0
+  applyRegistIssueFixedOptions(parsed, args)
 
-  if (typeof args[index] === 'boolean') {
-    parsed.writeSpecification = args[index] as boolean
-    index += 1
+  const callbackIndex = args.findIndex((arg) => typeof arg === 'function')
+  if (callbackIndex >= 0) {
+    parsed.success = args[callbackIndex] as LegacySuccessCallback<Spec.TaxInvoiceRegistIssueApiResponse>
+    parsed.error = asErrorCallback(args[callbackIndex + 1])
   }
-
-  if (typeof args[index] === 'boolean') {
-    parsed.forceIssue = args[index] as boolean
-    index += 1
-  }
-
-  if (typeof args[index] === 'string') {
-    parsed.memo = args[index] as string
-    index += 1
-  }
-
-  if (typeof args[index] === 'string') {
-    parsed.emailSubject = args[index] as string
-    index += 1
-  }
-
-  if (typeof args[index] === 'string') {
-    parsed.dealInvoiceMgtKey = args[index] as string
-    index += 1
-  }
-
-  if (typeof args[index] === 'string' && typeof args[index + 1] === 'function') {
-    parsed.userId = args[index] as string
-    index += 1
-  }
-
-  parsed.success = asSuccessCallback<Spec.TaxInvoiceRegistIssueApiResponse>(args[index])
-  parsed.error = asErrorCallback(args[index + 1])
 
   return parsed
 }
@@ -88,36 +61,33 @@ export function parseRegistIssuePromiseArgs(args: unknown[]): ParsedRegistIssueO
     userId: '',
   }
 
-  let index = 0
-
-  if (typeof args[index] === 'boolean') {
-    parsed.writeSpecification = args[index] as boolean
-    index += 1
-  }
-
-  if (typeof args[index] === 'boolean') {
-    parsed.forceIssue = args[index] as boolean
-    index += 1
-  }
-
-  if (typeof args[index] === 'string') {
-    parsed.memo = args[index] as string
-    index += 1
-  }
-
-  if (typeof args[index] === 'string') {
-    parsed.emailSubject = args[index] as string
-    index += 1
-  }
-
-  if (typeof args[index] === 'string') {
-    parsed.dealInvoiceMgtKey = args[index] as string
-    index += 1
-  }
-
-  if (typeof args[index] === 'string') {
-    parsed.userId = args[index] as string
-  }
+  applyRegistIssueFixedOptions(parsed, args)
 
   return parsed
+}
+
+function applyRegistIssueFixedOptions(parsed: ParsedRegistIssueOptions, args: unknown[]): void {
+  if (typeof args[0] === 'boolean') {
+    parsed.writeSpecification = args[0]
+  }
+
+  if (typeof args[1] === 'boolean') {
+    parsed.forceIssue = args[1]
+  }
+
+  if (typeof args[2] === 'string') {
+    parsed.memo = args[2]
+  }
+
+  if (typeof args[3] === 'string') {
+    parsed.emailSubject = args[3]
+  }
+
+  if (typeof args[4] === 'string') {
+    parsed.dealInvoiceMgtKey = args[4]
+  }
+
+  if (typeof args[5] === 'string') {
+    parsed.userId = args[5]
+  }
 }

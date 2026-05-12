@@ -12,14 +12,18 @@ import { summarizeArrayLength, summarizeOperationResult } from '../utils/summari
 
 export interface TaxInvoiceDocumentRequestInput {
   businessNumber: string
-  invoiceDocumentKeyType: 'SELL'
+  invoiceDocumentKeyType: 'SELL' | 'BUY' | 'TRUSTEE'
   invoiceManagementKey: string
 }
 
-export function createDocumentRequest(context: ExampleContext, invoiceManagementKey: string): TaxInvoiceDocumentRequestInput {
+export function createDocumentRequest(
+  context: ExampleContext,
+  invoiceManagementKey: string,
+  invoiceDocumentKeyType: TaxInvoiceDocumentRequestInput['invoiceDocumentKeyType'] = context.invoiceDocumentKeyType
+): TaxInvoiceDocumentRequestInput {
   return {
     businessNumber: context.businessNumber,
-    invoiceDocumentKeyType: context.invoiceDocumentKeyType,
+    invoiceDocumentKeyType,
     invoiceManagementKey,
   }
 }
@@ -56,9 +60,8 @@ export async function prepareIssuedInvoiceKey(context: ExampleContext, runner: R
   return managementKey || null
 }
 
-export async function prepareReverseRequestedInvoiceKey(context: ExampleContext, runner: Runner, prefix: string): Promise<string | null> {
-  const managementKey = await createReverseRequestedInvoice(context, runner, prefix)
-  return managementKey || null
+export async function prepareReverseRequestedInvoiceKeys(context: ExampleContext, runner: Runner, prefix: string) {
+  return createReverseRequestedInvoice(context, runner, prefix)
 }
 
 export function createImmediateIssueInput(context: ExampleContext, prefix = 'IMD') {

@@ -14,7 +14,15 @@ export const bulkScenario: ScenarioDefinition = {
       forceIssue: false,
     }
 
-    await runner.run('submitBulkIssue', submitBulkIssueInput, () => context.service.submitBulkIssue(submitBulkIssueInput), summarizeOperationResult)
+    const submitResult = await runner.run(
+      'submitBulkIssue',
+      submitBulkIssueInput,
+      () => context.service.submitBulkIssue(submitBulkIssueInput),
+      summarizeOperationResult
+    )
+    if (!submitResult.ok) {
+      return
+    }
 
     const getBulkIssueSubmissionResultInput = {
       businessNumber: context.businessNumber,

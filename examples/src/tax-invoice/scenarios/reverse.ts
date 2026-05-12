@@ -19,12 +19,12 @@ export const reverseScenario: ScenarioDefinition = {
       summarizeOperationResult
     )
 
-    const reverseCancelKey = await createReverseRequestedInvoice(context, runner, 'RVC')
-    if (reverseCancelKey) {
+    const reverseCancelKeys = await createReverseRequestedInvoice(context, runner, 'RVC')
+    if (reverseCancelKeys) {
       const cancelReverseInput = {
         businessNumber: context.businessNumber,
-        invoiceDocumentKeyType: context.invoiceDocumentKeyType,
-        invoiceManagementKey: reverseCancelKey,
+        invoiceDocumentKeyType: 'BUY' as const,
+        invoiceManagementKey: reverseCancelKeys.requestManagementKey,
         historyMemo: 'examples reverse cancel request',
       }
       await runner.run(
@@ -35,12 +35,12 @@ export const reverseScenario: ScenarioDefinition = {
       )
     }
 
-    const reverseRefuseKey = await createReverseRequestedInvoice(context, runner, 'RRF')
-    if (reverseRefuseKey) {
+    const reverseRefuseKeys = await createReverseRequestedInvoice(context, runner, 'RRF')
+    if (reverseRefuseKeys) {
       const refuseReverseInput = {
         businessNumber: context.businessNumber,
-        invoiceDocumentKeyType: context.invoiceDocumentKeyType,
-        invoiceManagementKey: reverseRefuseKey,
+        invoiceDocumentKeyType: 'SELL' as const,
+        invoiceManagementKey: reverseRefuseKeys.refuseManagementKey,
         historyMemo: 'examples reverse refuse request',
       }
       await runner.run(

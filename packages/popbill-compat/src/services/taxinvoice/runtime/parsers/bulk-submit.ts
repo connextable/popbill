@@ -36,9 +36,9 @@ export function parseBulkSubmitCallbackArgs(args: unknown[]): ParsedBulkSubmitCa
   if (typeof first === 'boolean') {
     parsed.forceIssue = first
 
-    if (typeof args[1] === 'string' && typeof args[2] === 'function') {
+    if (typeof args[1] === 'string') {
       parsed.userId = args[1]
-      parsed.success = args[2] as LegacySuccessCallback<Spec.TaxInvoiceBulkSubmitApiResponse>
+      parsed.success = asSuccessCallback<Spec.TaxInvoiceBulkSubmitApiResponse>(args[2])
       parsed.error = asErrorCallback(args[3])
       return parsed
     }
@@ -46,6 +46,18 @@ export function parseBulkSubmitCallbackArgs(args: unknown[]): ParsedBulkSubmitCa
     parsed.success = asSuccessCallback<Spec.TaxInvoiceBulkSubmitApiResponse>(args[1])
     parsed.error = asErrorCallback(args[2])
     return parsed
+  }
+
+  if (first === undefined && typeof args[1] === 'string') {
+    parsed.userId = args[1]
+    parsed.success = asSuccessCallback<Spec.TaxInvoiceBulkSubmitApiResponse>(args[2])
+    parsed.error = asErrorCallback(args[3])
+    return parsed
+  }
+
+  if (first === undefined) {
+    parsed.success = asSuccessCallback<Spec.TaxInvoiceBulkSubmitApiResponse>(args[1])
+    parsed.error = asErrorCallback(args[2])
   }
 
   return parsed
@@ -62,6 +74,11 @@ export function parseBulkSubmitPromiseArgs(args: unknown[]): ParsedBulkSubmitOpt
     if (typeof args[1] === 'string') {
       parsed.userId = args[1]
     }
+    return parsed
+  }
+
+  if (args[0] === undefined && typeof args[1] === 'string') {
+    parsed.userId = args[1]
     return parsed
   }
 

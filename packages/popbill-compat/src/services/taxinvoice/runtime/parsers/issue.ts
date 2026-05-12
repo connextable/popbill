@@ -39,6 +39,7 @@ export function parseIssueCallbackArgs(args: unknown[]): ParsedIssueCallbackOpti
   const option3 = rest[2]
   const option4 = rest[3]
   const option5 = rest[4]
+  const callbackIndex = args.findIndex((arg, index) => index > 0 && typeof arg === 'function')
 
   if (typeof option1 === 'function') {
     parsed.success = option1 as LegacySuccessCallback<Spec.TaxInvoiceIssueApiResponse>
@@ -51,6 +52,16 @@ export function parseIssueCallbackArgs(args: unknown[]): ParsedIssueCallbackOpti
     parsed.success = option2 as LegacySuccessCallback<Spec.TaxInvoiceIssueApiResponse>
     parsed.error = asErrorCallback(option3)
     return parsed
+  }
+
+  if (option1 === undefined) {
+    if (typeof option2 === 'boolean') {
+      parsed.forceIssue = option2
+    }
+
+    if (typeof option3 === 'string') {
+      parsed.userId = option3
+    }
   }
 
   if (typeof option1 === 'boolean') {
@@ -94,6 +105,11 @@ export function parseIssueCallbackArgs(args: unknown[]): ParsedIssueCallbackOpti
     }
   }
 
+  if (callbackIndex >= 0) {
+    parsed.success = args[callbackIndex] as LegacySuccessCallback<Spec.TaxInvoiceIssueApiResponse>
+    parsed.error = asErrorCallback(args[callbackIndex + 1])
+  }
+
   return parsed
 }
 
@@ -125,27 +141,31 @@ export function parseIssuePromiseArgs(args: unknown[]): ParsedIssueOptions {
     return parsed
   }
 
-  if (typeof option1 === 'string' && option2 === undefined) {
+  if (typeof option1 === 'string' && rest.length === 1) {
     parsed.userId = option1
     return parsed
   }
 
   if (typeof option1 === 'string') {
     parsed.emailSubject = option1
+  }
 
-    if (typeof option2 === 'boolean') {
-      parsed.forceIssue = option2
+  if (typeof option2 === 'boolean') {
+    parsed.forceIssue = option2
 
-      if (typeof option3 === 'string') {
-        parsed.userId = option3
-      }
-
-      return parsed
+    if (typeof option3 === 'string') {
+      parsed.userId = option3
     }
 
-    if (typeof option2 === 'string') {
-      parsed.userId = option2
-    }
+    return parsed
+  }
+
+  if (typeof option2 === 'string') {
+    parsed.userId = option2
+  }
+
+  if (typeof option3 === 'string') {
+    parsed.userId = option3
   }
 
   return parsed

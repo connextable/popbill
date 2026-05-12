@@ -1,4 +1,5 @@
 import { validateCorpNum, validateSubmitId } from '@/internal/validation'
+import { encodePathSegment } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import type * as Spec from '@connextable/popbill-spec'
 
@@ -19,7 +20,7 @@ export async function requestGetBulkResult(
   }
 
   return context.requestClient.requestJson<Spec.TaxInvoiceGetBulkResultApiResponse>({
-    uri: `/Taxinvoice/BULK/${submitID}/State`,
+    uri: `/Taxinvoice/BULK/${encodePathSegment(submitID)}/State`,
     corpNum,
     userId,
     method: 'GET',

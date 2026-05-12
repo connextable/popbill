@@ -1,5 +1,5 @@
 import { stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
-import { validateCorpNum, validateSubmitId, validateTaxinvoicePayload } from '@/internal/validation'
+import { validateCorpNum, validateSubmitId, validateTaxinvoiceList, validateTaxinvoicePayload } from '@/internal/validation'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import type { ParsedBulkSubmitOptions } from '@/services/taxinvoice/runtime/parsers/bulk-submit'
 import type * as Spec from '@connextable/popbill-spec'
@@ -24,6 +24,11 @@ export async function requestBulkSubmit(
   const taxinvoiceListError = validateTaxinvoicePayload(taxinvoiceList)
   if (taxinvoiceListError) {
     throw taxinvoiceListError
+  }
+
+  const taxinvoiceListValidationError = validateTaxinvoiceList(taxinvoiceList)
+  if (taxinvoiceListValidationError) {
+    throw taxinvoiceListValidationError
   }
 
   for (const taxinvoice of taxinvoiceList) {

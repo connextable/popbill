@@ -7,6 +7,12 @@ interface DocumentOptions {
   issueType?: '정발행' | '역발행' | '위수탁'
   remark?: string
   lineItems?: TaxInvoiceLineItem[]
+  buyerManagementKey?: string
+}
+
+export interface ReverseRequestedInvoiceKeys {
+  requestManagementKey: string
+  refuseManagementKey: string
 }
 
 export async function createDraftInvoice(
@@ -71,7 +77,15 @@ export async function createIssuedInvoice(context: ExampleContext, runner: Runne
       ],
     }),
   }
-  await runner.run(`updateInvoice (${prefix})`, updateInvoiceInput, () => context.service.updateInvoice(updateInvoiceInput), summarizeOperationResult)
+  const updateResult = await runner.run(
+    `updateInvoice (${prefix})`,
+    updateInvoiceInput,
+    () => context.service.updateInvoice(updateInvoiceInput),
+    summarizeOperationResult
+  )
+  if (!updateResult.ok) {
+    return ''
+  }
 
   const issueInvoiceInput = {
     businessNumber: context.businessNumber,
@@ -95,18 +109,24 @@ export async function createIssuedInvoice(context: ExampleContext, runner: Runne
   return managementKey
 }
 
-export async function createReverseRequestedInvoice(context: ExampleContext, runner: Runner, prefix: string): Promise<string> {
+export async function createReverseRequestedInvoice(
+  context: ExampleContext,
+  runner: Runner,
+  prefix: string
+): Promise<ReverseRequestedInvoiceKeys | null> {
+  const buyerManagementKey = createManagementKey(`${prefix}BUY`)
   const reverseManagementKey = await createDraftInvoice(context, runner, `${prefix}REG`, {
     issueType: '역발행',
+    buyerManagementKey,
   })
   if (!reverseManagementKey) {
-    return ''
+    return null
   }
 
   const requestReverseInput = {
     businessNumber: context.businessNumber,
-    invoiceDocumentKeyType: context.invoiceDocumentKeyType,
-    invoiceManagementKey: reverseManagementKey,
+    invoiceDocumentKeyType: 'BUY' as const,
+    invoiceManagementKey: buyerManagementKey,
     historyMemo: `examples reverse request ${prefix}`,
   }
   const requestReverseResult = await runner.run(
@@ -117,10 +137,13 @@ export async function createReverseRequestedInvoice(context: ExampleContext, run
   )
 
   if (!requestReverseResult.ok) {
-    return ''
+    return null
   }
 
-  return reverseManagementKey
+  return {
+    requestManagementKey: buyerManagementKey,
+    refuseManagementKey: reverseManagementKey,
+  }
 }
 
 export async function ensureIssuedInvoice(context: ExampleContext, runner: Runner, prefix: string): Promise<string> {
@@ -146,5 +169,6 @@ export function createDocument(context: ExampleContext, managementKey: string, o
     issueType: options.issueType,
     remark: options.remark,
     lineItems: options.lineItems,
+    buyerManagementKey: options.buyerManagementKey,
   })
 }

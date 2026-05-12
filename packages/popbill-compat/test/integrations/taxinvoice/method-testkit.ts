@@ -21,6 +21,11 @@ export interface TaxinvoiceMethodContext {
   searchStartDate: string
 }
 
+export interface ReverseInvoiceKeys {
+  requestManagementKey: string
+  refuseManagementKey: string
+}
+
 export function createTaxinvoiceMethodContext(): TaxinvoiceMethodContext {
   const env = getTaxinvoiceIntegrationEnv()
 
@@ -73,8 +78,9 @@ export async function createIssuedInvoice(context: TaxinvoiceMethodContext, pref
   return managementKey
 }
 
-export async function createReverseDraftInvoice(context: TaxinvoiceMethodContext, prefix: string): Promise<string> {
+export async function createReverseDraftInvoiceKeys(context: TaxinvoiceMethodContext, prefix: string): Promise<ReverseInvoiceKeys> {
   const managementKey = createManagementKey(prefix)
+  const buyerManagementKey = createManagementKey(`${prefix}BUY`)
 
   expectApiSuccess(
     await context.service.register(
@@ -86,28 +92,30 @@ export async function createReverseDraftInvoice(context: TaxinvoiceMethodContext
         writeDate: context.today,
         receiverEmail: context.env.receiverEmail,
         issueType: '역발행',
+        buyerManagementKey,
       }),
       context.userId
     )
   )
 
-  return managementKey
+  return {
+    requestManagementKey: buyerManagementKey,
+    refuseManagementKey: managementKey,
+  }
 }
 
-export async function createReverseRequestedInvoice(context: TaxinvoiceMethodContext, prefix: string): Promise<string> {
-  const managementKey = await createReverseDraftInvoice(context, prefix)
+export async function createReverseDraftInvoice(context: TaxinvoiceMethodContext, prefix: string): Promise<string> {
+  return (await createReverseDraftInvoiceKeys(context, prefix)).refuseManagementKey
+}
+
+export async function createReverseRequestedInvoice(context: TaxinvoiceMethodContext, prefix: string): Promise<ReverseInvoiceKeys> {
+  const keys = await createReverseDraftInvoiceKeys(context, prefix)
 
   expectApiSuccess(
-    await context.service.request(
-      context.businessNumber,
-      context.invoiceDocumentKeyType,
-      managementKey,
-      'integration reverse request',
-      context.userId
-    )
+    await context.service.request(context.businessNumber, 'BUY', keys.requestManagementKey, 'integration reverse request', context.userId)
   )
 
-  return managementKey
+  return keys
 }
 
 export async function attachFileAndFindIdentifier(context: TaxinvoiceMethodContext, managementKey: string): Promise<string> {
@@ -143,6 +151,7 @@ interface CreateTaxInvoiceDocumentInput {
   receiverEmail: string
   issueType?: '정발행' | '역발행'
   remark?: string
+  buyerManagementKey?: string
 }
 
 export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): Spec.TaxInvoiceApiModel {
@@ -163,7 +172,7 @@ export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): 
     invoicerEmail: input.receiverEmail,
     invoiceeType: '사업자',
     invoiceeCorpNum: input.counterpartCorpNum,
-    invoiceeMgtKey: createManagementKey('BUY'),
+    invoiceeMgtKey: input.buyerManagementKey ?? createManagementKey('BUY'),
     invoiceeCorpName: '통합테스트 공급받는자',
     invoiceeCEOName: '수신대표',
     invoiceeAddr: '서울시 서초구 테스트로 2',

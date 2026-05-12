@@ -11,6 +11,7 @@ export interface CreateTaxInvoiceDocumentInput {
   issueType?: '정발행' | '역발행' | '위수탁'
   remark?: string
   lineItems?: TaxInvoiceLineItem[]
+  buyerManagementKey?: string
 }
 
 export interface TaxInvoiceLineItem {
@@ -86,7 +87,7 @@ export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): 
     buyer: {
       recipientType: '사업자',
       businessNumber: input.counterpartBusinessNumber,
-      managementKey: createManagementKey('BUY'),
+      managementKey: input.buyerManagementKey ?? createManagementKey('BUY'),
       companyName: 'examples 공급받는자',
       chiefExecutiveOfficerName: '수신대표',
       address: '서울시 서초구 테스트로 2',

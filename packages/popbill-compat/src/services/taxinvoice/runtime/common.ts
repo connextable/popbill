@@ -119,7 +119,7 @@ export function throwPromiseError(context: TaxinvoiceRuntimeContext, methods: Ta
   throw throwableError
 }
 
-export function validateRequiredTaxinvoiceInputs(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey?: string): void {
+export function validateRequiredTaxinvoiceInputs(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey?: unknown): void {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {
     throw corpNumError
@@ -130,7 +130,7 @@ export function validateRequiredTaxinvoiceInputs(corpNum: string, keyType: Spec.
     throw keyTypeError
   }
 
-  if (typeof mgtKey === 'string') {
+  if (arguments.length >= 3) {
     const mgtKeyError = validateMgtKey(mgtKey)
     if (mgtKeyError) {
       throw mgtKeyError
@@ -148,6 +148,10 @@ export function validateTaxinvoiceKeyTypeAllowed(
   }
 
   throw createLegacyValidationError(message)
+}
+
+export function encodePathSegment(value: string): string {
+  return encodeURIComponent(value)
 }
 
 export function validateGetUrlInputs(corpNum: string, togo: Spec.TaxInvoiceGetUrlTogo): void {

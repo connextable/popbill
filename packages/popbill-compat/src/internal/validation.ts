@@ -40,8 +40,8 @@ export function validateTaxInvoiceKeyType(keyType: string): LegacyCompatError | 
   return undefined
 }
 
-export function validateMgtKey(mgtKey: string): LegacyCompatError | undefined {
-  if (isBlank(mgtKey)) {
+export function validateMgtKey(mgtKey: unknown): LegacyCompatError | undefined {
+  if (typeof mgtKey !== 'string' || isBlank(mgtKey)) {
     return createLegacyValidationError('문서번호가 입력되지 않았습니다.')
   }
 
@@ -64,9 +64,25 @@ export function validateTaxinvoicePayload(taxinvoice: unknown): LegacyCompatErro
   return undefined
 }
 
-export function validateSubmitId(submitID: string): LegacyCompatError | undefined {
-  if (isBlank(submitID)) {
+export function validateTaxinvoiceList(taxinvoiceList: unknown): LegacyCompatError | undefined {
+  if (!Array.isArray(taxinvoiceList) || taxinvoiceList.length === 0) {
+    return createLegacyValidationError('세금계산서 정보가 입력되지 않았습니다.')
+  }
+
+  if (taxinvoiceList.length > 100) {
+    return createLegacyValidationError('초대량 발행은 최대 100건까지 접수할 수 있습니다.')
+  }
+
+  return undefined
+}
+
+export function validateSubmitId(submitID: unknown): LegacyCompatError | undefined {
+  if (typeof submitID !== 'string' || isBlank(submitID)) {
     return createLegacyValidationError('제출아이디가 입력되지 않았습니다.')
+  }
+
+  if (!/^[A-Za-z0-9-]{1,36}$/.test(submitID)) {
+    return createLegacyValidationError('제출아이디가 올바르지 않습니다.')
   }
 
   return undefined

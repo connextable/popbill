@@ -53,6 +53,12 @@ export const TaxInvoiceDocumentKeyTypes = {
  * 세금계산서 문서번호 유형입니다.
  */
 export type TaxInvoiceDocumentKeyType = (typeof TaxInvoiceDocumentKeyTypes)[keyof typeof TaxInvoiceDocumentKeyTypes]
+export type TaxInvoiceOutboundDocumentKeyType = Extract<
+  TaxInvoiceDocumentKeyType,
+  typeof TaxInvoiceDocumentKeyTypes.Sales | typeof TaxInvoiceDocumentKeyTypes.Trustee
+>
+export type TaxInvoiceReverseRequestDocumentKeyType = typeof TaxInvoiceDocumentKeyTypes.Purchase
+export type TaxInvoiceReverseRefuseDocumentKeyType = typeof TaxInvoiceDocumentKeyTypes.Sales
 
 /**
  * 세금계산서 문서함 범위 상수입니다.
@@ -471,11 +477,11 @@ export interface TaxInvoiceBusinessRequest {
 /**
  * 문서 식별(문서번호 유형 + 문서번호)이 필요한 요청의 공통 필드입니다.
  */
-export interface TaxInvoiceDocumentRequest extends TaxInvoiceBusinessRequest {
+export interface TaxInvoiceDocumentRequest<TKeyType extends TaxInvoiceDocumentKeyType = TaxInvoiceDocumentKeyType> extends TaxInvoiceBusinessRequest {
   /**
    * 문서번호 유형입니다.
    */
-  invoiceDocumentKeyType: TaxInvoiceDocumentKeyType
+  invoiceDocumentKeyType: TKeyType
   /**
    * 파트너가 관리하는 문서번호입니다.
    */
@@ -553,7 +559,11 @@ export interface RegisterInvoiceInput extends TaxInvoiceBusinessRequest {
 /**
  * 문서 수정 요청 입력입니다.
  */
-export interface UpdateInvoiceInput extends TaxInvoiceDocumentRequest {
+export interface UpdateInvoiceInput extends TaxInvoiceDocumentRequest<TaxInvoiceOutboundDocumentKeyType> {
+  /**
+   * 수정 대상 문서번호 유형입니다. 매출(`SELL`) 또는 위수탁(`TRUSTEE`)만 사용할 수 있습니다.
+   */
+  invoiceDocumentKeyType: TaxInvoiceOutboundDocumentKeyType
   /**
    * 수정할 세금계산서 문서 원본입니다.
    */
@@ -563,7 +573,11 @@ export interface UpdateInvoiceInput extends TaxInvoiceDocumentRequest {
 /**
  * 저장된 문서 발행 요청 입력입니다.
  */
-export interface IssueInvoiceInput extends TaxInvoiceDocumentRequest {
+export interface IssueInvoiceInput extends TaxInvoiceDocumentRequest<TaxInvoiceOutboundDocumentKeyType> {
+  /**
+   * 발행 대상 문서번호 유형입니다. 매출(`SELL`) 또는 위수탁(`TRUSTEE`)만 사용할 수 있습니다.
+   */
+  invoiceDocumentKeyType: TaxInvoiceOutboundDocumentKeyType
   /**
    * 상태 이력에 남길 메모입니다.
    */
@@ -581,7 +595,11 @@ export interface IssueInvoiceInput extends TaxInvoiceDocumentRequest {
 /**
  * 발행취소 요청 입력입니다.
  */
-export interface CancelIssuedInvoiceInput extends TaxInvoiceDocumentRequest {
+export interface CancelIssuedInvoiceInput extends TaxInvoiceDocumentRequest<TaxInvoiceOutboundDocumentKeyType> {
+  /**
+   * 발행취소 대상 문서번호 유형입니다. 매출(`SELL`) 또는 위수탁(`TRUSTEE`)만 사용할 수 있습니다.
+   */
+  invoiceDocumentKeyType: TaxInvoiceOutboundDocumentKeyType
   /**
    * 상태 이력에 남길 메모입니다.
    */
@@ -605,7 +623,11 @@ export interface RequestReverseIssueImmediatelyInput extends TaxInvoiceBusinessR
 /**
  * 역발행 요청 입력입니다.
  */
-export interface RequestReverseIssueInput extends TaxInvoiceDocumentRequest {
+export interface RequestReverseIssueInput extends TaxInvoiceDocumentRequest<TaxInvoiceReverseRequestDocumentKeyType> {
+  /**
+   * 역발행 요청 대상 문서번호 유형입니다. 매입(`BUY`)만 사용할 수 있습니다.
+   */
+  invoiceDocumentKeyType: TaxInvoiceReverseRequestDocumentKeyType
   /**
    * 상태 이력에 남길 메모입니다.
    */
@@ -615,7 +637,11 @@ export interface RequestReverseIssueInput extends TaxInvoiceDocumentRequest {
 /**
  * 역발행 요청취소 입력입니다.
  */
-export interface CancelReverseIssueRequestInput extends TaxInvoiceDocumentRequest {
+export interface CancelReverseIssueRequestInput extends TaxInvoiceDocumentRequest<TaxInvoiceReverseRequestDocumentKeyType> {
+  /**
+   * 역발행 요청취소 대상 문서번호 유형입니다. 매입(`BUY`)만 사용할 수 있습니다.
+   */
+  invoiceDocumentKeyType: TaxInvoiceReverseRequestDocumentKeyType
   /**
    * 상태 이력에 남길 메모입니다.
    */
@@ -625,11 +651,25 @@ export interface CancelReverseIssueRequestInput extends TaxInvoiceDocumentReques
 /**
  * 역발행 요청거부 입력입니다.
  */
-export interface RefuseReverseIssueRequestInput extends TaxInvoiceDocumentRequest {
+export interface RefuseReverseIssueRequestInput extends TaxInvoiceDocumentRequest<TaxInvoiceReverseRefuseDocumentKeyType> {
+  /**
+   * 역발행 요청거부 대상 문서번호 유형입니다. 매출(`SELL`)만 사용할 수 있습니다.
+   */
+  invoiceDocumentKeyType: TaxInvoiceReverseRefuseDocumentKeyType
   /**
    * 상태 이력에 남길 메모입니다.
    */
   historyMemo: string
+}
+
+/**
+ * 국세청 즉시 전송 입력입니다.
+ */
+export interface SendInvoiceToNationalTaxServiceInput extends TaxInvoiceDocumentRequest<TaxInvoiceOutboundDocumentKeyType> {
+  /**
+   * 국세청 전송 대상 문서번호 유형입니다. 매출(`SELL`) 또는 위수탁(`TRUSTEE`)만 사용할 수 있습니다.
+   */
+  invoiceDocumentKeyType: TaxInvoiceOutboundDocumentKeyType
 }
 
 /**
@@ -997,7 +1037,7 @@ export interface TaxInvoiceService {
    *
    * Compat: `sendToNTS`
    */
-  sendInvoiceToNTS(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceOperationResult>
+  sendInvoiceToNTS(input: SendInvoiceToNationalTaxServiceInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
    * 문서 1건의 상태 요약정보를 조회합니다.

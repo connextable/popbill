@@ -19,14 +19,18 @@ interface MethodParameter {
   typeText: string
 }
 
-interface MethodSignatureInfo {
-  name: string
-  summary: string
-  compatMethodName: string | null
+interface MethodOverloadInfo {
   parameters: MethodParameter[]
   returnTypeText: string
   promiseReturnType: string | null
   signature: string
+}
+
+interface MethodSignatureInfo extends MethodOverloadInfo {
+  name: string
+  summary: string
+  compatMethodName: string | null
+  overloads: MethodOverloadInfo[]
 }
 
 interface CallbackMetadata {
@@ -154,6 +158,15 @@ const compatPaths = {
 
 const docsRoot = path.join(rootDir, 'docs/sdk')
 const generatedRoot = path.join(docsRoot, 'generated')
+const compatKeyTypeParameterTypes = new Map<string, string>([
+  ['update', "'SELL' | 'TRUSTEE'"],
+  ['issue', "'SELL' | 'TRUSTEE'"],
+  ['cancelIssue', "'SELL' | 'TRUSTEE'"],
+  ['request', "'BUY'"],
+  ['cancelRequest', "'BUY'"],
+  ['refuse', "'SELL'"],
+  ['sendToNTS', "'SELL' | 'TRUSTEE'"],
+])
 
 main()
 
@@ -163,9 +176,7 @@ function main() {
 
   const popbillMethodGroups = parseMethodArray(popbillPaths.methods, 'TAX_INVOICE_METHODS')
   const compatMethodGroups = parseMethodArray(compatPaths.methods, 'TAXINVOICE_METHODS')
-  const compatRequiredMethods = new Set(
-    parseMethodArray(compatPaths.methods, 'TAXINVOICE_REQUIRED_METHODS').map((x) => x.name)
-  )
+  const compatRequiredMethods = new Set(parseMethodArray(compatPaths.methods, 'TAXINVOICE_REQUIRED_METHODS').map((x) => x.name))
 
   const popbillTypeSources = popbillPaths.typeSources.map(readSourceFile)
   const popbillTypeCatalog = buildTypeCatalog(popbillTypeSources)
@@ -173,13 +184,13 @@ function main() {
   const popbillTypesSource = readSourceFile(popbillPaths.types)
   const popbillServiceDescription = parseInterfaceDescription(popbillTypesSource, 'TaxInvoiceService')
   const popbillServiceMethods = parseMethodSignatures(popbillTypesSource, 'TaxInvoiceService')
-  const popbillMethodByName = new Map(popbillServiceMethods.map((method) => [method.name, method]))
+  const popbillMethodByName = buildMethodByName(popbillServiceMethods)
 
   const compatTypesSource = readSourceFile(compatPaths.types)
   const compatServiceDescription = parseInterfaceDescription(compatTypesSource, 'TaxinvoicePromiseService')
   const compatPromiseMethods = parseMethodSignatures(compatTypesSource, 'TaxinvoicePromiseService')
   const compatCallbackMetadata = parseCallbackMetadata(compatTypesSource, 'TaxinvoiceCallbackService')
-  const compatMethodByName = new Map(compatPromiseMethods.map((method) => [method.name, method]))
+  const compatMethodByName = buildMethodByName(compatPromiseMethods)
 
   const compatMap: CompatMappingItem[] = []
   const modernByCompatMethodName = new Map<string, string>()
@@ -290,13 +301,7 @@ function writeRootReadme({ popbillVersion, compatVersion }: WriteRootReadmeInput
   writeFile(path.join(docsRoot, 'README.md'), content)
 }
 
-function writePopbillDocs({
-  methodGroups,
-  groupedMethods,
-  methodByName,
-  serviceDescription,
-  typeCatalog,
-}: WritePopbillDocsInput): void {
+function writePopbillDocs({ methodGroups, groupedMethods, methodByName, serviceDescription, typeCatalog }: WritePopbillDocsInput): void {
   const methodDir = path.join(docsRoot, 'popbill/tax-invoice/methods')
   const indexPath = path.join(docsRoot, 'popbill/tax-invoice/index.md')
 
@@ -347,9 +352,7 @@ function writePopbillDocs({
         lines.push('| Field | Type | Required | Description |')
         lines.push('| --- | --- | --- | --- |')
         for (const property of inputSchema.properties) {
-          lines.push(
-            `| \`${property.name}\` | \`${property.typeText}\` | ${property.required ? 'Y' : 'N'} | ${escapeTable(property.description)} |`
-          )
+          lines.push(`| \`${property.name}\` | \`${property.typeText}\` | ${property.required ? 'Y' : 'N'} | ${escapeTable(property.description)} |`)
         }
         lines.push('')
       } else if (inputSchema && inputSchema.aliasOf) {
@@ -370,9 +373,7 @@ function writePopbillDocs({
       lines.push('| Field | Type | Required | Description |')
       lines.push('| --- | --- | --- | --- |')
       for (const property of returnSchema.properties) {
-        lines.push(
-          `| \`${property.name}\` | \`${property.typeText}\` | ${property.required ? 'Y' : 'N'} | ${escapeTable(property.description)} |`
-        )
+        lines.push(`| \`${property.name}\` | \`${property.typeText}\` | ${property.required ? 'Y' : 'N'} | ${escapeTable(property.description)} |`)
       }
       lines.push('')
     } else if (returnSchema && returnSchema.aliasOf) {
@@ -482,23 +483,42 @@ function writeCompatDocs({
       lines.push('legacy 전용 메서드(현재 modern 대응 없음)')
     }
     lines.push('')
-    lines.push('## Promise Signature')
+    lines.push(method.overloads.length > 1 ? '## Promise Signatures' : '## Promise Signature')
     lines.push('')
     lines.push('```ts')
-    lines.push(method.signature)
+    for (const overload of method.overloads) {
+      lines.push(formatCompatSignature(methodName, overload))
+    }
     lines.push('```')
     lines.push('')
     lines.push('## Parameters')
     lines.push('')
 
-    if (method.parameters.length === 0) {
+    if (method.overloads.length > 1) {
+      method.overloads.forEach((overload, index) => {
+        lines.push(`### Overload ${index + 1}`)
+        lines.push('')
+        if (overload.parameters.length === 0) {
+          lines.push('- 파라미터 없음')
+          lines.push('')
+          return
+        }
+
+        lines.push('| Name | Type | Optional |')
+        lines.push('| --- | --- | --- |')
+        for (const parameter of overload.parameters) {
+          lines.push(`| \`${parameter.name}\` | \`${compatParameterTypeText(methodName, parameter)}\` | ${parameter.optional ? 'Y' : 'N'} |`)
+        }
+        lines.push('')
+      })
+    } else if (method.parameters.length === 0) {
       lines.push('- 파라미터 없음')
       lines.push('')
     } else {
       lines.push('| Name | Type | Optional |')
       lines.push('| --- | --- | --- |')
       for (const parameter of method.parameters) {
-        lines.push(`| \`${parameter.name}\` | \`${parameter.typeText}\` | ${parameter.optional ? 'Y' : 'N'} |`)
+        lines.push(`| \`${parameter.name}\` | \`${compatParameterTypeText(methodName, parameter)}\` | ${parameter.optional ? 'Y' : 'N'} |`)
       }
       lines.push('')
     }
@@ -534,7 +554,8 @@ function writeCompatDocs({
           methodName,
           group,
           required,
-          promiseSignature: method.signature,
+          promiseSignature: formatCompatSignature(methodName, method),
+          promiseSignatures: method.overloads.map((overload) => formatCompatSignature(methodName, overload)),
           modernMethodName,
           callback: callbackMeta,
         },
@@ -627,7 +648,8 @@ function writeGeneratedJson({
             group,
             methodName: name,
             required: compatRequiredMethods.has(name),
-            promiseSignature: method.signature,
+            promiseSignature: formatCompatSignature(name, method),
+            promiseSignatures: method.overloads.map((overload) => formatCompatSignature(name, overload)),
             outputType: method.promiseReturnType ?? method.returnTypeText,
             callback: compatCallbackMetadata.get(name) ?? null,
             mappedModernMethodName: modernByCompatMethodName.get(name) ?? null,
@@ -679,11 +701,21 @@ function writeGeneratedJson({
       service: 'TaxinvoiceService',
       methodName,
       required: compatRequiredMethods.has(methodName),
-      promiseSignature: method.signature,
+      promiseSignature: formatCompatSignature(methodName, method),
+      promiseSignatures: method.overloads.map((overload) => formatCompatSignature(methodName, overload)),
       parameters: method.parameters.map((parameter) => ({
         name: parameter.name,
-        type: parameter.typeText,
+        type: compatParameterTypeText(methodName, parameter),
         optional: parameter.optional,
+      })),
+      overloads: method.overloads.map((overload) => ({
+        promiseSignature: formatCompatSignature(methodName, overload),
+        parameters: overload.parameters.map((parameter) => ({
+          name: parameter.name,
+          type: compatParameterTypeText(methodName, parameter),
+          optional: parameter.optional,
+        })),
+        outputType: overload.promiseReturnType ?? overload.returnTypeText,
       })),
       outputType: method.promiseReturnType ?? method.returnTypeText,
       callback,
@@ -694,10 +726,7 @@ function writeGeneratedJson({
       methodName,
       file: `./methods/${toKebabCase(methodName)}.json`,
     })
-    writeJson(
-      path.join(generatedRoot, 'schemas/popbill-compat/taxinvoice/methods', `${toKebabCase(methodName)}.json`),
-      schema
-    )
+    writeJson(path.join(generatedRoot, 'schemas/popbill-compat/taxinvoice/methods', `${toKebabCase(methodName)}.json`), schema)
   }
 
   writeJson(path.join(generatedRoot, 'schemas/popbill-compat/taxinvoice/methods/index.json'), {
@@ -786,9 +815,7 @@ function buildTypeCatalog(sources: SourceWithAst[]): TypeCatalog {
         const description = getNodeDescription(statement)
         const aliasOf = ts.isTypeReferenceNode(statement.type) ? statement.type.typeName.getText(source.ast) : null
         const enumFromConst = extractEnumConstName(typeText)
-        const enumValues = enumFromConst
-          ? (constObjects.get(enumFromConst) ?? null)
-          : extractLiteralUnionValues(statement.type)
+        const enumValues = enumFromConst ? (constObjects.get(enumFromConst) ?? null) : extractLiteralUnionValues(statement.type)
 
         types.set(statement.name.text, {
           kind: 'typeAlias',
@@ -851,11 +878,7 @@ function createSchemaForType(typeCatalog: TypeCatalog, typeName: string): TypeSc
   }
 }
 
-function flattenTypeProperties(
-  typeCatalog: TypeCatalog,
-  typeName: string,
-  visited: Set<string> = new Set<string>()
-): TypeProperty[] {
+function flattenTypeProperties(typeCatalog: TypeCatalog, typeName: string, visited: Set<string> = new Set<string>()): TypeProperty[] {
   if (visited.has(typeName)) {
     return []
   }
@@ -888,8 +911,7 @@ function flattenTypeProperties(
 
 function parseMethodSignatures(source: SourceWithAst, interfaceName: string): MethodSignatureInfo[] {
   const interfaceDeclaration = source.ast.statements.find(
-    (statement): statement is ts.InterfaceDeclaration =>
-      ts.isInterfaceDeclaration(statement) && statement.name.text === interfaceName
+    (statement): statement is ts.InterfaceDeclaration => ts.isInterfaceDeclaration(statement) && statement.name.text === interfaceName
   )
   if (!interfaceDeclaration) {
     throw new Error(`Interface ${interfaceName} not found in ${source.filePath}`)
@@ -928,10 +950,48 @@ function parseMethodSignatures(source: SourceWithAst, interfaceName: string): Me
       returnTypeText,
       promiseReturnType,
       signature,
+      overloads: [
+        {
+          parameters,
+          returnTypeText,
+          promiseReturnType,
+          signature,
+        },
+      ],
     })
   }
 
   return methods
+}
+
+function buildMethodByName(methods: MethodSignatureInfo[]): Map<string, MethodSignatureInfo> {
+  const methodByName = new Map<string, MethodSignatureInfo>()
+
+  for (const method of methods) {
+    const existing = methodByName.get(method.name)
+    if (!existing) {
+      methodByName.set(method.name, method)
+      continue
+    }
+
+    existing.overloads.push(...method.overloads)
+  }
+
+  return methodByName
+}
+
+function compatParameterTypeText(methodName: string, parameter: MethodParameter): string {
+  if (parameter.name === 'keyType') {
+    return compatKeyTypeParameterTypes.get(methodName) ?? parameter.typeText
+  }
+
+  return parameter.typeText
+}
+
+function formatCompatSignature(methodName: string, overload: MethodOverloadInfo): string {
+  return `${methodName}(${overload.parameters
+    .map((parameter) => `${parameter.name}${parameter.optional ? '?' : ''}: ${compatParameterTypeText(methodName, parameter)}`)
+    .join(', ')}): ${overload.returnTypeText}`
 }
 
 function parseCallbackMetadata(source: SourceWithAst, interfaceName: string): Map<string, CallbackMetadata> {
@@ -962,8 +1022,7 @@ function parseCallbackMetadata(source: SourceWithAst, interfaceName: string): Ma
   }
 
   const serviceInterface = source.ast.statements.find(
-    (statement): statement is ts.InterfaceDeclaration =>
-      ts.isInterfaceDeclaration(statement) && statement.name.text === interfaceName
+    (statement): statement is ts.InterfaceDeclaration => ts.isInterfaceDeclaration(statement) && statement.name.text === interfaceName
   )
   if (!serviceInterface) {
     throw new Error(`Interface ${interfaceName} not found in ${source.filePath}`)
@@ -998,8 +1057,7 @@ function parseCallbackMetadata(source: SourceWithAst, interfaceName: string): Ma
 
 function parseInterfaceDescription(source: SourceWithAst, interfaceName: string): string {
   const interfaceDeclaration = source.ast.statements.find(
-    (statement): statement is ts.InterfaceDeclaration =>
-      ts.isInterfaceDeclaration(statement) && statement.name.text === interfaceName
+    (statement): statement is ts.InterfaceDeclaration => ts.isInterfaceDeclaration(statement) && statement.name.text === interfaceName
   )
 
   if (!interfaceDeclaration) {
@@ -1025,9 +1083,7 @@ function parseMethodArray(filePath: string, constName: string): MethodGroupItem[
   const declaration = source.ast.statements
     .filter((statement) => ts.isVariableStatement(statement))
     .flatMap((statement) => statement.declarationList.declarations)
-    .find(
-      (variableDeclaration) => ts.isIdentifier(variableDeclaration.name) && variableDeclaration.name.text === constName
-    )
+    .find((variableDeclaration) => ts.isIdentifier(variableDeclaration.name) && variableDeclaration.name.text === constName)
 
   if (!declaration || !declaration.initializer) {
     throw new Error(`Unable to find ${constName} in ${filePath}`)

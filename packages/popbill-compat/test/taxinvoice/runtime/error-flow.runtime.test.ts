@@ -122,4 +122,81 @@ describe('taxinvoice runtime: error-flow', () => {
     expect(promiseFetchMock).toHaveBeenCalledTimes(2)
     expect(defaultErrorHandler).toHaveBeenCalledTimes(1)
   })
+
+  test('scoped issue callback does not route success callback exceptions to error callback', async () => {
+    const defaultErrorHandler = vi.fn()
+    helpers.configureCompat(defaultErrorHandler)
+    const fetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ code: 1, message: 'issued' })
+    )
+    const callbackError = vi.fn()
+
+    helpers.compat.TaxinvoiceService().issue(
+      '1234567890',
+      'SELL',
+      'MGT-SUCCESS-THROW',
+      'memo',
+      () => {
+        throw new Error('success callback failed')
+      },
+      callbackError
+    )
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(callbackError).not.toHaveBeenCalled()
+    expect(defaultErrorHandler).not.toHaveBeenCalled()
+  })
+
+  test('bulk result callback does not route success callback exceptions to error callback', async () => {
+    const defaultErrorHandler = vi.fn()
+    helpers.configureCompat(defaultErrorHandler)
+    const fetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ code: 1, message: 'complete', receiptID: 'RID-1', state: 2 })
+    )
+    const callbackError = vi.fn()
+
+    helpers.compat.TaxinvoiceService().getBulkResult(
+      '1234567890',
+      'SUBMIT-1',
+      () => {
+        throw new Error('bulk result success callback failed')
+      },
+      callbackError
+    )
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(callbackError).not.toHaveBeenCalled()
+    expect(defaultErrorHandler).not.toHaveBeenCalled()
+  })
+
+  test('bulk result callback observes async success callback rejections', async () => {
+    const defaultErrorHandler = vi.fn()
+    helpers.configureCompat(defaultErrorHandler)
+    const fetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ code: 1, message: 'complete', receiptID: 'RID-2', state: 2 })
+    )
+    const callbackError = vi.fn()
+
+    helpers.compat.TaxinvoiceService().getBulkResult(
+      '1234567890',
+      'SUBMIT-2',
+      async () => {
+        throw new Error('bulk result async success callback failed')
+      },
+      callbackError
+    )
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(callbackError).not.toHaveBeenCalled()
+    expect(defaultErrorHandler).not.toHaveBeenCalled()
+  })
 })

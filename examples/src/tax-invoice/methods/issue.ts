@@ -8,7 +8,7 @@ import {
   createUpdateDocumentInput,
   prepareDraftInvoiceKey,
   prepareIssuedInvoiceKey,
-  prepareReverseRequestedInvoiceKey,
+  prepareReverseRequestedInvoiceKeys,
 } from './helpers.ts'
 import { summarizeOperationResult } from '../utils/summarizers.ts'
 
@@ -120,15 +120,17 @@ export const ISSUE_METHODS = {
   requestReverseIssue: {
     description: '역발행 요청',
     async run(context, runner) {
+      const buyerManagementKey = createManagementKey('RRQBUY')
       const managementKey = await createDraftInvoice(context, runner, 'RRQREG', {
         issueType: '역발행',
+        buyerManagementKey,
       })
       if (!managementKey) {
         return
       }
 
       const input = {
-        ...createDocumentRequest(context, managementKey),
+        ...createDocumentRequest(context, buyerManagementKey, 'BUY'),
         historyMemo: 'examples reverse request by method',
       }
       await runner.run('requestReverseIssue', input, () => context.service.requestReverseIssue(input), summarizeOperationResult)
@@ -138,13 +140,13 @@ export const ISSUE_METHODS = {
   cancelReverseIssueRequest: {
     description: '역발행 요청 취소',
     async run(context, runner) {
-      const managementKey = await prepareReverseRequestedInvoiceKey(context, runner, 'RCR')
-      if (!managementKey) {
+      const keys = await prepareReverseRequestedInvoiceKeys(context, runner, 'RCR')
+      if (!keys) {
         return
       }
 
       const input = {
-        ...createDocumentRequest(context, managementKey),
+        ...createDocumentRequest(context, keys.requestManagementKey, 'BUY'),
         historyMemo: 'examples reverse request cancel by method',
       }
       await runner.run('cancelReverseIssueRequest', input, () => context.service.cancelReverseIssueRequest(input), summarizeOperationResult)
@@ -154,13 +156,13 @@ export const ISSUE_METHODS = {
   refuseReverseIssueRequest: {
     description: '역발행 요청 거부',
     async run(context, runner) {
-      const managementKey = await prepareReverseRequestedInvoiceKey(context, runner, 'RRF')
-      if (!managementKey) {
+      const keys = await prepareReverseRequestedInvoiceKeys(context, runner, 'RRF')
+      if (!keys) {
         return
       }
 
       const input = {
-        ...createDocumentRequest(context, managementKey),
+        ...createDocumentRequest(context, keys.refuseManagementKey, 'SELL'),
         historyMemo: 'examples reverse request refuse by method',
       }
       await runner.run('refuseReverseIssueRequest', input, () => context.service.refuseReverseIssueRequest(input), summarizeOperationResult)

@@ -26,6 +26,7 @@ export interface SharedRunner {
 
 export interface CreateSharedRunnerInput {
   formatError: (error: unknown) => unknown
+  summarizeInput?: (value: unknown) => unknown
   summarizeDefault?: (value: unknown) => unknown
 }
 
@@ -48,7 +49,7 @@ export function createSharedRunner(input: CreateSharedRunnerInput): SharedRunner
       stats.total += 1
       const startedAt = Date.now()
       logInfo(`${name} - REQUEST`, {
-        input: requestInput,
+        input: input.summarizeInput ? input.summarizeInput(requestInput) : requestInput,
       })
 
       try {

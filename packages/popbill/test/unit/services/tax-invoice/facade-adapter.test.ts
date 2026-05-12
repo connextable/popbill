@@ -208,9 +208,10 @@ const FORWARDING_CASES: ForwardingCase[] = [
     invoke: (service) =>
       service.requestReverseIssue({
         ...BASE_DOCUMENT_INPUT,
+        invoiceDocumentKeyType: 'BUY',
         historyMemo: 'memo',
       }),
-    expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, 'memo', USER_ID],
+    expectedArgs: [BUSINESS_NUMBER, 'BUY', INVOICE_MANAGEMENT_KEY, 'memo', USER_ID],
     response: API_RESPONSE,
   },
   {
@@ -219,9 +220,10 @@ const FORWARDING_CASES: ForwardingCase[] = [
     invoke: (service) =>
       service.cancelReverseIssueRequest({
         ...BASE_DOCUMENT_INPUT,
+        invoiceDocumentKeyType: 'BUY',
         historyMemo: 'memo',
       }),
-    expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, 'memo', USER_ID],
+    expectedArgs: [BUSINESS_NUMBER, 'BUY', INVOICE_MANAGEMENT_KEY, 'memo', USER_ID],
     response: API_RESPONSE,
   },
   {

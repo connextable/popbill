@@ -16,6 +16,25 @@ interface ParsedMemoCallbacks<T> {
   error?: (error: unknown) => void
 }
 
+function handleCallbackSuccess<T>(success: ((response: T) => void) | undefined, response: T): void {
+  try {
+    const maybeThenable = success?.(response) as unknown
+    if (isThenable(maybeThenable)) {
+      void Promise.resolve(maybeThenable).catch(() => undefined)
+    }
+  } catch {
+    // User callback failures must not be reclassified as Popbill API failures.
+  }
+}
+
+function isThenable(value: unknown): value is PromiseLike<unknown> {
+  if ((typeof value !== 'object' && typeof value !== 'function') || value === null) {
+    return false
+  }
+
+  return typeof (value as { then?: unknown }).then === 'function'
+}
+
 export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
   callback: TaxinvoiceRuntimeCallbackMethods
   promise: TaxinvoiceRuntimePromiseMethods
@@ -28,40 +47,40 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       registIssue(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, ...args: unknown[]) {
         const parsed = parsers.parseRegistIssueCallbackArgs(args)
 
-        void methods
-          .requestRegistIssue(context, corpNum, taxinvoice, parsed)
-          .then((response) => {
-            parsed.success?.(response)
-          })
-          .catch((error: unknown) => {
+        void methods.requestRegistIssue(context, corpNum, taxinvoice, parsed).then(
+          (response) => {
+            handleCallbackSuccess(parsed.success, response)
+          },
+          (error: unknown) => {
             handleCallbackError(context, 'registIssue', error, parsed.error)
-          })
+          }
+        )
       },
 
       bulkSubmit(corpNum: string, submitID: string, taxinvoiceList: Spec.TaxInvoiceApiModel[], ...args: unknown[]) {
         const parsed = parsers.parseBulkSubmitCallbackArgs(args)
 
-        void methods
-          .requestBulkSubmit(context, corpNum, submitID, taxinvoiceList, parsed)
-          .then((response) => {
-            parsed.success?.(response)
-          })
-          .catch((error: unknown) => {
+        void methods.requestBulkSubmit(context, corpNum, submitID, taxinvoiceList, parsed).then(
+          (response) => {
+            handleCallbackSuccess(parsed.success, response)
+          },
+          (error: unknown) => {
             handleCallbackError(context, 'bulkSubmit', error, parsed.error)
-          })
+          }
+        )
       },
 
       getBulkResult(corpNum: string, submitID: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
 
-        void methods
-          .requestGetBulkResult(context, corpNum, submitID, parsed.userId)
-          .then((response) => {
-            parsed.success?.(response)
-          })
-          .catch((error: unknown) => {
+        void methods.requestGetBulkResult(context, corpNum, submitID, parsed.userId).then(
+          (response) => {
+            handleCallbackSuccess(parsed.success, response)
+          },
+          (error: unknown) => {
             handleCallbackError(context, 'getBulkResult', error, parsed.error)
-          })
+          }
+        )
       },
 
       register(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, ...args: unknown[]) {
@@ -80,92 +99,92 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       update(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, taxinvoice: Spec.TaxInvoiceApiModel, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
 
-        void methods
-          .requestUpdate(context, corpNum, keyType, mgtKey, taxinvoice, parsed.userId)
-          .then((response) => {
-            parsed.success?.(response)
-          })
-          .catch((error: unknown) => {
+        void methods.requestUpdate(context, corpNum, keyType, mgtKey, taxinvoice, parsed.userId).then(
+          (response) => {
+            handleCallbackSuccess(parsed.success, response)
+          },
+          (error: unknown) => {
             handleCallbackError(context, 'update', error, parsed.error)
-          })
+          }
+        )
       },
 
       issue(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parsers.parseIssueCallbackArgs(args)
 
-        void methods
-          .requestIssue(context, corpNum, keyType, mgtKey, parsed)
-          .then((response) => {
-            parsed.success?.(response)
-          })
-          .catch((error: unknown) => {
+        void methods.requestIssue(context, corpNum, keyType, mgtKey, parsed).then(
+          (response) => {
+            handleCallbackSuccess(parsed.success, response)
+          },
+          (error: unknown) => {
             handleCallbackError(context, 'issue', error, parsed.error)
-          })
+          }
+        )
       },
 
       cancelIssue(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
         const parsed = parseMemoCallbackArgs<Spec.TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
-        void methods
-          .requestCancelIssue(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
-          .then((response) => {
-            parsed.success?.(response)
-          })
-          .catch((error: unknown) => {
+        void methods.requestCancelIssue(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId).then(
+          (response) => {
+            handleCallbackSuccess(parsed.success, response)
+          },
+          (error: unknown) => {
             handleCallbackError(context, 'cancelIssue', error, parsed.error)
-          })
+          }
+        )
       },
 
       registRequest(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
         const parsed = parseMemoCallbackArgs<Spec.TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
-        void methods
-          .requestRegistRequest(context, corpNum, taxinvoice, parsed.memo, parsed.userId)
-          .then((response) => {
-            parsed.success?.(response)
-          })
-          .catch((error: unknown) => {
+        void methods.requestRegistRequest(context, corpNum, taxinvoice, parsed.memo, parsed.userId).then(
+          (response) => {
+            handleCallbackSuccess(parsed.success, response)
+          },
+          (error: unknown) => {
             handleCallbackError(context, 'registRequest', error, parsed.error)
-          })
+          }
+        )
       },
 
       request(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
         const parsed = parseMemoCallbackArgs<Spec.TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
-        void methods
-          .requestRequest(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
-          .then((response) => {
-            parsed.success?.(response)
-          })
-          .catch((error: unknown) => {
+        void methods.requestRequest(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId).then(
+          (response) => {
+            handleCallbackSuccess(parsed.success, response)
+          },
+          (error: unknown) => {
             handleCallbackError(context, 'request', error, parsed.error)
-          })
+          }
+        )
       },
 
       cancelRequest(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
         const parsed = parseMemoCallbackArgs<Spec.TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
-        void methods
-          .requestCancelRequest(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
-          .then((response) => {
-            parsed.success?.(response)
-          })
-          .catch((error: unknown) => {
+        void methods.requestCancelRequest(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId).then(
+          (response) => {
+            handleCallbackSuccess(parsed.success, response)
+          },
+          (error: unknown) => {
             handleCallbackError(context, 'cancelRequest', error, parsed.error)
-          })
+          }
+        )
       },
 
       refuse(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, maybeMemoOrSuccess?: unknown, ...args: unknown[]) {
         const parsed = parseMemoCallbackArgs<Spec.TaxInvoiceApiResponseBase>(maybeMemoOrSuccess, args)
 
-        void methods
-          .requestRefuse(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId)
-          .then((response) => {
-            parsed.success?.(response)
-          })
-          .catch((error: unknown) => {
+        void methods.requestRefuse(context, corpNum, keyType, mgtKey, parsed.memo, parsed.userId).then(
+          (response) => {
+            handleCallbackSuccess(parsed.success, response)
+          },
+          (error: unknown) => {
             handleCallbackError(context, 'refuse', error, parsed.error)
-          })
+          }
+        )
       },
 
       delete(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
