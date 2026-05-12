@@ -43,6 +43,11 @@ export interface PublishPackageTargetWithManifest extends PublishPackageTarget {
 
 export const publishPackages: PublishPackageTarget[] = [
   {
+    name: '@connextable/popbill-juso',
+    alias: 'popbill_juso',
+    manifestPath: path.join(repoRoot, 'packages/popbill-juso/package.json'),
+  },
+  {
     name: '@connextable/popbill-spec',
     alias: 'popbill_spec',
     manifestPath: path.join(repoRoot, 'packages/popbill-spec/package.json'),
