@@ -54,8 +54,9 @@ describe('compat exports', () => {
 
     await promiseCompat.TaxinvoiceService().getInfo('1234567890', 'SELL', 'MGT-001')
 
-    expect(String(fetchMock.mock.calls[0]?.[0])).toContain('/POPBILL/Token')
-    expect(String(fetchMock.mock.calls[0]?.[0])).not.toContain('/POPBILL_TEST/Token')
+    const requestUrl = getFetchRequestUrl(fetchMock, 0)
+    expect(requestUrl).toContain('/POPBILL/Token')
+    expect(requestUrl).not.toContain('/POPBILL_TEST/Token')
   })
 
   test('promise config refresh invalidates callback singleton services', async () => {
@@ -79,8 +80,9 @@ describe('compat exports', () => {
       )
     })
 
-    expect(String(fetchMock.mock.calls[0]?.[0])).toContain('/POPBILL/Token')
-    expect(String(fetchMock.mock.calls[0]?.[0])).not.toContain('/POPBILL_TEST/Token')
+    const requestUrl = getFetchRequestUrl(fetchMock, 0)
+    expect(requestUrl).toContain('/POPBILL/Token')
+    expect(requestUrl).not.toContain('/POPBILL_TEST/Token')
   })
 
   test('taxinvoice method typing is exposed at callback and promise entrypoints', () => {
@@ -200,4 +202,18 @@ function stubFetchResponses(...bodies: unknown[]) {
   vi.stubGlobal('fetch', fetchMock)
 
   return fetchMock
+}
+
+function getFetchRequestUrl(fetchMock: ReturnType<typeof vi.fn<typeof fetch>>, callIndex: number): string {
+  const requestInput = fetchMock.mock.calls[callIndex]?.[0]
+
+  if (typeof requestInput === 'string') {
+    return requestInput
+  }
+
+  if (requestInput instanceof URL) {
+    return requestInput.toString()
+  }
+
+  return requestInput?.url ?? ''
 }

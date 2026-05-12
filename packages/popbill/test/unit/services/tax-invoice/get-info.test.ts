@@ -84,8 +84,8 @@ describe('tax-invoice getInvoiceInfo', () => {
 
     expect(response).toMatchObject(expectedResponse)
     expect(fetchMock).toHaveBeenCalledTimes(2)
-    expect(String(fetchMock.mock.calls[0]?.[0])).toContain('https://auth.linkhub.co.kr/POPBILL_TEST/Token')
-    expect(String(fetchMock.mock.calls[1]?.[0])).toContain('https://popbill-test.linkhub.co.kr/Taxinvoice/SELL/20260224-001')
+    expect(getFetchRequestUrl(fetchMock, 0)).toContain('https://auth.linkhub.co.kr/POPBILL_TEST/Token')
+    expect(getFetchRequestUrl(fetchMock, 1)).toContain('https://popbill-test.linkhub.co.kr/Taxinvoice/SELL/20260224-001')
 
     const secondRequestInit = fetchMock.mock.calls[1]?.[1] as RequestInit
     const secondRequestHeaders = secondRequestInit.headers as Record<string, string>
@@ -213,7 +213,7 @@ describe('tax-invoice getInvoiceInfo', () => {
       invoiceManagementKey: '20260224-001',
     })
 
-    expect(String(fetchMock.mock.calls[1]?.[0])).toContain('https://popbill.linkhub.co.kr/Taxinvoice/SELL/20260224-001')
+    expect(getFetchRequestUrl(fetchMock, 1)).toContain('https://popbill.linkhub.co.kr/Taxinvoice/SELL/20260224-001')
   })
 
   test('uses custom Accept-Encoding header when configured', async () => {
@@ -366,3 +366,17 @@ describe('tax-invoice getInvoiceInfo', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 })
+
+function getFetchRequestUrl(fetchMock: ReturnType<typeof vi.fn<typeof fetch>>, callIndex: number): string {
+  const requestInput = fetchMock.mock.calls[callIndex]?.[0]
+
+  if (typeof requestInput === 'string') {
+    return requestInput
+  }
+
+  if (requestInput instanceof URL) {
+    return requestInput.toString()
+  }
+
+  return requestInput?.url ?? ''
+}
