@@ -110,10 +110,7 @@ config({
 })
 
 const taxinvoice = TaxinvoiceService()
-const expireDate = await taxinvoice.getCertificateExpireDate(
-  process.env.POPBILL_CORP_NUM!,
-  process.env.POPBILL_USER_ID!
-)
+const expireDate = await taxinvoice.getCertificateExpireDate(process.env.POPBILL_CORP_NUM!, process.env.POPBILL_USER_ID!)
 
 console.log(expireDate)
 ```
@@ -155,7 +152,8 @@ pnpm clean
 
 루트 `.env.example`에는 공통 기본키가 정의되어 있고, 예제 실행 전용 항목은 `examples/.env.example`에 추가로 정의되어 있습니다.
 
-- 루트: 인증 기본키 + 통합테스트 토글(`POPBILL_RUN_INTEGRATION_TESTS`)
+- 루트: 인증 기본키 + 실서버 smoke 토글(`POPBILL_RUN_INTEGRATION_TESTS`)
+- 전자세금계산서 메서드별 실서버 테스트는 `POPBILL_RUN_TAXINVOICE_REAL_INTEGRATION_TESTS=true`가 아니면 skip됩니다. API 키 없는 검증은 별도 mock contract/unit 테스트가 담당합니다.
 - examples: 예제 시나리오 실행에 필요한 발신/수신/명세서 관련 옵션
 
 ## 8) 문서 링크(예제/마이그레이션/SDK docs)

@@ -9,6 +9,6 @@ describeTaxInvoiceIntegration('popbill tax-invoice integration: getSendToNTSSett
     })
 
     expect(typeof response).toBe('object')
-    expect(response).toHaveProperty('sendToNTS')
+    expect(response).toHaveProperty('sendToNationalTaxServiceEnabled')
   }, 180_000)
 })

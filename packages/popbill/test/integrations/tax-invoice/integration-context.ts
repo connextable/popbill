@@ -2,7 +2,7 @@ import { createPopbillClient } from '@/index'
 import { TaxInvoiceStatementItemCodes, type TaxInvoiceStatementItemCode } from '@/services/tax-invoice/types'
 
 const REQUIRED_ENV_NAMES = ['POPBILL_LINK_ID', 'POPBILL_SECRET_KEY', 'POPBILL_CORP_NUM', 'POPBILL_USER_ID'] as const
-const RUN_INTEGRATION_TESTS = normalizeBooleanEnv(process.env['POPBILL_RUN_INTEGRATION_TESTS'])
+const RUN_REAL_TAXINVOICE_INTEGRATION_TESTS = normalizeBooleanEnv(process.env['POPBILL_RUN_TAXINVOICE_REAL_INTEGRATION_TESTS'])
 
 interface IntegrationEnv {
   linkId: string
@@ -22,14 +22,14 @@ interface IntegrationEnv {
 
 const integrationEnv = loadIntegrationEnv()
 const hasRequiredEnv = integrationEnv.missingNames.length === 0
-const describeIntegration = RUN_INTEGRATION_TESTS && hasRequiredEnv ? describe : describe.skip
+const describeRealTaxInvoiceIntegration = RUN_REAL_TAXINVOICE_INTEGRATION_TESTS && hasRequiredEnv ? describe : describe.skip
 
-if (RUN_INTEGRATION_TESTS && !hasRequiredEnv) {
-  throw new Error(`Missing required integration env vars: ${integrationEnv.missingNames.join(', ')}`)
+if (RUN_REAL_TAXINVOICE_INTEGRATION_TESTS && !hasRequiredEnv) {
+  throw new Error(`Missing required real tax-invoice integration env vars: ${integrationEnv.missingNames.join(', ')}`)
 }
 
 export function describeTaxInvoiceIntegration(suiteName: string, definition: () => void): void {
-  describeIntegration(suiteName, definition)
+  describeRealTaxInvoiceIntegration(suiteName, definition)
 }
 
 export function createTaxInvoiceIntegrationClient() {
