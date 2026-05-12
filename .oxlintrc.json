@@ -1,0 +1,30 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["oxc", "eslint", "typescript", "unicorn", "node", "import", "promise", "vitest", "jsdoc"],
+  "categories": {},
+  "env": {
+    "builtin": true
+  },
+  "globals": {},
+  "settings": {
+    "jsdoc": {
+      "ignorePrivate": false,
+      "ignoreInternal": false,
+      "ignoreReplacesDocs": true,
+      "overrideReplacesDocs": true,
+      "augmentsExtendsReplacesDocs": false,
+      "implementsReplacesDocs": false,
+      "exemptDestructuredRootsFromChecks": false,
+      "tagNamePreference": {}
+    },
+    "vitest": {
+      "typecheck": true
+    }
+  },
+  "rules": {
+    "typescript/consistent-type-imports": "error",
+    "typescript/consistent-type-exports": "error",
+    "import/no-duplicates": "error"
+  },
+  "ignorePatterns": [".temp"]
+}

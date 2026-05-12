@@ -1,0 +1,46 @@
+{
+  "name": "@connextable/popbill-juso",
+  "version": "1.0.0",
+  "description": "JusoLink API SDK for TypeScript",
+  "bugs": {
+    "url": "https://github.com/connextable/popbill/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/connextable/popbill.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "oxlint --type-aware",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "typecheck": "tsgo -b --noEmit",
+    "typecheck:lib": "tsgo -p tsconfig.lib.json --noEmit",
+    "typecheck:test": "tsgo -p tsconfig.test.json --noEmit",
+    "clean": "del node_modules dist"
+  },
+  "dependencies": {
+    "@connextable/popbill-runtime": "workspace:*",
+    "@connextable/popbill-utils": "workspace:*"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

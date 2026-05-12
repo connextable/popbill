@@ -1,0 +1,70 @@
+{
+  "name": "@connextable/popbill-compat",
+  "version": "1.0.0",
+  "description": "Compatibility SDK for legacy Popbill interfaces",
+  "bugs": {
+    "url": "https://github.com/connextable/popbill/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/connextable/popbill.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs"
+    },
+    "./factory": {
+      "types": "./dist/factory/index.d.mts",
+      "import": "./dist/factory/index.mjs",
+      "require": "./dist/factory/index.cjs",
+      "default": "./dist/factory/index.mjs"
+    },
+    "./promise": {
+      "types": "./dist/promise/index.d.mts",
+      "import": "./dist/promise/index.mjs",
+      "require": "./dist/promise/index.cjs",
+      "default": "./dist/promise/index.mjs"
+    },
+    "./errors": {
+      "types": "./dist/errors.d.mts",
+      "import": "./dist/errors.mjs",
+      "require": "./dist/errors.cjs",
+      "default": "./dist/errors.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "oxlint --type-aware",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "typecheck": "tsgo -b --noEmit",
+    "typecheck:lib": "tsgo -p tsconfig.lib.json --noEmit",
+    "typecheck:test": "tsgo -p tsconfig.test.json --noEmit",
+    "clean": "del node_modules dist"
+  },
+  "dependencies": {
+    "@connextable/popbill-runtime": "workspace:*",
+    "@connextable/popbill-spec": "workspace:*",
+    "@connextable/popbill-utils": "workspace:*"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

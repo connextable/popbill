@@ -1,0 +1,77 @@
+{
+  "name": "@connextable/popbill",
+  "version": "1.0.0",
+  "description": "Popbill API SDK for TypeScript. see www.popbill.com",
+  "keywords": [
+    "FAX",
+    "KakaoTalk",
+    "SMS",
+    "accountcheck",
+    "api",
+    "bizinfocheck",
+    "cashbill",
+    "closedown",
+    "hometax",
+    "popbill",
+    "sdk",
+    "statement",
+    "taxinvoice"
+  ],
+  "bugs": {
+    "url": "https://github.com/connextable/popbill/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Jinyong Park",
+    "email": "dev.jinyongp@gmail.com",
+    "url": "https://github.com/jinyongp"
+  },
+  "contributors": [
+    {
+      "name": "Kim Seongjun",
+      "email": "pallet027@gmail.com"
+    },
+    {
+      "name": "Linkhub DEV",
+      "email": "code@linkhubcorp.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/connextable/popbill.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "oxlint --type-aware",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "typecheck": "tsgo -b --noEmit",
+    "typecheck:lib": "tsgo -p tsconfig.lib.json --noEmit",
+    "typecheck:test": "tsgo -p tsconfig.test.json --noEmit",
+    "clean": "del node_modules dist"
+  },
+  "dependencies": {
+    "@connextable/popbill-compat": "workspace:*",
+    "@connextable/popbill-spec": "workspace:*",
+    "@connextable/popbill-utils": "workspace:*"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

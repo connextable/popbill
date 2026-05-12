@@ -1,0 +1,27 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "envMode": "loose",
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build", "^typecheck"]
+    },
+    "lint": {},
+    "lint:fix": {},
+    "fmt": {},
+    "fmt:check": {},
+    "test": {
+      "cache": false
+    },
+    "test:coverage": {
+      "cache": false
+    },
+    "clean": {
+      "cache": false
+    }
+  }
+}

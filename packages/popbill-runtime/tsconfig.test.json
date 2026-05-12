@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.cache/tsconfig.test.tsbuildinfo",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@connextable/popbill-runtime": ["./src/index.ts"]
+    },
+    "types": ["node", "vitest/globals"]
+  },
+  "include": ["test"]
+}

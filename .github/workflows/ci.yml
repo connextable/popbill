@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version-file: package.json
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify publish manifests
+        run: pnpm run release:verify-manifests
+
+      - name: Build
+        run: pnpm build
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test popbill
+        run: pnpm -C packages/popbill test
+
+      - name: Test popbill-compat
+        run: pnpm -C packages/popbill-compat test
+
+      - name: Test popbill-runtime
+        run: pnpm -C packages/popbill-runtime test
+
+      - name: Test popbill-utils
+        run: pnpm -C packages/popbill-utils test
+
+      - name: Pack publish targets
+        run: |
+          set -euo pipefail
+          PACK_DIR="${RUNNER_TEMP}/popbill-pack"
+          rm -rf "${PACK_DIR}"
+          mkdir -p "${PACK_DIR}"
+          pnpm -C packages/popbill-juso pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill-spec pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill-utils pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill-runtime pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill-compat pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill pack --pack-destination "${PACK_DIR}"
+          pnpm run release:verify-tarballs -- "${PACK_DIR}"
+
+      - name: npm publish dry-run
+        env:
+          npm_config_cache: ${{ runner.temp }}/.npm
+        run: |
+          set -euo pipefail
+          (cd packages/popbill-spec && npm publish --dry-run)
+          (cd packages/popbill-utils && npm publish --dry-run)
+          (cd packages/popbill-runtime && npm publish --dry-run)
+          (cd packages/popbill-juso && npm publish --dry-run)
+          (cd packages/popbill-compat && npm publish --dry-run)
+          (cd packages/popbill && npm publish --dry-run)

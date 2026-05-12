@@ -1,0 +1,100 @@
+import {
+  createLinkhubAuthClient,
+  createPopbillRequestClient,
+  createTokenProvider,
+  LinkhubAuthScope,
+  PopbillAcceptLanguages,
+  PopbillApiBaseUrls,
+  PopbillServiceIds,
+  type PopbillRequestClient,
+} from '@connextable/popbill-runtime'
+import type { CompatConfig } from '@/config'
+import type * as Spec from '@connextable/popbill-spec'
+
+const DEFAULT_REQUEST_TIMEOUT_MS = 180_000
+const DEFAULT_ACCEPT_ENCODING = 'gzip,deflate'
+
+interface ResolvedCompatRequestConfig {
+  isTest: boolean
+  useStaticIp: boolean
+  useGaIp: boolean
+  useLocalTime: boolean
+  ipRestrictOnOff: boolean
+  requestTimeoutMs: number
+  acceptEncoding: string | null
+  acceptLanguage?: Spec.PopbillAcceptLanguage
+}
+
+export function createTaxinvoiceRequestClient(config: CompatConfig): PopbillRequestClient {
+  const resolvedConfig = resolveCompatRequestConfig(config)
+
+  const authClient = createLinkhubAuthClient({
+    linkId: config.LinkID,
+    secretKey: config.SecretKey,
+    useStaticIp: resolvedConfig.useStaticIp,
+    useGaIp: resolvedConfig.useGaIp,
+    useLocalTime: resolvedConfig.useLocalTime,
+    timeoutMs: resolvedConfig.requestTimeoutMs,
+  })
+
+  const tokenProvider = createTokenProvider({
+    authClient,
+    serviceId: resolvedConfig.isTest ? PopbillServiceIds.Test : PopbillServiceIds.Production,
+    scopes: [LinkhubAuthScope.Member, LinkhubAuthScope.TaxInvoice],
+    forwardedIp: resolvedConfig.ipRestrictOnOff ? undefined : '*',
+  })
+
+  return createPopbillRequestClient({
+    apiBaseUrl: resolveApiBaseUrl(resolvedConfig),
+    timeoutMs: resolvedConfig.requestTimeoutMs,
+    tokenProvider,
+    acceptEncoding: resolvedConfig.acceptEncoding,
+    acceptLanguage: resolvedConfig.acceptLanguage,
+  })
+}
+
+function resolveCompatRequestConfig(config: CompatConfig): ResolvedCompatRequestConfig {
+  return {
+    isTest: config.IsTest ?? false,
+    useStaticIp: config.UseStaticIP ?? false,
+    useGaIp: config.UseGAIP ?? false,
+    useLocalTime: config.UseLocalTimeYN ?? true,
+    ipRestrictOnOff: config.IPRestrictOnOff ?? true,
+    requestTimeoutMs: config.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS,
+    acceptEncoding: config.acceptEncoding === undefined ? DEFAULT_ACCEPT_ENCODING : config.acceptEncoding,
+    acceptLanguage: resolveAcceptLanguage(config.acceptLanguage),
+  }
+}
+
+function resolveAcceptLanguage(value: unknown): Spec.PopbillAcceptLanguage | undefined {
+  if (typeof value !== 'string') {
+    return undefined
+  }
+
+  const trimmed = value.trim()
+  if (trimmed.length === 0) {
+    return undefined
+  }
+
+  if (trimmed === PopbillAcceptLanguages.KoreanKorea) {
+    return PopbillAcceptLanguages.KoreanKorea
+  }
+
+  if (trimmed === PopbillAcceptLanguages.EnglishUnitedStates) {
+    return PopbillAcceptLanguages.EnglishUnitedStates
+  }
+
+  throw new Error(`Invalid acceptLanguage. Allowed values: ${Object.values(PopbillAcceptLanguages).join(', ')}`)
+}
+
+function resolveApiBaseUrl(config: Pick<ResolvedCompatRequestConfig, 'isTest' | 'useGaIp' | 'useStaticIp'>): Spec.PopbillApiBaseUrl {
+  if (config.useGaIp) {
+    return config.isTest ? PopbillApiBaseUrls.GaTest : PopbillApiBaseUrls.GaProduction
+  }
+
+  if (config.useStaticIp) {
+    return config.isTest ? PopbillApiBaseUrls.StaticTest : PopbillApiBaseUrls.StaticProduction
+  }
+
+  return config.isTest ? PopbillApiBaseUrls.Test : PopbillApiBaseUrls.Production
+}

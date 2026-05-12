@@ -1,2 +1,15 @@
-node_modules/
-package-lock.json
+.env
+.temp
+.codex
+.DS_Store
+.pnpm-store
+.code-review
+*.tsbuildinfo
+
+dist
+coverage
+node_modules
+.turbo
+
+# SDK machine-readable artifacts (regenerate when needed)
+docs/sdk

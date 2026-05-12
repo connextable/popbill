@@ -1,0 +1,15 @@
+packages:
+  - packages/*
+  - examples
+
+allowBuilds:
+  esbuild: false
+  simple-git-hooks: false
+
+ignoredBuiltDependencies:
+  - esbuild
+  - simple-git-hooks
+
+updateConfig:
+  ignoreDependencies:
+    - '@types/node'

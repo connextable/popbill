@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.cache/tsconfig.test.tsbuildinfo",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@connextable/popbill-compat": ["./src/index.ts"],
+      "@connextable/popbill-compat/errors": ["./src/errors.ts"],
+      "@connextable/popbill-compat/factory": ["./src/factory/index.ts"],
+      "@connextable/popbill-compat/promise": ["./src/promise/index.ts"]
+    },
+    "types": ["node", "vitest/globals"]
+  },
+  "include": ["test"]
+}
