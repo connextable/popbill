@@ -1,4 +1,4 @@
-import { getConfiguration, setConfiguration, type CompatConfig } from './config'
+import { getConfiguration, registerConfigurationChangeListener, setConfiguration, type CompatConfig } from './config'
 import { MgtKeyType, MessageType, KakaoType } from './constants'
 import type { CallbackService } from './adapters/callback-adapter'
 import { createSingleton } from './internal/singleton'
@@ -35,13 +35,15 @@ const callbackServiceCreators = {
 } as const satisfies { [K in keyof CallbackServices]: (config: CompatConfig) => CallbackServices[K] }
 
 const singleton = createSingleton<CallbackServices>()
+registerConfigurationChangeListener(() => {
+  singleton.clear()
+})
 
 export { MgtKeyType, MessageType, KakaoType }
 export type { CompatConfig }
 
 export function config(nextConfig: CompatConfig): void {
   setConfiguration(nextConfig)
-  singleton.clear()
 }
 
 function getService<TServiceKey extends keyof CallbackServices>(service: TServiceKey): CallbackServices[TServiceKey] {

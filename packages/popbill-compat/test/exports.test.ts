@@ -45,6 +45,44 @@ describe('compat exports', () => {
     await expect(promiseCompat.TaxinvoiceService().getChargeInfo('1234567890')).rejects.toBeInstanceOf(NotImplementedError)
   })
 
+  test('callback config refresh invalidates promise singleton services', async () => {
+    promiseCompat.config(createCompatConfig(true))
+    promiseCompat.TaxinvoiceService()
+
+    compat.config(createCompatConfig(false))
+    const fetchMock = stubFetchResponses(createTokenResponseBody(), { itemKey: 'ITEM-1' })
+
+    await promiseCompat.TaxinvoiceService().getInfo('1234567890', 'SELL', 'MGT-001')
+
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain('/POPBILL/Token')
+    expect(String(fetchMock.mock.calls[0]?.[0])).not.toContain('/POPBILL_TEST/Token')
+  })
+
+  test('promise config refresh invalidates callback singleton services', async () => {
+    compat.config(createCompatConfig(true))
+    compat.TaxinvoiceService()
+
+    promiseCompat.config(createCompatConfig(false))
+    const fetchMock = stubFetchResponses(createTokenResponseBody(), { itemKey: 'ITEM-1' })
+
+    await new Promise<void>((resolve, reject) => {
+      compat.TaxinvoiceService().getInfo(
+        '1234567890',
+        'SELL',
+        'MGT-001',
+        () => {
+          resolve()
+        },
+        (error: unknown) => {
+          reject(error instanceof Error ? error : new Error(String(error)))
+        }
+      )
+    })
+
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain('/POPBILL/Token')
+    expect(String(fetchMock.mock.calls[0]?.[0])).not.toContain('/POPBILL_TEST/Token')
+  })
+
   test('taxinvoice method typing is exposed at callback and promise entrypoints', () => {
     const callbackService = compat.TaxinvoiceService()
 
@@ -129,3 +167,37 @@ describe('compat exports', () => {
     expectTypeOf<TaxinvoicePromiseService['getTaxCertInfo']>().returns.toEqualTypeOf<Promise<Spec.TaxInvoiceGetTaxCertInfoApiResponse>>()
   })
 })
+
+function createCompatConfig(isTest: boolean): compat.CompatConfig {
+  return {
+    LinkID: 'TEST_LINK_ID',
+    SecretKey: Buffer.from('secret').toString('base64'),
+    IsTest: isTest,
+  }
+}
+
+function createTokenResponseBody() {
+  return {
+    session_token: 'session-token',
+    expiration: '2099-01-01T00:00:00Z',
+    serviceID: 'POPBILL',
+  }
+}
+
+function stubFetchResponses(...bodies: unknown[]): ReturnType<typeof vi.fn> {
+  const fetchMock = vi.fn()
+
+  for (const body of bodies) {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify(body), {
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+      })
+    )
+  }
+
+  vi.stubGlobal('fetch', fetchMock)
+
+  return fetchMock
+}

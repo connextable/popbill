@@ -28,16 +28,29 @@ const DEFAULT_CONFIGURATION: CompatConfig = {
 }
 
 let currentConfiguration: CompatConfig = { ...DEFAULT_CONFIGURATION }
+const configurationChangeListeners = new Set<() => void>()
 
 export function setConfiguration(config: CompatConfig): void {
   currentConfiguration = {
     ...currentConfiguration,
     ...config,
   }
+
+  for (const listener of configurationChangeListeners) {
+    listener()
+  }
 }
 
 export function getConfiguration(): CompatConfig {
   return {
     ...currentConfiguration,
+  }
+}
+
+export function registerConfigurationChangeListener(listener: () => void): () => void {
+  configurationChangeListeners.add(listener)
+
+  return () => {
+    configurationChangeListeners.delete(listener)
   }
 }

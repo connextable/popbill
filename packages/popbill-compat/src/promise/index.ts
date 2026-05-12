@@ -1,4 +1,4 @@
-import { getConfiguration, setConfiguration, type CompatConfig } from '@/config'
+import { getConfiguration, registerConfigurationChangeListener, setConfiguration, type CompatConfig } from '@/config'
 import { MgtKeyType, MessageType, KakaoType } from '@/constants'
 import type { PromiseService } from '@/adapters/promise-adapter'
 import { createSingleton } from '@/internal/singleton'
@@ -49,13 +49,15 @@ const promiseServiceCreators = {
 } as const satisfies { [K in keyof PromiseServices]: (config: CompatConfig) => PromiseServices[K] }
 
 const singleton = createSingleton<PromiseServices>()
+registerConfigurationChangeListener(() => {
+  singleton.clear()
+})
 
 export { MgtKeyType, MessageType, KakaoType }
 export type { CompatConfig }
 
 export function config(nextConfig: CompatConfig): void {
   setConfiguration(nextConfig)
-  singleton.clear()
 }
 
 function getService<TServiceKey extends keyof PromiseServices>(service: TServiceKey): PromiseServices[TServiceKey] {
