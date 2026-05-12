@@ -2,6 +2,9 @@
 .temp
 .codex
 .DS_Store
+.pnpm-store
+.code-review
+*.tsbuildinfo
 
 dist
 coverage
