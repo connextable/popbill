@@ -14,10 +14,29 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  publish:
+  prepare-release:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      version: ${{ steps.npm_readiness.outputs.version }}
+      npm_publish_any: ${{ steps.npm_readiness.outputs.publish_any }}
+      npm_publish_popbill_spec: ${{ steps.npm_readiness.outputs.publish_popbill_spec }}
+      npm_publish_popbill_utils: ${{ steps.npm_readiness.outputs.publish_popbill_utils }}
+      npm_publish_popbill_runtime: ${{ steps.npm_readiness.outputs.publish_popbill_runtime }}
+      npm_publish_popbill_juso: ${{ steps.npm_readiness.outputs.publish_popbill_juso }}
+      npm_publish_popbill_compat: ${{ steps.npm_readiness.outputs.publish_popbill_compat }}
+      npm_publish_popbill: ${{ steps.npm_readiness.outputs.publish_popbill }}
+      github_packages_publish_any: ${{ steps.github_packages_readiness.outputs.publish_any }}
+      github_packages_publish_popbill_spec: ${{ steps.github_packages_readiness.outputs.publish_popbill_spec }}
+      github_packages_publish_popbill_utils: ${{ steps.github_packages_readiness.outputs.publish_popbill_utils }}
+      github_packages_publish_popbill_runtime: ${{ steps.github_packages_readiness.outputs.publish_popbill_runtime }}
+      github_packages_publish_popbill_juso: ${{ steps.github_packages_readiness.outputs.publish_popbill_juso }}
+      github_packages_publish_popbill_compat: ${{ steps.github_packages_readiness.outputs.publish_popbill_compat }}
+      github_packages_publish_popbill: ${{ steps.github_packages_readiness.outputs.publish_popbill }}
 
     steps:
       - name: Checkout
@@ -39,58 +58,250 @@ jobs:
       - name: Verify publish manifests
         run: pnpm run release:verify-manifests
 
-      - name: Check release readiness
-        id: readiness
+      - name: Check npm release readiness
+        id: npm_readiness
         env:
-          npm_config_cache: ${{ runner.temp }}/.npm
-        run: pnpm run release:check-readiness
+          NPM_CONFIG_CACHE: ${{ runner.temp }}/.npm
+        run: pnpm run release:check-readiness -- --registry https://registry.npmjs.org
+
+      - name: Configure GitHub Packages auth
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          umask 077
+          {
+            echo "@connextable:registry=https://npm.pkg.github.com"
+            echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}"
+            echo "always-auth=true"
+          } > "${RUNNER_TEMP}/github-packages.npmrc"
+
+      - name: Check GitHub Packages release readiness
+        id: github_packages_readiness
+        env:
+          NPM_CONFIG_CACHE: ${{ runner.temp }}/.npm
+          NPM_CONFIG_USERCONFIG: ${{ runner.temp }}/github-packages.npmrc
+        run: pnpm run release:check-readiness -- --registry https://npm.pkg.github.com
 
       - name: Build
-        if: steps.readiness.outputs.publish_any == 'true'
+        if: steps.npm_readiness.outputs.publish_any == 'true' || steps.github_packages_readiness.outputs.publish_any == 'true'
         run: pnpm build
 
-      - name: Publish @connextable/popbill-spec
-        if: steps.readiness.outputs.publish_popbill_spec == 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm -C packages/popbill-spec publish --access public --no-git-checks
+      - name: Pack publish targets
+        if: steps.npm_readiness.outputs.publish_any == 'true' || steps.github_packages_readiness.outputs.publish_any == 'true'
+        run: |
+          set -euo pipefail
+          PACK_DIR="${RUNNER_TEMP}/popbill-pack"
+          rm -rf "${PACK_DIR}"
+          mkdir -p "${PACK_DIR}"
+          pnpm -C packages/popbill-juso pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill-spec pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill-utils pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill-runtime pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill-compat pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill pack --pack-destination "${PACK_DIR}"
+          pnpm run release:verify-tarballs -- "${PACK_DIR}"
 
-      - name: Publish @connextable/popbill-utils
-        if: steps.readiness.outputs.publish_popbill_utils == 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm -C packages/popbill-utils publish --access public --no-git-checks
-
-      - name: Publish @connextable/popbill-runtime
-        if: steps.readiness.outputs.publish_popbill_runtime == 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm -C packages/popbill-runtime publish --access public --no-git-checks
-
-      - name: Publish @connextable/popbill-juso
-        if: steps.readiness.outputs.publish_popbill_juso == 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm -C packages/popbill-juso publish --access public --no-git-checks
-
-      - name: Publish @connextable/popbill-compat
-        if: steps.readiness.outputs.publish_popbill_compat == 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm -C packages/popbill-compat publish --access public --no-git-checks
-
-      - name: Publish @connextable/popbill
-        if: steps.readiness.outputs.publish_popbill == 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm -C packages/popbill publish --access public --no-git-checks
+      - name: Upload release tarballs
+        if: steps.npm_readiness.outputs.publish_any == 'true' || steps.github_packages_readiness.outputs.publish_any == 'true'
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: release-tarballs
+          path: ${{ runner.temp }}/popbill-pack/*.tgz
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Release summary
         run: |
-          echo "version=${{ steps.readiness.outputs.version }}"
-          echo "publish_juso=${{ steps.readiness.outputs.publish_popbill_juso }}"
-          echo "publish_spec=${{ steps.readiness.outputs.publish_popbill_spec }}"
-          echo "publish_utils=${{ steps.readiness.outputs.publish_popbill_utils }}"
-          echo "publish_runtime=${{ steps.readiness.outputs.publish_popbill_runtime }}"
-          echo "publish_compat=${{ steps.readiness.outputs.publish_popbill_compat }}"
-          echo "publish_popbill=${{ steps.readiness.outputs.publish_popbill }}"
+          cat >> "${GITHUB_STEP_SUMMARY}" <<'SUMMARY'
+          ## Release plan
+
+          Version: `${{ steps.npm_readiness.outputs.version }}`
+
+          | Package | npm | GitHub Packages |
+          | --- | --- | --- |
+          | `@connextable/popbill-juso` | ${{ steps.npm_readiness.outputs.publish_popbill_juso == 'true' && 'publish' || 'skip' }} | ${{ steps.github_packages_readiness.outputs.publish_popbill_juso == 'true' && 'publish' || 'skip' }} |
+          | `@connextable/popbill-spec` | ${{ steps.npm_readiness.outputs.publish_popbill_spec == 'true' && 'publish' || 'skip' }} | ${{ steps.github_packages_readiness.outputs.publish_popbill_spec == 'true' && 'publish' || 'skip' }} |
+          | `@connextable/popbill-utils` | ${{ steps.npm_readiness.outputs.publish_popbill_utils == 'true' && 'publish' || 'skip' }} | ${{ steps.github_packages_readiness.outputs.publish_popbill_utils == 'true' && 'publish' || 'skip' }} |
+          | `@connextable/popbill-runtime` | ${{ steps.npm_readiness.outputs.publish_popbill_runtime == 'true' && 'publish' || 'skip' }} | ${{ steps.github_packages_readiness.outputs.publish_popbill_runtime == 'true' && 'publish' || 'skip' }} |
+          | `@connextable/popbill-compat` | ${{ steps.npm_readiness.outputs.publish_popbill_compat == 'true' && 'publish' || 'skip' }} | ${{ steps.github_packages_readiness.outputs.publish_popbill_compat == 'true' && 'publish' || 'skip' }} |
+          | `@connextable/popbill` | ${{ steps.npm_readiness.outputs.publish_popbill == 'true' && 'publish' || 'skip' }} | ${{ steps.github_packages_readiness.outputs.publish_popbill == 'true' && 'publish' || 'skip' }} |
+
+          Shared tarball artifact: `release-tarballs` when any registry has publish targets.
+          SUMMARY
+
+          echo "version=${{ steps.npm_readiness.outputs.version }}"
+          echo "npm_publish_juso=${{ steps.npm_readiness.outputs.publish_popbill_juso }}"
+          echo "npm_publish_spec=${{ steps.npm_readiness.outputs.publish_popbill_spec }}"
+          echo "npm_publish_utils=${{ steps.npm_readiness.outputs.publish_popbill_utils }}"
+          echo "npm_publish_runtime=${{ steps.npm_readiness.outputs.publish_popbill_runtime }}"
+          echo "npm_publish_compat=${{ steps.npm_readiness.outputs.publish_popbill_compat }}"
+          echo "npm_publish_popbill=${{ steps.npm_readiness.outputs.publish_popbill }}"
+          echo "github_packages_publish_juso=${{ steps.github_packages_readiness.outputs.publish_popbill_juso }}"
+          echo "github_packages_publish_spec=${{ steps.github_packages_readiness.outputs.publish_popbill_spec }}"
+          echo "github_packages_publish_utils=${{ steps.github_packages_readiness.outputs.publish_popbill_utils }}"
+          echo "github_packages_publish_runtime=${{ steps.github_packages_readiness.outputs.publish_popbill_runtime }}"
+          echo "github_packages_publish_compat=${{ steps.github_packages_readiness.outputs.publish_popbill_compat }}"
+          echo "github_packages_publish_popbill=${{ steps.github_packages_readiness.outputs.publish_popbill }}"
+
+  publish-npm:
+    needs: prepare-release
+    if: github.ref == 'refs/heads/main' && needs.prepare-release.outputs.npm_publish_any == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version-file: package.json
+          registry-url: https://registry.npmjs.org
+
+      - name: Download release tarballs
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-tarballs
+          path: ${{ runner.temp }}/popbill-pack
+
+      - name: Publish @connextable/popbill-spec to npm
+        if: needs.prepare-release.outputs.npm_publish_popbill_spec == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish "${RUNNER_TEMP}/popbill-pack/connextable-popbill-spec-${{ needs.prepare-release.outputs.version }}.tgz" --access public --registry https://registry.npmjs.org
+
+      - name: Publish @connextable/popbill-utils to npm
+        if: needs.prepare-release.outputs.npm_publish_popbill_utils == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish "${RUNNER_TEMP}/popbill-pack/connextable-popbill-utils-${{ needs.prepare-release.outputs.version }}.tgz" --access public --registry https://registry.npmjs.org
+
+      - name: Publish @connextable/popbill-runtime to npm
+        if: needs.prepare-release.outputs.npm_publish_popbill_runtime == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish "${RUNNER_TEMP}/popbill-pack/connextable-popbill-runtime-${{ needs.prepare-release.outputs.version }}.tgz" --access public --registry https://registry.npmjs.org
+
+      - name: Publish @connextable/popbill-juso to npm
+        if: needs.prepare-release.outputs.npm_publish_popbill_juso == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish "${RUNNER_TEMP}/popbill-pack/connextable-popbill-juso-${{ needs.prepare-release.outputs.version }}.tgz" --access public --registry https://registry.npmjs.org
+
+      - name: Publish @connextable/popbill-compat to npm
+        if: needs.prepare-release.outputs.npm_publish_popbill_compat == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish "${RUNNER_TEMP}/popbill-pack/connextable-popbill-compat-${{ needs.prepare-release.outputs.version }}.tgz" --access public --registry https://registry.npmjs.org
+
+      - name: Publish @connextable/popbill to npm
+        if: needs.prepare-release.outputs.npm_publish_popbill == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish "${RUNNER_TEMP}/popbill-pack/connextable-popbill-${{ needs.prepare-release.outputs.version }}.tgz" --access public --registry https://registry.npmjs.org
+
+      - name: npm publish summary
+        run: |
+          cat >> "${GITHUB_STEP_SUMMARY}" <<'SUMMARY'
+          ## npm publish
+
+          Version: `${{ needs.prepare-release.outputs.version }}`
+
+          | Package | Result |
+          | --- | --- |
+          | `@connextable/popbill-juso` | ${{ needs.prepare-release.outputs.npm_publish_popbill_juso == 'true' && 'published' || 'skipped' }} |
+          | `@connextable/popbill-spec` | ${{ needs.prepare-release.outputs.npm_publish_popbill_spec == 'true' && 'published' || 'skipped' }} |
+          | `@connextable/popbill-utils` | ${{ needs.prepare-release.outputs.npm_publish_popbill_utils == 'true' && 'published' || 'skipped' }} |
+          | `@connextable/popbill-runtime` | ${{ needs.prepare-release.outputs.npm_publish_popbill_runtime == 'true' && 'published' || 'skipped' }} |
+          | `@connextable/popbill-compat` | ${{ needs.prepare-release.outputs.npm_publish_popbill_compat == 'true' && 'published' || 'skipped' }} |
+          | `@connextable/popbill` | ${{ needs.prepare-release.outputs.npm_publish_popbill == 'true' && 'published' || 'skipped' }} |
+          SUMMARY
+
+  publish-github-packages:
+    needs:
+      - prepare-release
+      - publish-npm
+    if: >
+      always() &&
+      github.ref == 'refs/heads/main' &&
+      needs.prepare-release.outputs.github_packages_publish_any == 'true' &&
+      (needs.prepare-release.outputs.npm_publish_any != 'true' || needs.publish-npm.result == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version-file: package.json
+          registry-url: https://npm.pkg.github.com
+          scope: '@connextable'
+
+      - name: Download release tarballs
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-tarballs
+          path: ${{ runner.temp }}/popbill-pack
+
+      - name: Publish @connextable/popbill-spec to GitHub Packages
+        if: needs.prepare-release.outputs.github_packages_publish_popbill_spec == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish "${RUNNER_TEMP}/popbill-pack/connextable-popbill-spec-${{ needs.prepare-release.outputs.version }}.tgz" --registry https://npm.pkg.github.com
+
+      - name: Publish @connextable/popbill-utils to GitHub Packages
+        if: needs.prepare-release.outputs.github_packages_publish_popbill_utils == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish "${RUNNER_TEMP}/popbill-pack/connextable-popbill-utils-${{ needs.prepare-release.outputs.version }}.tgz" --registry https://npm.pkg.github.com
+
+      - name: Publish @connextable/popbill-runtime to GitHub Packages
+        if: needs.prepare-release.outputs.github_packages_publish_popbill_runtime == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish "${RUNNER_TEMP}/popbill-pack/connextable-popbill-runtime-${{ needs.prepare-release.outputs.version }}.tgz" --registry https://npm.pkg.github.com
+
+      - name: Publish @connextable/popbill-juso to GitHub Packages
+        if: needs.prepare-release.outputs.github_packages_publish_popbill_juso == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish "${RUNNER_TEMP}/popbill-pack/connextable-popbill-juso-${{ needs.prepare-release.outputs.version }}.tgz" --registry https://npm.pkg.github.com
+
+      - name: Publish @connextable/popbill-compat to GitHub Packages
+        if: needs.prepare-release.outputs.github_packages_publish_popbill_compat == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish "${RUNNER_TEMP}/popbill-pack/connextable-popbill-compat-${{ needs.prepare-release.outputs.version }}.tgz" --registry https://npm.pkg.github.com
+
+      - name: Publish @connextable/popbill to GitHub Packages
+        if: needs.prepare-release.outputs.github_packages_publish_popbill == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish "${RUNNER_TEMP}/popbill-pack/connextable-popbill-${{ needs.prepare-release.outputs.version }}.tgz" --registry https://npm.pkg.github.com
+
+      - name: GitHub Packages publish summary
+        run: |
+          cat >> "${GITHUB_STEP_SUMMARY}" <<'SUMMARY'
+          ## GitHub Packages mirror
+
+          Version: `${{ needs.prepare-release.outputs.version }}`
+
+          | Package | Result |
+          | --- | --- |
+          | `@connextable/popbill-juso` | ${{ needs.prepare-release.outputs.github_packages_publish_popbill_juso == 'true' && 'published' || 'skipped' }} |
+          | `@connextable/popbill-spec` | ${{ needs.prepare-release.outputs.github_packages_publish_popbill_spec == 'true' && 'published' || 'skipped' }} |
+          | `@connextable/popbill-utils` | ${{ needs.prepare-release.outputs.github_packages_publish_popbill_utils == 'true' && 'published' || 'skipped' }} |
+          | `@connextable/popbill-runtime` | ${{ needs.prepare-release.outputs.github_packages_publish_popbill_runtime == 'true' && 'published' || 'skipped' }} |
+          | `@connextable/popbill-compat` | ${{ needs.prepare-release.outputs.github_packages_publish_popbill_compat == 'true' && 'published' || 'skipped' }} |
+          | `@connextable/popbill` | ${{ needs.prepare-release.outputs.github_packages_publish_popbill == 'true' && 'published' || 'skipped' }} |
+          SUMMARY

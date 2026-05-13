@@ -2,8 +2,44 @@ import { spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import { assertCondition, getLockstepVersion, loadPublishManifests } from './manifest-utils'
 
-function isVersionPublished(packageName: string, version: string): boolean {
-  const result = spawnSync('npm', ['view', `${packageName}@${version}`, 'version', '--json'], {
+interface CliOptions {
+  registryUrl?: string
+}
+
+function readCliOptions(): CliOptions {
+  const args = process.argv.slice(2).filter((arg) => arg !== '--')
+  const options: CliOptions = {}
+
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index]
+
+    if (arg === '--registry') {
+      const registryUrl = args[index + 1]
+      assertCondition(Boolean(registryUrl), '--registry requires a value')
+      options.registryUrl = registryUrl
+      index += 1
+      continue
+    }
+
+    if (arg?.startsWith('--registry=')) {
+      options.registryUrl = arg.slice('--registry='.length)
+      assertCondition(options.registryUrl.length > 0, '--registry requires a value')
+      continue
+    }
+
+    throw new Error(`Unknown argument: ${String(arg)}`)
+  }
+
+  return options
+}
+
+function isVersionPublished(packageName: string, version: string, options: CliOptions): boolean {
+  const args = ['view', `${packageName}@${version}`, 'version', '--json']
+  if (options.registryUrl) {
+    args.push('--registry', options.registryUrl)
+  }
+
+  const result = spawnSync('npm', args, {
     encoding: 'utf8',
   })
 
@@ -26,7 +62,8 @@ function isVersionPublished(packageName: string, version: string): boolean {
     return false
   }
 
-  throw new Error(`npm view failed for ${packageName}@${version}: ${errorOutput.trim()}`)
+  const registryLabel = options.registryUrl ? ` on ${options.registryUrl}` : ''
+  throw new Error(`npm view failed for ${packageName}@${version}${registryLabel}: ${errorOutput.trim()}`)
 }
 
 function writeGithubOutputs(outputs: Record<string, string>): void {
@@ -41,6 +78,7 @@ function writeGithubOutputs(outputs: Record<string, string>): void {
 }
 
 function main(): void {
+  const options = readCliOptions()
   const targets = loadPublishManifests()
   const version = getLockstepVersion(targets)
 
@@ -60,7 +98,7 @@ function main(): void {
     shouldPublish: boolean
   }> = []
   for (const target of targets) {
-    const alreadyPublished = isVersionPublished(target.name, version)
+    const alreadyPublished = isVersionPublished(target.name, version, options)
     const shouldPublish = !alreadyPublished
     const outputKey = `publish_${target.alias}`
 
@@ -78,7 +116,7 @@ function main(): void {
   }
 
   writeGithubOutputs(outputs)
-  console.log(JSON.stringify(summary, null, 2))
+  console.log(JSON.stringify({ registry: options.registryUrl ?? 'default', packages: summary }, null, 2))
 }
 
 try {
