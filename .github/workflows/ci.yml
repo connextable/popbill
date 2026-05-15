@@ -2,9 +2,6 @@ name: CI
 
 on:
   pull_request:
-  push:
-    branches:
-      - main
 
 permissions:
   contents: read
@@ -14,9 +11,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - name: '@connextable/popbill-juso'
+            alias: popbill-juso
+            path: packages/popbill-juso
+          - name: '@connextable/popbill-spec'
+            alias: popbill-spec
+            path: packages/popbill-spec
+          - name: '@connextable/popbill-utils'
+            alias: popbill-utils
+            path: packages/popbill-utils
+          - name: '@connextable/popbill-runtime'
+            alias: popbill-runtime
+            path: packages/popbill-runtime
+          - name: '@connextable/popbill-compat'
+            alias: popbill-compat
+            path: packages/popbill-compat
+          - name: '@connextable/popbill'
+            alias: popbill
+            path: packages/popbill
 
     steps:
       - name: Checkout
@@ -33,30 +52,210 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
+        id: install
         run: pnpm install --frozen-lockfile
 
+      - name: Build ${{ matrix.package.name }}
+        id: build
+        run: pnpm -C "${{ matrix.package.path }}" build
+
+      - name: Archive build output
+        id: archive_dist
+        run: tar -czf "${RUNNER_TEMP}/dist-${{ matrix.package.alias }}.tgz" "${{ matrix.package.path }}/dist"
+
+      - name: Upload build output
+        id: upload_dist
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: dist-${{ matrix.package.alias }}
+          path: ${{ runner.temp }}/dist-${{ matrix.package.alias }}.tgz
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Build summary
+        if: always()
+        run: |
+          cat >> "${GITHUB_STEP_SUMMARY}" <<'SUMMARY'
+          ## CI build
+
+          Package: `${{ matrix.package.name }}`
+
+          | Check | Result |
+          | --- | --- |
+          | Install dependencies | ${{ steps.install.outcome || 'skipped' }} |
+          | Build | ${{ steps.build.outcome || 'skipped' }} |
+          | Archive build output | ${{ steps.archive_dist.outcome || 'skipped' }} |
+          | Upload build output | ${{ steps.upload_dist.outcome || 'skipped' }} |
+          SUMMARY
+
+  package-work:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - name: '@connextable/popbill-juso'
+            path: packages/popbill-juso
+          - name: '@connextable/popbill-spec'
+            path: packages/popbill-spec
+          - name: '@connextable/popbill-utils'
+            path: packages/popbill-utils
+          - name: '@connextable/popbill-runtime'
+            path: packages/popbill-runtime
+          - name: '@connextable/popbill-compat'
+            path: packages/popbill-compat
+          - name: '@connextable/popbill'
+            path: packages/popbill
+          - name: '@connextable/popbill-examples'
+            path: examples
+        work:
+          - lint
+          - typecheck
+          - test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version-file: package.json
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - name: Install dependencies
+        id: install
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build outputs
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: dist-*
+          path: ${{ runner.temp }}/ci-build-output
+
+      - name: Restore build outputs
+        id: restore_build
+        run: |
+          set -euo pipefail
+          for archive in "${RUNNER_TEMP}"/ci-build-output/*/*.tgz; do
+            tar -xzf "${archive}"
+          done
+
+      - name: Run ${{ matrix.work }} for ${{ matrix.package.name }}
+        id: work
+        run: pnpm -C "${{ matrix.package.path }}" run --if-present "${{ matrix.work }}"
+
+      - name: Package work summary
+        if: always()
+        run: |
+          cat >> "${GITHUB_STEP_SUMMARY}" <<'SUMMARY'
+          ## CI package work
+
+          Package: `${{ matrix.package.name }}`
+          Work: `${{ matrix.work }}`
+
+          | Check | Result |
+          | --- | --- |
+          | Install dependencies | ${{ steps.install.outcome || 'skipped' }} |
+          | Restore build outputs | ${{ steps.restore_build.outcome || 'skipped' }} |
+          | Run work | ${{ steps.work.outcome || 'skipped' }} |
+          SUMMARY
+
+  workspace-config:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version-file: package.json
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - name: Install dependencies
+        id: install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck workspace scripts
+        id: typecheck_scripts
+        run: pnpm exec tsgo -p tsconfig.json --noEmit
+
+      - name: Workspace config summary
+        if: always()
+        run: |
+          cat >> "${GITHUB_STEP_SUMMARY}" <<'SUMMARY'
+          ## CI workspace config
+
+          | Check | Result |
+          | --- | --- |
+          | Install dependencies | ${{ steps.install.outcome || 'skipped' }} |
+          | Typecheck workspace scripts | ${{ steps.typecheck_scripts.outcome || 'skipped' }} |
+          SUMMARY
+
+  publish-preview:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version-file: package.json
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - name: Install dependencies
+        id: install
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build outputs
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: dist-*
+          path: ${{ runner.temp }}/ci-build-output
+
+      - name: Restore build outputs
+        id: restore_build
+        run: |
+          set -euo pipefail
+          for archive in "${RUNNER_TEMP}"/ci-build-output/*/*.tgz; do
+            tar -xzf "${archive}"
+          done
+
       - name: Verify publish manifests
+        id: verify_manifests
         run: pnpm run release:verify-manifests
 
-      - name: Build
-        run: pnpm build
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Test popbill
-        run: pnpm -C packages/popbill test
-
-      - name: Test popbill-compat
-        run: pnpm -C packages/popbill-compat test
-
-      - name: Test popbill-runtime
-        run: pnpm -C packages/popbill-runtime test
-
-      - name: Test popbill-utils
-        run: pnpm -C packages/popbill-utils test
+      - name: Check npm publish readiness
+        id: readiness
+        env:
+          NPM_CONFIG_CACHE: ${{ runner.temp }}/.npm
+        run: pnpm run release:check-readiness -- --registry https://registry.npmjs.org
 
       - name: Pack publish targets
+        id: pack
         run: |
           set -euo pipefail
           PACK_DIR="${RUNNER_TEMP}/popbill-pack"
@@ -71,13 +270,31 @@ jobs:
           pnpm run release:verify-tarballs -- "${PACK_DIR}"
 
       - name: npm publish dry-run
+        if: steps.readiness.outputs.publish_any == 'true'
+        id: publish_dry_run
         env:
-          npm_config_cache: ${{ runner.temp }}/.npm
+          NPM_CONFIG_CACHE: ${{ runner.temp }}/.npm
         run: |
           set -euo pipefail
+          (cd packages/popbill-juso && npm publish --dry-run)
           (cd packages/popbill-spec && npm publish --dry-run)
           (cd packages/popbill-utils && npm publish --dry-run)
           (cd packages/popbill-runtime && npm publish --dry-run)
-          (cd packages/popbill-juso && npm publish --dry-run)
           (cd packages/popbill-compat && npm publish --dry-run)
           (cd packages/popbill && npm publish --dry-run)
+
+      - name: Publish preview summary
+        if: always()
+        run: |
+          cat >> "${GITHUB_STEP_SUMMARY}" <<'SUMMARY'
+          ## CI publish preview
+
+          | Check | Result |
+          | --- | --- |
+          | Install dependencies | ${{ steps.install.outcome || 'skipped' }} |
+          | Restore build outputs | ${{ steps.restore_build.outcome || 'skipped' }} |
+          | Verify publish manifests | ${{ steps.verify_manifests.outcome || 'skipped' }} |
+          | Check npm publish readiness | ${{ steps.readiness.outcome || 'skipped' }} |
+          | Pack publish targets | ${{ steps.pack.outcome || 'skipped' }} |
+          | npm publish dry-run | ${{ steps.publish_dry_run.outcome || 'skipped' }} |
+          SUMMARY

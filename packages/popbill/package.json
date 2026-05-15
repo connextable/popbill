@@ -1,6 +1,6 @@
 {
   "name": "@connextable/popbill",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Popbill API SDK for TypeScript. see www.popbill.com",
   "keywords": [
     "FAX",

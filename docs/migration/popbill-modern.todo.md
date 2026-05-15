@@ -17,6 +17,7 @@
 관련 진입 문서:
 
 - 루트 README: [`README.md`](../../README.md)
+- 패키지 README: [`packages/popbill/README.md`](../../packages/popbill/README.md)
 - 예제 실행 가이드: [`examples/README.md`](../../examples/README.md)
 - compat 추적 문서: [`docs/migration/popbill-compat.todo.md`](./popbill-compat.todo.md)
 
@@ -31,54 +32,56 @@
 - `DONE`
 - `BLOCKED`
 
-## Endpoint Checklist
+## TaxInvoice Method Checklist
 
-| service     | endpoint                 | status      | owner | updated_at | notes                                                  |
-| ----------- | ------------------------ | ----------- | ----- | ---------- | ------------------------------------------------------ |
-| tax-invoice | getInfo                  | DONE        | TBD   | 2026-02-25 | Existing modern SDK endpoint implementation is active. |
-| tax-invoice | getInfos                 | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getDetailInfo            | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getXML                   | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getLogs                  | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | search                   | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | checkMgtKeyInUse         | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | register                 | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | update                   | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | issue                    | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | cancelIssue              | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | registRequest            | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | request                  | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | cancelRequest            | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | refuse                   | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | delete                   | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | sendToNTS                | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | registIssue              | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | bulkSubmit               | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getBulkResult            | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getPopUpURL              | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getViewURL               | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getPrintURL              | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getPDFURL                | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getMassPrintURL          | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getEPrintURL             | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getMailURL               | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getSealURL               | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | attachFile               | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getFiles                 | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | deleteFile               | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | sendEmail                | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | sendSMS                  | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | sendFAX                  | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | attachStatement          | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | detachStatement          | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | assignMgtKey             | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | listEmailConfig          | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | updateEmailConfig        | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getSendToNTSConfig       | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getTaxCertURL            | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getCertificateExpireDate | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | checkCertValidation      | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
-| tax-invoice | getTaxCertInfo           | NOT_STARTED | TBD   | 2026-02-25 | Spec scaffold is ready in `@connextable/popbill-spec`. |
+| service     | method                              | status | owner | updated_at | notes                                      |
+| ----------- | ----------------------------------- | ------ | ----- | ---------- | ------------------------------------------ |
+| tax-invoice | issueInvoiceImmediately             | DONE   | TBD   | 2026-05-15 | Compat bridge: `registIssue`.              |
+| tax-invoice | submitBulkIssue                     | DONE   | TBD   | 2026-05-15 | Compat bridge: `bulkSubmit`.               |
+| tax-invoice | getBulkIssueSubmissionResult        | DONE   | TBD   | 2026-05-15 | Compat bridge: `getBulkResult`.            |
+| tax-invoice | registerInvoice                     | DONE   | TBD   | 2026-05-15 | Compat bridge: `register`.                 |
+| tax-invoice | updateInvoice                       | DONE   | TBD   | 2026-05-15 | Compat bridge: `update`.                   |
+| tax-invoice | issueInvoice                        | DONE   | TBD   | 2026-05-15 | Compat bridge: `issue`.                    |
+| tax-invoice | cancelIssuedInvoice                 | DONE   | TBD   | 2026-05-15 | Compat bridge: `cancelIssue`.              |
+| tax-invoice | requestReverseIssueImmediately      | DONE   | TBD   | 2026-05-15 | Compat bridge: `registRequest`.            |
+| tax-invoice | requestReverseIssue                 | DONE   | TBD   | 2026-05-15 | Compat bridge: `request`.                  |
+| tax-invoice | cancelReverseIssueRequest           | DONE   | TBD   | 2026-05-15 | Compat bridge: `cancelRequest`.            |
+| tax-invoice | refuseReverseIssueRequest           | DONE   | TBD   | 2026-05-15 | Compat bridge: `refuse`.                   |
+| tax-invoice | deleteInvoice                       | DONE   | TBD   | 2026-05-15 | Compat bridge: `delete`.                   |
+| tax-invoice | sendInvoiceToNTS                    | DONE   | TBD   | 2026-05-15 | Compat bridge: `sendToNTS`.                |
+| tax-invoice | getInvoiceInfo                      | DONE   | TBD   | 2026-05-15 | Compat bridge: `getInfo`.                  |
+| tax-invoice | getInvoicesInfo                     | DONE   | TBD   | 2026-05-15 | Compat bridge: `getInfos`.                 |
+| tax-invoice | getInvoiceDetailInfo                | DONE   | TBD   | 2026-05-15 | Compat bridge: `getDetailInfo`.            |
+| tax-invoice | checkInvoiceManagementKeyInUse      | DONE   | TBD   | 2026-05-15 | Compat bridge: `checkMgtKeyInUse`.         |
+| tax-invoice | getInvoiceXML                       | DONE   | TBD   | 2026-05-15 | Compat bridge: `getXML`.                   |
+| tax-invoice | searchInvoices                      | DONE   | TBD   | 2026-05-15 | Compat bridge: `search`.                   |
+| tax-invoice | getInvoiceLogs                      | DONE   | TBD   | 2026-05-15 | Compat bridge: `getLogs`.                  |
+| tax-invoice | getTaxInvoiceBoxURL                 | DONE   | TBD   | 2026-05-15 | Compat bridge: `getURL`.                   |
+| tax-invoice | getInvoicePopupURL                  | DONE   | TBD   | 2026-05-15 | Compat bridge: `getPopUpURL`.              |
+| tax-invoice | getInvoiceViewURL                   | DONE   | TBD   | 2026-05-15 | Compat bridge: `getViewURL`.               |
+| tax-invoice | getSupplierInvoicePrintURL          | DONE   | TBD   | 2026-05-15 | Compat bridge: `getPrintURL`.              |
+| tax-invoice | getBuyerInvoicePrintURL             | DONE   | TBD   | 2026-05-15 | Compat bridge: `getEPrintURL`.             |
+| tax-invoice | getBulkInvoicePrintURL              | DONE   | TBD   | 2026-05-15 | Compat bridge: `getMassPrintURL`.          |
+| tax-invoice | getInvoiceMailURL                   | DONE   | TBD   | 2026-05-15 | Compat bridge: `getMailURL`.               |
+| tax-invoice | getInvoicePDFURL                    | DONE   | TBD   | 2026-05-15 | Compat bridge: `getPDFURL`.                |
+| tax-invoice | getSealAndAttachmentRegistrationURL | DONE   | TBD   | 2026-05-15 | Compat bridge: `getSealURL`.               |
+| tax-invoice | attachFileFromPath                  | DONE   | TBD   | 2026-05-15 | Compat bridge: `attachFile`.               |
+| tax-invoice | attachFileFromBinary                | DONE   | TBD   | 2026-05-15 | Compat bridge: `attachFileBinary`.         |
+| tax-invoice | deleteAttachedFile                  | DONE   | TBD   | 2026-05-15 | Compat bridge: `deleteFile`.               |
+| tax-invoice | getAttachedFiles                    | DONE   | TBD   | 2026-05-15 | Compat bridge: `getFiles`.                 |
+| tax-invoice | resendInvoiceEmail                  | DONE   | TBD   | 2026-05-15 | Compat bridge: `sendEmail`.                |
+| tax-invoice | resendInvoiceSMS                    | DONE   | TBD   | 2026-05-15 | Compat bridge: `sendSMS`.                  |
+| tax-invoice | resendInvoiceFAX                    | DONE   | TBD   | 2026-05-15 | Compat bridge: `sendFAX`.                  |
+| tax-invoice | attachInvoiceStatement              | DONE   | TBD   | 2026-05-15 | Compat bridge: `attachStatement`.          |
+| tax-invoice | detachInvoiceStatement              | DONE   | TBD   | 2026-05-15 | Compat bridge: `detachStatement`.          |
+| tax-invoice | assignInvoiceManagementKey          | DONE   | TBD   | 2026-05-15 | Compat bridge: `assignMgtKey`.             |
+| tax-invoice | getEmailSendSettings                | DONE   | TBD   | 2026-05-15 | Compat bridge: `listEmailConfig`.          |
+| tax-invoice | updateEmailSendSettings             | DONE   | TBD   | 2026-05-15 | Compat bridge: `updateEmailConfig`.        |
+| tax-invoice | getSendToNTSSettings                | DONE   | TBD   | 2026-05-15 | Compat bridge: `getSendToNTSConfig`.       |
+| tax-invoice | getTaxCertificateRegistrationURL    | DONE   | TBD   | 2026-05-15 | Compat bridge: `getTaxCertURL`.            |
+| tax-invoice | getTaxCertificateExpirationDate     | DONE   | TBD   | 2026-05-15 | Compat bridge: `getCertificateExpireDate`. |
+| tax-invoice | checkTaxCertificateValidation       | DONE   | TBD   | 2026-05-15 | Compat bridge: `checkCertValidation`.      |
+| tax-invoice | getTaxCertificateInfo               | DONE   | TBD   | 2026-05-15 | Compat bridge: `getTaxCertInfo`.           |
 
 ## Rules
 
@@ -92,3 +95,4 @@
   - compat 기반 런타임 브리지(`@connextable/popbill-compat/factory`) 연결.
   - modern 공개 메서드 46개를 `input` 단일 시그니처로 정리.
   - 네이밍 규칙(`get*`, `check*`) 및 공개 메서드 집합 상수/테스트 추가.
+- 2026-05-15: 체크리스트를 실제 `TaxInvoiceService` 공개 메서드 46개 기준으로 갱신.

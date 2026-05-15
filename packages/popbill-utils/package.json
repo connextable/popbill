@@ -1,6 +1,6 @@
 {
   "name": "@connextable/popbill-utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shared utility helpers for Popbill SDKs",
   "bugs": {
     "url": "https://github.com/connextable/popbill/issues"

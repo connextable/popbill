@@ -1,0 +1,261 @@
+name: Prepare Release PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump
+        required: true
+        default: auto
+        type: choice
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+          - custom
+      custom_version:
+        description: 'Exact x.y.z version. Required only when bump is custom.'
+        required: false
+        type: string
+      source_branch:
+        description: Branch to release from
+        required: true
+        default: develop
+        type: string
+      target_branch:
+        description: Branch to open the release PR against
+        required: true
+        default: main
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-pr-${{ inputs.target_branch }}
+  cancel-in-progress: false
+
+jobs:
+  prepare-release-pr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.source_branch }}
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version-file: package.json
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - name: Install dependencies
+        id: install
+        run: pnpm install --frozen-lockfile
+
+      - name: Fetch target branch
+        env:
+          TARGET_BRANCH: ${{ inputs.target_branch }}
+        run: git fetch origin "${TARGET_BRANCH}:refs/remotes/origin/${TARGET_BRANCH}"
+
+      - name: Resolve release version
+        id: version
+        env:
+          BUMP: ${{ inputs.bump }}
+          CUSTOM_VERSION: ${{ inputs.custom_version }}
+          SOURCE_BRANCH: ${{ inputs.source_branch }}
+          TARGET_BRANCH: ${{ inputs.target_branch }}
+        run: |
+          set -euo pipefail
+          SOURCE_SHA="$(git rev-parse HEAD)"
+
+          if [[ "${BUMP}" == "auto" ]]; then
+            if [[ -n "${CUSTOM_VERSION}" ]]; then
+              echo "custom_version can only be used when bump is custom." >&2
+              exit 1
+            fi
+            VERSION_SPEC="$(pnpm exec jiti ./scripts/release/resolve-bump.ts -- --require-sync-marker --base-ref "origin/${TARGET_BRANCH}" --print-bump)"
+          elif [[ "${BUMP}" == "custom" ]]; then
+            if [[ -z "${CUSTOM_VERSION}" ]]; then
+              echo "custom_version is required when bump is custom." >&2
+              exit 1
+            fi
+            VERSION_SPEC="${CUSTOM_VERSION}"
+          else
+            if [[ -n "${CUSTOM_VERSION}" ]]; then
+              echo "custom_version can only be used when bump is custom." >&2
+              exit 1
+            fi
+            VERSION_SPEC="${BUMP}"
+          fi
+
+          echo "source_sha=${SOURCE_SHA}" >> "${GITHUB_OUTPUT}"
+          VERSION="$(pnpm exec jiti ./scripts/release/bump-version.ts -- "${VERSION_SPEC}" --print-version)"
+          echo "version_spec=${VERSION_SPEC}" >> "${GITHUB_OUTPUT}"
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "branch=release/v${VERSION}" >> "${GITHUB_OUTPUT}"
+
+      - name: Summarize release commits
+        id: release_commits
+        env:
+          TARGET_BRANCH: ${{ inputs.target_branch }}
+        run: |
+          set -euo pipefail
+          if COMMITS_MARKDOWN="$(pnpm exec jiti ./scripts/release/resolve-bump.ts -- --allow-none --require-sync-marker --base-ref "origin/${TARGET_BRANCH}" --print-markdown)"; then
+            :
+          else
+            COMMITS_MARKDOWN="$(cat <<'MARKDOWN'
+          Included commits:
+          - Commit summary is unavailable for the first release after enabling automation because no `chore(release): sync version to x.y.z` marker exists on develop yet.
+          MARKDOWN
+          )"
+          fi
+          {
+            echo "markdown<<EOF"
+            echo "${COMMITS_MARKDOWN}"
+            echo "EOF"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Prepare release branch content
+        id: prepare
+        env:
+          BRANCH_NAME: ${{ steps.version.outputs.branch }}
+          SOURCE_SHA: ${{ steps.version.outputs.source_sha }}
+          TARGET_BRANCH: ${{ inputs.target_branch }}
+          VERSION_SPEC: ${{ steps.version.outputs.version_spec }}
+        run: |
+          set -euo pipefail
+          git checkout -B "${BRANCH_NAME}" "origin/${TARGET_BRANCH}"
+          PATCH_FILE="${RUNNER_TEMP}/release-source.diff"
+          git diff --binary "origin/${TARGET_BRANCH}..${SOURCE_SHA}" > "${PATCH_FILE}"
+          if [[ -s "${PATCH_FILE}" ]]; then
+            git apply --index "${PATCH_FILE}"
+            git reset
+          fi
+          pnpm run release:bump -- "${VERSION_SPEC}"
+
+      - name: Verify publish manifests
+        id: verify_manifests
+        run: pnpm run release:verify-manifests
+
+      - name: Check npm release readiness
+        id: readiness
+        env:
+          NPM_CONFIG_CACHE: ${{ runner.temp }}/.npm
+        run: pnpm run release:check-readiness -- --registry https://registry.npmjs.org
+
+      - name: Reject already-published version
+        if: steps.readiness.outputs.publish_any != 'true'
+        run: |
+          echo "Version ${{ steps.version.outputs.version }} is already published for every release target on npm." >&2
+          exit 1
+
+      - name: Commit release branch
+        id: commit
+        env:
+          BRANCH_NAME: ${{ steps.version.outputs.branch }}
+          VERSION: ${{ steps.version.outputs.version }}
+          SOURCE_BRANCH: ${{ inputs.source_branch }}
+          TARGET_BRANCH: ${{ inputs.target_branch }}
+          INCLUDED_COMMITS: ${{ steps.release_commits.outputs.markdown }}
+          COMMIT_AUTHOR_NAME: ${{ github.actor }}
+          COMMIT_AUTHOR_EMAIL: ${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com
+        run: |
+          set -euo pipefail
+          if [[ "${COMMIT_AUTHOR_EMAIL}" == +* ]]; then
+            COMMIT_AUTHOR_EMAIL="${COMMIT_AUTHOR_NAME}@users.noreply.github.com"
+          fi
+
+          git config user.name "${COMMIT_AUTHOR_NAME}"
+          git config user.email "${COMMIT_AUTHOR_EMAIL}"
+          git add -A
+          git diff --cached --check
+          COMMIT_MESSAGE="${RUNNER_TEMP}/release-commit-message.md"
+          cat > "${COMMIT_MESSAGE}" <<MESSAGE
+          chore(release): prepare ${VERSION}
+
+          Release: none
+
+          Source branch: ${SOURCE_BRANCH}
+          Target branch: ${TARGET_BRANCH}
+
+          ${INCLUDED_COMMITS}
+          MESSAGE
+          git commit -F "${COMMIT_MESSAGE}"
+          if git ls-remote --exit-code --heads origin "${BRANCH_NAME}" >/dev/null 2>&1; then
+            git fetch origin "refs/heads/${BRANCH_NAME}:refs/remotes/origin/${BRANCH_NAME}"
+            git push --force-with-lease="refs/heads/${BRANCH_NAME}" origin "${BRANCH_NAME}"
+          else
+            git push origin "${BRANCH_NAME}"
+          fi
+
+      - name: Create or update release PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH_NAME: ${{ steps.version.outputs.branch }}
+          VERSION: ${{ steps.version.outputs.version }}
+          VERSION_SPEC: ${{ steps.version.outputs.version_spec }}
+          SOURCE_BRANCH: ${{ inputs.source_branch }}
+          TARGET_BRANCH: ${{ inputs.target_branch }}
+        run: |
+          set -euo pipefail
+          PR_BODY="${RUNNER_TEMP}/release-pr-body.md"
+          cat > "${PR_BODY}" <<BODY
+          ## Release
+
+          Version: \`${VERSION}\`
+          Version input: \`${VERSION_SPEC}\`
+          Bump mode: \`${{ inputs.bump }}\`
+          Source branch: \`${SOURCE_BRANCH}\`
+          Target branch: \`${TARGET_BRANCH}\`
+
+          ${{ steps.release_commits.outputs.markdown }}
+
+          This PR was generated by the Prepare Release PR workflow.
+          BODY
+
+          if gh pr view "${BRANCH_NAME}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh pr edit "${BRANCH_NAME}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --base "${TARGET_BRANCH}" \
+              --title "chore(release): prepare ${VERSION}" \
+              --body-file "${PR_BODY}"
+          else
+            gh pr create \
+              --repo "${GITHUB_REPOSITORY}" \
+              --base "${TARGET_BRANCH}" \
+              --head "${BRANCH_NAME}" \
+              --title "chore(release): prepare ${VERSION}" \
+              --body-file "${PR_BODY}"
+          fi
+
+      - name: Release PR summary
+        if: always()
+        run: |
+          cat >> "${GITHUB_STEP_SUMMARY}" <<SUMMARY
+          ## Prepare Release PR
+
+          Version: \`${{ steps.version.outputs.version || 'n/a' }}\`
+          Branch: \`${{ steps.version.outputs.branch || 'n/a' }}\`
+
+          | Check | Result |
+          | --- | --- |
+          | Install dependencies | ${{ steps.install.outcome || 'skipped' }} |
+          | Resolve release version | ${{ steps.version.outcome || 'skipped' }} |
+          | Prepare release branch content | ${{ steps.prepare.outcome || 'skipped' }} |
+          | Verify publish manifests | ${{ steps.verify_manifests.outcome || 'skipped' }} |
+          | Check npm release readiness | ${{ steps.readiness.outcome || 'skipped' }} |
+          | Commit release branch | ${{ steps.commit.outcome || 'skipped' }} |
+          | Create or update release PR | ${{ steps.pr.outcome || 'skipped' }} |
+          SUMMARY
