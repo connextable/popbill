@@ -1,6 +1,6 @@
 {
   "name": "@connextable/popbill-compat",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Compatibility SDK for legacy Popbill interfaces",
   "bugs": {
     "url": "https://github.com/connextable/popbill/issues"

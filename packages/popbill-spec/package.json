@@ -1,6 +1,6 @@
 {
   "name": "@connextable/popbill-spec",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Raw Popbill API request/response types",
   "bugs": {
     "url": "https://github.com/connextable/popbill/issues"
