@@ -348,6 +348,8 @@ jobs:
         id: sync
         env:
           VERSION: ${{ needs.prepare-release.outputs.version }}
+          COMMIT_AUTHOR_NAME: ${{ github.actor }}
+          COMMIT_AUTHOR_EMAIL: ${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com
         run: |
           set -euo pipefail
           git pull --ff-only origin develop
@@ -358,8 +360,12 @@ jobs:
             exit 0
           fi
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ "${COMMIT_AUTHOR_EMAIL}" == +* ]]; then
+            COMMIT_AUTHOR_EMAIL="${COMMIT_AUTHOR_NAME}@users.noreply.github.com"
+          fi
+
+          git config user.name "${COMMIT_AUTHOR_NAME}"
+          git config user.email "${COMMIT_AUTHOR_EMAIL}"
           git add package.json packages/*/package.json
           git diff --cached --check
           git commit -m "chore(release): sync version to ${VERSION}" -m "Release: none"

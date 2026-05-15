@@ -5,8 +5,10 @@ import { assertCondition } from './manifest-utils'
 type ReleaseImpact = 'none' | 'patch' | 'minor' | 'major'
 
 interface CliOptions {
+  allowNone: boolean
   baseRef?: string
   printBump: boolean
+  printMarkdown: boolean
   requireSyncMarker: boolean
 }
 
@@ -26,7 +28,9 @@ const impactRank: Record<ReleaseImpact, number> = {
 function readCliOptions(): CliOptions {
   const args = process.argv.slice(2).filter((arg) => arg !== '--')
   const options: CliOptions = {
+    allowNone: false,
     printBump: false,
+    printMarkdown: false,
     requireSyncMarker: false,
   }
 
@@ -35,6 +39,16 @@ function readCliOptions(): CliOptions {
 
     if (arg === '--print-bump') {
       options.printBump = true
+      continue
+    }
+
+    if (arg === '--print-markdown') {
+      options.printMarkdown = true
+      continue
+    }
+
+    if (arg === '--allow-none') {
+      options.allowNone = true
       continue
     }
 
@@ -170,6 +184,15 @@ function maxImpact(left: ReleaseImpact, right: ReleaseImpact): ReleaseImpact {
   return impactRank[left] >= impactRank[right] ? left : right
 }
 
+function formatMarkdownSummary(recommendedBump: ReleaseImpact, summary: Array<{ hash: string; subject: string; impact: ReleaseImpact }>): string {
+  return [
+    `Recommended bump: \`${recommendedBump}\``,
+    '',
+    'Included commits:',
+    ...summary.map((commit) => `- \`${commit.hash}\` ${commit.subject} (\`${commit.impact}\`)`),
+  ].join('\n')
+}
+
 function main(): void {
   const options = readCliOptions()
   const rangeStart = resolveRangeStart(options)
@@ -190,7 +213,7 @@ function main(): void {
   })
 
   assertCondition(
-    recommendedBump !== 'none',
+    options.allowNone || recommendedBump !== 'none',
     'No releasable changes found. Select patch, minor, major, or custom manually if this release should publish.'
   )
 
@@ -201,6 +224,11 @@ function main(): void {
 
   if (options.printBump) {
     console.log(recommendedBump)
+    return
+  }
+
+  if (options.printMarkdown) {
+    console.log(formatMarkdownSummary(recommendedBump, summary))
     return
   }
 
