@@ -1,6 +1,6 @@
 {
   "name": "@connextable/popbill-runtime",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shared runtime clients for Popbill authentication and API transport",
   "bugs": {
     "url": "https://github.com/connextable/popbill/issues"

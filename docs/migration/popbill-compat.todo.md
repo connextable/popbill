@@ -17,6 +17,7 @@
 관련 진입 문서:
 
 - 루트 README: [`README.md`](../../README.md)
+- 패키지 README: [`packages/popbill-compat/README.md`](../../packages/popbill-compat/README.md)
 - 예제 실행 가이드: [`examples/README.md`](../../examples/README.md)
 - modern 추적 문서: [`docs/migration/popbill-modern.todo.md`](./popbill-modern.todo.md)
 
@@ -33,20 +34,20 @@
 
 ## Service Checklist
 
-| service             | method_count | status      | owner | updated_at | notes                                                                                                                                                                                                                         |
-| ------------------- | -----------: | ----------- | ----- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| TaxinvoiceService   |           56 | IN_PROGRESS | TBD   | 2026-02-25 | Runtime implemented for all DOC_BASED required methods (46/46). Legacy-only extras remain stubbed (`getChargeInfo`, `getUnitCost`, `send`, `cancelSend`, `accept`, `deny`, `getOldPrintURL`, `getEmailPublicKeys`, `getPDF`). |
-| StatementService    |           35 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                           |
-| CashbillService     |           33 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                           |
-| MessageService      |           27 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                           |
-| KakaoService        |           28 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                           |
-| FaxService          |           17 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                           |
-| HTTaxinvoiceService |           19 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                           |
-| HTCashbillService   |           15 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                           |
-| ClosedownService    |            4 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                           |
-| BizInfoCheckService |            3 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                           |
-| EasyFinBankService  |           18 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                           |
-| AccountCheckService |            4 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                           |
+| service             | method_count | status      | owner | updated_at | notes                                                                                                                                                                                                               |
+| ------------------- | -----------: | ----------- | ----- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TaxinvoiceService   |           55 | IN_PROGRESS | TBD   | 2026-05-15 | Runtime implemented for all required methods (46/46). Legacy-only extras remain stubbed (`getChargeInfo`, `getUnitCost`, `send`, `cancelSend`, `accept`, `deny`, `getOldPrintURL`, `getEmailPublicKeys`, `getPDF`). |
+| StatementService    |           35 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                 |
+| CashbillService     |           33 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                 |
+| MessageService      |           27 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                 |
+| KakaoService        |           28 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                 |
+| FaxService          |           17 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                 |
+| HTTaxinvoiceService |           19 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                 |
+| HTCashbillService   |           15 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                 |
+| ClosedownService    |            4 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                 |
+| BizInfoCheckService |            3 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                 |
+| EasyFinBankService  |           18 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                 |
+| AccountCheckService |            4 | IN_PROGRESS | TBD   | 2026-02-25 | Service skeleton added with callback/promise stubs.                                                                                                                                                                 |
 
 ## TaxinvoiceService Method Checklist
 
@@ -112,3 +113,7 @@
 
 - Add method-level rows under each service section as interfaces are defined.
 - Keep callback and promise signatures aligned for migrated methods.
+
+## Notes
+
+- 2026-05-15: `TaxinvoiceService` method count를 `TAXINVOICE_METHODS` 기준 55개로 정정.
