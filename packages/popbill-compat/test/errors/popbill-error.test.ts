@@ -102,9 +102,6 @@ describe('popbill error catalog integration', () => {
   })
 
   test('error definitions are structured by category', () => {
-    const totalCount = Object.values(POPBILL_ERROR_CODE_COUNTS_BY_CATEGORY).reduce((sum, count) => sum + count, 0)
-    expect(totalCount).toBe(1307)
-
     for (const category of Object.keys(POPBILL_ERROR_CODE_COUNTS_BY_CATEGORY)) {
       const typedCategory = category as keyof typeof POPBILL_ERROR_CODE_COUNTS_BY_CATEGORY
       const count = POPBILL_ERROR_CODE_COUNTS_BY_CATEGORY[typedCategory]

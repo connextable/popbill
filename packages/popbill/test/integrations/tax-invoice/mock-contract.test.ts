@@ -7,24 +7,26 @@ import {
   TaxInvoiceSearchTaxationTypeCodes,
   TaxInvoiceSortOrder,
 } from '@/services/tax-invoice'
-import { createManagementKey, createTaxInvoiceDocument, expectApiSuccess, formatDate } from './method-testkit'
-import { installTaxInvoiceMockFetch } from './mock-fetch'
 
 const MOCK_CORP_NUM = '1234567890'
 const MOCK_COUNTERPART_CORP_NUM = '8888888888'
-const MOCK_RECEIVER_EMAIL = 'test@example.com'
-
 describe('tax-invoice facade mock contract', () => {
-  beforeEach(() => {
-    installTaxInvoiceMockFetch()
-  })
-
   afterEach(() => {
     vi.unstubAllGlobals()
-    vi.restoreAllMocks()
   })
 
   test('exercises representative lifecycle calls without Popbill API credentials', async () => {
+    const operationResult = { code: 1, message: 'mock success' }
+    const invoiceInfo = { itemKey: 'MOCK-ITEM-KEY', stateCode: 300 }
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(Response.json({ session_token: 'mock-token', expiration: '2099-01-01T00:00:00Z', serviceID: 'POPBILL_TEST' }))
+      .mockResolvedValueOnce(Response.json(operationResult))
+      .mockResolvedValueOnce(Response.json({ ...operationResult, ntsConfirmNum: 'NTS-001' }))
+      .mockResolvedValueOnce(Response.json(invoiceInfo))
+      .mockResolvedValueOnce(Response.json({ ...operationResult, list: [invoiceInfo] }))
+      .mockResolvedValueOnce(Response.json({ url: 'https://mock.popbill.local/tax-invoice' }))
+    vi.stubGlobal('fetch', fetchMock)
     const service = createPopbillClient({
       linkId: 'MOCK_LINK_ID',
       secretKey: Buffer.from('mock-secret').toString('base64'),
@@ -34,24 +36,22 @@ describe('tax-invoice facade mock contract', () => {
       requestTimeoutMs: 30_000,
       acceptEncoding: 'gzip',
     }).services.taxInvoice
-    const today = formatDate(new Date())
-    const managementKey = createManagementKey('MOCK')
+    const today = '20260224'
+    const managementKey = 'MOCK-001'
 
-    expectApiSuccess(
-      await service.registerInvoice({
+    await expect(
+      service.registerInvoice({
         businessNumber: MOCK_CORP_NUM,
-        taxInvoiceDocument: createTaxInvoiceDocument({
-          businessNumber: MOCK_CORP_NUM,
-          counterpartBusinessNumber: MOCK_COUNTERPART_CORP_NUM,
-          managementKey,
+        taxInvoiceDocument: {
           writtenDate: today,
-          receiverEmail: MOCK_RECEIVER_EMAIL,
-        }),
+          supplier: { businessNumber: MOCK_CORP_NUM, managementKey },
+          buyer: { businessNumber: MOCK_COUNTERPART_CORP_NUM },
+        },
       })
-    )
+    ).resolves.toMatchObject({ resultCode: 1, resultMessage: 'mock success' })
 
-    expectApiSuccess(
-      await service.issueInvoice({
+    await expect(
+      service.issueInvoice({
         businessNumber: MOCK_CORP_NUM,
         invoiceDocumentKeyType: TaxInvoiceDocumentKeyTypes.Sales,
         invoiceManagementKey: managementKey,
@@ -59,7 +59,7 @@ describe('tax-invoice facade mock contract', () => {
         emailSubject: 'mock issue',
         forceIssue: false,
       })
-    )
+    ).resolves.toMatchObject({ resultCode: 1, nationalTaxServiceConfirmationNumber: 'NTS-001' })
 
     const info = await service.getInvoiceInfo({
       businessNumber: MOCK_CORP_NUM,
@@ -90,5 +90,23 @@ describe('tax-invoice facade mock contract', () => {
         taxInvoiceBoxScope: TaxInvoiceBoxScopes.TemporaryDocumentBox,
       })
     ).resolves.toEqual({ accessUrl: 'https://mock.popbill.local/tax-invoice' })
+
+    const urls = fetchMock.mock.calls.map(([input]) => new URL(input instanceof Request ? input.url : String(input)))
+    expect(urls.map((url) => url.pathname)).toEqual([
+      '/POPBILL_TEST/Token',
+      '/Taxinvoice',
+      '/Taxinvoice/SELL/MOCK-001',
+      '/Taxinvoice/SELL/MOCK-001',
+      '/Taxinvoice/SELL',
+      '/Taxinvoice',
+    ])
+    expect(new Headers(fetchMock.mock.calls[2]?.[1]?.headers).get('X-HTTP-Method-Override')).toBe('ISSUE')
+    expect(JSON.parse(fetchMock.mock.calls[1]?.[1]?.body as string)).toMatchObject({
+      writeDate: '20260224',
+      invoicerMgtKey: 'MOCK-001',
+      invoiceeCorpNum: MOCK_COUNTERPART_CORP_NUM,
+    })
+    expect(urls[4]?.searchParams.get('State')).toBe('3**')
+    expect(urls[5]?.searchParams.get('TG')).toBe('TBOX')
   })
 })
