@@ -1,0 +1,59 @@
+# Popbill 서비스 구현 범위
+
+저장소의 레거시 코드, 공식 HTTP·Node 문서와 공식 Node SDK 1.64.2를 기준으로 구현했다. 이 문서는 서비스 공개 위치와 의도적인 계약 차이를 관리한다. 사용 흐름은 [서비스 가이드](../README.md), 현재 메서드 수·전체 서명·오버로드·DTO·compat 연결은 `pnpm docs:generate`로 생성하는 [SDK 레퍼런스](../sdk/README.md)에서 확인한다.
+
+| 분류        | modern 서비스                          | compat 서비스                                              |
+| ----------- | -------------------------------------- | ---------------------------------------------------------- |
+| 공통        | `common`                               | 공통 factory 및 공개 서비스의 상속 메서드                  |
+| 전자문서    | `taxInvoice`, `cashbill`, `statement`  | `TaxinvoiceService`, `CashbillService`, `StatementService` |
+| 홈택스 수집 | `homeTaxTaxInvoice`, `homeTaxCashbill` | `HTTaxinvoiceService`, `HTCashbillService`                 |
+| 사업자 조회 | `closedown`, `bizInfoCheck`            | `ClosedownService`, `BizInfoCheckService`                  |
+| 금융 조회   | `easyFinBank`, `accountCheck`          | `EasyFinBankService`, `AccountCheckService`                |
+| 메시징      | `kakao`, `message`, `fax`              | `KakaoService`, `MessageService`, `FaxService`             |
+
+상속된 공통 메서드를 각 서비스에 중복 집계하지 않는다. EasyFinBank 레거시의 `getChargeInfo` 중복 정의는 한 번만 제공한다. 문자에는 파일 바이너리 전송, 카카오에는 브랜드 메시지 API를 추가했다.
+
+## 구조와 공개 계약
+
+- spec은 도메인·기능별 디렉터리와 API별 원본 요청·응답 파일을 유지한다.
+- compat는 기존 이름·위치 인자·callback 및 Promise를 제공한다. 공개 factory와 singleton 반환형은 도메인 타입과 공통 타입의 교차 타입이다. 개별 도메인 인터페이스는 도메인 메서드만 기술한다.
+- modern은 객체 인자와 명확한 기능 이름을 제공한다. 범용 URL 함수·송신 함수의 호환 별칭을 추가하지 않는다.
+- 인증·HTTP·PDF 바이트 전송은 기존 runtime에서 처리한다. 서비스별 scope와 클라이언트별 설정·캐시를 분리한다.
+- 회원 탈퇴 후 같은 modern 클라이언트 및 같은 compat factory 설정 객체에 연결된 토큰을 폐기한다. compat singleton의 서비스 간 캐시는 기존 레거시처럼 독립적이다.
+
+## 문서와 레거시의 차이
+
+- **공통:** 회원·포인트 API는 modern의 `common`과 compat 도메인 서비스의 상속 메서드에서 제공한다. 범용 `getPopbillURL`은 compat에 유지한다. [회원·포인트 계약](../services/common.md)
+- **세금계산서:** 과금정보·문자열 단가·PDF 다운로드를 추가했다. modern PDF는 현행 HTTP 문서의 매출 문서 계약을 따르며 `printCopy`로 공급자·공급받는자 사본을 선택한다. `send`, `cancelSend`, `accept`, `deny`, `getOldPrintURL`, `getEmailPublicKeys`는 공식 SDK 코드의 레거시 계약으로 compat에 유지한다. 공개 스키마가 없는 이메일 공개키 응답은 `unknown`이다. [세금계산서 계약 기록](../services/tax-invoice.md)
+- **현금영수증:** 대량 처리 응답의 접수·발행 시각을 임의로 바꾸지 않고 보존한다. [현금영수증 계약](../services/cashbill.md)
+- **수집:** 작업 완료와 수집 성공은 별개다. 완료 상태와 성공 결과코드를 함께 확인한다. 작업 ID는 요청 후 1시간 유효하며, 자동 폴링이나 자동 재요청을 하지 않는다. [홈택스 세금계산서](../services/home-tax-tax-invoice.md), [홈택스 현금영수증](../services/home-tax-cashbill.md), [계좌 조회](../services/easy-fin-bank.md)
+- **카카오:** 현재 문서의 알림톡·브랜드 메시지는 modern에도 제공한다. 친구톡과 범용 URL은 compat에 유지한다. 문서·SDK 간 scope와 메시지 모델 차이를 기록했다. [카카오 지원 범위](../services/kakao.md)
+- **문자:** modern은 하나의 수신자 배열로 단건·다건을 다룬다. 레거시 `getStates`의 문서화되지 않은 응답은 compat에 보존한다. 수신자별 부분 예약 취소는 현재 공식 HTTP의 `{ receiveNum }` 본문을 전송한다. [문자 계약](../services/message.md)
+- **팩스:** 레거시의 바이너리 파일 검사, 단건 수신번호·이름 매핑, 재전송 인자 오류를 공식 계약대로 수정했다. [팩스 계약](../services/fax.md)
+- **콜백:** 선택 인자 자리가 `undefined`인 호출은 성공·오류 두 슬롯을 명시한다. 정의된 선택값 뒤의 단일 성공 콜백은 유지한다. 실제 허용 조합은 생성된 타입 서명을 따른다.
+
+## 검증과 한계
+
+### 외부 API 계약 검증
+
+SDK는 요청을 구성하는 데 필요한 필드와 숫자·배열 등 입력 구조를 확인한다. 페이지 번호와 크기의 양의 정수 조건은 유지하며, 제공자의 최대 페이지 크기·JSON 배치 건수 등 변경 가능한 운영 제한은 서버가 판단하도록 한다. 서비스 가이드의 최대값·코드 목록은 확인한 제공자 계약을 설명하며 SDK의 영구적인 허용 목록을 뜻하지 않는다.
+
+확장 가능한 상태·분류 코드와 알려지지 않은 응답 필드는 API별 공개 타입과 매퍼가 허용하는 범위에서 보존한다. 알 수 없는 상태를 성공으로 판정하지 않는다. `acceptLanguage`는 HTTP 언어 우선순위 문자열을 전달하며 제공자가 모든 언어를 지원한다고 보증하지 않는다. JSON 스키마 산출물은 문서용이며 외부 응답 전체를 닫힌 스키마로 검증하는 용도가 아니다.
+
+### 로컬 검사와 실서버 검사
+
+각 서비스는 공식 문서와 레거시를 기준으로 HTTP 경로·헤더·본문·응답, callback·Promise, 명시적 `undefined`, modern DTO와 오류 처리를 검증한다. 구현자와 다른 리뷰어가 계약을 검토하고, 발견한 결함 수정 후 영향받은 테스트를 다시 실행한다. 공개 서비스 연결, scope·클라이언트 격리, 탈퇴 후 토큰 폐기, 바이너리 본문·오류·취소·시간 제한, 문서 생성·패키지 진입점도 검증 대상이다.
+
+실서버 발행·발송·회원가입·탈퇴·결제·환불·실계좌 호출은 수행하지 않았다. 레거시 전용 API는 공식 SDK에 구현이 존재한다는 근거와 실서버 지원 확인을 구분한다. 전자명세서와 이번에 추가한 서비스의 실행 예제는 테스트 환경과 명시적 실행 설정을 요구한다.
+
+구현 완료 당시의 검사 결과는 [검증 기록](./validation-history.md)에 보관한다. 과거 결과는 이후 변경에 대한 검증을 대신하지 않는다. 현재 변경을 검증하는 명령과 범위는 [개발 가이드](../development.md)를 따른다.
+
+## 공식 자료
+
+- [회원](https://developers.popbill.com/api-reference/taxinvoice/common-api/member), [포인트](https://developers.popbill.com/api-reference/taxinvoice/common-api/point)
+- [전자세금계산서](https://developers.popbill.com/reference/taxinvoice/node/api), [현금영수증](https://developers.popbill.com/reference/cashbill/node/api), [전자명세서](https://developers.popbill.com/reference/statement/node/api)
+- [홈택스 세금계산서](https://developers.popbill.com/api-reference/httaxinvoice/api), [홈택스 현금영수증](https://developers.popbill.com/api-reference/htcashbill/api)
+- [휴폐업](https://developers.popbill.com/api-reference/closedown/api), [기업정보](https://developers.popbill.com/api-reference/bizinfocheck/api)
+- [계좌 조회](https://developers.popbill.com/api-reference/easyfinbank/api), [예금주](https://developers.popbill.com/api-reference/accountcheck/api)
+- [카카오톡](https://developers.popbill.com/reference/kakaotalk/node/api), [문자](https://developers.popbill.com/api-reference/sms/api), [팩스](https://developers.popbill.com/api-reference/fax/api)
+- [공식 Node SDK](https://github.com/linkhub-sdk/node-popbill)

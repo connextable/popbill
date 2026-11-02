@@ -2,7 +2,7 @@
 
 ## Guide
 
-이 문서는 `@connextable/popbill` modern SDK 마이그레이션 진행 상태를 추적하기 위한 관리용 TODO입니다.
+이 문서는 `@connextable/popbill` modern SDK 마이그레이션의 진행 이력입니다. 체크리스트의 개수·`DONE`·날짜는 당시 구현·로컬 검증 상태이며 이후 변경의 결과를 뜻하지 않습니다. 현재 지원 범위는 [계약 기록](./service-coverage.md), 현재 메서드 수·서명·분류·순서는 [생성 레퍼런스](../sdk/README.md)를 확인합니다.
 
 - 목적: 진행 추적
 - 범위: endpoint별 상태/메모 관리
@@ -11,8 +11,8 @@
 최신 메서드/타입은 아래 경로를 우선 확인합니다.
 
 - SDK 생성 문서: [`docs/sdk`](../sdk) (`pnpm docs:generate`로 재생성)
-- 소스 코드: [`packages/popbill/src/services/tax-invoice`](../../packages/popbill/src/services/tax-invoice)
-- 스펙 타입: [`packages/popbill-spec/src/tax-invoice`](../../packages/popbill-spec/src/tax-invoice)
+- 소스 코드: [`packages/popbill/src/services`](../../packages/popbill/src/services)
+- 스펙 타입: [`packages/popbill-spec/src`](../../packages/popbill-spec/src)
 
 관련 진입 문서:
 
@@ -83,6 +83,73 @@
 | tax-invoice | checkTaxCertificateValidation       | DONE   | TBD   | 2026-05-15 | Compat bridge: `checkCertValidation`.      |
 | tax-invoice | getTaxCertificateInfo               | DONE   | TBD   | 2026-05-15 | Compat bridge: `getTaxCertInfo`.           |
 
+## Statement Method Checklist
+
+`client.services.statement`의 공개 메서드 34개를 모두 구현했습니다. `documentTypeCode`는 6종 전자명세서 코드(`121`~`126`)를 받습니다. `DONE`은 로컬 unit·HTTP mock 테스트와 타입 검사·린트까지 확인한 상태이며, 실서버 통합 테스트는 환경변수 설정 시 별도로 실행합니다.
+
+| service   | method                              | status | owner | updated_at | notes                               |
+| --------- | ----------------------------------- | ------ | ----- | ---------- | ----------------------------------- |
+| statement | issueStatementImmediately           | DONE   | TBD   | 2026-11-02 | Compat bridge: `registIssue`.       |
+| statement | registerStatement                   | DONE   | TBD   | 2026-11-02 | Compat bridge: `register`.          |
+| statement | updateStatement                     | DONE   | TBD   | 2026-11-02 | Compat bridge: `update`.            |
+| statement | issueStatement                      | DONE   | TBD   | 2026-11-02 | Compat bridge: `issue`.             |
+| statement | cancelIssuedStatement               | DONE   | TBD   | 2026-11-02 | Compat bridge: `cancel`.            |
+| statement | deleteStatement                     | DONE   | TBD   | 2026-11-02 | Compat bridge: `delete`.            |
+| statement | getStatementInfo                    | DONE   | TBD   | 2026-11-02 | Compat bridge: `getInfo`.           |
+| statement | getStatementsInfo                   | DONE   | TBD   | 2026-11-02 | Compat bridge: `getInfos`.          |
+| statement | getStatementDetailInfo              | DONE   | TBD   | 2026-11-02 | Compat bridge: `getDetailInfo`.     |
+| statement | checkStatementManagementKeyInUse    | DONE   | TBD   | 2026-11-02 | Compat bridge: `checkMgtKeyInUse`.  |
+| statement | searchStatements                    | DONE   | TBD   | 2026-11-02 | Compat bridge: `search`.            |
+| statement | getStatementLogs                    | DONE   | TBD   | 2026-11-02 | Compat bridge: `getLogs`.           |
+| statement | getStatementBoxURL                  | DONE   | TBD   | 2026-11-02 | Compat bridge: `getURL`.            |
+| statement | getStatementPopupURL                | DONE   | TBD   | 2026-11-02 | Compat bridge: `getPopUpURL`.       |
+| statement | getStatementViewURL                 | DONE   | TBD   | 2026-11-02 | Compat bridge: `getViewURL`.        |
+| statement | getSenderStatementPrintURL          | DONE   | TBD   | 2026-11-02 | Compat bridge: `getPrintURL`.       |
+| statement | getReceiverStatementPrintURL        | DONE   | TBD   | 2026-11-02 | Compat bridge: `getEPrintURL`.      |
+| statement | getBulkStatementPrintURL            | DONE   | TBD   | 2026-11-02 | Compat bridge: `getMassPrintURL`.   |
+| statement | getStatementMailURL                 | DONE   | TBD   | 2026-11-02 | Compat bridge: `getMailURL`.        |
+| statement | getSealAndAttachmentRegistrationURL | DONE   | TBD   | 2026-11-02 | Compat bridge: `getSealURL`.        |
+| statement | attachFileFromPath                  | DONE   | TBD   | 2026-11-02 | Compat bridge: `attachFile`.        |
+| statement | attachFileFromBinary                | DONE   | TBD   | 2026-11-02 | Compat bridge: `attachFileBinary`.  |
+| statement | deleteAttachedFile                  | DONE   | TBD   | 2026-11-02 | Compat bridge: `deleteFile`.        |
+| statement | getAttachedFiles                    | DONE   | TBD   | 2026-11-02 | Compat bridge: `getFiles`.          |
+| statement | resendStatementEmail                | DONE   | TBD   | 2026-11-02 | Compat bridge: `sendEmail`.         |
+| statement | resendStatementSMS                  | DONE   | TBD   | 2026-11-02 | Compat bridge: `sendSMS`.           |
+| statement | resendStatementFAX                  | DONE   | TBD   | 2026-11-02 | Compat bridge: `sendFAX`.           |
+| statement | sendStatementFAX                    | DONE   | TBD   | 2026-11-02 | Compat bridge: `FAXSend`.           |
+| statement | attachStatement                     | DONE   | TBD   | 2026-11-02 | Compat bridge: `attachStatement`.   |
+| statement | detachStatement                     | DONE   | TBD   | 2026-11-02 | Compat bridge: `detachStatement`.   |
+| statement | getEmailSendSettings                | DONE   | TBD   | 2026-11-02 | Compat bridge: `listEmailConfig`.   |
+| statement | updateEmailSendSettings             | DONE   | TBD   | 2026-11-02 | Compat bridge: `updateEmailConfig`. |
+| statement | getChargeInfo                       | DONE   | TBD   | 2026-11-02 | Compat bridge: `getChargeInfo`.     |
+| statement | getUnitCost                         | DONE   | TBD   | 2026-11-02 | Compat bridge: `getUnitCost`.       |
+
+## TaxInvoice Additional Method Checklist
+
+| service     | method             | status | updated_at | notes                                                                     |
+| ----------- | ------------------ | ------ | ---------- | ------------------------------------------------------------------------- |
+| tax-invoice | getChargeInfo      | DONE   | 2026-11-03 | Compat `getChargeInfo`; decimal unit cost remains a string.               |
+| tax-invoice | getUnitCost        | DONE   | 2026-11-03 | Compat `getUnitCost`; no legacy user-ID parameter.                        |
+| tax-invoice | downloadInvoicePDF | DONE   | 2026-11-03 | Binary response; seller documents and optional supplier/buyer print copy. |
+
+## Additional Service Checklist
+
+| service           | method_count | status | updated_at | notes                                                               |
+| ----------------- | -----------: | ------ | ---------- | ------------------------------------------------------------------- |
+| common            |           26 | DONE   | 2026-11-03 | Member/contact/company, points, payments and refunds.               |
+| cashbill          |           33 | DONE   | 2026-11-03 | Receipt lifecycle, queries, PDF, notifications and pricing.         |
+| message           |           19 | DONE   | 2026-11-03 | Recipient arrays unify single/batch sends; no legacy aliases.       |
+| fax               |           16 | DONE   | 2026-11-03 | File/binary send, scheduling, results and explicit screen URLs.     |
+| kakao             |           46 | DONE   | 2026-11-03 | Current notification/brand channels, templates, images and results. |
+| homeTaxTaxInvoice |           19 | DONE   | 2026-11-03 | Job/authentication/subscription and collected-document APIs.        |
+| homeTaxCashbill   |           15 | DONE   | 2026-11-03 | Job/authentication/subscription and collected-receipt APIs.         |
+| easyFinBank       |           17 | DONE   | 2026-11-03 | Account management and collected bank transactions.                 |
+| closedown         |            4 | DONE   | 2026-11-03 | Single/batch business status and pricing.                           |
+| bizInfoCheck      |            3 | DONE   | 2026-11-03 | Company information and pricing.                                    |
+| accountCheck      |            4 | DONE   | 2026-11-03 | Depositor name/identity and pricing.                                |
+
+TaxInvoice also adds `getChargeInfo`, `getUnitCost` and `downloadInvoicePDF`. `DONE` records local checks and independent contract review at the listed date; live server execution is separate. Current method counts and DTO/compat mappings are generated from source in the [SDK reference](../sdk/README.md). See [service coverage](./service-coverage.md) for accepted differences and [validation history](./validation-history.md) for past execution results.
+
 ## Rules
 
 - Every endpoint migration must update `status`, `updated_at`, and `notes` in the same commit.
@@ -96,3 +163,7 @@
   - modern 공개 메서드 46개를 `input` 단일 시그니처로 정리.
   - 네이밍 규칙(`get*`, `check*`) 및 공개 메서드 집합 상수/테스트 추가.
 - 2026-05-15: 체크리스트를 실제 `TaxInvoiceService` 공개 메서드 46개 기준으로 갱신.
+- 2026-11-02: `client.services.statement`의 공개 메서드 34개와 compat 브리지를 구현. 6종 문서유형·객체 기반 요청·응답 모델을 공개하고 기존 `TaxInvoiceStatementItemCodes` 호환을 유지.
+- 2026-11-02: 공식 계약에 맞춰 SMS `messageBody`를 필수화하고 `SWBOX`의 이름을 `StatementBoxScopes.IssuedDocumentBox`로 명시.
+- 2026-11-03: modern API의 호환 별칭을 제거하고 명세서 요약 매퍼를 `mappers/statement-info.ts`로 분리해 기존 세금계산서 매퍼 구조에 맞춤.
+- 2026-11-03: 공통과 나머지 10개 서비스 및 세금계산서 3개를 추가. 13개 그룹을 client·공개 타입·문서 생성·예제에 연결하고, 새 modern API에 호환 별칭을 추가하지 않음.
