@@ -17,8 +17,7 @@ npm install @connextable/popbill-spec
 ## 사용 예시
 
 ```ts
-import type { TaxInvoiceSpec } from '@connextable/popbill-spec'
-import { PopbillRequestHeaders } from '@connextable/popbill-spec'
+import type { PopbillApiRequestHeaders, TaxInvoiceSpec } from '@connextable/popbill-spec'
 ```
 
 ## Export Paths
