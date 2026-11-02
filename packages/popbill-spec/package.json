@@ -31,8 +31,11 @@
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "typecheck": "tsgo -b --noEmit",
+    "typecheck": "tsc -b --noEmit",
     "clean": "del node_modules dist"
+  },
+  "devDependencies": {
+    "@types/node": "20"
   },
   "engines": {
     "node": ">=20"

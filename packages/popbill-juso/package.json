@@ -31,14 +31,17 @@
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "typecheck": "tsgo -b --noEmit",
-    "typecheck:lib": "tsgo -p tsconfig.lib.json --noEmit",
-    "typecheck:test": "tsgo -p tsconfig.test.json --noEmit",
+    "typecheck": "tsc -b --noEmit",
+    "typecheck:lib": "tsc -p tsconfig.lib.json --noEmit",
+    "typecheck:test": "tsc -p tsconfig.test.json --noEmit",
     "clean": "del node_modules dist"
   },
   "dependencies": {
     "@connextable/popbill-runtime": "workspace:*",
     "@connextable/popbill-utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "20"
   },
   "engines": {
     "node": ">=20"
