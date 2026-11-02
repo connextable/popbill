@@ -5,7 +5,7 @@ export const JusoLinkBaseUrls = {
   /**
    * 주소링크 API 기본 URL 입니다.
    */
-  Api: 'https://jusolink.linkhub.co.kr',
+  Api: 'https://juso.linkhub.co.kr',
   /**
    * 링크허브 인증 API 기본 URL 입니다.
    */

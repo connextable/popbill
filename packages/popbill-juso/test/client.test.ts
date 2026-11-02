@@ -5,32 +5,33 @@ describe('createJusoLinkClient', () => {
     vi.restoreAllMocks()
   })
 
+  test('요청 제한시간은 Node 타이머가 지원하는 정수 범위만 허용한다', () => {
+    const config = {
+      linkId: 'TEST_LINK_ID',
+      secretKey: Buffer.from('SECRET').toString('base64'),
+      accessId: 'ACCESS_IDENTIFIER',
+    }
+
+    expect(() => createJusoLinkClient({ ...config, requestTimeoutMilliseconds: 2_147_483_647 })).not.toThrow()
+    expect(() => createJusoLinkClient({ ...config, requestTimeoutMilliseconds: 2_147_483_648 })).toThrow('2147483647')
+  })
+
   test('주소검색 요청 시 Bearer 토큰과 쿼리 파라미터를 올바르게 전송하고 응답을 래핑한다', async () => {
-    let searchAuthorizationHeader: string | undefined
+    let searchRequestUrl: URL | undefined
+    let searchHeaders: Headers | undefined
+    let tokenRequestBody: unknown
 
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (requestInput, requestInit) => {
       const requestUrl = resolveRequestUrl(requestInput)
 
       if (requestUrl === 'https://auth.linkhub.co.kr/JUSOLINK/Token') {
-        return new Response(
-          JSON.stringify({
-            session_token: 'SESSION_TOKEN',
-            serviceID: 'JUSOLINK',
-            linkID: 'TEST_LINK_ID',
-            userID: 'ACCESS_IDENTIFIER',
-            partnerCode: 'PARTNER',
-            usercode: 'USER_CODE',
-            scope: ['member'],
-            ipaddress: '127.0.0.1',
-            expiration: '2999-12-31T00:00:00Z',
-          }),
-          { status: 200 }
-        )
+        tokenRequestBody = JSON.parse(requestInit?.body as string) as unknown
+        return createTokenResponse()
       }
 
-      if (requestUrl.startsWith('https://jusolink.linkhub.co.kr/Search')) {
-        const headers = requestInit?.headers as Record<string, string>
-        searchAuthorizationHeader = headers['Authorization']
+      if (requestUrl.startsWith('https://juso.linkhub.co.kr/Search')) {
+        searchRequestUrl = new URL(requestUrl)
+        searchHeaders = new Headers(requestInit?.headers)
 
         return new Response(
           JSON.stringify({
@@ -80,22 +81,15 @@ describe('createJusoLinkClient', () => {
     })
 
     expect(fetchSpy).toHaveBeenCalledTimes(2)
-    expect(searchAuthorizationHeader).toBe('Bearer SESSION_TOKEN')
+    expect(searchHeaders?.get('Authorization')).toBe('Bearer SESSION_TOKEN')
+    expect(searchHeaders?.get('x-api-version')).toBe('1.0')
+    expect(tokenRequestBody).toEqual({ scope: ['200'] })
 
-    const searchCall = fetchSpy.mock.calls.find((call) => {
-      const requestUrl = resolveRequestUrl(call[0])
-      return requestUrl.startsWith('https://jusolink.linkhub.co.kr/Search')
-    })
-
-    const requestInput = searchCall?.[0]
-    const searchRequestUrl = requestInput ? resolveRequestUrl(requestInput) : ''
-    const parsedSearchRequestUrl = new URL(searchRequestUrl ?? '')
-
-    expect(parsedSearchRequestUrl.searchParams.get('Searches')).toBe('삼성동')
-    expect(parsedSearchRequestUrl.searchParams.get('PageNum')).toBe('1')
-    expect(parsedSearchRequestUrl.searchParams.get('PerPage')).toBe('20')
-    expect(parsedSearchRequestUrl.searchParams.get('noDifferential')).toBe('true')
-    expect(parsedSearchRequestUrl.searchParams.get('noSuggest')).toBe('false')
+    expect(searchRequestUrl?.searchParams.get('Searches')).toBe('삼성동')
+    expect(searchRequestUrl?.searchParams.get('PageNum')).toBe('1')
+    expect(searchRequestUrl?.searchParams.get('PerPage')).toBe('20')
+    expect(searchRequestUrl?.searchParams.get('noDifferential')).toBe('true')
+    expect(searchRequestUrl?.searchParams.get('noSuggest')).toBe('false')
 
     expect(result).toEqual({
       searchKeyword: '삼성동',
@@ -124,27 +118,21 @@ describe('createJusoLinkClient', () => {
     })
   })
 
-  test('원격 API 에러를 JusoApiError로 정규화한다', async () => {
-    const onError = vi.fn<(error: unknown) => void>()
+  test.each(['normal', 'sync-throw', 'async-reject'] as const)('원격 API 에러를 훅 실패와 무관하게 보존한다 (%s)', async (hookBehavior) => {
+    const hookError = new Error('onError hook failed')
+    let hookCalls = 0
+    const onError = (_error: unknown) => {
+      hookCalls += 1
+      if (hookBehavior === 'sync-throw') throw hookError
+      if (hookBehavior === 'async-reject') return Promise.reject(hookError)
+      return undefined
+    }
 
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (requestInput) => {
       const requestUrl = resolveRequestUrl(requestInput)
 
       if (requestUrl === 'https://auth.linkhub.co.kr/JUSOLINK/Token') {
-        return new Response(
-          JSON.stringify({
-            session_token: 'SESSION_TOKEN',
-            serviceID: 'JUSOLINK',
-            linkID: 'TEST_LINK_ID',
-            userID: 'ACCESS_IDENTIFIER',
-            partnerCode: 'PARTNER',
-            usercode: 'USER_CODE',
-            scope: ['member'],
-            ipaddress: '127.0.0.1',
-            expiration: '2999-12-31T00:00:00Z',
-          }),
-          { status: 200 }
-        )
+        return createTokenResponse()
       }
 
       return new Response(
@@ -177,7 +165,8 @@ describe('createJusoLinkClient', () => {
       requestStage: 'request_api',
     })
 
-    expect(onError).toHaveBeenCalledTimes(1)
+    expect(hookCalls).toBe(1)
+    await new Promise<void>((resolve) => setImmediate(resolve))
   })
 
   test('동일 클라이언트에서 연속 호출 시 토큰 발급을 재사용한다', async () => {
@@ -189,20 +178,7 @@ describe('createJusoLinkClient', () => {
       if (requestUrl === 'https://auth.linkhub.co.kr/JUSOLINK/Token') {
         tokenIssueCount += 1
 
-        return new Response(
-          JSON.stringify({
-            session_token: 'SESSION_TOKEN',
-            serviceID: 'JUSOLINK',
-            linkID: 'TEST_LINK_ID',
-            userID: 'ACCESS_IDENTIFIER',
-            partnerCode: 'PARTNER',
-            usercode: 'USER_CODE',
-            scope: ['member'],
-            ipaddress: '127.0.0.1',
-            expiration: '2999-12-31T00:00:00Z',
-          }),
-          { status: 200 }
-        )
+        return createTokenResponse()
       }
 
       return new Response(
@@ -230,6 +206,20 @@ describe('createJusoLinkClient', () => {
     expect(tokenIssueCount).toBe(1)
   })
 })
+
+function createTokenResponse(): Response {
+  return Response.json({
+    session_token: 'SESSION_TOKEN',
+    serviceID: 'JUSOLINK',
+    linkID: 'TEST_LINK_ID',
+    userID: 'ACCESS_IDENTIFIER',
+    partnerCode: 'PARTNER',
+    usercode: 'USER_CODE',
+    scope: ['200'],
+    ipaddress: '127.0.0.1',
+    expiration: '2999-12-31T00:00:00Z',
+  })
+}
 
 function resolveRequestUrl(requestInput: Request | URL | string): string {
   if (typeof requestInput === 'string') {

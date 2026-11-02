@@ -12,6 +12,8 @@ import { normalizeOptionalString, normalizeRequiredString, trimTrailingSlash } f
 
 export type { JusoLinkClient, JusoLinkClientConfig } from './types'
 
+const MAX_REQUEST_TIMEOUT_MILLISECONDS = 2_147_483_647
+
 interface ResolvedJusoLinkClientConfig {
   /**
    * 링크허브 링크아이디입니다.
@@ -24,7 +26,7 @@ interface ResolvedJusoLinkClientConfig {
   secretKey: string
 
   /**
-   * 연동회원 식별자입니다.
+   * 클라이언트 내 토큰 캐시 식별자입니다.
    */
   accessId: string
 
@@ -81,7 +83,7 @@ export function createJusoLinkClient(configuration: JusoLinkClientConfig): JusoL
   const tokenProvider = createTokenProvider({
     authClient,
     serviceId: LinkhubServiceIds.JusoLink,
-    scopes: [LinkhubAuthScope.Member],
+    scopes: [LinkhubAuthScope.AddressSearch],
     forwardedIp: resolvedConfiguration.forwardedIpAddress,
   })
 
@@ -128,8 +130,8 @@ function normalizeRequestTimeoutMilliseconds(value: number | undefined): number 
     return JusoLinkDefaultRequestTimeoutMilliseconds
   }
 
-  if (!Number.isInteger(value) || value <= 0) {
-    throw new Error('requestTimeoutMilliseconds는 1 이상의 정수여야 합니다.')
+  if (!Number.isInteger(value) || value <= 0 || value > MAX_REQUEST_TIMEOUT_MILLISECONDS) {
+    throw new Error(`requestTimeoutMilliseconds는 1 이상 ${String(MAX_REQUEST_TIMEOUT_MILLISECONDS)} 이하의 정수여야 합니다.`)
   }
 
   return value

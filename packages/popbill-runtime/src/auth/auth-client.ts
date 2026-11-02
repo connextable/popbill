@@ -1,5 +1,5 @@
 import { fetchJson, fetchText } from '../transport/fetch-json'
-import { PopbillAuthBaseUrls, PopbillAuthScopes, PopbillLinkhubApiVersion } from '@/spec-constants'
+import { JusoLinkAuthScopes, LinkhubServiceIds, PopbillAuthBaseUrls, PopbillAuthScopes, PopbillLinkhubApiVersion } from '@/spec-constants'
 import { hmacSha256Base64, normalizeOptionalString, sha256Base64, stringifyWithoutEmptyValues, trimTrailingSlash } from '@connextable/popbill-utils'
 import type * as Spec from '@connextable/popbill-spec'
 import type * as Types from './types'
@@ -7,7 +7,8 @@ import type * as Types from './types'
 const LINKHUB_VERSION = PopbillLinkhubApiVersion
 const LINKHUB_USER_AGENT = 'NODEJS LINKHUB SDK'
 const DEFAULT_TIMEOUT_MS = 180_000
-const POPBILL_SCOPE_SET = new Set(Object.values(PopbillAuthScopes))
+const POPBILL_SCOPE_SET = new Set<string>(Object.values(PopbillAuthScopes))
+const JUSOLINK_SCOPE_SET = new Set<string>(Object.values(JusoLinkAuthScopes))
 
 export function createLinkhubAuthClient(config: Types.LinkhubAuthClientConfig): Types.LinkhubAuthClient {
   return {
@@ -47,10 +48,10 @@ async function issueTokenRequest(
 
   const authBaseUrl = resolveAuthBaseUrl(config)
   const resourceUri = `/${request.serviceId}/Token`
-  const requestBody: Spec.PopbillIssueTokenApiRequestBody = {
-    access_id: request.accessId,
-    scope: [...request.scopes],
-  }
+  const requestBody: Spec.LinkhubIssueTokenApiRequestBody =
+    request.serviceId === LinkhubServiceIds.JusoLink
+      ? { scope: [...request.scopes] as Spec.JusoLinkAuthScope[] }
+      : { access_id: request.accessId as string, scope: [...request.scopes] as Spec.PopbillAuthScope[] }
   const body = stringifyWithoutEmptyValues(requestBody) ?? ''
 
   const bodyDigest = sha256Base64(body)
@@ -183,8 +184,14 @@ function validateIssueTokenRequest(request: Types.IssueTokenRequest): void {
     throw new Error('At least one Linkhub auth scope is required.')
   }
 
+  const isJusoLink = request.serviceId === LinkhubServiceIds.JusoLink
+  if (!isJusoLink && request.accessId === null) {
+    throw new Error('Linkhub accessId is required for this service.')
+  }
+
+  const allowedScopes = isJusoLink ? JUSOLINK_SCOPE_SET : POPBILL_SCOPE_SET
   for (const scope of request.scopes) {
-    if (!POPBILL_SCOPE_SET.has(scope)) {
+    if (!allowedScopes.has(scope)) {
       throw new Error(`Unsupported Linkhub auth scope: ${scope}`)
     }
   }

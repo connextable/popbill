@@ -46,6 +46,7 @@ export function createJusoService(input: CreateJusoServiceInput): JusoService {
         const apiResponse = await input.requestClient.requestJson<JusoLinkAddressSearchApiResponse>({
           uri: `/Search?${queryParameters.toString()}`,
           method: 'GET',
+          headers: { 'x-api-version': '1.0' },
         })
 
         return mapSearchResult(apiResponse)
