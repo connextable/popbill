@@ -41,10 +41,10 @@ describe('createJusoLinkClient', () => {
             sidoCount: {
               SEOUL: 2,
             },
-            numFound: 2,
+            page: 1,
             listSize: 2,
             totalPage: 1,
-            page: 1,
+            numFound: 2,
             juso: [
               {
                 roadAddr1: '서울특별시 강남구 영동대로 517',
@@ -98,10 +98,10 @@ describe('createJusoLinkClient', () => {
       provinceResultCountMap: {
         SEOUL: 2,
       },
-      totalResultCount: 2,
+      pageNumber: 1,
       pageResultCount: 2,
       totalPageCount: 1,
-      pageNumber: 1,
+      totalResultCount: 2,
       addresses: [
         {
           roadNameAddress: '서울특별시 강남구 영동대로 517',
@@ -169,6 +169,53 @@ describe('createJusoLinkClient', () => {
     await new Promise<void>((resolve) => setImmediate(resolve))
   })
 
+  test('알려지지 않은 시도 코드도 원본 키로 보존한다', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (requestInput) => {
+      if (resolveRequestUrl(requestInput) === 'https://auth.linkhub.co.kr/JUSOLINK/Token') return createTokenResponse()
+
+      return new Response(
+        '{"searches":"삼성동","sidoCount":{"SEOUL":2,"NEW_PROVINCE":3,"__proto__":4},"numFound":5,"listSize":0,"totalPage":1,"page":1}',
+        { status: 200 }
+      )
+    })
+
+    const client = createJusoLinkClient({
+      linkId: 'TEST_LINK_ID',
+      secretKey: Buffer.from('SECRET').toString('base64'),
+      accessId: 'ACCESS_IDENTIFIER',
+    })
+    const result = await client.services.juso.searchAddresses({ searchKeyword: '삼성동' })
+
+    expect(result.provinceResultCountMap).toEqual(JSON.parse('{"SEOUL":2,"NEW_PROVINCE":3,"__proto__":4}'))
+    expect(Object.hasOwn(result.provinceResultCountMap, '__proto__')).toBe(true)
+    expect(Object.getPrototypeOf(result.provinceResultCountMap)).toBe(Object.prototype)
+    expect(result.addresses).toEqual([])
+  })
+
+  test('페이지 크기 정책은 서버에 위임하고 양의 정수 형식만 검사한다', async () => {
+    let requestedPageSize: string | null = null
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (requestInput) => {
+      const requestUrl = resolveRequestUrl(requestInput)
+      if (requestUrl === 'https://auth.linkhub.co.kr/JUSOLINK/Token') return createTokenResponse()
+
+      requestedPageSize = new URL(requestUrl).searchParams.get('PerPage')
+      return Response.json({ searches: '삼성동', page: 1, listSize: 0, totalPage: 0, numFound: 0 })
+    })
+    const client = createJusoLinkClient({
+      linkId: 'TEST_LINK_ID',
+      secretKey: Buffer.from('SECRET').toString('base64'),
+      accessId: 'ACCESS_IDENTIFIER',
+    })
+
+    await client.services.juso.searchAddresses({ searchKeyword: '삼성동', pageSize: 101 })
+    expect(requestedPageSize).toBe('101')
+    const requestCount = fetchSpy.mock.calls.length
+    await expect(client.services.juso.searchAddresses({ searchKeyword: '삼성동', pageSize: 0 })).rejects.toMatchObject({
+      message: 'pageSize는 1 이상의 정수여야 합니다.',
+    })
+    expect(fetchSpy).toHaveBeenCalledTimes(requestCount)
+  })
+
   test('동일 클라이언트에서 연속 호출 시 토큰 발급을 재사용한다', async () => {
     let tokenIssueCount = 0
 
@@ -184,10 +231,10 @@ describe('createJusoLinkClient', () => {
       return new Response(
         JSON.stringify({
           searches: '삼성동',
-          numFound: 0,
+          page: 1,
           listSize: 0,
           totalPage: 0,
-          page: 1,
+          numFound: 0,
           juso: [],
         }),
         { status: 200 }

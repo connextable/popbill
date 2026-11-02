@@ -1,9 +1,9 @@
 export { createJusoService } from './service'
 export {
   JusoLinkProvinceCodes,
-  type AddressSearchItem,
-  type JusoService,
   type JusoLinkProvinceCode,
   type SearchAddressesInput,
+  type AddressSearchItem,
   type SearchAddressesResult,
+  type JusoService,
 } from './types'

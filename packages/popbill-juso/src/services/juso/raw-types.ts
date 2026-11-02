@@ -73,9 +73,9 @@ export interface JusoLinkAddressSearchApiResponse {
   sidoCount?: Record<string, number>
 
   /**
-   * 총 검색결과 수입니다.
+   * 현재 페이지 번호입니다.
    */
-  numFound: number
+  page: number
 
   /**
    * 현재 페이지 목록 수입니다.
@@ -88,9 +88,9 @@ export interface JusoLinkAddressSearchApiResponse {
   totalPage: number
 
   /**
-   * 현재 페이지 번호입니다.
+   * 총 검색결과 수입니다.
    */
-  page: number
+  numFound: number
 
   /**
    * 주소 목록입니다.

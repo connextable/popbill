@@ -25,7 +25,7 @@ export const JusoLinkSearchDefaults = {
    */
   PageSize: 20,
   /**
-   * 허용되는 최대 페이지 크기입니다.
+   * 기존 SDK가 안내하던 페이지 크기 상한입니다. 실제 허용 범위는 서버가 판단합니다.
    */
   MaximumPageSize: 100,
   /**

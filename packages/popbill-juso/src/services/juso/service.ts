@@ -1,11 +1,4 @@
-import {
-  JusoLinkProvinceCodes,
-  type AddressSearchItem,
-  type JusoService,
-  type JusoLinkProvinceCode,
-  type SearchAddressesInput,
-  type SearchAddressesResult,
-} from './types'
+import type { AddressSearchItem, JusoService, SearchAddressesInput, SearchAddressesResult } from './types'
 import type { JusoLinkAddressSearchApiResponse, JusoLinkAddressSearchItemApiResponse } from './raw-types'
 import { JusoLinkSearchDefaults } from '@/constants'
 import type { LinkhubRequestClient } from '@connextable/popbill-runtime'
@@ -91,7 +84,7 @@ interface NormalizedSearchInput {
 function normalizeSearchInput(input: SearchAddressesInput): NormalizedSearchInput {
   const searchKeyword = normalizeRequiredString(input.searchKeyword, 'searchKeyword는 필수입니다.')
   const pageNumber = normalizePositiveInteger(input.pageNumber, JusoLinkSearchDefaults.PageNumber, 'pageNumber')
-  const pageSize = normalizePageSize(input.pageSize)
+  const pageSize = normalizePositiveInteger(input.pageSize, JusoLinkSearchDefaults.PageSize, 'pageSize')
 
   return {
     searchKeyword,
@@ -114,26 +107,16 @@ function normalizePositiveInteger(value: number | undefined, defaultValue: numbe
   return value
 }
 
-function normalizePageSize(value: number | undefined): number {
-  const pageSize = normalizePositiveInteger(value, JusoLinkSearchDefaults.PageSize, 'pageSize')
-
-  if (pageSize > JusoLinkSearchDefaults.MaximumPageSize) {
-    throw new Error(`pageSize는 ${String(JusoLinkSearchDefaults.MaximumPageSize)} 이하여야 합니다.`)
-  }
-
-  return pageSize
-}
-
 function mapSearchResult(apiResponse: JusoLinkAddressSearchApiResponse): SearchAddressesResult {
   return {
     searchKeyword: apiResponse.searches,
     excludedKeywords: apiResponse.deletedWord ?? [],
     suggestedKeyword: normalizeOptionalString(apiResponse.suggest),
-    provinceResultCountMap: mapProvinceResultCountMap(apiResponse.sidoCount),
-    totalResultCount: apiResponse.numFound,
+    provinceResultCountMap: { ...apiResponse.sidoCount },
+    pageNumber: apiResponse.page,
     pageResultCount: apiResponse.listSize,
     totalPageCount: apiResponse.totalPage,
-    pageNumber: apiResponse.page,
+    totalResultCount: apiResponse.numFound,
     addresses: (apiResponse.juso ?? []).map(mapAddressItem),
   }
 }
@@ -150,23 +133,4 @@ function mapAddressItem(item: JusoLinkAddressSearchItemApiResponse): AddressSear
     legalDistrictCode: item.dongCode,
     roadNameCode: item.streetCode,
   }
-}
-
-function mapProvinceResultCountMap(source: Record<string, number> | undefined): Partial<Record<JusoLinkProvinceCode, number>> {
-  if (!source) {
-    return {}
-  }
-
-  const result: Partial<Record<JusoLinkProvinceCode, number>> = {}
-  const validProvinceCodeSet = new Set<string>(Object.values(JusoLinkProvinceCodes))
-
-  for (const [provinceCode, count] of Object.entries(source)) {
-    if (!validProvinceCodeSet.has(provinceCode)) {
-      continue
-    }
-
-    result[provinceCode as JusoLinkProvinceCode] = count
-  }
-
-  return result
 }

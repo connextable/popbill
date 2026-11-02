@@ -55,6 +55,8 @@ console.log(result.addresses)
 
 - `client.services.juso.searchAddresses(input)`: 검색어로 주소를 조회하고 페이지 정보, 시도별 검색 건수, 정규화된 주소 목록을 반환합니다.
 
+`provinceResultCountMap`은 서버가 반환한 시도 코드를 그대로 키로 보존합니다. SDK에 아직 정의되지 않은 코드도 제거하지 않습니다.
+
 ## 관련 문서
 
 - 저장소 가이드: [../../README.md](../../README.md)

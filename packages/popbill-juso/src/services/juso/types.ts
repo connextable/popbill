@@ -2,23 +2,23 @@
  * 주소검색 시도 코드 상수입니다.
  */
 export const JusoLinkProvinceCodes = {
-  Gangwon: 'GANGWON',
-  Gyeonggi: 'GYEONGGI',
-  Gyeongsangnam: 'GYEONGSANGNAM',
-  Gyeongsangbuk: 'GYEONGSANGBUK',
-  Gwangju: 'GWANGJU',
-  Daegu: 'DAEGU',
-  Daejeon: 'DAEJEON',
-  Busan: 'BUSAN',
   Seoul: 'SEOUL',
-  Sejong: 'SEJONG',
-  Ulsan: 'ULSAN',
+  Busan: 'BUSAN',
+  Daegu: 'DAEGU',
   Incheon: 'INCHEON',
-  Jeollanam: 'JEOLLANAM',
-  Jeollabuk: 'JEOLLABUK',
-  Jeju: 'JEJU',
-  Chungcheongnam: 'CHUNGCHEONGNAM',
+  Gwangju: 'GWANGJU',
+  Daejeon: 'DAEJEON',
+  Ulsan: 'ULSAN',
+  Sejong: 'SEJONG',
+  Gyeonggi: 'GYEONGGI',
+  Gangwon: 'GANGWON',
   Chungcheongbuk: 'CHUNGCHEONGBUK',
+  Chungcheongnam: 'CHUNGCHEONGNAM',
+  Jeollabuk: 'JEOLLABUK',
+  Jeollanam: 'JEOLLANAM',
+  Gyeongsangbuk: 'GYEONGSANGBUK',
+  Gyeongsangnam: 'GYEONGSANGNAM',
+  Jeju: 'JEJU',
 } as const
 
 /**
@@ -45,7 +45,7 @@ export interface SearchAddressesInput {
   /**
    * 페이지 크기입니다.
    *
-   * 허용 범위는 1 이상 100 이하입니다.
+   * 1 이상의 정수입니다. 실제 허용 범위는 서버가 판단합니다.
    * @default 20
    */
   pageSize?: number
@@ -137,14 +137,14 @@ export interface SearchAddressesResult {
   suggestedKeyword?: string
 
   /**
-   * 시도별 검색 결과 수입니다.
+   * 시도별 검색 결과 수입니다. 알려진 상수에 없는 응답 코드도 보존합니다.
    */
-  provinceResultCountMap: Readonly<Partial<Record<JusoLinkProvinceCode, number>>>
+  provinceResultCountMap: Readonly<Partial<Record<string, number>>>
 
   /**
-   * 총 검색 건수입니다.
+   * 현재 페이지 번호입니다.
    */
-  totalResultCount: number
+  pageNumber: number
 
   /**
    * 현재 페이지 주소 건수입니다.
@@ -157,9 +157,9 @@ export interface SearchAddressesResult {
   totalPageCount: number
 
   /**
-   * 현재 페이지 번호입니다.
+   * 총 검색 건수입니다.
    */
-  pageNumber: number
+  totalResultCount: number
 
   /**
    * 현재 페이지 주소 목록입니다.
