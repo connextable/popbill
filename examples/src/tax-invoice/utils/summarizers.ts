@@ -1,5 +1,5 @@
 export function summarizeOperationResult(value: any): Record<string, unknown> {
-  return pick(value, ['resultCode', 'resultMessage', 'confirmNumber'])
+  return pick(value, ['resultCode', 'resultMessage', 'nationalTaxServiceConfirmationNumber'])
 }
 
 export function summarizeRequestInput(value: unknown): unknown {
@@ -45,11 +45,10 @@ export function summarizeInvoiceInfo(value: any): Record<string, unknown> {
   return pick(value, [
     'itemKey',
     'stateCode',
-    'writeDate',
+    'writtenDate',
     'taxType',
-    'supplyCostTotalAmount',
-    'taxTotalAmount',
-    'totalAmount',
+    'totalSupplyCost',
+    'totalTax',
     'supplierManagementKey',
   ])
 }

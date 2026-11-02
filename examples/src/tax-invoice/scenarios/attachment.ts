@@ -2,7 +2,7 @@ import { createManagementKey, createTempAttachmentFile } from '../taxinvoice-fix
 import type { ExampleContext, Runner, ScenarioDefinition } from '../types.ts'
 import { createDraftInvoice } from '../workflows/invoice.ts'
 import { logWarn } from '../utils/log.ts'
-import { summarizeArrayLength, summarizeInvoiceInfo, summarizeOperationResult } from '../utils/summarizers.ts'
+import { summarizeArrayLength, summarizeOperationResult } from '../utils/summarizers.ts'
 
 export const attachmentScenario: ScenarioDefinition = {
   description: '파일첨부(path,binary)/첨부목록/첨부삭제/명세서첨부/문서번호할당',
@@ -99,18 +99,11 @@ export const attachmentScenario: ScenarioDefinition = {
       })
     }
 
-    const infoResult = await runner.run(
-      'getInvoiceInfo (for assignInvoiceManagementKey)',
-      documentInput,
-      () => context.service.getInvoiceInfo(documentInput),
-      summarizeInvoiceInfo
-    )
-
-    if (infoResult.ok && typeof infoResult.value?.itemKey === 'string' && infoResult.value.itemKey.length > 0) {
+    if (context.config.assignItemKey) {
       const assignInput = {
         businessNumber: context.businessNumber,
         invoiceDocumentKeyType: context.invoiceDocumentKeyType,
-        itemKey: infoResult.value.itemKey,
+        itemKey: context.config.assignItemKey,
         invoiceManagementKey: createManagementKey('NEW'),
       }
       await runner.run(
@@ -120,7 +113,7 @@ export const attachmentScenario: ScenarioDefinition = {
         summarizeOperationResult
       )
     } else {
-      logWarn('assignInvoiceManagementKey skipped', { reason: 'itemKey not available' })
+      logWarn('assignInvoiceManagementKey skipped', { reason: 'POPBILL_ASSIGN_ITEM_KEY is empty' })
     }
   },
 }

@@ -1,5 +1,4 @@
-import type {
-  createPopbillClient} from '@connextable/popbill';
+import type { createPopbillClient } from '@connextable/popbill'
 import {
   TaxInvoiceCloseDownStateCodes,
   TaxInvoiceDateType,
@@ -33,6 +32,7 @@ export interface RuntimeConfig {
   requestTimeoutMs: number
   acceptEncoding: string | null
   counterpartCorpNum: string
+  counterpartUserId?: string
   receiverEmail: string
   senderPhoneNumber: string
   receiverPhoneNumber: string
@@ -40,6 +40,7 @@ export interface RuntimeConfig {
   receiverFaxNumber: string
   statementItemCode: TaxInvoiceStatementItemCode
   statementManagementKey: string
+  assignItemKey: string
   missingNames: string[]
 }
 

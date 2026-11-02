@@ -50,6 +50,7 @@ export function createSubmissionIdentifier(prefix: string): string {
 }
 
 export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): any {
+  const isReverseIssue = input.issueType === '역발행'
   const lineItems = input.lineItems ?? [
     {
       lineNumber: 1,
@@ -74,7 +75,7 @@ export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): 
     purposeType: '영수',
     taxType: '과세',
     supplier: {
-      businessNumber: input.businessNumber,
+      businessNumber: isReverseIssue ? input.counterpartBusinessNumber : input.businessNumber,
       managementKey: input.managementKey,
       companyName: 'examples 공급자',
       chiefExecutiveOfficerName: '대표자',
@@ -86,7 +87,7 @@ export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): 
     },
     buyer: {
       recipientType: '사업자',
-      businessNumber: input.counterpartBusinessNumber,
+      businessNumber: isReverseIssue ? input.businessNumber : input.counterpartBusinessNumber,
       managementKey: input.buyerManagementKey ?? createManagementKey('BUY'),
       companyName: 'examples 공급받는자',
       chiefExecutiveOfficerName: '수신대표',

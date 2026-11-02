@@ -1,7 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import type { TAX_INVOICE_METHODS } from '@/constants'
 import { TaxInvoiceDocumentKeyTypes } from '@/services/tax-invoice'
 import {
   TaxInvoiceChargeDirectionValues,
@@ -17,8 +16,6 @@ import {
   type TaxInvoiceService,
 } from '@/services/tax-invoice/types'
 import { createTaxInvoiceIntegrationClient, getTaxInvoiceIntegrationEnv } from './integration-context'
-
-export type TaxInvoiceMethodName = (typeof TAX_INVOICE_METHODS)[number]
 
 type IntegrationEnv = ReturnType<typeof getTaxInvoiceIntegrationEnv>
 
@@ -111,10 +108,6 @@ export async function createReverseDraftInvoiceKeys(context: TaxInvoiceMethodCon
   }
 }
 
-export async function createReverseDraftInvoice(context: TaxInvoiceMethodContext, prefix: string): Promise<string> {
-  return (await createReverseDraftInvoiceKeys(context, prefix)).refuseManagementKey
-}
-
 export async function createReverseRequestedInvoice(context: TaxInvoiceMethodContext, prefix: string): Promise<ReverseInvoiceKeys> {
   const keys = await createReverseDraftInvoiceKeys(context, prefix)
 
@@ -170,6 +163,7 @@ interface CreateTaxInvoiceDocumentInput {
 }
 
 export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): TaxInvoiceDocumentInput {
+  const isReverseIssue = input.issueType === TaxInvoiceIssueTypes.Reverse
   return {
     writtenDate: input.writtenDate,
     chargeDirection: TaxInvoiceChargeDirectionValues.NormalCharge,
@@ -177,7 +171,7 @@ export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): 
     purposeType: TaxInvoicePurposeTypes.Receipt,
     taxType: TaxInvoiceTaxationTypes.Taxable,
     supplier: {
-      businessNumber: input.businessNumber,
+      businessNumber: isReverseIssue ? input.counterpartBusinessNumber : input.businessNumber,
       managementKey: input.managementKey,
       companyName: '통합테스트 공급자',
       chiefExecutiveOfficerName: '대표자',
@@ -189,7 +183,7 @@ export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): 
     },
     buyer: {
       recipientType: TaxInvoiceRecipientTypes.Business,
-      businessNumber: input.counterpartBusinessNumber,
+      businessNumber: isReverseIssue ? input.businessNumber : input.counterpartBusinessNumber,
       managementKey: input.buyerManagementKey ?? createManagementKey('BUY'),
       companyName: '통합테스트 공급받는자',
       chiefExecutiveOfficerName: '수신대표',

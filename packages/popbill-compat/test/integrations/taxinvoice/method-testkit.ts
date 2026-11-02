@@ -1,13 +1,10 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import type { TAXINVOICE_REQUIRED_METHODS } from '@/services/taxinvoice/methods'
 import { TaxinvoiceDocumentKeyTypes } from '@/services/taxinvoice/types'
 import type { TaxinvoicePromiseService } from '@connextable/popbill-compat/factory'
 import { createTaxinvoicePromiseIntegrationService, getTaxinvoiceIntegrationEnv } from './integration-context'
 import type * as Spec from '@connextable/popbill-spec'
-
-export type TaxinvoiceCompatMethodName = (typeof TAXINVOICE_REQUIRED_METHODS)[number]
 
 type IntegrationEnv = ReturnType<typeof getTaxinvoiceIntegrationEnv>
 
@@ -104,10 +101,6 @@ export async function createReverseDraftInvoiceKeys(context: TaxinvoiceMethodCon
   }
 }
 
-export async function createReverseDraftInvoice(context: TaxinvoiceMethodContext, prefix: string): Promise<string> {
-  return (await createReverseDraftInvoiceKeys(context, prefix)).refuseManagementKey
-}
-
 export async function createReverseRequestedInvoice(context: TaxinvoiceMethodContext, prefix: string): Promise<ReverseInvoiceKeys> {
   const keys = await createReverseDraftInvoiceKeys(context, prefix)
 
@@ -155,13 +148,14 @@ interface CreateTaxInvoiceDocumentInput {
 }
 
 export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): Spec.TaxInvoiceApiModel {
+  const isReverseIssue = input.issueType === '역발행'
   return {
     writeDate: input.writeDate,
     chargeDirection: '정과금',
     issueType: input.issueType ?? '정발행',
     purposeType: '영수',
     taxType: '과세',
-    invoicerCorpNum: input.businessNumber,
+    invoicerCorpNum: isReverseIssue ? input.counterpartCorpNum : input.businessNumber,
     invoicerMgtKey: input.managementKey,
     invoicerCorpName: '통합테스트 공급자',
     invoicerCEOName: '대표자',
@@ -171,7 +165,7 @@ export function createTaxInvoiceDocument(input: CreateTaxInvoiceDocumentInput): 
     invoicerContactName: '테스트담당자',
     invoicerEmail: input.receiverEmail,
     invoiceeType: '사업자',
-    invoiceeCorpNum: input.counterpartCorpNum,
+    invoiceeCorpNum: isReverseIssue ? input.businessNumber : input.counterpartCorpNum,
     invoiceeMgtKey: input.buyerManagementKey ?? createManagementKey('BUY'),
     invoiceeCorpName: '통합테스트 공급받는자',
     invoiceeCEOName: '수신대표',

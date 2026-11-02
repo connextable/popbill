@@ -15,10 +15,12 @@ async function main(): Promise<void> {
   printHeader('POPBILL TAX INVOICE EXAMPLES')
   logInfo('dotenvx 환경변수 로딩 기준으로 실행')
 
-  const targetScenarios = parseScenarioArgs(process.argv.slice(2))
+  const rawArgs = process.argv.slice(2)
+  const requestedHelp = rawArgs.includes('--help') || rawArgs.includes('-h')
+  const targetScenarios = parseScenarioArgs(rawArgs)
   if (targetScenarios === null) {
     printUsage()
-    process.exitCode = 1
+    process.exitCode = requestedHelp ? 0 : 1
     return
   }
 
@@ -85,17 +87,17 @@ function parseScenarioArgs(rawArgs: string[]): ScenarioName[] | null {
     return allScenarioNames
   }
 
-  if (selectedTokens.includes('all')) {
-    return allScenarioNames
-  }
-
-  const unknown = selectedTokens.filter((value) => !isScenarioName(value, allScenarioNames))
+  const unknown = selectedTokens.filter((value) => value !== 'all' && !isScenarioName(value, allScenarioNames))
   if (unknown.length > 0) {
     logError('알 수 없는 scenario', {
       unknown,
       available: allScenarioNames,
     })
     return null
+  }
+
+  if (selectedTokens.includes('all')) {
+    return allScenarioNames
   }
 
   return selectedTokens.filter((value): value is ScenarioName => isScenarioName(value, allScenarioNames))

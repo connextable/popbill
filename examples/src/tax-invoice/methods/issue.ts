@@ -1,4 +1,5 @@
 import { createManagementKey, createSubmissionIdentifier } from '../taxinvoice-fixtures.ts'
+import { createCounterpartExampleContext } from '../context.ts'
 import type { MethodDefinition } from './types.ts'
 import { createDocument, createDraftInvoice } from '../workflows/invoice.ts'
 import {
@@ -11,6 +12,7 @@ import {
   prepareReverseRequestedInvoiceKeys,
 } from './helpers.ts'
 import { summarizeOperationResult } from '../utils/summarizers.ts'
+import { logWarn } from '../utils/log.ts'
 
 export const ISSUE_METHODS = {
   issueInvoiceImmediately: {
@@ -156,16 +158,22 @@ export const ISSUE_METHODS = {
   refuseReverseIssueRequest: {
     description: '역발행 요청 거부',
     async run(context, runner) {
+      const supplierContext = createCounterpartExampleContext(context)
+      if (!supplierContext) {
+        logWarn('refuseReverseIssueRequest skipped', { reason: 'POPBILL_COUNTERPART_USER_ID is required for the supplier account' })
+        return
+      }
+
       const keys = await prepareReverseRequestedInvoiceKeys(context, runner, 'RRF')
       if (!keys) {
         return
       }
 
       const input = {
-        ...createDocumentRequest(context, keys.refuseManagementKey, 'SELL'),
+        ...createDocumentRequest(supplierContext, keys.refuseManagementKey, 'SELL'),
         historyMemo: 'examples reverse request refuse by method',
       }
-      await runner.run('refuseReverseIssueRequest', input, () => context.service.refuseReverseIssueRequest(input), summarizeOperationResult)
+      await runner.run('refuseReverseIssueRequest', input, () => supplierContext.service.refuseReverseIssueRequest(input), summarizeOperationResult)
     },
   },
 
