@@ -2,6 +2,8 @@ export interface FetchJsonOptions {
   timeoutMs: number
 }
 
+const MAX_TIMEOUT_MS = 2_147_483_647
+
 export interface HttpErrorPayload {
   status: number
   body: unknown
@@ -20,19 +22,17 @@ class HttpResponseError extends Error implements HttpErrorPayload {
 }
 
 export async function fetchJson<T>(requestUrl: string, requestInit: RequestInit, options: FetchJsonOptions): Promise<T> {
-  const response = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs)
-  const responseBodyText = await response.text()
+  const { response, responseText } = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs)
 
   if (!response.ok) {
-    throw createHttpErrorPayload(response.status, parseErrorResponseBody(responseBodyText))
+    throw createHttpErrorPayload(response.status, parseErrorResponseBody(responseText))
   }
 
-  return parseJsonResponse(responseBodyText) as T
+  return parseJsonResponse(responseText) as T
 }
 
 export async function fetchText(requestUrl: string, requestInit: RequestInit, options: FetchJsonOptions): Promise<string> {
-  const response = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs)
-  const responseText = await response.text()
+  const { response, responseText } = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs)
 
   if (!response.ok) {
     throw createHttpErrorPayload(response.status, responseText)
@@ -41,7 +41,15 @@ export async function fetchText(requestUrl: string, requestInit: RequestInit, op
   return responseText
 }
 
-async function fetchWithTimeout(requestUrl: string, requestInit: RequestInit, timeoutMs: number): Promise<Response> {
+async function fetchWithTimeout(
+  requestUrl: string,
+  requestInit: RequestInit,
+  timeoutMs: number
+): Promise<{ response: Response; responseText: string }> {
+  if (timeoutMs > MAX_TIMEOUT_MS) {
+    throw new RangeError(`timeoutMs must not exceed ${String(MAX_TIMEOUT_MS)} milliseconds.`)
+  }
+
   const externalSignal = requestInit.signal
   const abortController = new AbortController()
   const abortFromExternalSignal = () => {
@@ -59,10 +67,12 @@ async function fetchWithTimeout(requestUrl: string, requestInit: RequestInit, ti
   }, timeoutMs)
 
   try {
-    return await fetch(requestUrl, {
+    const response = await fetch(requestUrl, {
       ...requestInit,
       signal: abortController.signal,
     })
+    const responseText = await response.text()
+    return { response, responseText }
   } finally {
     clearTimeout(timer)
     externalSignal?.removeEventListener('abort', abortFromExternalSignal)
