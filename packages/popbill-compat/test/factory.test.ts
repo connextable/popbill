@@ -1,33 +1,16 @@
-import { describe, expect, expectTypeOf, test } from 'vitest'
-import {
-  createTaxinvoicePromiseService,
-  createTaxinvoiceService,
-  type CompatConfig,
-  type TaxinvoiceCallbackService,
-  type TaxinvoicePromiseService,
-} from '@/factory/index'
+import { describe, expect, test, vi } from 'vitest'
+import { createTaxinvoicePromiseService, createTaxinvoiceService, type CompatConfig } from '@/factory/index'
 
 describe('compat factory subpath', () => {
-  test('exports taxinvoice factory functions', () => {
-    expect(typeof createTaxinvoiceService).toBe('function')
-    expect(typeof createTaxinvoicePromiseService).toBe('function')
-  })
+  test.each([
+    ['callback', createTaxinvoiceService],
+    ['promise', createTaxinvoicePromiseService],
+  ] as const)('async %s factory returns the service instance', async (_name, createService) => {
+    const service = createService({ LinkID: 'TEST_LINK_ID', SecretKey: Buffer.from('secret').toString('base64') })
+    const resolveService = async (): Promise<unknown> => service
 
-  test('creates callback and promise taxinvoice services with typed return values', () => {
-    const config: CompatConfig = {
-      LinkID: 'TEST_LINK_ID',
-      SecretKey: Buffer.from('secret').toString('base64'),
-      IsTest: true,
-    }
-
-    const callbackService = createTaxinvoiceService(config)
-    const promiseService = createTaxinvoicePromiseService(config)
-
-    expectTypeOf(callbackService).toEqualTypeOf<TaxinvoiceCallbackService>()
-    expectTypeOf(promiseService).toEqualTypeOf<TaxinvoicePromiseService>()
-
-    expect(typeof callbackService.getInfo).toBe('function')
-    expect(typeof promiseService.getInfo).toBe('function')
+    await expect(Promise.resolve(service)).resolves.toBe(service)
+    await expect(resolveService()).resolves.toBe(service)
   })
 
   test('acceptLanguage allows ko-KR and en-US, and rejects unknown values', () => {
@@ -57,5 +40,27 @@ describe('compat factory subpath', () => {
         acceptLanguage: 'ja-JP',
       })
     }).toThrow(/acceptLanguage/)
+  })
+
+  test('factory instances keep their own default error handlers when the config object is reused', async () => {
+    const firstErrorHandler = vi.fn<(error: unknown) => void>()
+    const secondErrorHandler = vi.fn<(error: unknown) => void>()
+    const config: CompatConfig = {
+      LinkID: 'TEST_LINK_ID',
+      SecretKey: Buffer.from('secret').toString('base64'),
+      defaultErrorHandler: firstErrorHandler,
+    }
+    const firstService = createTaxinvoicePromiseService(config)
+
+    config.defaultErrorHandler = secondErrorHandler
+    const secondService = createTaxinvoicePromiseService(config)
+
+    await expect(firstService.getInfo('', 'SELL', 'MGT-001')).rejects.toMatchObject({ code: -99999999 })
+    expect(firstErrorHandler).toHaveBeenCalledTimes(1)
+    expect(secondErrorHandler).not.toHaveBeenCalled()
+
+    await expect(secondService.getInfo('', 'SELL', 'MGT-002')).rejects.toMatchObject({ code: -99999999 })
+    expect(firstErrorHandler).toHaveBeenCalledTimes(1)
+    expect(secondErrorHandler).toHaveBeenCalledTimes(1)
   })
 })

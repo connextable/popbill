@@ -1,4 +1,4 @@
-import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
+import { encodePathSegment, validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import type * as Spec from '@connextable/popbill-spec'
 
@@ -12,7 +12,7 @@ export async function requestGetPopUpUrl(
   validateRequiredTaxinvoiceInputs(corpNum, keyType, mgtKey)
 
   const response = await context.requestClient.requestJson<Spec.TaxInvoiceGetPopUpUrlApiResponse>({
-    uri: `/Taxinvoice/${keyType}/${mgtKey}?TG=POPUP`,
+    uri: `/Taxinvoice/${keyType}/${encodePathSegment(mgtKey)}?TG=POPUP`,
     corpNum,
     userId,
     method: 'GET',

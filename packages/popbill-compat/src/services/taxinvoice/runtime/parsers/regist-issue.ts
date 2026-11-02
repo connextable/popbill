@@ -1,5 +1,5 @@
 import type { LegacyErrorCallback, LegacySuccessCallback } from '@/services/taxinvoice/types'
-import { asErrorCallback } from '@/services/taxinvoice/runtime/common'
+import { asErrorCallback, asSuccessCallback } from '@/services/taxinvoice/runtime/common'
 import type * as Spec from '@connextable/popbill-spec'
 
 export interface ParsedRegistIssueOptions {
@@ -42,9 +42,13 @@ export function parseRegistIssueCallbackArgs(args: unknown[]): ParsedRegistIssue
 
   applyRegistIssueFixedOptions(parsed, args)
 
-  const callbackIndex = args.findIndex((arg) => typeof arg === 'function')
+  const fixedCallbackIndex = typeof args[5] === 'string' ? 6 : 5
+  const callbackIndex =
+    args[fixedCallbackIndex] === undefined && typeof args[fixedCallbackIndex + 1] === 'function'
+      ? fixedCallbackIndex
+      : args.findIndex((arg) => typeof arg === 'function')
   if (callbackIndex >= 0) {
-    parsed.success = args[callbackIndex] as LegacySuccessCallback<Spec.TaxInvoiceRegistIssueApiResponse>
+    parsed.success = asSuccessCallback<Spec.TaxInvoiceRegistIssueApiResponse>(args[callbackIndex])
     parsed.error = asErrorCallback(args[callbackIndex + 1])
   }
 

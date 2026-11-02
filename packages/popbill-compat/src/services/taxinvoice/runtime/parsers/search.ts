@@ -33,7 +33,7 @@ export function parseSearchCallbackArgs(args: unknown[]): ParsedSearchCallbackOp
     mgtKey: '',
   }
 
-  const successIndex = args.findIndex((candidate) => typeof candidate === 'function')
+  const successIndex = args[10] === undefined && typeof args[11] === 'function' ? 10 : args.findIndex((candidate) => typeof candidate === 'function')
   const valueArgs = successIndex === -1 ? args : args.slice(0, successIndex)
 
   if (successIndex !== -1) {

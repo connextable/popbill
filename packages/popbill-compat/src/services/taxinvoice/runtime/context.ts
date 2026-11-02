@@ -9,8 +9,10 @@ export interface TaxinvoiceRuntimeContext {
 }
 
 export function createTaxinvoiceRuntimeContext(config: CompatConfig): TaxinvoiceRuntimeContext {
+  const defaultErrorHandler = config.defaultErrorHandler
+
   return {
     requestClient: createTaxinvoiceRequestClient(config),
-    defaultErrorHandler: typeof config.defaultErrorHandler === 'function' ? (error) => config.defaultErrorHandler?.(error) : undefined,
+    defaultErrorHandler: typeof defaultErrorHandler === 'function' ? defaultErrorHandler : undefined,
   }
 }
