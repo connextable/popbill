@@ -39,9 +39,11 @@ console.log(result.addresses)
 - `secretKey`
 - `accessId`
 
+`accessId`는 클라이언트 내 토큰 캐시 식별자입니다. 주소링크 인증 요청에는 `access_id`를 전송하지 않습니다.
+
 주요 옵션:
 
-- `apiBaseUrl`: 주소링크 API 기본 URL입니다. 기본값은 `https://jusolink.linkhub.co.kr`입니다.
+- `apiBaseUrl`: 주소링크 API 기본 URL입니다. 기본값은 `https://juso.linkhub.co.kr`입니다.
 - `authBaseUrl`: Linkhub 인증 API 기본 URL입니다. 기본값은 `https://auth.linkhub.co.kr`입니다.
 - `forwardedIpAddress`: 토큰 발급 시 사용할 제한 IP 값입니다.
 - `useLocalTime`: 인증 시 로컬 UTC 시간을 사용할지 결정합니다. 기본값은 `true`입니다.

@@ -1,4 +1,4 @@
-import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
+import { encodePathSegment, validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import type * as Spec from '@connextable/popbill-spec'
 
@@ -12,7 +12,7 @@ export async function requestGetMailUrl(
   validateRequiredTaxinvoiceInputs(corpNum, keyType, mgtKey)
 
   const response = await context.requestClient.requestJson<Spec.TaxInvoiceGetMailUrlApiResponse>({
-    uri: `/Taxinvoice/${keyType}/${mgtKey}?TG=MAIL`,
+    uri: `/Taxinvoice/${keyType}/${encodePathSegment(mgtKey)}?TG=MAIL`,
     corpNum,
     userId,
     method: 'GET',

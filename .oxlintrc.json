@@ -24,7 +24,13 @@
   "rules": {
     "typescript/consistent-type-imports": "error",
     "typescript/consistent-type-exports": "error",
-    "import/no-duplicates": "error"
+    "import/no-duplicates": "error",
+    "vitest/expect-expect": [
+      "warn",
+      {
+        "assertFunctionNames": ["expect", "expectTypeOf", "assert", "assertType", "testkit.expectApiSuccess", "helpers.expectTaxinvoiceRequestPath"]
+      }
+    ]
   },
   "ignorePatterns": [".temp"]
 }

@@ -537,12 +537,12 @@ export interface TaxInvoiceApiModel {
   /**
    * 책번호 '권' 항목
    */
-  kwon?: string
+  kwon?: number | string
 
   /**
    * 책번호 '호' 항목
    */
-  ho?: string
+  ho?: number | string
 
   /**
    * 사업자등록증 이미지 첨부여부
@@ -674,7 +674,7 @@ export interface TaxInvoiceInfoApiModel {
   /**
    * 발행일시
    */
-  issueDT: string
+  issueDT?: string
 
   /**
    * 지연발행여부
@@ -694,7 +694,7 @@ export interface TaxInvoiceInfoApiModel {
   /**
    * 상태메모
    */
-  stateMemo: string
+  stateMemo?: string
 
   /**
    * 상태코드
@@ -940,7 +940,7 @@ export interface TaxInvoiceIssueResponseApiModel extends common.TaxInvoiceApiRes
   /**
    * 발행일시
    */
-  issueDT?: string
+  issueDT?: string | null
 }
 
 /**
@@ -1007,6 +1007,11 @@ export interface TaxInvoiceBulkResultApiModel extends common.TaxInvoiceApiRespon
    * 접수아이디
    */
   receiptID?: string
+
+  /**
+   * 접수일시
+   */
+  receiptDT?: string
 
   /**
    * 제출아이디
@@ -1091,6 +1096,11 @@ export interface TaxInvoiceTaxCertInfoApiModel {
    * 인증서 정책 OID
    */
   OID?: string
+
+  /**
+   * JSON 응답에서 사용하는 인증서 정책 OID입니다.
+   */
+  oid?: string
 
   /**
    * 등록 담당자 성명

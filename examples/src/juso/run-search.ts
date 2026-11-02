@@ -83,10 +83,9 @@ async function main(): Promise<void> {
 }
 
 function parseSearchInput(rawArgumentList: readonly string[], fallbackKeyword: string | undefined): SearchAddressesInput | null {
-  const normalizedArgumentList = rawArgumentList.map((value) => value.trim()).filter((value) => value.length > 0)
+  const normalizedArgumentList = rawArgumentList.map((value) => value.trim()).filter((value) => value.length > 0 && value !== '--')
   const optionMap = parseOptionMap(normalizedArgumentList)
-  const positionalKeyword = normalizedArgumentList.find((value) => !value.startsWith('--'))
-  const searchKeyword = optionMap.keyword ?? positionalKeyword ?? fallbackKeyword
+  const searchKeyword = optionMap.keyword ?? optionMap.positionalKeyword ?? fallbackKeyword
 
   if (!searchKeyword || searchKeyword.length === 0) {
     return null
@@ -103,36 +102,47 @@ function parseSearchInput(rawArgumentList: readonly string[], fallbackKeyword: s
 
 function parseOptionMap(rawArgumentList: readonly string[]): {
   keyword?: string
+  positionalKeyword?: string
   pageNumber?: string
   pageSize?: string
   disableDifferentialSearch: boolean
   disableSuggestion: boolean
 } {
-  return {
-    keyword: readOptionValue(rawArgumentList, '--keyword'),
-    pageNumber: readOptionValue(rawArgumentList, '--page-number'),
-    pageSize: readOptionValue(rawArgumentList, '--page-size'),
-    disableDifferentialSearch: rawArgumentList.includes('--disable-differential-search'),
-    disableSuggestion: rawArgumentList.includes('--disable-suggestion'),
+  const options: ReturnType<typeof parseOptionMap> = {
+    disableDifferentialSearch: false,
+    disableSuggestion: false,
   }
-}
-
-function readOptionValue(rawArgumentList: readonly string[], optionName: string): string | undefined {
   for (let index = 0; index < rawArgumentList.length; index += 1) {
     const token = rawArgumentList[index]
-    if (token !== optionName) {
+    if (token === '--disable-differential-search') {
+      options.disableDifferentialSearch = true
+      continue
+    }
+    if (token === '--disable-suggestion') {
+      options.disableSuggestion = true
       continue
     }
 
-    const value = rawArgumentList[index + 1]
-    if (!value || value.startsWith('--')) {
-      return undefined
+    if (token === '--keyword' || token === '--page-number' || token === '--page-size') {
+      const value = rawArgumentList[index + 1]
+      if (!value || value.startsWith('--')) {
+        throw new Error(`${token} 옵션 값이 필요합니다.`)
+      }
+      if (token === '--keyword') options.keyword = value
+      if (token === '--page-number') options.pageNumber = value
+      if (token === '--page-size') options.pageSize = value
+      index += 1
+      continue
     }
 
-    return value
+    if (token.startsWith('-')) {
+      throw new Error(`알 수 없는 옵션입니다: ${token}`)
+    }
+
+    options.positionalKeyword ??= token
   }
 
-  return undefined
+  return options
 }
 
 function parsePositiveIntegerOption(value: string | undefined, fieldName: string): number | undefined {
@@ -140,8 +150,8 @@ function parsePositiveIntegerOption(value: string | undefined, fieldName: string
     return undefined
   }
 
-  const parsedValue = Number.parseInt(value, 10)
-  if (!Number.isInteger(parsedValue) || parsedValue < 1) {
+  const parsedValue = Number(value)
+  if (!/^\d+$/.test(value) || !Number.isSafeInteger(parsedValue) || parsedValue < 1) {
     throw new Error(`${fieldName}는 1 이상의 정수여야 합니다.`)
   }
 

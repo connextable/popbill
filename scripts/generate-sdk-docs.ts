@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import * as ts from 'typescript'
+import * as ts from '@typescript/typescript6'
 
 type JsonPrimitive = string | number | boolean | null
 
@@ -69,6 +69,7 @@ interface TypeDefinition {
   filePath: string
   typeText: string
   aliasOf: string | null
+  typeParameters: { name: string; defaultTypeText: string | null }[]
   extendsTypes: string[]
   properties: TypeProperty[]
   enumValues: EnumValue[] | null
@@ -352,7 +353,9 @@ function writePopbillDocs({ methodGroups, groupedMethods, methodByName, serviceD
         lines.push('| Field | Type | Required | Description |')
         lines.push('| --- | --- | --- | --- |')
         for (const property of inputSchema.properties) {
-          lines.push(`| \`${property.name}\` | \`${property.typeText}\` | ${property.required ? 'Y' : 'N'} | ${escapeTable(property.description)} |`)
+          lines.push(
+            `| \`${property.name}\` | \`${escapeTable(property.typeText)}\` | ${property.required ? 'Y' : 'N'} | ${escapeTable(property.description)} |`
+          )
         }
         lines.push('')
       } else if (inputSchema && inputSchema.aliasOf) {
@@ -373,7 +376,9 @@ function writePopbillDocs({ methodGroups, groupedMethods, methodByName, serviceD
       lines.push('| Field | Type | Required | Description |')
       lines.push('| --- | --- | --- | --- |')
       for (const property of returnSchema.properties) {
-        lines.push(`| \`${property.name}\` | \`${property.typeText}\` | ${property.required ? 'Y' : 'N'} | ${escapeTable(property.description)} |`)
+        lines.push(
+          `| \`${property.name}\` | \`${escapeTable(property.typeText)}\` | ${property.required ? 'Y' : 'N'} | ${escapeTable(property.description)} |`
+        )
       }
       lines.push('')
     } else if (returnSchema && returnSchema.aliasOf) {
@@ -507,7 +512,9 @@ function writeCompatDocs({
         lines.push('| Name | Type | Optional |')
         lines.push('| --- | --- | --- |')
         for (const parameter of overload.parameters) {
-          lines.push(`| \`${parameter.name}\` | \`${compatParameterTypeText(methodName, parameter)}\` | ${parameter.optional ? 'Y' : 'N'} |`)
+          lines.push(
+            `| \`${parameter.name}\` | \`${escapeTable(compatParameterTypeText(methodName, parameter))}\` | ${parameter.optional ? 'Y' : 'N'} |`
+          )
         }
         lines.push('')
       })
@@ -518,7 +525,9 @@ function writeCompatDocs({
       lines.push('| Name | Type | Optional |')
       lines.push('| --- | --- | --- |')
       for (const parameter of method.parameters) {
-        lines.push(`| \`${parameter.name}\` | \`${compatParameterTypeText(methodName, parameter)}\` | ${parameter.optional ? 'Y' : 'N'} |`)
+        lines.push(
+          `| \`${parameter.name}\` | \`${escapeTable(compatParameterTypeText(methodName, parameter))}\` | ${parameter.optional ? 'Y' : 'N'} |`
+        )
       }
       lines.push('')
     }
@@ -676,7 +685,7 @@ function writeGeneratedJson({
     popbillTypesIndex.push({
       typeName,
       kind: typeDef.kind,
-      file: `./types/${toKebabCase(typeName)}.json`,
+      file: `./${toKebabCase(typeName)}.json`,
     })
     writeJson(path.join(popbillSchemaRoot, `${toKebabCase(typeName)}.json`), schema)
   }
@@ -724,7 +733,7 @@ function writeGeneratedJson({
 
     compatMethodSchemas.push({
       methodName,
-      file: `./methods/${toKebabCase(methodName)}.json`,
+      file: `./${toKebabCase(methodName)}.json`,
     })
     writeJson(path.join(generatedRoot, 'schemas/popbill-compat/taxinvoice/methods', `${toKebabCase(methodName)}.json`), schema)
   }
@@ -791,7 +800,7 @@ function buildTypeCatalog(sources: SourceWithAst[]): TypeCatalog {
           statement.heritageClauses
             ?.flatMap((clause) =>
               clause.types.map((typeNode) => ({
-                name: typeNode.expression.getText(source.ast),
+                name: typeNode.getText(source.ast),
               }))
             )
             .map((extendedType) => extendedType.name) ?? []
@@ -803,6 +812,10 @@ function buildTypeCatalog(sources: SourceWithAst[]): TypeCatalog {
           filePath: source.filePath,
           typeText: statement.name.text,
           aliasOf: null,
+          typeParameters: (statement.typeParameters ?? []).map((parameter) => ({
+            name: parameter.name.text,
+            defaultTypeText: parameter.default?.getText(source.ast) ?? null,
+          })),
           extendsTypes,
           properties,
           enumValues: null,
@@ -813,7 +826,7 @@ function buildTypeCatalog(sources: SourceWithAst[]): TypeCatalog {
       if (ts.isTypeAliasDeclaration(statement)) {
         const typeText = statement.type.getText(source.ast)
         const description = getNodeDescription(statement)
-        const aliasOf = ts.isTypeReferenceNode(statement.type) ? statement.type.typeName.getText(source.ast) : null
+        const aliasOf = ts.isTypeReferenceNode(statement.type) ? typeText : null
         const enumFromConst = extractEnumConstName(typeText)
         const enumValues = enumFromConst ? (constObjects.get(enumFromConst) ?? null) : extractLiteralUnionValues(statement.type)
 
@@ -824,6 +837,10 @@ function buildTypeCatalog(sources: SourceWithAst[]): TypeCatalog {
           filePath: source.filePath,
           typeText,
           aliasOf,
+          typeParameters: (statement.typeParameters ?? []).map((parameter) => ({
+            name: parameter.name.text,
+            defaultTypeText: parameter.default?.getText(source.ast) ?? null,
+          })),
           extendsTypes: [],
           properties: [],
           enumValues,
@@ -839,8 +856,9 @@ function buildTypeCatalog(sources: SourceWithAst[]): TypeCatalog {
 }
 
 function createSchemaForType(typeCatalog: TypeCatalog, typeName: string): TypeSchema {
-  const normalizedName = typeName.replace(/\[\]$/, '').trim()
-  const isArray = normalizedName !== typeName
+  const elementTypeName = typeName.trim().replace(/\[\]$/, '')
+  const isArray = elementTypeName !== typeName.trim()
+  const normalizedName = parseTypeReference(elementTypeName).name
   const typeDef = typeCatalog.types.get(normalizedName)
 
   if (!typeDef) {
@@ -856,7 +874,7 @@ function createSchemaForType(typeCatalog: TypeCatalog, typeName: string): TypeSc
     }
   }
 
-  const flattenedProperties = flattenTypeProperties(typeCatalog, normalizedName)
+  const flattenedProperties = flattenTypeProperties(typeCatalog, elementTypeName)
 
   return {
     schemaVersion: 1,
@@ -873,7 +891,7 @@ function createSchemaForType(typeCatalog: TypeCatalog, typeName: string): TypeSc
       typeText: property.typeText,
       required: property.required,
       description: property.description,
-      jsonType: inferJsonType(property.typeText),
+      jsonType: inferJsonType(typeCatalog, property.typeText),
     })),
   }
 }
@@ -884,18 +902,27 @@ function flattenTypeProperties(typeCatalog: TypeCatalog, typeName: string, visit
   }
   visited.add(typeName)
 
-  const typeDef = typeCatalog.types.get(typeName)
+  const reference = parseTypeReference(typeName)
+  const typeDef = typeCatalog.types.get(reference.name)
   if (!typeDef) {
     return []
   }
 
+  const substitutions = new Map<string, string>()
+  for (const [index, parameter] of typeDef.typeParameters.entries()) {
+    const value = reference.typeArguments[index] ?? parameter.defaultTypeText
+    if (value) {
+      substitutions.set(parameter.name, substituteTypeParameters(value, substitutions))
+    }
+  }
+
   if (typeDef.aliasOf && typeDef.aliasOf !== typeName) {
-    return flattenTypeProperties(typeCatalog, typeDef.aliasOf, visited)
+    return flattenTypeProperties(typeCatalog, substituteTypeParameters(typeDef.aliasOf, substitutions), visited)
   }
 
   const inherited: TypeProperty[] = []
   for (const parentName of typeDef.extendsTypes) {
-    inherited.push(...flattenTypeProperties(typeCatalog, parentName, visited))
+    inherited.push(...flattenTypeProperties(typeCatalog, substituteTypeParameters(parentName, substitutions), visited))
   }
 
   const merged = new Map<string, TypeProperty>()
@@ -903,10 +930,27 @@ function flattenTypeProperties(typeCatalog: TypeCatalog, typeName: string, visit
     merged.set(property.name, property)
   }
   for (const property of typeDef.properties) {
-    merged.set(property.name, property)
+    merged.set(property.name, { ...property, typeText: substituteTypeParameters(property.typeText, substitutions) })
   }
 
   return [...merged.values()]
+}
+
+function parseTypeReference(typeText: string): { name: string; typeArguments: string[] } {
+  const source = ts.createSourceFile('type-reference.ts', `type Generated = ${typeText}`, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+  const declaration = source.statements[0]
+  if (!declaration || !ts.isTypeAliasDeclaration(declaration) || !ts.isTypeReferenceNode(declaration.type)) {
+    return { name: typeText, typeArguments: [] }
+  }
+
+  return {
+    name: declaration.type.typeName.getText(source).replace(/^(document|response)\./, ''),
+    typeArguments: (declaration.type.typeArguments ?? []).map((argument) => argument.getText(source)),
+  }
+}
+
+function substituteTypeParameters(typeText: string, substitutions: Map<string, string>): string {
+  return typeText.replace(/\b[A-Za-z_$][A-Za-z0-9_$]*\b/g, (name) => substitutions.get(name) ?? name)
 }
 
 function parseMethodSignatures(source: SourceWithAst, interfaceName: string): MethodSignatureInfo[] {
@@ -1307,7 +1351,7 @@ function extractLiteralUnionValues(typeNode: ts.TypeNode): JsonPrimitive[] | nul
   return values.length > 0 ? values : null
 }
 
-function inferJsonType(typeText: string): string {
+function inferJsonType(typeCatalog: TypeCatalog, typeText: string, visited = new Set<string>()): string {
   const value = typeText.trim()
 
   if (value.endsWith('[]')) {
@@ -1332,7 +1376,27 @@ function inferJsonType(typeText: string): string {
     return 'union'
   }
 
-  return 'object'
+  const typeName = parseTypeReference(value).name
+  const typeDef = typeCatalog.types.get(typeName)
+  if (!typeDef || visited.has(typeName)) {
+    return 'unknown'
+  }
+  if (typeDef.kind === 'interface') {
+    return 'object'
+  }
+  visited.add(typeName)
+
+  if (typeDef.enumValues && typeDef.enumValues.length > 0) {
+    const valueTypes = new Set(
+      typeDef.enumValues.map((entry) => {
+        const enumValue = entry !== null && typeof entry === 'object' ? entry.value : entry
+        return enumValue === null ? 'null' : typeof enumValue
+      })
+    )
+    return valueTypes.size === 1 ? ([...valueTypes][0] ?? 'unknown') : 'union'
+  }
+
+  return inferJsonType(typeCatalog, typeDef.typeText, visited)
 }
 
 function toKebabCase(value: string): string {

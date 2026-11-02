@@ -1,6 +1,6 @@
 import { stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
 import { createLegacyValidationError } from '@/internal/errors'
-import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
+import { encodePathSegment, validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import type * as Spec from '@connextable/popbill-spec'
 
@@ -24,7 +24,7 @@ export async function requestAttachStatement(
   }
 
   return context.requestClient.requestJson<Spec.TaxInvoiceApiResponseBase>({
-    uri: `/Taxinvoice/${keyType}/${mgtKey}/AttachStmt`,
+    uri: `/Taxinvoice/${keyType}/${encodePathSegment(mgtKey)}/AttachStmt`,
     corpNum,
     userId,
     method: 'POST',

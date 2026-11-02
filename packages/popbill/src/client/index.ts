@@ -5,6 +5,7 @@ import type { PopbillApiError } from '@/errors'
 import { normalizeOptionalString, normalizeRequiredString } from '@connextable/popbill-utils'
 
 const DEFAULT_REQUEST_TIMEOUT_MILLISECONDS = 180_000
+const MAX_REQUEST_TIMEOUT_MILLISECONDS = 2_147_483_647
 const DEFAULT_ACCEPT_ENCODING = 'gzip'
 
 interface ResolvedPopbillClientConfig {
@@ -71,8 +72,8 @@ function normalizeRequestTimeoutMilliseconds(requestTimeoutMs: number | undefine
     return DEFAULT_REQUEST_TIMEOUT_MILLISECONDS
   }
 
-  if (!Number.isInteger(requestTimeoutMs) || requestTimeoutMs <= 0) {
-    throw new Error('requestTimeoutMs는 1 이상의 정수여야 합니다.')
+  if (!Number.isInteger(requestTimeoutMs) || requestTimeoutMs <= 0 || requestTimeoutMs > MAX_REQUEST_TIMEOUT_MILLISECONDS) {
+    throw new Error(`requestTimeoutMs는 1 이상 ${MAX_REQUEST_TIMEOUT_MILLISECONDS} 이하의 정수여야 합니다.`)
   }
 
   return requestTimeoutMs

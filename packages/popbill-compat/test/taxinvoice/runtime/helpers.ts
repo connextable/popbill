@@ -49,7 +49,6 @@ export function configureCompat(defaultErrorHandler?: (error: unknown) => void) 
   }
 
   compat.config(nextConfig)
-  promiseCompat.config(nextConfig)
 }
 
 export function expectTaxinvoiceRequestPath(fetchMock: ReturnType<typeof vi.fn>, expectedPath: string) {

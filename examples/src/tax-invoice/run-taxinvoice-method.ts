@@ -87,17 +87,17 @@ function parseMethodArgs(rawArgs: string[]): MethodName[] | null {
     return null
   }
 
-  if (selectedTokens.includes('all')) {
-    return allMethodNames
-  }
-
-  const unknown = selectedTokens.filter((value) => !isMethodName(value, allMethodNames))
+  const unknown = selectedTokens.filter((value) => value !== 'all' && !isMethodName(value, allMethodNames))
   if (unknown.length > 0) {
     logError('알 수 없는 method', {
       unknown,
       hint: 'pnpm -C examples taxinvoice:method:list',
     })
     return null
+  }
+
+  if (selectedTokens.includes('all')) {
+    return allMethodNames
   }
 
   return selectedTokens.filter((value): value is MethodName => isMethodName(value, allMethodNames))

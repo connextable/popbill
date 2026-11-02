@@ -1,5 +1,4 @@
 import * as promiseCompat from '@/promise/index'
-import { TaxinvoiceBoxScopes } from '@/services/taxinvoice'
 
 const REQUIRED_ENV_NAMES = ['POPBILL_LINK_ID', 'POPBILL_SECRET_KEY', 'POPBILL_CORP_NUM', 'POPBILL_USER_ID'] as const
 const RUN_REAL_TAXINVOICE_INTEGRATION_TESTS = normalizeBooleanEnv(process.env['POPBILL_RUN_TAXINVOICE_REAL_INTEGRATION_TESTS'])
@@ -10,6 +9,7 @@ interface IntegrationEnv {
   corpNum: string
   userId: string
   counterpartCorpNum: string
+  counterpartUserId?: string
   receiverEmail: string
   senderPhoneNumber: string
   receiverPhoneNumber: string
@@ -49,17 +49,6 @@ export function getTaxinvoiceIntegrationEnv(): IntegrationEnv {
   return integrationEnv
 }
 
-export function getTaxinvoiceDefaultBoxScope(): (typeof TaxinvoiceBoxScopes)[keyof typeof TaxinvoiceBoxScopes] {
-  return TaxinvoiceBoxScopes.TemporaryDocumentBox
-}
-
-export function expectTaxinvoiceApiErrorLike(error: unknown): void {
-  expect(error).toMatchObject({
-    code: expect.any(Number),
-    message: expect.any(String),
-  })
-}
-
 function loadIntegrationEnv(): IntegrationEnv {
   const statementItemCode = Number.parseInt(process.env['POPBILL_STATEMENT_ITEM_CODE']?.trim() ?? '121', 10)
 
@@ -78,6 +67,7 @@ function loadIntegrationEnv(): IntegrationEnv {
     corpNum: envValues.POPBILL_CORP_NUM,
     userId: envValues.POPBILL_USER_ID,
     counterpartCorpNum: process.env['POPBILL_COUNTERPART_CORP_NUM']?.trim() || '8888888888',
+    counterpartUserId: process.env['POPBILL_COUNTERPART_USER_ID']?.trim() || undefined,
     receiverEmail: process.env['POPBILL_RECEIVER_EMAIL']?.trim() || 'test@example.com',
     senderPhoneNumber: process.env['POPBILL_SENDER_PHONE']?.trim() || '07043042991',
     receiverPhoneNumber: process.env['POPBILL_RECEIVER_PHONE']?.trim() || '01043042991',

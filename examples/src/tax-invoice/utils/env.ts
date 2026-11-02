@@ -28,6 +28,7 @@ export function loadRuntimeConfig(): RuntimeConfig {
     requestTimeoutMs: parsePositiveIntegerValue(readEnvironmentString('POPBILL_REQUEST_TIMEOUT_MS', '30000'), 30_000),
     acceptEncoding: readEnvironmentString('POPBILL_ACCEPT_ENCODING', 'gzip') || null,
     counterpartCorpNum: readEnvironmentString('POPBILL_COUNTERPART_CORP_NUM', '8888888888'),
+    counterpartUserId: readEnvironmentString('POPBILL_COUNTERPART_USER_ID', '') || undefined,
     receiverEmail: readEnvironmentString('POPBILL_RECEIVER_EMAIL', 'test@example.com'),
     senderPhoneNumber: readEnvironmentString('POPBILL_SENDER_PHONE', '07043042991'),
     receiverPhoneNumber: readEnvironmentString('POPBILL_RECEIVER_PHONE', '01043042991'),
@@ -38,6 +39,7 @@ export function loadRuntimeConfig(): RuntimeConfig {
       DEFAULT_TAX_INVOICE_STATEMENT_ITEM_CODE
     ),
     statementManagementKey: readEnvironmentString('POPBILL_STATEMENT_MGT_KEY', ''),
+    assignItemKey: readEnvironmentString('POPBILL_ASSIGN_ITEM_KEY', ''),
     missingNames,
   }
 }

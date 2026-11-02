@@ -1,4 +1,5 @@
 import { createLinkhubRequestClient } from '@/api'
+import { LinkhubApiBaseUrls } from '@/spec-constants'
 import type { LinkhubTokenResponse, TokenProvider } from '@/auth'
 
 describe('createLinkhubRequestClient', () => {
@@ -11,7 +12,7 @@ describe('createLinkhubRequestClient', () => {
     const getToken = vi.fn<TokenProvider['getToken']>(async () => createMockTokenResponse('TOKEN'))
 
     const requestClient = createLinkhubRequestClient({
-      apiBaseUrl: 'https://jusolink.linkhub.co.kr',
+      apiBaseUrl: LinkhubApiBaseUrls.JusoLink,
       timeoutMs: 1_000,
       tokenProvider: {
         getToken,
@@ -23,6 +24,11 @@ describe('createLinkhubRequestClient', () => {
     await requestClient.requestJson({
       uri: '/Search?Searches=%EC%82%BC%EC%84%B1%EB%8F%99',
       method: 'GET',
+      headers: {
+        authorization: 'Bearer stale-token',
+        'accept-encoding': 'identity',
+        'X-Custom': 'retained',
+      },
     })
 
     expect(getToken).toHaveBeenCalledWith('ACCESS_ID')
@@ -30,10 +36,12 @@ describe('createLinkhubRequestClient', () => {
     const fetchCall = fetchSpy.mock.calls.at(-1)
     const requestUrl = fetchCall?.[0]
     const requestInit = fetchCall?.[1]
-    const requestHeaders = requestInit?.headers as Record<string, string>
+    const requestHeaders = new Headers(requestInit?.headers)
 
-    expect(requestUrl).toBe('https://jusolink.linkhub.co.kr/Search?Searches=%EC%82%BC%EC%84%B1%EB%8F%99')
-    expect(requestHeaders['Authorization']).toBe('Bearer TOKEN')
+    expect(requestUrl).toBe('https://juso.linkhub.co.kr/Search?Searches=%EC%82%BC%EC%84%B1%EB%8F%99')
+    expect(requestHeaders.get('Authorization')).toBe('Bearer TOKEN')
+    expect(requestHeaders.get('Accept-Encoding')).toBe('identity')
+    expect(requestHeaders.get('X-Custom')).toBe('retained')
   })
 
   test('wraps token issuance errors with issue_token stage', async () => {
@@ -41,7 +49,7 @@ describe('createLinkhubRequestClient', () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }))
 
     const requestClient = createLinkhubRequestClient({
-      apiBaseUrl: 'https://jusolink.linkhub.co.kr',
+      apiBaseUrl: LinkhubApiBaseUrls.JusoLink,
       timeoutMs: 1_000,
       tokenProvider: {
         getToken: vi.fn<TokenProvider['getToken']>(async () => {
@@ -69,7 +77,7 @@ describe('createLinkhubRequestClient', () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('Service unavailable', { status: 503 }))
 
     const requestClient = createLinkhubRequestClient({
-      apiBaseUrl: 'https://jusolink.linkhub.co.kr',
+      apiBaseUrl: LinkhubApiBaseUrls.JusoLink,
       timeoutMs: 1_000,
       tokenProvider: {
         getToken: vi.fn<TokenProvider['getToken']>(async () => createMockTokenResponse('TOKEN')),
@@ -98,7 +106,7 @@ function createMockTokenResponse(sessionToken: string): LinkhubTokenResponse {
     userId: 'user',
     partnerCode: 'partner',
     userCode: 'usercode',
-    scopes: ['member'],
+    scopes: ['200'],
     ipAddress: '127.0.0.1',
     expiredAt: '2999-12-31T00:00:00Z',
   }

@@ -22,7 +22,7 @@ export function createTypedPromiseServiceStub<Methods extends object>(
 
   return new Proxy(target, {
     get(_target, property) {
-      if (typeof property !== 'string') {
+      if (typeof property !== 'string' || property === 'then') {
         return undefined
       }
 

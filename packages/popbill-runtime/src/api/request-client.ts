@@ -1,4 +1,5 @@
 import { fetchJson } from '@/transport/fetch-json'
+import { mergeRequestHeaders } from '@/transport/merge-headers'
 import type { TokenProvider } from '@/auth'
 import { PopbillHttpMethodOverrides } from '@/spec-constants'
 import { isBlank, normalizeOptionalString, sha1Base64, trimTrailingSlash } from '@connextable/popbill-utils'
@@ -15,6 +16,7 @@ export interface PopbillRequestStageError {
 
 export interface PopbillRequestClientConfig {
   apiBaseUrl: string
+  /** Request timeout in milliseconds, up to 2_147_483_647. */
   timeoutMs: number
   tokenProvider: TokenProvider
   acceptEncoding?: Spec.PopbillAcceptEncoding | null
@@ -43,8 +45,8 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
   return {
     async requestJson<T>(options: PopbillRequestOptions): Promise<T> {
       const method = (options.method ?? 'GET').toUpperCase()
+      const customHeaders = { ...options.headers }
       const requestHeaders: Record<string, string> = {
-        ...options.headers,
         'User-Agent': POPBILL_USER_AGENT,
       }
 
@@ -72,7 +74,7 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
         requestHeaders['X-HTTP-Method-Override'] = method
 
         if (method === PopbillHttpMethodOverrides.BulkIssue) {
-          const messageSource = typeof options.body === 'string' ? options.body : ''
+          const messageSource = getBulkIssueMessageSource(options.body)
           requestHeaders['X-PB-MESSAGE-DIGEST'] = sha1Base64(messageSource)
           if (isNonBlankString(options.submitId)) {
             requestHeaders['X-PB-SUBMIT-ID'] = options.submitId
@@ -94,7 +96,7 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
           `${normalizedApiBaseUrl}${options.uri}`,
           {
             method: method === 'GET' ? 'GET' : 'POST',
-            headers: requestHeaders,
+            headers: mergeRequestHeaders(customHeaders, requestHeaders),
             body: method === 'GET' ? undefined : (options.body ?? undefined),
           },
           { timeoutMs: config.timeoutMs }
@@ -104,6 +106,22 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
       }
     },
   }
+}
+
+function getBulkIssueMessageSource(body: PopbillRequestOptions['body']): string | Uint8Array {
+  if (body === null || body === undefined || typeof body === 'string') {
+    return body ?? ''
+  }
+
+  if (body instanceof ArrayBuffer) {
+    return new Uint8Array(body)
+  }
+
+  if (ArrayBuffer.isView(body)) {
+    return new Uint8Array(body.buffer, body.byteOffset, body.byteLength)
+  }
+
+  throw new TypeError('BULKISSUE body must be a string, ArrayBuffer, ArrayBuffer view, null, or undefined.')
 }
 
 function isFormDataBody(body: PopbillRequestOptions['body']): body is FormData {

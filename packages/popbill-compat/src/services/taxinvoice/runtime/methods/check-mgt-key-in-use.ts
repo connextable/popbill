@@ -1,4 +1,4 @@
-import { validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
+import { encodePathSegment, validateRequiredTaxinvoiceInputs } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import type * as Spec from '@connextable/popbill-spec'
 
@@ -12,7 +12,7 @@ export async function requestCheckMgtKeyInUse(
   validateRequiredTaxinvoiceInputs(corpNum, keyType, mgtKey)
 
   const response = await context.requestClient.requestJson<Spec.TaxInvoiceCheckMgtKeyInUseApiResponse>({
-    uri: `/Taxinvoice/${keyType}/${mgtKey}`,
+    uri: `/Taxinvoice/${keyType}/${encodePathSegment(mgtKey)}`,
     corpNum,
     userId,
     method: 'GET',
