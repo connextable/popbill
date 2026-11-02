@@ -51,7 +51,7 @@ async function issueTokenRequest(
     access_id: request.accessId,
     scope: [...request.scopes],
   }
-  const body = stringifyWithoutEmptyValues(requestBody)
+  const body = stringifyWithoutEmptyValues(requestBody) ?? ''
 
   const bodyDigest = sha256Base64(body)
   const dateHeader = await resolveDateHeader(config, authBaseUrl)
