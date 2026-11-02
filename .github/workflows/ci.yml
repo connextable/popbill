@@ -1,18 +1,20 @@
 name: CI
 
 on:
-  pull_request:
+  push:
+    branches:
+      - develop
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -90,7 +92,7 @@ jobs:
   package-work:
     needs:
       - build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -167,7 +169,7 @@ jobs:
           SUMMARY
 
   workspace-config:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
 
     steps:
@@ -211,7 +213,7 @@ jobs:
   publish-preview:
     needs:
       - build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
 
     steps:

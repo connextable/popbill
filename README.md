@@ -85,7 +85,7 @@ pnpm docs:generate
 
 실서버 통합 테스트: 기본 skip · [활성화 설정](./.env.example)
 
-릴리스: `pnpm release minor` → 릴리스 PR → CI 통과·병합 → Releaseway 발행
+릴리스: `pnpm release minor` → 검증·`develop`→`main` 병합·푸시 → Releaseway 발행
 
 ## 문서
 

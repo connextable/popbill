@@ -103,6 +103,10 @@ function tryGit(args: string[]): string | undefined {
 }
 
 function resolveRangeStart(options: CliOptions): string {
+  if (options.baseRef) {
+    return git(['merge-base', options.baseRef, 'HEAD'])
+  }
+
   const lastSyncCommit = tryGit([
     'log',
     '--extended-regexp',
@@ -121,8 +125,7 @@ function resolveRangeStart(options: CliOptions): string {
     'No release sync commit found. Select patch, minor, major, or custom manually for the first release after enabling auto bump.'
   )
 
-  assertCondition(Boolean(options.baseRef), 'No release sync commit found. Pass --base-ref to infer a first release range.')
-  return git(['merge-base', String(options.baseRef), 'HEAD'])
+  throw new Error('No release sync commit found. Pass --base-ref to infer a first release range.')
 }
 
 function parseCommits(rangeStart: string): CommitInfo[] {
