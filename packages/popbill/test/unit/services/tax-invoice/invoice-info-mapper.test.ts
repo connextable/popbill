@@ -1,5 +1,6 @@
 import { mapTaxInvoiceInfo } from '@/services/tax-invoice/mappers/invoice-info'
 import type * as Spec from '@connextable/popbill-spec'
+import type { TaxInvoiceInfo } from '@/services/tax-invoice/types'
 
 const BASE_RESPONSE: Spec.TaxInvoiceGetInfoApiResponse = {
   itemKey: 'ITEM-1',
@@ -26,6 +27,16 @@ const BASE_RESPONSE: Spec.TaxInvoiceGetInfoApiResponse = {
 }
 
 describe('tax-invoice invoice-info mapper', () => {
+  test('allows an unissued invoice summary without issue time or state memo', () => {
+    const { issueDT: _issueDT, stateMemo: _stateMemo, ...draft } = BASE_RESPONSE
+    const result = mapTaxInvoiceInfo({ ...draft, stateCode: 100 })
+
+    expect(result.issuedAt).toBeUndefined()
+    expect(result.stateMemo).toBeUndefined()
+    expectTypeOf<TaxInvoiceInfo['issuedAt']>().toEqualTypeOf<string | undefined>()
+    expectTypeOf<TaxInvoiceInfo['stateMemo']>().toEqualTypeOf<string | undefined>()
+  })
+
   test('keeps numeric stateCode and trustee print flag undefined when source is missing', () => {
     const result = mapTaxInvoiceInfo({
       ...BASE_RESPONSE,
@@ -48,12 +59,16 @@ describe('tax-invoice invoice-info mapper', () => {
     expect(result.isTrusteePrinted).toBe(true)
   })
 
-  test('throws when stateCode is not numeric', () => {
+  test.each(['invalid', '', '   ', Number.NaN, Number.POSITIVE_INFINITY])('throws when stateCode is invalid: %j', (stateCode) => {
     expect(() =>
       mapTaxInvoiceInfo({
         ...BASE_RESPONSE,
-        stateCode: 'invalid',
+        stateCode,
       } as unknown as Spec.TaxInvoiceGetInfoApiResponse)
     ).toThrow('유효하지 않은 stateCode 응답값입니다.')
+  })
+
+  test.each([0, '0'])('preserves zero stateCode: %j', (stateCode) => {
+    expect(mapTaxInvoiceInfo({ ...BASE_RESPONSE, stateCode }).stateCode).toBe(0)
   })
 })

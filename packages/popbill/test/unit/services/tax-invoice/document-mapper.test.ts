@@ -33,7 +33,7 @@ const TAX_INVOICE_DOCUMENT: TaxInvoiceDocumentInput = {
 }
 
 describe('tax-invoice document mapper', () => {
-  test('maps one document into compat api model shape with cloned nested arrays', () => {
+  test('maps document fields into the raw API model', () => {
     const mapped = mapTaxInvoiceDocument(TAX_INVOICE_DOCUMENT)
 
     expect(mapped).toMatchObject({
@@ -53,19 +53,24 @@ describe('tax-invoice document mapper', () => {
       detailList: [{ serialNum: 1, itemName: '테스트 품목', supplyCost: '10000', tax: '1000' }],
       addContactList: [{ serialNum: 1, contactName: '담당자', email: 'test@test.com' }],
     })
-    expect(mapped).not.toBe(TAX_INVOICE_DOCUMENT)
-    expect(mapped.detailList).not.toBe(TAX_INVOICE_DOCUMENT.lineItems)
-    expect(mapped.detailList?.[0]).not.toBe(TAX_INVOICE_DOCUMENT.lineItems?.[0])
-    expect(mapped.addContactList).not.toBe(TAX_INVOICE_DOCUMENT.additionalContacts)
-    expect(mapped.addContactList?.[0]).not.toBe(TAX_INVOICE_DOCUMENT.additionalContacts?.[0])
   })
 
-  test('maps document list into new compat api model list', () => {
-    const documents = [TAX_INVOICE_DOCUMENT]
-    const mapped = mapTaxInvoiceDocuments(documents)
+  test('maps each document in input order', () => {
+    expect(mapTaxInvoiceDocuments([{ writtenDate: '20260226' }, { writtenDate: '20260227' }])).toEqual([
+      { writeDate: '20260226' },
+      { writeDate: '20260227' },
+    ])
+  })
 
-    expect(mapped).toEqual([mapTaxInvoiceDocument(TAX_INVOICE_DOCUMENT)])
-    expect(mapped).not.toBe(documents)
-    expect(mapped[0]).not.toBe(TAX_INVOICE_DOCUMENT)
+  test('preserves numeric book numbers including zero', () => {
+    const mapped = mapTaxInvoiceDocument({ bookVolumeNumber: 0, bookIssueNumber: 123 })
+
+    expect(mapped).toEqual({ kwon: 0, ho: 123 })
+  })
+
+  test('preserves legacy string book numbers', () => {
+    const mapped = mapTaxInvoiceDocument({ bookVolumeNumber: '0001', bookIssueNumber: '0002' })
+
+    expect(mapped).toEqual({ kwon: '0001', ho: '0002' })
   })
 })

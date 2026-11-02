@@ -964,7 +964,7 @@ describe('tax-invoice facade adapter', () => {
     })
   })
 
-  test('normalizes compat error and preserves original error when onError throws', async () => {
+  test.each(['synchronously', 'asynchronously'])('preserves the original error when onError fails %s', async (failureMode) => {
     const validationError = Object.assign(
       new Error('invalid businessNumber'),
       createInputValidationError('invalid businessNumber', {
@@ -972,9 +972,14 @@ describe('tax-invoice facade adapter', () => {
       })
     )
     const getInfo = vi.fn<(...args: unknown[]) => Promise<never>>(() => Promise.reject(validationError))
-    const onError = vi.fn<(error: unknown) => void>(() => {
+    const hookCalled = vi.fn<(error: unknown) => void>()
+    const onError = (error: unknown) => {
+      hookCalled(error)
+      if (failureMode === 'asynchronously') {
+        return Promise.reject(new Error('onError should not override original error'))
+      }
       throw new Error('onError should not override original error')
-    })
+    }
     const service = createTaxInvoiceService({
       defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ getInfo }),
@@ -995,11 +1000,12 @@ describe('tax-invoice facade adapter', () => {
       operation: 'taxInvoice.getInvoiceInfo',
     })
 
-    expect(onError).toHaveBeenCalledTimes(1)
-    expect(onError).toHaveBeenCalledWith(
+    expect(hookCalled).toHaveBeenCalledTimes(1)
+    expect(hookCalled).toHaveBeenCalledWith(
       expect.objectContaining({
         operation: 'taxInvoice.getInvoiceInfo',
       })
     )
+    await new Promise<void>((resolve) => setImmediate(resolve))
   })
 })
