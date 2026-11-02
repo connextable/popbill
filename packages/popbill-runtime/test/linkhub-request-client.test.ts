@@ -7,6 +7,46 @@ describe('createLinkhubRequestClient', () => {
     vi.restoreAllMocks()
   })
 
+  test.each(['/Search/..', '/Search/%2e', '/Search/.%2E', '/Search/.\t.', '/Search/.. ', '/Search/%2E.\u0000'])(
+    'rejects URI %s before it can normalize to a different endpoint',
+    async (uri) => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch')
+      const requestClient = createLinkhubRequestClient({
+        apiBaseUrl: 'https://auth.example.com',
+        timeoutMs: 1_000,
+        tokenProvider: { getToken: async () => createMockTokenResponse('session-token') },
+        tokenCacheKey: 'ACCESS_ID',
+      })
+
+      await expect(requestClient.requestJson({ uri })).rejects.toMatchObject({
+        requestStage: 'request_api',
+        cause: { message: 'Request URI must not contain dot path segments.' },
+      })
+      expect(fetchSpy).not.toHaveBeenCalled()
+    }
+  )
+
+  test.each(['evil.example/collect', '//evil.example/collect', '\\\\evil.example/collect', 'https://evil.example/collect'])(
+    'keeps authenticated URI %s on the configured origin and base path',
+    async (uri) => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }))
+      const requestClient = createLinkhubRequestClient({
+        apiBaseUrl: 'https://auth.example.com/api/',
+        timeoutMs: 1_000,
+        tokenProvider: { getToken: async () => createMockTokenResponse('session-token') },
+        tokenCacheKey: 'ACCESS_ID',
+      })
+
+      await requestClient.requestJson({ uri })
+
+      const [url, init] = fetchSpy.mock.calls[0]!
+      const parsedUrl = new URL(url instanceof Request ? url.url : url)
+      expect(parsedUrl.origin).toBe('https://auth.example.com')
+      expect(parsedUrl.pathname).toMatch(/^\/api\//)
+      expect(new Headers(init?.headers).get('Authorization')).toBe('Bearer session-token')
+    }
+  )
+
   test('uses configured token cache key and api base url', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"ok":true}', { status: 200 }))
     const getToken = vi.fn<TokenProvider['getToken']>(async () => createMockTokenResponse('TOKEN'))

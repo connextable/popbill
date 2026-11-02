@@ -1,5 +1,6 @@
-import { fetchJson } from '@/transport/fetch-json'
+import { fetchBinary, fetchJson, type FetchJsonOptions } from '@/transport/fetch-json'
 import { mergeRequestHeaders } from '@/transport/merge-headers'
+import { buildRequestUrl } from '@/transport/build-request-url'
 import type { TokenProvider } from '@/auth'
 import { PopbillHttpMethodOverrides } from '@/spec-constants'
 import { isBlank, normalizeOptionalString, sha1Base64, trimTrailingSlash } from '@connextable/popbill-utils'
@@ -24,6 +25,7 @@ export interface PopbillRequestClientConfig {
 }
 
 export interface PopbillRequestOptions {
+  /** API path and query appended to apiBaseUrl; dot path segments are not allowed. */
   uri: string
   corpNum?: string
   userId?: string
@@ -36,6 +38,8 @@ export interface PopbillRequestOptions {
 
 export interface PopbillRequestClient {
   requestJson<T>(options: PopbillRequestOptions): Promise<T>
+  requestBinary(options: PopbillRequestOptions): Promise<Uint8Array>
+  invalidateToken?(corpNum: string): void
 }
 
 export function createPopbillRequestClient(config: PopbillRequestClientConfig): PopbillRequestClient {
@@ -43,68 +47,80 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
   const normalizedAcceptLanguage = normalizeOptionalString(config.acceptLanguage)
 
   return {
-    async requestJson<T>(options: PopbillRequestOptions): Promise<T> {
-      const method = (options.method ?? 'GET').toUpperCase()
-      const customHeaders = { ...options.headers }
-      const requestHeaders: Record<string, string> = {
-        'User-Agent': POPBILL_USER_AGENT,
-      }
-
-      if (options.contentType !== null) {
-        if (typeof options.contentType === 'string') {
-          requestHeaders['Content-Type'] = options.contentType
-        } else if (!isFormDataBody(options.body)) {
-          requestHeaders['Content-Type'] = 'application/json;charset=utf-8'
-        }
-      }
-
-      if (config.acceptEncoding !== null) {
-        requestHeaders['Accept-Encoding'] = config.acceptEncoding === undefined ? 'gzip' : config.acceptEncoding
-      }
-
-      if (normalizedAcceptLanguage) {
-        requestHeaders['Accept-Language'] = normalizedAcceptLanguage
-      }
-
-      if (isNonBlankString(options.userId)) {
-        requestHeaders['x-pb-userid'] = options.userId
-      }
-
-      if (method !== 'GET' && method !== 'POST') {
-        requestHeaders['X-HTTP-Method-Override'] = method
-
-        if (method === PopbillHttpMethodOverrides.BulkIssue) {
-          const messageSource = getBulkIssueMessageSource(options.body)
-          requestHeaders['X-PB-MESSAGE-DIGEST'] = sha1Base64(messageSource)
-          if (isNonBlankString(options.submitId)) {
-            requestHeaders['X-PB-SUBMIT-ID'] = options.submitId
-          }
-        }
-      }
-
-      if (isNonBlankString(options.corpNum)) {
-        try {
-          const token = await config.tokenProvider.getToken(options.corpNum)
-          requestHeaders['Authorization'] = `Bearer ${token.sessionToken}`
-        } catch (error) {
-          throw createStageError('issue_token', error)
-        }
-      }
-
-      try {
-        return await fetchJson<T>(
-          `${normalizedApiBaseUrl}${options.uri}`,
-          {
-            method: method === 'GET' ? 'GET' : 'POST',
-            headers: mergeRequestHeaders(customHeaders, requestHeaders),
-            body: method === 'GET' ? undefined : (options.body ?? undefined),
-          },
-          { timeoutMs: config.timeoutMs }
-        )
-      } catch (error) {
-        throw createStageError('request_api', error)
-      }
+    requestJson<T>(options: PopbillRequestOptions): Promise<T> {
+      return request(options, fetchJson<T>)
     },
+    requestBinary(options: PopbillRequestOptions): Promise<Uint8Array> {
+      return request(options, fetchBinary)
+    },
+    invalidateToken(corpNum: string): void {
+      config.tokenProvider.invalidate?.(corpNum)
+    },
+  }
+
+  async function request<T>(
+    options: PopbillRequestOptions,
+    transport: (url: string, init: RequestInit, options: FetchJsonOptions) => Promise<T>
+  ): Promise<T> {
+    const method = (options.method ?? 'GET').toUpperCase()
+    const requestHeaders: Record<string, string> = {
+      'User-Agent': POPBILL_USER_AGENT,
+    }
+
+    if (options.contentType !== null) {
+      if (typeof options.contentType === 'string') {
+        requestHeaders['Content-Type'] = options.contentType
+      } else if (!isFormDataBody(options.body)) {
+        requestHeaders['Content-Type'] = 'application/json;charset=utf-8'
+      }
+    }
+
+    if (config.acceptEncoding !== null) {
+      requestHeaders['Accept-Encoding'] = config.acceptEncoding === undefined ? 'gzip' : config.acceptEncoding
+    }
+
+    if (normalizedAcceptLanguage) {
+      requestHeaders['Accept-Language'] = normalizedAcceptLanguage
+    }
+
+    if (isNonBlankString(options.userId)) {
+      requestHeaders['x-pb-userid'] = options.userId
+    }
+
+    if (method !== 'GET' && method !== 'POST') {
+      requestHeaders['X-HTTP-Method-Override'] = method
+
+      if (method === PopbillHttpMethodOverrides.BulkIssue) {
+        const messageSource = getBulkIssueMessageSource(options.body)
+        requestHeaders['X-PB-MESSAGE-DIGEST'] = sha1Base64(messageSource)
+        if (isNonBlankString(options.submitId)) {
+          requestHeaders['X-PB-SUBMIT-ID'] = options.submitId
+        }
+      }
+    }
+
+    if (isNonBlankString(options.corpNum)) {
+      try {
+        const token = await config.tokenProvider.getToken(options.corpNum)
+        requestHeaders['Authorization'] = `Bearer ${token.sessionToken}`
+      } catch (error) {
+        throw createStageError('issue_token', error)
+      }
+    }
+
+    try {
+      return await transport(
+        buildRequestUrl(normalizedApiBaseUrl, options.uri),
+        {
+          method: method === 'GET' ? 'GET' : 'POST',
+          headers: mergeRequestHeaders(options.headers, requestHeaders),
+          body: method === 'GET' ? undefined : (options.body ?? undefined),
+        },
+        { timeoutMs: config.timeoutMs }
+      )
+    } catch (error) {
+      throw createStageError('request_api', error)
+    }
   }
 }
 

@@ -6,6 +6,48 @@ describe('createPopbillRequestClient', () => {
     vi.restoreAllMocks()
   })
 
+  test.each([
+    '/Taxinvoice/SELL/..',
+    '/Taxinvoice/SELL/%2e',
+    '/Taxinvoice/SELL/.%2E',
+    '/Taxinvoice/SELL/.\t.',
+    '/Taxinvoice/SELL/.. ',
+    '/Taxinvoice/SELL/%2E.\u0000',
+  ])('rejects URI %s before it can normalize to a different endpoint', async (uri) => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    const requestClient = createPopbillRequestClient({
+      apiBaseUrl: 'https://popbill.example.com',
+      timeoutMs: 1_000,
+      tokenProvider: { getToken: vi.fn<TokenProvider['getToken']>() },
+    })
+
+    await expect(requestClient.requestJson({ uri })).rejects.toMatchObject({
+      requestStage: 'request_api',
+      cause: { message: 'Request URI must not contain dot path segments.' },
+    })
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  test.each(['evil.example/collect', '//evil.example/collect', '\\\\evil.example/collect', 'https://evil.example/collect'])(
+    'keeps authenticated URI %s on the configured origin and base path',
+    async (uri) => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }))
+      const requestClient = createPopbillRequestClient({
+        apiBaseUrl: 'https://popbill.example.com/api/',
+        timeoutMs: 1_000,
+        tokenProvider: { getToken: async () => createMockTokenResponse('session-token') },
+      })
+
+      await requestClient.requestJson({ uri, corpNum: '1234567890' })
+
+      const [url, init] = fetchSpy.mock.calls[0]!
+      const parsedUrl = new URL(url instanceof Request ? url.url : url)
+      expect(parsedUrl.origin).toBe('https://popbill.example.com')
+      expect(parsedUrl.pathname).toMatch(/^\/api\//)
+      expect(new Headers(init?.headers).get('Authorization')).toBe('Bearer session-token')
+    }
+  )
+
   test('normalizes lowercase get method without applying HTTP method override', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }))
 
@@ -29,6 +71,20 @@ describe('createPopbillRequestClient', () => {
 
     expect(requestInit?.method).toBe('GET')
     expect(requestHeaders.get('X-HTTP-Method-Override')).toBeNull()
+  })
+
+  test('forwards language preferences without limiting provider-supported values', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }))
+    const requestClient = createPopbillRequestClient({
+      apiBaseUrl: 'https://popbill.example.com',
+      timeoutMs: 1_000,
+      tokenProvider: { getToken: vi.fn<TokenProvider['getToken']>() },
+      acceptLanguage: 'en-US,ko-KR;q=0.9',
+    })
+
+    await requestClient.requestJson({ uri: '/Taxinvoice' })
+
+    expect(new Headers(fetchSpy.mock.calls[0]?.[1]?.headers).get('Accept-Language')).toBe('en-US,ko-KR;q=0.9')
   })
 
   test('normalizes lowercase delete method and applies HTTP method override', async () => {

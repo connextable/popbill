@@ -1,9 +1,9 @@
-import type { CreateTokenProviderInput, LinkhubTokenResponse, TokenProvider } from './types'
+import type { CachedTokenProvider, CreateTokenProviderInput, LinkhubTokenResponse } from './types'
 import { LinkhubServiceIds } from '@/spec-constants'
 
 const DEFAULT_TOKEN_REFRESH_SKEW_MS = 60_000
 
-export function createTokenProvider(input: CreateTokenProviderInput): TokenProvider {
+export function createTokenProvider(input: CreateTokenProviderInput): CachedTokenProvider {
   const tokenCache = new Map<string, LinkhubTokenResponse>()
   const pendingRequests = new Map<string, Promise<LinkhubTokenResponse>>()
   const refreshSkewMs = resolveRefreshSkewMs(input.refreshSkewMs)
@@ -20,7 +20,7 @@ export function createTokenProvider(input: CreateTokenProviderInput): TokenProvi
         return pendingRequest
       }
 
-      const issueTokenPromise = input.authClient
+      const issueTokenPromise: Promise<LinkhubTokenResponse> = input.authClient
         .issueToken({
           serviceId: input.serviceId,
           accessId: input.serviceId === LinkhubServiceIds.JusoLink ? null : businessNumber,
@@ -28,16 +28,25 @@ export function createTokenProvider(input: CreateTokenProviderInput): TokenProvi
           forwardedIp: input.forwardedIp,
         })
         .then((issuedToken) => {
-          tokenCache.set(businessNumber, issuedToken)
+          // An invalidated request can finish after a replacement request has started.
+          if (pendingRequests.get(businessNumber) === issueTokenPromise) {
+            tokenCache.set(businessNumber, issuedToken)
+          }
           return issuedToken
         })
         .finally(() => {
-          pendingRequests.delete(businessNumber)
+          if (pendingRequests.get(businessNumber) === issueTokenPromise) {
+            pendingRequests.delete(businessNumber)
+          }
         })
 
       pendingRequests.set(businessNumber, issueTokenPromise)
 
       return issueTokenPromise
+    },
+    invalidate(businessNumber: string): void {
+      tokenCache.delete(businessNumber)
+      pendingRequests.delete(businessNumber)
     },
   }
 }

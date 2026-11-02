@@ -1,6 +1,6 @@
 import { once } from 'node:events'
 import { createServer, type Server } from 'node:http'
-import { fetchJson, fetchText } from '@/transport/fetch-json'
+import { fetchBinary, fetchJson, fetchText } from '@/transport/fetch-json'
 
 describe('response body cancellation', () => {
   let server: Server
@@ -33,6 +33,7 @@ describe('response body cancellation', () => {
   test.each([
     { name: 'JSON', fetchResponse: fetchJson },
     { name: 'text', fetchResponse: fetchText },
+    { name: 'binary', fetchResponse: fetchBinary },
   ])(
     'times out while reading a stalled $name response body',
     async ({ fetchResponse }) => {
@@ -52,28 +53,35 @@ describe('response body cancellation', () => {
     1_000
   )
 
-  test('honors external cancellation after response headers arrive', async () => {
-    const originalFetch = globalThis.fetch
-    let notifyHeadersReceived: (() => void) | undefined
-    const headersReceived = new Promise<void>((resolve) => {
-      notifyHeadersReceived = resolve
-    })
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (...args) => {
-      const response = await originalFetch(...args)
-      notifyHeadersReceived?.()
-      return response
-    })
+  test.each([
+    { name: 'JSON', fetchResponse: fetchJson },
+    { name: 'binary', fetchResponse: fetchBinary },
+  ])(
+    'honors external cancellation after $name response headers arrive',
+    async ({ fetchResponse }) => {
+      const originalFetch = globalThis.fetch
+      let notifyHeadersReceived: (() => void) | undefined
+      const headersReceived = new Promise<void>((resolve) => {
+        notifyHeadersReceived = resolve
+      })
+      vi.spyOn(globalThis, 'fetch').mockImplementation(async (...args) => {
+        const response = await originalFetch(...args)
+        notifyHeadersReceived?.()
+        return response
+      })
 
-    const abortController = new AbortController()
-    const responsePromise = fetchJson(requestUrl, { signal: abortController.signal }, { timeoutMs: 5_000 })
-    const responseOutcome = responsePromise.then(
-      (value) => ({ value }),
-      (error: unknown) => ({ error })
-    )
-    await headersReceived
-    await new Promise<void>((resolve) => setImmediate(resolve))
-    abortController.abort()
+      const abortController = new AbortController()
+      const responsePromise = fetchResponse(requestUrl, { signal: abortController.signal }, { timeoutMs: 5_000 })
+      const responseOutcome = responsePromise.then(
+        (value) => ({ value }),
+        (error: unknown) => ({ error })
+      )
+      await headersReceived
+      await new Promise<void>((resolve) => setImmediate(resolve))
+      abortController.abort()
 
-    await expect(responseOutcome).resolves.toMatchObject({ error: { name: 'AbortError' } })
-  }, 1_000)
+      await expect(responseOutcome).resolves.toMatchObject({ error: { name: 'AbortError' } })
+    },
+    1_000
+  )
 })

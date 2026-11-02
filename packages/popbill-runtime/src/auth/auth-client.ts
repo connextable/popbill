@@ -1,4 +1,5 @@
 import { fetchJson, fetchText } from '../transport/fetch-json'
+import { createLinkhubRequestClient } from '../api/linkhub-request-client'
 import { JusoLinkAuthScopes, LinkhubServiceIds, PopbillAuthBaseUrls, PopbillAuthScopes, PopbillLinkhubApiVersion } from '@/spec-constants'
 import { hmacSha256Base64, normalizeOptionalString, sha256Base64, stringifyWithoutEmptyValues, trimTrailingSlash } from '@connextable/popbill-utils'
 import type * as Spec from '@connextable/popbill-spec'
@@ -10,21 +11,43 @@ const DEFAULT_TIMEOUT_MS = 180_000
 const POPBILL_SCOPE_SET = new Set<string>(Object.values(PopbillAuthScopes))
 const JUSOLINK_SCOPE_SET = new Set<string>(Object.values(JusoLinkAuthScopes))
 
-export function createLinkhubAuthClient(config: Types.LinkhubAuthClientConfig): Types.LinkhubAuthClient {
+export function createLinkhubAuthClient(config: Types.LinkhubAuthClientConfig): Types.LinkhubAuthClient & Types.LinkhubPointClient {
+  const resolvedConfig: Types.ResolvedLinkhubAuthClientConfig = {
+    linkId: config.linkId,
+    secretKey: config.secretKey,
+    authBaseUrl: normalizeAuthBaseUrl(config.authBaseUrl),
+    useStaticIp: config.useStaticIp ?? false,
+    useGaIp: config.useGaIp ?? false,
+    useLocalTime: config.useLocalTime ?? true,
+    timeoutMs: config.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+  }
+
+  function requestTokenResource<T>(token: Types.LinkhubTokenResponse, resource: string): Promise<T> {
+    const requestClient = createLinkhubRequestClient({
+      apiBaseUrl: resolveAuthBaseUrl(resolvedConfig),
+      timeoutMs: resolvedConfig.timeoutMs,
+      tokenProvider: { getToken: async () => token },
+      tokenCacheKey: token.userId,
+      acceptEncoding: null,
+    })
+    return requestClient.requestJson<T>({ uri: `/${token.serviceId}/${resource}` })
+  }
+
   return {
     async issueToken(request: Types.IssueTokenRequest): Promise<Types.LinkhubTokenResponse> {
-      return issueTokenRequest(
-        {
-          linkId: config.linkId,
-          secretKey: config.secretKey,
-          authBaseUrl: normalizeAuthBaseUrl(config.authBaseUrl),
-          useStaticIp: config.useStaticIp ?? false,
-          useGaIp: config.useGaIp ?? false,
-          useLocalTime: config.useLocalTime ?? true,
-          timeoutMs: config.timeoutMs ?? DEFAULT_TIMEOUT_MS,
-        },
-        request
-      )
+      return issueTokenRequest(resolvedConfig, request)
+    },
+    async getBalance(token: Types.LinkhubTokenResponse): Promise<string> {
+      const response = await requestTokenResource<{ remainPoint: string }>(token, 'Point')
+      return response.remainPoint
+    },
+    async getPartnerBalance(token: Types.LinkhubTokenResponse): Promise<string> {
+      const response = await requestTokenResource<{ remainPoint: string }>(token, 'PartnerPoint')
+      return response.remainPoint
+    },
+    async getPartnerURL(token: Types.LinkhubTokenResponse, toGo: string): Promise<string> {
+      const response = await requestTokenResource<{ url: string }>(token, `URL?TG=${encodeURIComponent(toGo)}`)
+      return response.url
     },
   }
 }

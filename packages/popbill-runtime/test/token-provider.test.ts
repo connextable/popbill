@@ -159,6 +159,43 @@ describe('createTokenProvider', () => {
     expect(secondToken.sessionToken).toBe('shared-token')
     expect(issueTokenMock).toHaveBeenCalledTimes(1)
   })
+
+  test('invalidates only the requested member token', async () => {
+    const { authClient, issueTokenMock } = createMockAuthClient([
+      createToken({ sessionToken: 'member-a' }),
+      createToken({ sessionToken: 'member-b' }),
+      createToken({ sessionToken: 'member-a-new' }),
+    ])
+    const tokenProvider = createTokenProvider({ authClient, serviceId: 'POPBILL_TEST', scopes: ['member'] })
+
+    await tokenProvider.getToken('1234567890')
+    await tokenProvider.getToken('0987654321')
+    tokenProvider.invalidate('1234567890')
+
+    await expect(tokenProvider.getToken('1234567890')).resolves.toMatchObject({ sessionToken: 'member-a-new' })
+    await expect(tokenProvider.getToken('0987654321')).resolves.toMatchObject({ sessionToken: 'member-b' })
+    expect(issueTokenMock).toHaveBeenCalledTimes(3)
+  })
+
+  test('does not cache an invalidated in-flight token or remove a newer pending request', async () => {
+    const resolvers: ((token: LinkhubTokenResponse) => void)[] = []
+    const issueToken = vi.fn<LinkhubAuthClient['issueToken']>(() => new Promise((resolve) => resolvers.push(resolve)))
+    const tokenProvider = createTokenProvider({ authClient: { issueToken }, serviceId: 'POPBILL_TEST', scopes: ['member'] })
+
+    const invalidatedRequest = tokenProvider.getToken('1234567890')
+    tokenProvider.invalidate('1234567890')
+    const freshRequest = tokenProvider.getToken('1234567890')
+    resolvers[0]?.(createToken({ sessionToken: 'invalidated-token' }))
+    await invalidatedRequest
+
+    const concurrentFreshRequest = tokenProvider.getToken('1234567890')
+    expect(issueToken).toHaveBeenCalledTimes(2)
+    resolvers[1]?.(createToken({ sessionToken: 'fresh-token' }))
+    await expect(freshRequest).resolves.toMatchObject({ sessionToken: 'fresh-token' })
+    await expect(concurrentFreshRequest).resolves.toMatchObject({ sessionToken: 'fresh-token' })
+    await expect(tokenProvider.getToken('1234567890')).resolves.toMatchObject({ sessionToken: 'fresh-token' })
+    expect(issueToken).toHaveBeenCalledTimes(2)
+  })
 })
 
 function createMockAuthClient(tokens?: LinkhubTokenResponse[]): {

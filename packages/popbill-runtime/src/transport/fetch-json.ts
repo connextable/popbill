@@ -22,7 +22,7 @@ class HttpResponseError extends Error implements HttpErrorPayload {
 }
 
 export async function fetchJson<T>(requestUrl: string, requestInit: RequestInit, options: FetchJsonOptions): Promise<T> {
-  const { response, responseText } = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs)
+  const { response, body: responseText } = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs, (value) => value.text())
 
   if (!response.ok) {
     throw createHttpErrorPayload(response.status, parseErrorResponseBody(responseText))
@@ -32,7 +32,7 @@ export async function fetchJson<T>(requestUrl: string, requestInit: RequestInit,
 }
 
 export async function fetchText(requestUrl: string, requestInit: RequestInit, options: FetchJsonOptions): Promise<string> {
-  const { response, responseText } = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs)
+  const { response, body: responseText } = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs, (value) => value.text())
 
   if (!response.ok) {
     throw createHttpErrorPayload(response.status, responseText)
@@ -41,11 +41,22 @@ export async function fetchText(requestUrl: string, requestInit: RequestInit, op
   return responseText
 }
 
-async function fetchWithTimeout(
+/** Reads bytes without text decoding, retaining JSON API errors and the body-read timeout. */
+export async function fetchBinary(requestUrl: string, requestInit: RequestInit, options: FetchJsonOptions): Promise<Uint8Array> {
+  const { response, body } = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs, (value) => value.arrayBuffer())
+  const bytes = new Uint8Array(body)
+  if (!response.ok || response.headers.get('content-type')?.toLowerCase().includes('application/json')) {
+    throw createHttpErrorPayload(response.status, parseErrorResponseBody(new TextDecoder().decode(bytes)))
+  }
+  return bytes
+}
+
+async function fetchWithTimeout<T>(
   requestUrl: string,
   requestInit: RequestInit,
-  timeoutMs: number
-): Promise<{ response: Response; responseText: string }> {
+  timeoutMs: number,
+  readBody: (response: Response) => Promise<T>
+): Promise<{ response: Response; body: T }> {
   if (timeoutMs > MAX_TIMEOUT_MS) {
     throw new RangeError(`timeoutMs must not exceed ${String(MAX_TIMEOUT_MS)} milliseconds.`)
   }
@@ -71,8 +82,8 @@ async function fetchWithTimeout(
       ...requestInit,
       signal: abortController.signal,
     })
-    const responseText = await response.text()
-    return { response, responseText }
+    const body = await readBody(response)
+    return { response, body }
   } finally {
     clearTimeout(timer)
     externalSignal?.removeEventListener('abort', abortFromExternalSignal)

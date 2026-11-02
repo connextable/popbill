@@ -68,9 +68,9 @@ export const PopbillAcceptLanguages = {
  * 응답 언어 설정 헤더 값(raw).
  *
  * `Accept-Language` 헤더는 선택사항이다.
- * 헤더를 명시할 때는 `ko-KR` 또는 `en-US`를 사용한다.
+ * 문서에 명시된 언어는 `ko-KR`, `en-US`이며, 다른 헤더 값의 처리는 서버에 맡긴다.
  */
-export type PopbillAcceptLanguage = (typeof PopbillAcceptLanguages)[keyof typeof PopbillAcceptLanguages]
+export type PopbillAcceptLanguage = (typeof PopbillAcceptLanguages)[keyof typeof PopbillAcceptLanguages] | (string & {})
 
 /**
  * X-HTTP-Method-Override 헤더 값(raw).

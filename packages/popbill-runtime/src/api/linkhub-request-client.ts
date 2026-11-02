@@ -1,5 +1,6 @@
 import { fetchJson } from '@/transport/fetch-json'
 import { mergeRequestHeaders } from '@/transport/merge-headers'
+import { buildRequestUrl } from '@/transport/build-request-url'
 import type { TokenProvider } from '@/auth'
 import { normalizeOptionalString, trimTrailingSlash } from '@connextable/popbill-utils'
 
@@ -24,6 +25,7 @@ export interface LinkhubRequestClientConfig {
 }
 
 export interface LinkhubRequestOptions {
+  /** API path and query appended to apiBaseUrl; dot path segments are not allowed. */
   uri: string
   method?: string
   body?: RequestInit['body']
@@ -43,7 +45,6 @@ export function createLinkhubRequestClient(config: LinkhubRequestClientConfig): 
   return {
     async requestJson<T>(options: LinkhubRequestOptions): Promise<T> {
       const method = (options.method ?? 'GET').toUpperCase()
-      const customHeaders = { ...options.headers }
       const requestHeaders: Record<string, string> = {
         'User-Agent': normalizedUserAgent,
       }
@@ -73,10 +74,10 @@ export function createLinkhubRequestClient(config: LinkhubRequestClientConfig): 
 
       try {
         return await fetchJson<T>(
-          `${normalizedApiBaseUrl}${options.uri}`,
+          buildRequestUrl(normalizedApiBaseUrl, options.uri),
           {
             method,
-            headers: mergeRequestHeaders(customHeaders, requestHeaders),
+            headers: mergeRequestHeaders(options.headers, requestHeaders),
             body: method === 'GET' ? undefined : (options.body ?? undefined),
           },
           { timeoutMs: config.timeoutMs }

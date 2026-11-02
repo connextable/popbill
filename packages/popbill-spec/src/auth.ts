@@ -246,6 +246,10 @@ export interface PopbillAuthScopeMap {
   BizInfoCheck: '171'
 
   /**
+   * 계좌조회 (180)
+   */
+  AccountCheck: '180'
+  /**
    * 예금주조회 > 성명조회 (182)
    */
   DepositorNameCheck: '182'
@@ -253,15 +257,15 @@ export interface PopbillAuthScopeMap {
    * 예금주조회 > 실명조회 (183)
    */
   DepositorRealNameCheck: '183'
-  /**
-   * 계좌조회 (180)
-   */
-  AccountCheck: '180'
 
   /**
    * 카카오톡 > 알림톡 (153)
    */
   KakaoAlimtalk: '153'
+  /** Legacy friend talk text, retained by the official Node SDK. */
+  KakaoFriendTalkText: '154'
+  /** Legacy friend talk image, retained by the official Node SDK. */
+  KakaoFriendTalkImage: '155'
   /**
    * 카카오톡 > 브랜드 메시지(I) (156)
    */
@@ -274,6 +278,8 @@ export interface PopbillAuthScopeMap {
    * 카카오톡 > 브랜드 메시지(M) (158)
    */
   KakaoBrandMessageM: '158'
+  /** 카카오톡 브랜드 메시지(O). */
+  KakaoBrandMessageO: '159'
 
   /**
    * 문자 > SMS (150)
@@ -320,13 +326,16 @@ export const PopbillAuthScopes = {
   HomeTaxCashReceipt: '141',
   BusinessCheck: '170',
   CorporateInfo: '171',
+  AccountCheck: '180',
   DepositorNameCheck: '182',
   DepositorRealNameCheck: '183',
-  AccountCheck: '180',
   AlimTalk: '153',
+  FriendTalkText: '154',
+  FriendTalkImage: '155',
   BrandMessageI: '156',
   BrandMessageN: '157',
   BrandMessageM: '158',
+  BrandMessageO: '159',
   SMS: '150',
   LMS: '151',
   MMS: '152',
