@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { createNpmArtifactsManifest } from './artifacts-manifest'
+import { verifyTarballConsumerTypes } from './tarball-consumer'
 import {
   assertCondition,
   collectExportPaths,
@@ -52,6 +53,8 @@ function verifyPackages(targets: PublishPackageTargetWithManifest[], version: st
         }
       }
     }
+
+    verifyTarballConsumerTypes(consumerDir)
   } finally {
     fs.rmSync(consumerDir, { recursive: true, force: true })
   }

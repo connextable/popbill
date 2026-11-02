@@ -20,9 +20,6 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - name: '@connextable/popbill-juso'
-            alias: popbill-juso
-            path: packages/popbill-juso
           - name: '@connextable/popbill-spec'
             alias: popbill-spec
             path: packages/popbill-spec
@@ -32,6 +29,9 @@ jobs:
           - name: '@connextable/popbill-runtime'
             alias: popbill-runtime
             path: packages/popbill-runtime
+          - name: '@connextable/popbill-juso'
+            alias: popbill-juso
+            path: packages/popbill-juso
           - name: '@connextable/popbill-compat'
             alias: popbill-compat
             path: packages/popbill-compat
@@ -58,7 +58,7 @@ jobs:
 
       - name: Build ${{ matrix.package.name }}
         id: build
-        run: pnpm -C "${{ matrix.package.path }}" build
+        run: pnpm --filter "${{ matrix.package.name }}..." build
 
       - name: Archive build output
         id: archive_dist
@@ -98,14 +98,14 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - name: '@connextable/popbill-juso'
-            path: packages/popbill-juso
           - name: '@connextable/popbill-spec'
             path: packages/popbill-spec
           - name: '@connextable/popbill-utils'
             path: packages/popbill-utils
           - name: '@connextable/popbill-runtime'
             path: packages/popbill-runtime
+          - name: '@connextable/popbill-juso'
+            path: packages/popbill-juso
           - name: '@connextable/popbill-compat'
             path: packages/popbill-compat
           - name: '@connextable/popbill'
@@ -197,6 +197,10 @@ jobs:
         id: test_release
         run: pnpm test:release
 
+      - name: Test SDK documentation generation
+        id: test_docs
+        run: pnpm test:docs
+
       - name: Workspace config summary
         if: always()
         run: |
@@ -208,6 +212,7 @@ jobs:
           | Install dependencies | ${{ steps.install.outcome || 'skipped' }} |
           | Typecheck workspace scripts | ${{ steps.typecheck_scripts.outcome || 'skipped' }} |
           | Test release workflows | ${{ steps.test_release.outcome || 'skipped' }} |
+          | Test SDK documentation generation | ${{ steps.test_docs.outcome || 'skipped' }} |
           SUMMARY
 
   publish-preview:
@@ -258,10 +263,10 @@ jobs:
           PACK_DIR="${RUNNER_TEMP}/popbill-pack"
           rm -rf "${PACK_DIR}"
           mkdir -p "${PACK_DIR}"
-          pnpm -C packages/popbill-juso pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill-spec pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill-utils pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill-runtime pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill-juso pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill-compat pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill pack --pack-destination "${PACK_DIR}"
           pnpm release verify-tarballs "${PACK_DIR}"

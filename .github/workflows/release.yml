@@ -95,10 +95,10 @@ jobs:
           PACK_DIR="${RUNNER_TEMP}/popbill-pack"
           rm -rf "${PACK_DIR}"
           mkdir -p "${PACK_DIR}"
-          pnpm -C packages/popbill-juso pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill-spec pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill-utils pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill-runtime pack --pack-destination "${PACK_DIR}"
+          pnpm -C packages/popbill-juso pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill-compat pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill pack --pack-destination "${PACK_DIR}"
           pnpm release verify-tarballs "${PACK_DIR}" --artifacts-manifest
@@ -124,10 +124,10 @@ jobs:
 
           | Package | npm | GitHub Packages |
           | --- | --- | --- |
-          | `@connextable/popbill-juso` | ${{ steps.npm_readiness.outputs.publish_popbill_juso == 'true' && 'publish' || 'skip' }} | ${{ steps.github_packages_readiness.outputs.publish_popbill_juso == 'true' && 'publish' || 'skip' }} |
           | `@connextable/popbill-spec` | ${{ steps.npm_readiness.outputs.publish_popbill_spec == 'true' && 'publish' || 'skip' }} | ${{ steps.github_packages_readiness.outputs.publish_popbill_spec == 'true' && 'publish' || 'skip' }} |
           | `@connextable/popbill-utils` | ${{ steps.npm_readiness.outputs.publish_popbill_utils == 'true' && 'publish' || 'skip' }} | ${{ steps.github_packages_readiness.outputs.publish_popbill_utils == 'true' && 'publish' || 'skip' }} |
           | `@connextable/popbill-runtime` | ${{ steps.npm_readiness.outputs.publish_popbill_runtime == 'true' && 'publish' || 'skip' }} | ${{ steps.github_packages_readiness.outputs.publish_popbill_runtime == 'true' && 'publish' || 'skip' }} |
+          | `@connextable/popbill-juso` | ${{ steps.npm_readiness.outputs.publish_popbill_juso == 'true' && 'publish' || 'skip' }} | ${{ steps.github_packages_readiness.outputs.publish_popbill_juso == 'true' && 'publish' || 'skip' }} |
           | `@connextable/popbill-compat` | ${{ steps.npm_readiness.outputs.publish_popbill_compat == 'true' && 'publish' || 'skip' }} | ${{ steps.github_packages_readiness.outputs.publish_popbill_compat == 'true' && 'publish' || 'skip' }} |
           | `@connextable/popbill` | ${{ steps.npm_readiness.outputs.publish_popbill == 'true' && 'publish' || 'skip' }} | ${{ steps.github_packages_readiness.outputs.publish_popbill == 'true' && 'publish' || 'skip' }} |
 
@@ -264,10 +264,10 @@ jobs:
 
           | Package | Result |
           | --- | --- |
-          | `@connextable/popbill-juso` | ${{ needs.prepare-release.outputs.github_packages_publish_popbill_juso == 'true' && 'published' || 'skipped' }} |
           | `@connextable/popbill-spec` | ${{ needs.prepare-release.outputs.github_packages_publish_popbill_spec == 'true' && 'published' || 'skipped' }} |
           | `@connextable/popbill-utils` | ${{ needs.prepare-release.outputs.github_packages_publish_popbill_utils == 'true' && 'published' || 'skipped' }} |
           | `@connextable/popbill-runtime` | ${{ needs.prepare-release.outputs.github_packages_publish_popbill_runtime == 'true' && 'published' || 'skipped' }} |
+          | `@connextable/popbill-juso` | ${{ needs.prepare-release.outputs.github_packages_publish_popbill_juso == 'true' && 'published' || 'skipped' }} |
           | `@connextable/popbill-compat` | ${{ needs.prepare-release.outputs.github_packages_publish_popbill_compat == 'true' && 'published' || 'skipped' }} |
           | `@connextable/popbill` | ${{ needs.prepare-release.outputs.github_packages_publish_popbill == 'true' && 'published' || 'skipped' }} |
           SUMMARY
