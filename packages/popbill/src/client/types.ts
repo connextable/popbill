@@ -1,5 +1,17 @@
 import type { PopbillApiError } from '@/errors'
+import type { CommonService } from '@/services/common/types'
 import type { TaxInvoiceService } from '@/services/tax-invoice/types'
+import type { CashbillService } from '@/services/cashbill/types'
+import type { StatementService } from '@/services/statement/types'
+import type { HomeTaxTaxInvoiceService } from '@/services/home-tax-tax-invoice/types'
+import type { HomeTaxCashbillService } from '@/services/home-tax-cashbill/types'
+import type { ClosedownService } from '@/services/closedown/types'
+import type { BizInfoCheckService } from '@/services/biz-info-check/types'
+import type { EasyFinBankService } from '@/services/easy-fin-bank/types'
+import type { AccountCheckService } from '@/services/account-check/types'
+import type { KakaoService } from '@/services/kakao/types'
+import type { MessageService } from '@/services/message/types'
+import type { FaxService } from '@/services/fax/types'
 
 export interface PopbillClientConfig {
   linkId: string
@@ -73,6 +85,18 @@ export interface PopbillClientConfig {
  */
 export interface PopbillClient {
   services: {
+    common: CommonService
     taxInvoice: TaxInvoiceService
+    cashbill: CashbillService
+    statement: StatementService
+    homeTaxTaxInvoice: HomeTaxTaxInvoiceService
+    homeTaxCashbill: HomeTaxCashbillService
+    closedown: ClosedownService
+    bizInfoCheck: BizInfoCheckService
+    easyFinBank: EasyFinBankService
+    accountCheck: AccountCheckService
+    kakao: KakaoService
+    message: MessageService
+    fax: FaxService
   }
 }

@@ -16,8 +16,8 @@ import type { PopbillApiRequest, PopbillRequireRequestFields } from '../request'
  * Taxinvoice 공통 요청 헤더(raw).
  *
  * Source
- * - https://developers.popbill.com/api-reference/cashbill/getting-started/authorization
- * - https://developers.popbill.com/api-reference/cashbill/getting-started/etc-header
+ * - https://developers.popbill.com/api-reference/taxinvoice/getting-started/authorization
+ * - https://developers.popbill.com/api-reference/taxinvoice/getting-started/etc-header
  */
 export type TaxInvoiceApiRequestHeaders = PopbillApiRequestHeaders
 

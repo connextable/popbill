@@ -6,59 +6,14 @@ import {
   type CompatRuntimeError,
 } from '@/internal/errors'
 import { validateCorpNum, validateMgtKey, validateTaxInvoiceKeyType, validateTaxinvoiceTogo } from '@/internal/validation'
-import type { LegacyErrorCallback, LegacySuccessCallback } from '@/services/taxinvoice/types'
+import { invokeUserCallback } from '@/internal/callback'
+import type { LegacyErrorCallback, LegacySuccessCallback, TaxinvoicePromiseService } from '@/services/taxinvoice/types'
 import type { TaxinvoiceRuntimeContext } from './context'
 import type * as Spec from '@connextable/popbill-spec'
 
 export const SERVICE_NAME = 'TaxinvoiceService'
 
-export type TaxinvoiceRuntimeMethods =
-  | 'registIssue'
-  | 'bulkSubmit'
-  | 'getBulkResult'
-  | 'register'
-  | 'update'
-  | 'issue'
-  | 'cancelIssue'
-  | 'registRequest'
-  | 'request'
-  | 'cancelRequest'
-  | 'refuse'
-  | 'delete'
-  | 'sendToNTS'
-  | 'getInfo'
-  | 'getInfos'
-  | 'getDetailInfo'
-  | 'checkMgtKeyInUse'
-  | 'getXML'
-  | 'search'
-  | 'getLogs'
-  | 'getURL'
-  | 'getPopUpURL'
-  | 'getViewURL'
-  | 'getPrintURL'
-  | 'getEPrintURL'
-  | 'getMassPrintURL'
-  | 'getMailURL'
-  | 'getPDFURL'
-  | 'getSealURL'
-  | 'attachFile'
-  | 'attachFileBinary'
-  | 'deleteFile'
-  | 'getFiles'
-  | 'sendEmail'
-  | 'sendSMS'
-  | 'sendFAX'
-  | 'attachStatement'
-  | 'detachStatement'
-  | 'assignMgtKey'
-  | 'listEmailConfig'
-  | 'updateEmailConfig'
-  | 'getSendToNTSConfig'
-  | 'getTaxCertURL'
-  | 'getCertificateExpireDate'
-  | 'checkCertValidation'
-  | 'getTaxCertInfo'
+export type TaxinvoiceRuntimeMethods = keyof TaxinvoicePromiseService
 
 export interface ParsedLegacyUserIdCallbacks<T> {
   userId: string
@@ -89,8 +44,10 @@ export function parseLegacyUserIdAndCallbacks<T>(args: unknown[]): ParsedLegacyU
 
   return {
     userId: '',
-    success: asSuccessCallback<T>(second),
-    error: asErrorCallback(third),
+    // With two slots, undefined is the omitted success callback in the short form.
+    // An explicit undefined UserID therefore requires both callback slots.
+    success: asSuccessCallback<T>(args.length >= 3 ? second : first),
+    error: asErrorCallback(args.length >= 3 ? third : second),
   }
 }
 
@@ -100,6 +57,24 @@ export function asSuccessCallback<T>(candidate: unknown): LegacySuccessCallback<
 
 export function asErrorCallback(candidate: unknown): LegacyErrorCallback | undefined {
   return typeof candidate === 'function' ? (candidate as LegacyErrorCallback) : undefined
+}
+
+/** Resolve omitted success callbacks before interpreting optional argument values. */
+export function splitLegacyCallbackArguments<T>(args: unknown[], callbackPositions?: readonly number[]) {
+  const firstCallback = args.findIndex((value) => typeof value === 'function')
+  if (firstCallback === -1) return { values: args, success: undefined, error: undefined }
+  const omittedSuccessPosition = firstCallback - 1
+  const isErrorOnly =
+    firstCallback === args.length - 1 &&
+    omittedSuccessPosition >= 0 &&
+    args[omittedSuccessPosition] == null &&
+    (callbackPositions === undefined || callbackPositions.includes(omittedSuccessPosition))
+  const callbackPosition = isErrorOnly ? omittedSuccessPosition : firstCallback
+  return {
+    values: args.slice(0, callbackPosition),
+    success: asSuccessCallback<T>(args[callbackPosition]),
+    error: asErrorCallback(args[callbackPosition + 1]),
+  }
 }
 
 export function handleCallbackError(
@@ -115,7 +90,7 @@ export function handleCallbackError(
 export function throwPromiseError(context: TaxinvoiceRuntimeContext, methods: TaxinvoiceRuntimeMethods, error: unknown): never {
   const runtimeError = toCompatRuntimeError(error, `${SERVICE_NAME}.${methods}`)
   const throwableError = asThrowableCompatError(runtimeError)
-  context.defaultErrorHandler?.(throwableError)
+  invokeUserCallback(context.defaultErrorHandler, throwableError)
   throw throwableError
 }
 

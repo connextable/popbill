@@ -8,9 +8,9 @@ export interface CompatConfig {
   UseGAIP?: boolean
   UseLocalTimeYN?: boolean
   IPRestrictOnOff?: boolean
-  requestTimeoutMs?: number
-  acceptLanguage?: string
   acceptEncoding?: string | null
+  acceptLanguage?: string
+  requestTimeoutMs?: number
   defaultErrorHandler?: (error: PopbillApiError | { code: number; message: string }) => void
   [key: string]: unknown
 }
@@ -23,8 +23,8 @@ const DEFAULT_CONFIGURATION: CompatConfig = {
   UseGAIP: false,
   UseLocalTimeYN: true,
   IPRestrictOnOff: true,
-  requestTimeoutMs: 180_000,
   acceptEncoding: 'gzip,deflate',
+  requestTimeoutMs: 180_000,
 }
 
 let currentConfiguration: CompatConfig = { ...DEFAULT_CONFIGURATION }

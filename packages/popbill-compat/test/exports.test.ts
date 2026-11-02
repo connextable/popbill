@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import * as compat from '@/index'
 import * as promiseCompat from '@/promise/index'
-import { NotImplementedError } from '@/errors'
 import { createTokenResponseBody, stubFetchResponses, toJsonResponse } from './taxinvoice/runtime/helpers'
 
 describe('compat exports', () => {
@@ -16,24 +15,29 @@ describe('compat exports', () => {
     expect(compat.KakaoType).toMatchObject({ ATS: 'ATS', FTS: 'FTS', FMS: 'FMS' })
   })
 
-  test('callback stub calls error callback when provided', () => {
+  test('callback entrypoint requests tax invoice charge information', async () => {
+    compat.config(createCompatConfig(true))
+    const info = { unitCost: '100', chargeMethod: '종량제', rateSystem: '정액' }
+    const fetchMock = stubFetchResponses(toJsonResponse(createTokenResponseBody()), toJsonResponse(info))
+    const result = await new Promise((resolve, reject) => compat.TaxinvoiceService().getChargeInfo('1234567890', resolve, reject))
+    expect(result).toEqual(info)
+    expect(String(fetchMock.mock.calls.at(-1)?.[0])).toContain('/Taxinvoice/ChargeInfo')
+  })
+
+  test('callback entrypoint delivers validation failures through the error callback', async () => {
+    compat.config(createCompatConfig(true))
+    const fetchMock = vi.spyOn(globalThis, 'fetch')
     const onSuccess = vi.fn<() => void>()
-    const onError = vi.fn<(error: unknown) => void>()
-    compat.TaxinvoiceService().getChargeInfo('1234567890', onSuccess, onError)
-
+    const error = await new Promise((resolve) => compat.TaxinvoiceService().getChargeInfo('', onSuccess, resolve))
+    expect(error).toMatchObject({ code: expect.any(Number), message: expect.any(String) })
     expect(onSuccess).not.toHaveBeenCalled()
-    expect(onError).toHaveBeenCalledTimes(1)
-    expect(onError).toHaveBeenCalledWith(expect.any(NotImplementedError))
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  test('callback stub throws when no callback exists', () => {
-    expect(() => {
-      compat.TaxinvoiceService().getChargeInfo('1234567890')
-    }).toThrow(NotImplementedError)
-  })
-
-  test('promise subpath returns rejected promise with NotImplementedError', async () => {
-    await expect(promiseCompat.TaxinvoiceService().getChargeInfo('1234567890')).rejects.toBeInstanceOf(NotImplementedError)
+  test('promise subpath requests tax invoice unit cost as a decimal string', async () => {
+    promiseCompat.config(createCompatConfig(true))
+    stubFetchResponses(toJsonResponse(createTokenResponseBody()), toJsonResponse({ unitCost: '100.50' }))
+    await expect(promiseCompat.TaxinvoiceService().getUnitCost('1234567890')).resolves.toBe('100.50')
   })
 
   test('callback config refresh invalidates promise singleton services', async () => {

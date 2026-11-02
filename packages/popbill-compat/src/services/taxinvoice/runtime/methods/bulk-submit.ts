@@ -21,11 +21,6 @@ export async function requestBulkSubmit(
     throw submitIdError
   }
 
-  const taxinvoiceListError = validateTaxinvoicePayload(taxinvoiceList)
-  if (taxinvoiceListError) {
-    throw taxinvoiceListError
-  }
-
   const taxinvoiceListValidationError = validateTaxinvoiceList(taxinvoiceList)
   if (taxinvoiceListValidationError) {
     throw taxinvoiceListValidationError

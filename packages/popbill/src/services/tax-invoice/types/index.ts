@@ -686,6 +686,12 @@ export interface GetInvoicesInfoInput extends TaxInvoiceBusinessRequest {
   invoiceManagementKeys: string[]
 }
 
+/** 세금계산서 PDF 원본 다운로드 입력입니다. */
+export interface DownloadInvoicePdfInput extends TaxInvoiceDocumentRequest<typeof TaxInvoiceDocumentKeyTypes.Sales> {
+  /** 출력할 사본. 생략하면 공급자용과 공급받는자용을 모두 출력합니다. */
+  printCopy?: 'supplier' | 'buyer'
+}
+
 /**
  * 검색 요청 입력입니다.
  */
@@ -723,18 +729,6 @@ export interface SearchInvoicesInput extends TaxInvoiceBusinessRequest {
    */
   lateIssueOnly: boolean | null
   /**
-   * 정렬 방향입니다.
-   */
-  sortOrder: TaxInvoiceSortOrder
-  /**
-   * 조회할 페이지 번호입니다.
-   */
-  pageNumber: number
-  /**
-   * 페이지당 조회 건수입니다.
-   */
-  pageSize: number
-  /**
    * 종사업장번호 주체 필터입니다.
    */
   taxRegistrationIdentifierType?: TaxInvoiceSearchTaxRegistrationIdentifierType
@@ -746,10 +740,6 @@ export interface SearchInvoicesInput extends TaxInvoiceBusinessRequest {
    * 종사업장번호 필터입니다.
    */
   taxRegistrationIdentifier?: string
-  /**
-   * 검색어(상호/사업자번호/문서번호 등)입니다.
-   */
-  queryText?: string
   /**
    * 작성유형(연동/API) 필터입니다.
    */
@@ -770,6 +760,22 @@ export interface SearchInvoicesInput extends TaxInvoiceBusinessRequest {
    * 문서번호 또는 국세청승인번호 필터입니다.
    */
   invoiceManagementKeyOrNationalTaxServiceConfirmationNumber?: string
+  /**
+   * 검색어(상호/사업자번호/문서번호 등)입니다.
+   */
+  queryText?: string
+  /**
+   * 정렬 방향입니다.
+   */
+  sortOrder: TaxInvoiceSortOrder
+  /**
+   * 조회할 페이지 번호입니다.
+   */
+  pageNumber: number
+  /**
+   * 페이지당 조회 건수입니다.
+   */
+  pageSize: number
 }
 
 /**
@@ -806,13 +812,13 @@ export type GetSealAndAttachmentRegistrationURLInput = TaxInvoiceBusinessRequest
  */
 export interface AttachFileFromPathInput extends TaxInvoiceDocumentRequest {
   /**
-   * 팝빌에 표시할 첨부파일명입니다.
-   */
-  displayName: string
-  /**
    * 업로드할 파일의 로컬 경로입니다.
    */
   filePath: string
+  /**
+   * 팝빌에 표시할 첨부파일명입니다.
+   */
+  displayName: string
 }
 
 /**
@@ -943,9 +949,7 @@ export interface UpdateEmailSendSettingsInput extends TaxInvoiceBusinessRequest 
 
 /**
  * TaxInvoice modern facade 서비스 인터페이스입니다.
- *
- * 모든 메서드는 `input`만 받으며,
- * 실패 시 `PopbillApiError`를 throw 합니다.
+ * 모든 메서드는 `input`만 받으며 실패 시 `PopbillApiError`를 throw 합니다.
  */
 export interface TaxInvoiceService {
   /**
@@ -1073,6 +1077,9 @@ export interface TaxInvoiceService {
    * Compat: `getXML`
    */
   getInvoiceXML(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceXmlResult>
+
+  /** 세금계산서 PDF 원본을 다운로드합니다. Compat: `getPDF` */
+  downloadInvoicePDF(input: DownloadInvoicePdfInput): Promise<response.TaxInvoicePdfDocument>
 
   /**
    * 검색조건으로 문서를 조회합니다.
@@ -1269,4 +1276,9 @@ export interface TaxInvoiceService {
    * Compat: `getTaxCertInfo`
    */
   getTaxCertificateInfo(input: TaxInvoiceBusinessRequest): Promise<response.TaxInvoiceTaxCertificateInfo>
+  /** 세금계산서 서비스 과금정보를 조회합니다. Compat: `getChargeInfo` */
+  getChargeInfo(input: TaxInvoiceBusinessRequest): Promise<response.TaxInvoiceChargeInfo>
+
+  /** 세금계산서 발행단가를 문자열로 조회합니다. Compat: `getUnitCost` */
+  getUnitCost(input: TaxInvoiceBusinessRequest): Promise<response.TaxInvoiceUnitCost>
 }

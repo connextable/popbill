@@ -1,10 +1,18 @@
 import type { CompatConfig } from '@/config'
+import { invokeUserCallback as handleCallbackSuccess } from '@/internal/callback'
 import type { TaxinvoiceCallbackService, TaxinvoicePromiseService } from '@/services/taxinvoice/types'
-import { handleCallbackError, parseLegacyUserIdAndCallbacks, throwPromiseError, type TaxinvoiceRuntimeMethods } from './common'
+import {
+  handleCallbackError,
+  parseLegacyUserIdAndCallbacks,
+  splitLegacyCallbackArguments,
+  throwPromiseError,
+  type TaxinvoiceRuntimeMethods,
+} from './common'
 import { createTaxinvoiceRuntimeContext } from './context'
 import * as parsers from './parsers'
 import * as methods from './methods'
 import type * as Spec from '@connextable/popbill-spec'
+import { createAdditionalTaxinvoiceRuntimeMethods } from './additional'
 
 type TaxinvoiceRuntimeCallbackMethods = Pick<TaxinvoiceCallbackService, TaxinvoiceRuntimeMethods>
 type TaxinvoiceRuntimePromiseMethods = Pick<TaxinvoicePromiseService, TaxinvoiceRuntimeMethods>
@@ -16,33 +24,16 @@ interface ParsedMemoCallbacks<T> {
   error?: (error: unknown) => void
 }
 
-function handleCallbackSuccess<T>(success: ((response: T) => void) | undefined, response: T): void {
-  try {
-    const maybeThenable = success?.(response) as unknown
-    if (isThenable(maybeThenable)) {
-      void Promise.resolve(maybeThenable).catch(() => undefined)
-    }
-  } catch {
-    // User callback failures must not be reclassified as Popbill API failures.
-  }
-}
-
-function isThenable(value: unknown): value is PromiseLike<unknown> {
-  if ((typeof value !== 'object' && typeof value !== 'function') || value === null) {
-    return false
-  }
-
-  return typeof (value as { then?: unknown }).then === 'function'
-}
-
 export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
   callback: TaxinvoiceRuntimeCallbackMethods
   promise: TaxinvoiceRuntimePromiseMethods
 } {
   const context = createTaxinvoiceRuntimeContext(config)
+  const additional = createAdditionalTaxinvoiceRuntimeMethods(context)
 
   return {
     callback: {
+      ...additional.callback,
       // 발행/전송
       registIssue(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, ...args: unknown[]) {
         const parsed = parsers.parseRegistIssueCallbackArgs(args)
@@ -84,10 +75,16 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
       },
 
       register(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, ...args: unknown[]) {
-        const parsed = parseLegacyUserIdAndCallbacks<Spec.TaxInvoiceApiResponseBase>(args)
+        const parsed = splitLegacyCallbackArguments<Spec.TaxInvoiceApiResponseBase>(args)
 
         void methods
-          .requestRegister(context, corpNum, taxinvoice, parsed.userId)
+          .requestRegister(
+            context,
+            corpNum,
+            taxinvoice,
+            typeof parsed.values[0] === 'string' ? parsed.values[0] : '',
+            typeof parsed.values[1] === 'boolean' ? parsed.values[1] : undefined
+          )
           .then((response) => {
             handleCallbackSuccess(parsed.success, response)
           })
@@ -707,6 +704,7 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
     } as TaxinvoiceRuntimeCallbackMethods,
 
     promise: {
+      ...additional.promise,
       // 발행/전송
       async registIssue(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, ...args: unknown[]) {
         const parsed = parsers.parseRegistIssuePromiseArgs(args)
@@ -736,9 +734,9 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         }
       },
 
-      async register(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, userId?: string) {
+      async register(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, userId?: string, writeSpecification?: boolean) {
         try {
-          return await methods.requestRegister(context, corpNum, taxinvoice, userId ?? '')
+          return await methods.requestRegister(context, corpNum, taxinvoice, userId ?? '', writeSpecification)
         } catch (error) {
           return throwPromiseError(context, 'register', error)
         }
@@ -1151,13 +1149,11 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
 }
 
 function parseMemoCallbackArgs<T>(maybeMemoOrSuccess: unknown, args: unknown[]): ParsedMemoCallbacks<T> {
-  const memo = typeof maybeMemoOrSuccess === 'string' ? maybeMemoOrSuccess : ''
-  const callbackArgs = typeof maybeMemoOrSuccess === 'function' ? [maybeMemoOrSuccess, ...args] : args
-  const parsed = parseLegacyUserIdAndCallbacks<T>(callbackArgs)
+  const parsed = splitLegacyCallbackArguments<T>([maybeMemoOrSuccess, ...args])
 
   return {
-    memo,
-    userId: parsed.userId,
+    memo: typeof parsed.values[0] === 'string' ? parsed.values[0] : '',
+    userId: typeof parsed.values[1] === 'string' ? parsed.values[1] : '',
     success: parsed.success,
     error: parsed.error,
   }

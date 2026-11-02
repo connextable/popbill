@@ -10,6 +10,7 @@ import type {
   TaxInvoiceBulkSubmitResult,
   TaxInvoiceBuyerInput,
   TaxInvoiceChargeDirection,
+  TaxInvoiceChargeInfo,
   TaxInvoiceDocumentOutput,
   TaxInvoiceEmailSendSetting,
   TaxInvoiceInfo,
@@ -18,11 +19,13 @@ import type {
   TaxInvoiceLogEntry,
   TaxInvoiceOperationResult,
   TaxInvoicePartyInput,
+  TaxInvoicePdfDocument,
   TaxInvoiceSearchResult,
   TaxInvoiceSendToNationalTaxServiceSetting,
   TaxInvoiceTaxCertificateExpiration,
   TaxInvoiceTaxCertificateInfo,
   TaxInvoiceXmlResult,
+  TaxInvoiceUnitCost,
 } from '@/services/tax-invoice/types'
 import type * as Spec from '@connextable/popbill-spec'
 
@@ -67,17 +70,17 @@ export function mapTaxInvoiceBulkIssueSubmissionResult(
 ): TaxInvoiceBulkIssueSubmissionResult {
   return removeUndefinedProperties({
     ...mapTaxInvoiceOperationResult(taxInvoiceApiResponse),
-    receiptIdentifier: taxInvoiceApiResponse.receiptID,
     submissionIdentifier: taxInvoiceApiResponse.submitID,
-    receivedAt: taxInvoiceApiResponse.receiptDT,
+    receiptIdentifier: taxInvoiceApiResponse.receiptID,
     submittedDocumentCount: toOptionalNumber(taxInvoiceApiResponse.submitCount),
     succeededDocumentCount: toOptionalNumber(taxInvoiceApiResponse.successCount),
     failedDocumentCount: toOptionalNumber(taxInvoiceApiResponse.failCount),
     transactionState: toTaxInvoiceBulkIssueSubmissionTransactionState(taxInvoiceApiResponse.txState),
-    transactionStartedAt: taxInvoiceApiResponse.txStartDT,
-    transactionCompletedAt: taxInvoiceApiResponse.txEndDT,
     transactionResultCode: toOptionalNumber(taxInvoiceApiResponse.txResultCode),
     issueResults: taxInvoiceApiResponse.issueResult?.map(mapTaxInvoiceBulkIssueSubmissionResultItem),
+    receivedAt: taxInvoiceApiResponse.receiptDT,
+    transactionStartedAt: taxInvoiceApiResponse.txStartDT,
+    transactionCompletedAt: taxInvoiceApiResponse.txEndDT,
   })
 }
 
@@ -93,19 +96,21 @@ export function mapTaxInvoiceInfos(taxInvoiceApiResponse: Spec.TaxInvoiceGetInfo
  */
 export function mapTaxInvoiceDocumentOutput(taxInvoiceApiResponse: Spec.TaxInvoiceGetDetailInfoApiResponse): TaxInvoiceDocumentOutput {
   return removeUndefinedProperties({
-    writeSpecificationEnabled: taxInvoiceApiResponse.writeSpecification,
+    taxInvoiceSerialNumber: taxInvoiceApiResponse.serialNum,
+    bookVolumeNumber: taxInvoiceApiResponse.kwon,
+    bookIssueNumber: taxInvoiceApiResponse.ho,
     writtenDate: taxInvoiceApiResponse.writeDate,
-    chargeDirection: toTaxInvoiceChargeDirection(taxInvoiceApiResponse.chargeDirection),
     issueType: taxInvoiceApiResponse.issueType,
-    purposeType: taxInvoiceApiResponse.purposeType,
     issueTimingCode: taxInvoiceApiResponse.issueTiming,
     taxType: taxInvoiceApiResponse.taxType,
+    purposeType: taxInvoiceApiResponse.purposeType,
+    chargeDirection: toTaxInvoiceChargeDirection(taxInvoiceApiResponse.chargeDirection),
     supplier: mapSupplierOutput(taxInvoiceApiResponse),
     buyer: mapBuyerOutput(taxInvoiceApiResponse),
     trustee: mapTrusteeOutput(taxInvoiceApiResponse),
     paymentSummary: removeUndefinedProperties({
-      totalTaxAmount: taxInvoiceApiResponse.taxTotal,
       totalSupplyCostAmount: taxInvoiceApiResponse.supplyCostTotal,
+      totalTaxAmount: taxInvoiceApiResponse.taxTotal,
       totalAmount: taxInvoiceApiResponse.totalAmount,
       cashAmount: taxInvoiceApiResponse.cash,
       checkAmount: taxInvoiceApiResponse.chkBill,
@@ -116,14 +121,6 @@ export function mapTaxInvoiceDocumentOutput(taxInvoiceApiResponse: Spec.TaxInvoi
       modificationReasonCode: taxInvoiceApiResponse.modifyCode,
       originalNationalTaxServiceConfirmationNumber: taxInvoiceApiResponse.orgNTSConfirmNum,
     }),
-    taxInvoiceSerialNumber: taxInvoiceApiResponse.serialNum,
-    remarkOne: taxInvoiceApiResponse.remark1,
-    remarkTwo: taxInvoiceApiResponse.remark2,
-    remarkThree: taxInvoiceApiResponse.remark3,
-    bookVolumeNumber: taxInvoiceApiResponse.kwon,
-    bookIssueNumber: taxInvoiceApiResponse.ho,
-    includeBusinessLicenseImage: toOptionalBoolean(taxInvoiceApiResponse.businessLicenseYN),
-    includeBankBookImage: toOptionalBoolean(taxInvoiceApiResponse.bankBookYN),
     lineItems: taxInvoiceApiResponse.detailList?.map((lineItem) =>
       removeUndefinedProperties({
         lineNumber: lineItem.serialNum,
@@ -144,18 +141,24 @@ export function mapTaxInvoiceDocumentOutput(taxInvoiceApiResponse: Spec.TaxInvoi
         emailAddress: additionalContact.email,
       })
     ),
-    issuedAt: taxInvoiceApiResponse.issueDT,
+    remarkOne: taxInvoiceApiResponse.remark1,
+    remarkTwo: taxInvoiceApiResponse.remark2,
+    remarkThree: taxInvoiceApiResponse.remark3,
+    writeSpecificationEnabled: taxInvoiceApiResponse.writeSpecification,
+    includeBusinessLicenseImage: toOptionalBoolean(taxInvoiceApiResponse.businessLicenseYN),
+    includeBankBookImage: toOptionalBoolean(taxInvoiceApiResponse.bankBookYN),
+    nationalTaxServiceConfirmationNumber: taxInvoiceApiResponse.ntsconfirmNum,
     stateCode: toOptionalNumber(taxInvoiceApiResponse.stateCode),
-    stateChangedAt: taxInvoiceApiResponse.stateDT,
+    nationalTaxServiceResultCode: taxInvoiceApiResponse.ntsresult,
+    nationalTaxServiceSendErrorCode: taxInvoiceApiResponse.ntssendErrCode,
     isLateIssued: toOptionalBoolean(taxInvoiceApiResponse.lateIssueYN),
     isOpen: toOptionalBoolean(taxInvoiceApiResponse.openYN),
+    isApiLinkedDocument: toOptionalBoolean(taxInvoiceApiResponse.interOPYN),
+    issuedAt: taxInvoiceApiResponse.issueDT,
+    stateChangedAt: taxInvoiceApiResponse.stateDT,
     openedAt: taxInvoiceApiResponse.openDT,
-    nationalTaxServiceConfirmationNumber: taxInvoiceApiResponse.ntsconfirmNum,
-    nationalTaxServiceResultCode: taxInvoiceApiResponse.ntsresult,
     nationalTaxServiceSentAt: taxInvoiceApiResponse.ntssendDT,
     nationalTaxServiceResultReceivedAt: taxInvoiceApiResponse.ntsresultDT,
-    nationalTaxServiceSendErrorCode: taxInvoiceApiResponse.ntssendErrCode,
-    isApiLinkedDocument: toOptionalBoolean(taxInvoiceApiResponse.interOPYN),
   })
 }
 
@@ -193,16 +196,20 @@ export function mapTaxInvoiceXmlResult(taxInvoiceApiResponse: Spec.TaxInvoiceGet
   })
 }
 
+export function mapTaxInvoicePdfDocument(fileData: Uint8Array): TaxInvoicePdfDocument {
+  return { fileData: new Uint8Array(fileData) }
+}
+
 /**
  * 검색 응답을 도메인 검색 결과로 변환합니다.
  */
 export function mapTaxInvoiceSearchResult(taxInvoiceApiResponse: Spec.TaxInvoiceSearchApiResponse): TaxInvoiceSearchResult {
   return removeUndefinedProperties({
     operationResult: mapTaxInvoiceOperationResult(taxInvoiceApiResponse),
-    totalCount: toOptionalNumber(taxInvoiceApiResponse.total),
-    pageSize: toOptionalNumber(taxInvoiceApiResponse.perPage),
     pageNumber: toOptionalNumber(taxInvoiceApiResponse.pageNum),
+    pageSize: toOptionalNumber(taxInvoiceApiResponse.perPage),
     pageCount: toOptionalNumber(taxInvoiceApiResponse.pageCount),
+    totalCount: toOptionalNumber(taxInvoiceApiResponse.total),
     invoiceSummaries: (taxInvoiceApiResponse.list ?? []).map(mapTaxInvoiceInfo),
   })
 }
@@ -288,15 +295,23 @@ export function mapTaxInvoiceTaxCertificateExpiration(expirationDateTime: string
  */
 export function mapTaxInvoiceTaxCertificateInfo(taxInvoiceApiResponse: Spec.TaxInvoiceGetTaxCertInfoApiResponse): TaxInvoiceTaxCertificateInfo {
   return removeUndefinedProperties({
-    registeredAt: taxInvoiceApiResponse.regDT,
-    expiredAt: taxInvoiceApiResponse.expireDT,
     issuerDistinguishedName: taxInvoiceApiResponse.issuerDN,
     subjectDistinguishedName: taxInvoiceApiResponse.subjectDN,
     issuerName: taxInvoiceApiResponse.issuerName,
     policyObjectIdentifier: taxInvoiceApiResponse.OID ?? taxInvoiceApiResponse.oid,
-    registeredContactName: taxInvoiceApiResponse.regContactName,
     registeredContactIdentifier: taxInvoiceApiResponse.regContactID,
+    registeredContactName: taxInvoiceApiResponse.regContactName,
+    registeredAt: taxInvoiceApiResponse.regDT,
+    expiredAt: taxInvoiceApiResponse.expireDT,
   })
+}
+
+export function mapTaxInvoiceChargeInfo(response: Spec.TaxInvoiceGetChargeInfoApiResponse): TaxInvoiceChargeInfo {
+  return { unitCost: response.unitCost, chargeMethod: response.chargeMethod, rateSystem: response.rateSystem }
+}
+
+export function mapTaxInvoiceUnitCost(unitCost: string): TaxInvoiceUnitCost {
+  return { unitCost }
 }
 
 /**
@@ -325,23 +340,23 @@ function mapSupplierOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxI
     businessNumber: taxInvoiceApiResponse.invoicerCorpNum,
     managementKey: taxInvoiceApiResponse.invoicerMgtKey,
     taxRegistrationIdentifier: taxInvoiceApiResponse.invoicerTaxRegID,
+    residentRegistrationNumber: taxInvoiceApiResponse.invoicerRDN,
+    foreignerRegistrationNumber: taxInvoiceApiResponse.invoicerOLN,
+    branchBusinessNumber: taxInvoiceApiResponse.invoicerTaxNum,
+    branchSerialNumber: taxInvoiceApiResponse.invoicerPSerialNum,
+    corporationClassification: taxInvoiceApiResponse.invoicerCorpCls,
     companyName: taxInvoiceApiResponse.invoicerCorpName,
     chiefExecutiveOfficerName: taxInvoiceApiResponse.invoicerCEOName,
     address: taxInvoiceApiResponse.invoicerAddr,
-    businessClass: taxInvoiceApiResponse.invoicerBizClass,
     businessType: taxInvoiceApiResponse.invoicerBizType,
+    businessClass: taxInvoiceApiResponse.invoicerBizClass,
+    departmentName: taxInvoiceApiResponse.invoicerDeptName,
     contactName: taxInvoiceApiResponse.invoicerContactName,
     telephoneNumber: taxInvoiceApiResponse.invoicerTEL,
     mobilePhoneNumber: taxInvoiceApiResponse.invoicerHP,
     emailAddress: taxInvoiceApiResponse.invoicerEmail,
     sendTextMessage: toOptionalBoolean(taxInvoiceApiResponse.invoicerSMSSendYN),
     printEnabled: toOptionalBoolean(taxInvoiceApiResponse.invoicerPrintYN),
-    residentRegistrationNumber: taxInvoiceApiResponse.invoicerRDN,
-    foreignerRegistrationNumber: taxInvoiceApiResponse.invoicerOLN,
-    branchBusinessNumber: taxInvoiceApiResponse.invoicerTaxNum,
-    branchSerialNumber: taxInvoiceApiResponse.invoicerPSerialNum,
-    corporationClassification: taxInvoiceApiResponse.invoicerCorpCls,
-    departmentName: taxInvoiceApiResponse.invoicerDeptName,
   })
 }
 
@@ -350,33 +365,33 @@ function mapSupplierOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxI
  */
 function mapBuyerOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxInvoiceBuyerInput | undefined {
   return compactOptionalObject({
-    recipientType: taxInvoiceApiResponse.invoiceeType,
     businessNumber: taxInvoiceApiResponse.invoiceeCorpNum,
     managementKey: taxInvoiceApiResponse.invoiceeMgtKey,
     taxRegistrationIdentifier: taxInvoiceApiResponse.invoiceeTaxRegID,
-    companyName: taxInvoiceApiResponse.invoiceeCorpName,
-    chiefExecutiveOfficerName: taxInvoiceApiResponse.invoiceeCEOName,
-    address: taxInvoiceApiResponse.invoiceeAddr,
-    businessClass: taxInvoiceApiResponse.invoiceeBizClass,
-    businessType: taxInvoiceApiResponse.invoiceeBizType,
-    contactName: taxInvoiceApiResponse.invoiceeContactName1,
-    telephoneNumber: taxInvoiceApiResponse.invoiceeTEL1,
-    mobilePhoneNumber: taxInvoiceApiResponse.invoiceeHP1,
-    emailAddress: taxInvoiceApiResponse.invoiceeEmail1,
-    secondaryContactName: taxInvoiceApiResponse.invoiceeContactName2,
-    secondaryTelephoneNumber: taxInvoiceApiResponse.invoiceeTEL2,
-    secondaryMobilePhoneNumber: taxInvoiceApiResponse.invoiceeHP2,
-    secondaryEmailAddress: taxInvoiceApiResponse.invoiceeEmail2,
-    sendTextMessage: toOptionalBoolean(taxInvoiceApiResponse.invoiceeSMSSendYN),
-    printEnabled: toOptionalBoolean(taxInvoiceApiResponse.invoiceePrintYN),
     residentRegistrationNumber: taxInvoiceApiResponse.invoiceeRDN,
     foreignerRegistrationNumber: taxInvoiceApiResponse.invoiceeOLN,
     branchBusinessNumber: taxInvoiceApiResponse.invoiceeTaxNum,
     branchSerialNumber: taxInvoiceApiResponse.invoiceePSerialNum,
     corporationClassification: taxInvoiceApiResponse.invoiceeCorpCls,
+    companyName: taxInvoiceApiResponse.invoiceeCorpName,
+    chiefExecutiveOfficerName: taxInvoiceApiResponse.invoiceeCEOName,
+    address: taxInvoiceApiResponse.invoiceeAddr,
+    businessType: taxInvoiceApiResponse.invoiceeBizType,
+    businessClass: taxInvoiceApiResponse.invoiceeBizClass,
     departmentName: taxInvoiceApiResponse.invoiceeDeptName1,
+    contactName: taxInvoiceApiResponse.invoiceeContactName1,
+    telephoneNumber: taxInvoiceApiResponse.invoiceeTEL1,
+    mobilePhoneNumber: taxInvoiceApiResponse.invoiceeHP1,
+    emailAddress: taxInvoiceApiResponse.invoiceeEmail1,
+    sendTextMessage: toOptionalBoolean(taxInvoiceApiResponse.invoiceeSMSSendYN),
+    printEnabled: toOptionalBoolean(taxInvoiceApiResponse.invoiceePrintYN),
+    recipientType: taxInvoiceApiResponse.invoiceeType,
     primaryDepartmentName: taxInvoiceApiResponse.invoiceeDeptName1,
     secondaryDepartmentName: taxInvoiceApiResponse.invoiceeDeptName2,
+    secondaryContactName: taxInvoiceApiResponse.invoiceeContactName2,
+    secondaryTelephoneNumber: taxInvoiceApiResponse.invoiceeTEL2,
+    secondaryMobilePhoneNumber: taxInvoiceApiResponse.invoiceeHP2,
+    secondaryEmailAddress: taxInvoiceApiResponse.invoiceeEmail2,
     businessStatus: taxInvoiceApiResponse.closeDownState,
     businessStatusDate: taxInvoiceApiResponse.closeDownStateDate,
   })
@@ -390,23 +405,23 @@ function mapTrusteeOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxIn
     businessNumber: taxInvoiceApiResponse.trusteeCorpNum,
     managementKey: taxInvoiceApiResponse.trusteeMgtKey,
     taxRegistrationIdentifier: taxInvoiceApiResponse.trusteeTaxRegID,
+    residentRegistrationNumber: taxInvoiceApiResponse.trusteeRDN,
+    foreignerRegistrationNumber: taxInvoiceApiResponse.trusteeOLN,
+    branchBusinessNumber: taxInvoiceApiResponse.trusteeTaxNum,
+    branchSerialNumber: taxInvoiceApiResponse.trusteePSerialNum,
+    corporationClassification: taxInvoiceApiResponse.trusteeCorpCls,
     companyName: taxInvoiceApiResponse.trusteeCorpName,
     chiefExecutiveOfficerName: taxInvoiceApiResponse.trusteeCEOName,
     address: taxInvoiceApiResponse.trusteeAddr,
-    businessClass: taxInvoiceApiResponse.trusteeBizClass,
     businessType: taxInvoiceApiResponse.trusteeBizType,
+    businessClass: taxInvoiceApiResponse.trusteeBizClass,
+    departmentName: taxInvoiceApiResponse.trusteeDeptName,
     contactName: taxInvoiceApiResponse.trusteeContactName,
     telephoneNumber: taxInvoiceApiResponse.trusteeTEL,
     mobilePhoneNumber: taxInvoiceApiResponse.trusteeHP,
     emailAddress: taxInvoiceApiResponse.trusteeEmail,
     sendTextMessage: toOptionalBoolean(taxInvoiceApiResponse.trusteeSMSSendYN),
     printEnabled: toOptionalBoolean(taxInvoiceApiResponse.trusteePrintYN),
-    residentRegistrationNumber: taxInvoiceApiResponse.trusteeRDN,
-    foreignerRegistrationNumber: taxInvoiceApiResponse.trusteeOLN,
-    branchBusinessNumber: taxInvoiceApiResponse.trusteeTaxNum,
-    branchSerialNumber: taxInvoiceApiResponse.trusteePSerialNum,
-    corporationClassification: taxInvoiceApiResponse.trusteeCorpCls,
-    departmentName: taxInvoiceApiResponse.trusteeDeptName,
   })
 }
 
@@ -436,13 +451,13 @@ function toRequiredNumber(value: number | string | undefined, fieldName: string)
 }
 
 /**
- * 초대량 처리 상태를 지원하는 도메인 상태값으로 정규화합니다.
+ * 초대량 처리 상태를 숫자로 정규화하며 새 서버 상태코드도 보존합니다.
  */
 function toTaxInvoiceBulkIssueSubmissionTransactionState(
   value: number | string | undefined
 ): TaxInvoiceBulkIssueSubmissionTransactionState | undefined {
   const transactionState = toOptionalNumber(value)
-  return transactionState === 0 || transactionState === 1 || transactionState === 2 ? transactionState : undefined
+  return transactionState !== undefined && Number.isInteger(transactionState) && transactionState >= 0 ? transactionState : undefined
 }
 
 /**

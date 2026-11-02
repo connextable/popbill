@@ -199,6 +199,59 @@ describe('taxinvoice runtime: issue', () => {
     })
   })
 
+  test('callback issue retains the title and later fields when Memo is defaulted', async () => {
+    const fetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ code: 1, message: 'issued' })
+    )
+    await new Promise<unknown>((resolve, reject) =>
+      helpers.compat.TaxinvoiceService().issue('1234567890', 'SELL', 'MGT-NO-MEMO', undefined, 'subject', true, 'user', resolve, reject)
+    )
+    const init = helpers.getTaxinvoiceRequestInit(fetchMock)
+    expect(JSON.parse(init.body as string)).toEqual({ emailSubject: 'subject', forceIssue: true })
+    expect((init.headers as Record<string, string>)['x-pb-userid']).toBe('user')
+  })
+
+  test.each([
+    { name: 'no optional values', values: [], body: { forceIssue: false }, userId: undefined },
+    { name: 'memo', values: ['memo'], body: { memo: 'memo', forceIssue: false }, userId: undefined },
+    { name: 'memo and user', values: ['memo', 'user'], body: { memo: 'memo', forceIssue: false }, userId: 'user' },
+    { name: 'memo, force and user', values: ['memo', true, 'user'], body: { memo: 'memo', forceIssue: true }, userId: 'user' },
+    {
+      name: 'all values',
+      values: ['memo', 'subject', true, 'user'],
+      body: { memo: 'memo', emailSubject: 'subject', forceIssue: true },
+      userId: 'user',
+    },
+    { name: 'default memo', values: [undefined, 'subject', true, 'user'], body: { emailSubject: 'subject', forceIssue: true }, userId: 'user' },
+    { name: 'default subject', values: ['memo', undefined, true, 'user'], body: { memo: 'memo', forceIssue: true }, userId: 'user' },
+    { name: 'default memo and subject', values: [undefined, undefined, true, 'user'], body: { forceIssue: true }, userId: 'user' },
+    {
+      name: 'default force and user',
+      values: ['memo', 'subject', undefined, undefined],
+      body: { memo: 'memo', emailSubject: 'subject', forceIssue: false },
+      userId: undefined,
+    },
+    {
+      name: 'title and user shorthand',
+      values: [undefined, 'subject', 'user'],
+      body: { emailSubject: 'subject', forceIssue: false },
+      userId: 'user',
+    },
+  ])('callback issue preserves $name before the two callback slots', async ({ values, body, userId }) => {
+    const fetchMock = helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ code: 1, message: 'issued' })
+    )
+    await new Promise<unknown>((resolve, reject) => {
+      const issue = helpers.compat.TaxinvoiceService().issue as (...args: unknown[]) => void
+      issue('1234567890', 'SELL', 'MGT-SLOTS', ...values, resolve, reject)
+    })
+    const init = helpers.getTaxinvoiceRequestInit(fetchMock)
+    expect(JSON.parse(init.body as string)).toEqual(body)
+    expect((init.headers as Record<string, string>)['x-pb-userid']).toBe(userId)
+  })
+
   test('promise issue preserves forceIssue and userId when emailSubject is omitted', async () => {
     const issueResponse: Spec.TaxInvoiceIssueApiResponse = {
       code: 1,

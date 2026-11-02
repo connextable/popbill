@@ -1,5 +1,6 @@
 import { normalizePopbillError, PopbillErrorStage, type PopbillApiError } from '@/errors'
 import { isPopbillRequestStageError } from '@connextable/popbill-runtime'
+import { invokeUserCallback } from './callback'
 
 export interface LegacyCompatError extends Error {
   code: number
@@ -52,12 +53,7 @@ export function dispatchCallbackError(
   errorCallback: ((error: unknown) => void) | undefined,
   defaultErrorHandler: ((error: CompatRuntimeError) => void) | undefined
 ): void {
-  if (errorCallback) {
-    errorCallback(error)
-    return
-  }
-
-  defaultErrorHandler?.(error)
+  invokeUserCallback(errorCallback ?? defaultErrorHandler, error)
 }
 
 function isLegacyCompatError(error: unknown): error is LegacyCompatError {

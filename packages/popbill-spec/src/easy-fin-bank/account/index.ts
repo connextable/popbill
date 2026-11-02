@@ -1,0 +1,8 @@
+export type * from './get-bank-account-mgt-url'
+export type * from './regist-bank-account'
+export type * from './update-bank-account'
+export type * from './get-bank-account-info'
+export type * from './list-bank-account'
+export type * from './close-bank-account'
+export type * from './revoke-close-bank-account'
+export type * from './delete-bank-account'

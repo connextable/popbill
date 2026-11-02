@@ -7,7 +7,8 @@ export async function requestRegister(
   context: TaxinvoiceRuntimeContext,
   corpNum: string,
   taxinvoice: Spec.TaxInvoiceApiModel,
-  userId: string
+  userId: string,
+  writeSpecification?: boolean
 ): Promise<Spec.TaxInvoiceApiResponseBase> {
   const corpNumError = validateCorpNum(corpNum)
   if (corpNumError) {
@@ -24,6 +25,6 @@ export async function requestRegister(
     corpNum,
     userId,
     method: 'POST',
-    body: stringifyWithoutEmptyValues(taxinvoice),
+    body: stringifyWithoutEmptyValues(writeSpecification === true ? { ...taxinvoice, writeSpecification: true } : taxinvoice),
   })
 }

@@ -261,6 +261,26 @@ export interface TaxInvoicePartyInput {
    */
   taxRegistrationIdentifier?: string
   /**
+   * 주민등록번호입니다.
+   */
+  residentRegistrationNumber?: string
+  /**
+   * 외국인 등록번호입니다.
+   */
+  foreignerRegistrationNumber?: string
+  /**
+   * 종사업자번호입니다.
+   */
+  branchBusinessNumber?: string
+  /**
+   * 종사업자 일련번호입니다.
+   */
+  branchSerialNumber?: string
+  /**
+   * 법인 구분값입니다.
+   */
+  corporationClassification?: string
+  /**
    * 상호입니다.
    */
   companyName?: string
@@ -273,13 +293,17 @@ export interface TaxInvoicePartyInput {
    */
   address?: string
   /**
+   * 종목입니다.
+   */
+  businessType?: string
+  /**
    * 업태입니다.
    */
   businessClass?: string
   /**
-   * 종목입니다.
+   * 부서명입니다.
    */
-  businessType?: string
+  departmentName?: string
   /**
    * 담당자 이름입니다.
    */
@@ -304,30 +328,6 @@ export interface TaxInvoicePartyInput {
    * 인쇄 여부입니다.
    */
   printEnabled?: boolean
-  /**
-   * 주민등록번호입니다.
-   */
-  residentRegistrationNumber?: string
-  /**
-   * 외국인 등록번호입니다.
-   */
-  foreignerRegistrationNumber?: string
-  /**
-   * 종사업자번호입니다.
-   */
-  branchBusinessNumber?: string
-  /**
-   * 종사업자 일련번호입니다.
-   */
-  branchSerialNumber?: string
-  /**
-   * 법인 구분값입니다.
-   */
-  corporationClassification?: string
-  /**
-   * 부서명입니다.
-   */
-  departmentName?: string
 }
 
 /**
@@ -338,6 +338,14 @@ export interface TaxInvoiceBuyerInput extends TaxInvoicePartyInput {
    * 공급받는자 구분입니다.
    */
   recipientType?: TaxInvoiceRecipientType
+  /**
+   * 주 담당 부서명입니다.
+   */
+  primaryDepartmentName?: string
+  /**
+   * 예비 담당 부서명입니다.
+   */
+  secondaryDepartmentName?: string
   /**
    * 예비 담당자 이름입니다.
    */
@@ -355,14 +363,6 @@ export interface TaxInvoiceBuyerInput extends TaxInvoicePartyInput {
    */
   secondaryEmailAddress?: string
   /**
-   * 주 담당 부서명입니다.
-   */
-  primaryDepartmentName?: string
-  /**
-   * 예비 담당 부서명입니다.
-   */
-  secondaryDepartmentName?: string
-  /**
    * 휴폐업 상태입니다.
    */
   businessStatus?: TaxInvoiceBusinessStatus
@@ -377,13 +377,13 @@ export interface TaxInvoiceBuyerInput extends TaxInvoicePartyInput {
  */
 export interface TaxInvoicePaymentSummaryInput {
   /**
-   * 세액 합계입니다.
-   */
-  totalTaxAmount?: string
-  /**
    * 공급가액 합계입니다.
    */
   totalSupplyCostAmount?: string
+  /**
+   * 세액 합계입니다.
+   */
+  totalTaxAmount?: string
   /**
    * 합계 금액입니다.
    */
@@ -425,25 +425,25 @@ export interface TaxInvoiceModificationInput {
  */
 export interface TaxInvoiceDocumentInput {
   /**
-   * 거래명세서 동시작성 여부입니다.
+   * 기재상 일련번호입니다.
    */
-  writeSpecificationEnabled?: boolean
+  taxInvoiceSerialNumber?: string
+  /**
+   * 책번호 권 항목입니다.
+   */
+  bookVolumeNumber?: number | string
+  /**
+   * 책번호 호 항목입니다.
+   */
+  bookIssueNumber?: number | string
   /**
    * 작성일자(yyyyMMdd)입니다.
    */
   writtenDate?: TaxInvoiceDateString
   /**
-   * 과금 방향입니다.
-   */
-  chargeDirection?: TaxInvoiceChargeDirection
-  /**
    * 발행 형태입니다.
    */
   issueType?: TaxInvoiceIssueType
-  /**
-   * 영수/청구 구분입니다.
-   */
-  purposeType?: TaxInvoicePurposeType
   /**
    * 발행시기 코드입니다.
    */
@@ -452,6 +452,14 @@ export interface TaxInvoiceDocumentInput {
    * 과세 유형입니다.
    */
   taxType?: TaxInvoiceTaxationType
+  /**
+   * 영수/청구 구분입니다.
+   */
+  purposeType?: TaxInvoicePurposeType
+  /**
+   * 과금 방향입니다.
+   */
+  chargeDirection?: TaxInvoiceChargeDirection
   /**
    * 공급자 정보입니다.
    */
@@ -473,9 +481,13 @@ export interface TaxInvoiceDocumentInput {
    */
   modification?: TaxInvoiceModificationInput
   /**
-   * 기재상 일련번호입니다.
+   * 상세 품목 목록입니다.
    */
-  taxInvoiceSerialNumber?: string
+  lineItems?: TaxInvoiceLineItemInput[]
+  /**
+   * 추가 담당자 목록입니다.
+   */
+  additionalContacts?: TaxInvoiceAdditionalContactInput[]
   /**
    * 비고1입니다.
    */
@@ -489,13 +501,9 @@ export interface TaxInvoiceDocumentInput {
    */
   remarkThree?: string
   /**
-   * 책번호 권 항목입니다.
+   * 거래명세서 동시작성 여부입니다.
    */
-  bookVolumeNumber?: number | string
-  /**
-   * 책번호 호 항목입니다.
-   */
-  bookIssueNumber?: number | string
+  writeSpecificationEnabled?: boolean
   /**
    * 사업자등록증 이미지 첨부 여부입니다.
    */
@@ -504,12 +512,4 @@ export interface TaxInvoiceDocumentInput {
    * 통장사본 이미지 첨부 여부입니다.
    */
   includeBankBookImage?: boolean
-  /**
-   * 상세 품목 목록입니다.
-   */
-  lineItems?: TaxInvoiceLineItemInput[]
-  /**
-   * 추가 담당자 목록입니다.
-   */
-  additionalContacts?: TaxInvoiceAdditionalContactInput[]
 }

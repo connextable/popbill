@@ -49,15 +49,20 @@ export function validateMgtKey(mgtKey: unknown): LegacyCompatError | undefined {
 }
 
 export function validateMgtKeyList(mgtKeyList: string[]): LegacyCompatError | undefined {
-  if (isBlank(mgtKeyList)) {
+  if (!Array.isArray(mgtKeyList) || mgtKeyList.length === 0) {
     return createLegacyValidationError('문서번호배열이 입력되지 않았습니다.')
+  }
+
+  for (const key of mgtKeyList) {
+    const error = validateMgtKey(key)
+    if (error) return error
   }
 
   return undefined
 }
 
 export function validateTaxinvoicePayload(taxinvoice: unknown): LegacyCompatError | undefined {
-  if (isBlank(taxinvoice)) {
+  if (!taxinvoice || typeof taxinvoice !== 'object' || Array.isArray(taxinvoice)) {
     return createLegacyValidationError('세금계산서 정보가 입력되지 않았습니다.')
   }
 
@@ -67,10 +72,6 @@ export function validateTaxinvoicePayload(taxinvoice: unknown): LegacyCompatErro
 export function validateTaxinvoiceList(taxinvoiceList: unknown): LegacyCompatError | undefined {
   if (!Array.isArray(taxinvoiceList) || taxinvoiceList.length === 0) {
     return createLegacyValidationError('세금계산서 정보가 입력되지 않았습니다.')
-  }
-
-  if (taxinvoiceList.length > 100) {
-    return createLegacyValidationError('초대량 발행은 최대 100건까지 접수할 수 있습니다.')
   }
 
   return undefined

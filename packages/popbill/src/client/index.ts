@@ -1,6 +1,19 @@
 import type { PopbillClient, PopbillClientConfig } from './types'
+export type { PopbillClient, PopbillClientConfig } from './types'
+import { createCommonService } from '@/services/common'
 import { createTaxInvoiceService } from '@/services/tax-invoice'
-import { createCompatTaxInvoiceService } from '@/internal/compat'
+import { createCashbillService } from '@/services/cashbill'
+import { createStatementService } from '@/services/statement'
+import { createHomeTaxTaxInvoiceService } from '@/services/home-tax-tax-invoice'
+import { createHomeTaxCashbillService } from '@/services/home-tax-cashbill'
+import { createClosedownService } from '@/services/closedown'
+import { createBizInfoCheckService } from '@/services/biz-info-check'
+import { createEasyFinBankService } from '@/services/easy-fin-bank'
+import { createAccountCheckService } from '@/services/account-check'
+import { createKakaoService } from '@/services/kakao'
+import { createMessageService } from '@/services/message'
+import { createFaxService } from '@/services/fax'
+import * as bridges from '@/internal/compat'
 import type { PopbillApiError } from '@/errors'
 import { normalizeOptionalString, normalizeRequiredString } from '@connextable/popbill-utils'
 
@@ -28,17 +41,39 @@ interface ResolvedPopbillClientConfig {
  */
 export function createPopbillClient(config: PopbillClientConfig): PopbillClient {
   const normalizedConfig = normalizeClientConfiguration(config)
-  const compatTaxInvoiceService = createCompatTaxInvoiceService(normalizedConfig)
-
-  const taxInvoiceService = createTaxInvoiceService({
-    compatTaxInvoiceService,
-    defaultUserId: normalizedConfig.userId,
-    onError: normalizedConfig.onError,
-  })
+  const serviceInput = { defaultUserId: normalizedConfig.userId, onError: normalizedConfig.onError }
 
   return {
     services: {
-      taxInvoice: taxInvoiceService,
+      common: createCommonService({
+        ...serviceInput,
+        linkId: normalizedConfig.linkId,
+        compatCommonService: bridges.createCompatCommonService(normalizedConfig),
+      }),
+      taxInvoice: createTaxInvoiceService({ ...serviceInput, compatTaxInvoiceService: bridges.createCompatTaxInvoiceService(normalizedConfig) }),
+      cashbill: createCashbillService({ ...serviceInput, compatCashbillService: bridges.createCompatCashbillService(normalizedConfig) }),
+      statement: createStatementService({ ...serviceInput, compatStatementService: bridges.createCompatStatementService(normalizedConfig) }),
+      homeTaxTaxInvoice: createHomeTaxTaxInvoiceService({
+        ...serviceInput,
+        compatHTTaxinvoiceService: bridges.createCompatHomeTaxTaxInvoiceService(normalizedConfig),
+      }),
+      homeTaxCashbill: createHomeTaxCashbillService({
+        ...serviceInput,
+        compatHomeTaxCashbillService: bridges.createCompatHomeTaxCashbillService(normalizedConfig),
+      }),
+      closedown: createClosedownService({ ...serviceInput, compatClosedownService: bridges.createCompatClosedownService(normalizedConfig) }),
+      bizInfoCheck: createBizInfoCheckService({
+        ...serviceInput,
+        compatBizInfoCheckService: bridges.createCompatBizInfoCheckService(normalizedConfig),
+      }),
+      easyFinBank: createEasyFinBankService({ ...serviceInput, compatEasyFinBankService: bridges.createCompatEasyFinBankService(normalizedConfig) }),
+      accountCheck: createAccountCheckService({
+        ...serviceInput,
+        compatAccountCheckService: bridges.createCompatAccountCheckService(normalizedConfig),
+      }),
+      kakao: createKakaoService({ ...serviceInput, compatKakaoService: bridges.createCompatKakaoService(normalizedConfig) }),
+      message: createMessageService({ ...serviceInput, compatMessageService: bridges.createCompatMessageService(normalizedConfig) }),
+      fax: createFaxService({ ...serviceInput, compatFaxService: bridges.createCompatFaxService(normalizedConfig) }),
     },
   }
 }

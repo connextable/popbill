@@ -6,6 +6,18 @@ import type {
   TaxInvoicePartyInput,
 } from '@/services/tax-invoice/types'
 import type * as Spec from '@connextable/popbill-spec'
+import { createInputValidationError } from '@connextable/popbill-compat/errors'
+import { PopbillErrorStage } from '@/errors'
+
+export function mapTaxInvoicePdfPrintCopy(printCopy: unknown): Spec.TaxInvoiceGetPdfApiRequestQuery['PdfInvoiceType'] {
+  if (printCopy === undefined) return undefined
+  if (printCopy === 'supplier') return '1'
+  if (printCopy === 'buyer') return '2'
+  throw createInputValidationError('printCopy는 supplier 또는 buyer여야 합니다.', {
+    operation: 'taxInvoice.downloadInvoicePDF',
+    stage: PopbillErrorStage.ValidateInput,
+  })
+}
 
 /**
  * modern 세금계산서 문서 입력을 compat 세금계산서 API 모델로 변환합니다.

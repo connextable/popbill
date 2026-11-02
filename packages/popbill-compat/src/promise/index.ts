@@ -1,51 +1,49 @@
 import { getConfiguration, registerConfigurationChangeListener, setConfiguration, type CompatConfig } from '@/config'
-import { MgtKeyType, MessageType, KakaoType } from '@/constants'
-import type { PromiseService } from '@/adapters/promise-adapter'
+import { MgtKeyType, KakaoType, MessageType } from '@/constants'
 import { createSingleton } from '@/internal/singleton'
 import {
-  type TaxinvoicePromiseService,
-  createAccountCheckPromiseService,
-  createBizInfoCheckPromiseService,
+  createTaxinvoicePromiseService,
   createCashbillPromiseService,
-  createClosedownPromiseService,
-  createEasyFinBankPromiseService,
-  createFaxPromiseService,
-  createHTCashbillPromiseService,
+  createStatementPromiseService,
   createHTTaxinvoicePromiseService,
+  createHTCashbillPromiseService,
+  createClosedownPromiseService,
+  createBizInfoCheckPromiseService,
+  createEasyFinBankPromiseService,
+  createAccountCheckPromiseService,
   createKakaoPromiseService,
   createMessagePromiseService,
-  createStatementPromiseService,
-  createTaxinvoicePromiseService,
-} from '@/services'
+  createFaxPromiseService,
+} from '@/factory'
 
 interface PromiseServices {
-  TaxinvoiceService: TaxinvoicePromiseService
-  StatementService: PromiseService
-  CashbillService: PromiseService
-  MessageService: PromiseService
-  KakaoService: PromiseService
-  FaxService: PromiseService
-  HTTaxinvoiceService: PromiseService
-  HTCashbillService: PromiseService
-  ClosedownService: PromiseService
-  BizInfoCheckService: PromiseService
-  EasyFinBankService: PromiseService
-  AccountCheckService: PromiseService
+  TaxinvoiceService: ReturnType<typeof createTaxinvoicePromiseService>
+  CashbillService: ReturnType<typeof createCashbillPromiseService>
+  StatementService: ReturnType<typeof createStatementPromiseService>
+  HTTaxinvoiceService: ReturnType<typeof createHTTaxinvoicePromiseService>
+  HTCashbillService: ReturnType<typeof createHTCashbillPromiseService>
+  ClosedownService: ReturnType<typeof createClosedownPromiseService>
+  BizInfoCheckService: ReturnType<typeof createBizInfoCheckPromiseService>
+  EasyFinBankService: ReturnType<typeof createEasyFinBankPromiseService>
+  AccountCheckService: ReturnType<typeof createAccountCheckPromiseService>
+  KakaoService: ReturnType<typeof createKakaoPromiseService>
+  MessageService: ReturnType<typeof createMessagePromiseService>
+  FaxService: ReturnType<typeof createFaxPromiseService>
 }
 
 const promiseServiceCreators = {
   TaxinvoiceService: createTaxinvoicePromiseService,
-  StatementService: createStatementPromiseService,
   CashbillService: createCashbillPromiseService,
-  MessageService: createMessagePromiseService,
-  KakaoService: createKakaoPromiseService,
-  FaxService: createFaxPromiseService,
+  StatementService: createStatementPromiseService,
   HTTaxinvoiceService: createHTTaxinvoicePromiseService,
   HTCashbillService: createHTCashbillPromiseService,
   ClosedownService: createClosedownPromiseService,
   BizInfoCheckService: createBizInfoCheckPromiseService,
   EasyFinBankService: createEasyFinBankPromiseService,
   AccountCheckService: createAccountCheckPromiseService,
+  KakaoService: createKakaoPromiseService,
+  MessageService: createMessagePromiseService,
+  FaxService: createFaxPromiseService,
 } as const satisfies { [K in keyof PromiseServices]: (config: CompatConfig) => PromiseServices[K] }
 
 const singleton = createSingleton<PromiseServices>()
@@ -53,7 +51,7 @@ registerConfigurationChangeListener(() => {
   singleton.clear()
 })
 
-export { MgtKeyType, MessageType, KakaoType }
+export { MgtKeyType, KakaoType, MessageType }
 export type { CompatConfig }
 
 export function config(nextConfig: CompatConfig): void {
@@ -65,50 +63,50 @@ function getService<TServiceKey extends keyof PromiseServices>(service: TService
   return singleton.get(service, () => creator(getConfiguration()))
 }
 
-export function TaxinvoiceService(): TaxinvoicePromiseService {
+export function TaxinvoiceService(): PromiseServices['TaxinvoiceService'] {
   return getService('TaxinvoiceService')
 }
 
-export function StatementService(): PromiseService {
-  return getService('StatementService')
-}
-
-export function CashbillService(): PromiseService {
+export function CashbillService(): PromiseServices['CashbillService'] {
   return getService('CashbillService')
 }
 
-export function MessageService(): PromiseService {
-  return getService('MessageService')
+export function StatementService(): PromiseServices['StatementService'] {
+  return getService('StatementService')
 }
 
-export function KakaoService(): PromiseService {
-  return getService('KakaoService')
-}
-
-export function FaxService(): PromiseService {
-  return getService('FaxService')
-}
-
-export function HTTaxinvoiceService(): PromiseService {
+export function HTTaxinvoiceService(): PromiseServices['HTTaxinvoiceService'] {
   return getService('HTTaxinvoiceService')
 }
 
-export function HTCashbillService(): PromiseService {
+export function HTCashbillService(): PromiseServices['HTCashbillService'] {
   return getService('HTCashbillService')
 }
 
-export function ClosedownService(): PromiseService {
+export function ClosedownService(): PromiseServices['ClosedownService'] {
   return getService('ClosedownService')
 }
 
-export function BizInfoCheckService(): PromiseService {
+export function BizInfoCheckService(): PromiseServices['BizInfoCheckService'] {
   return getService('BizInfoCheckService')
 }
 
-export function EasyFinBankService(): PromiseService {
+export function EasyFinBankService(): PromiseServices['EasyFinBankService'] {
   return getService('EasyFinBankService')
 }
 
-export function AccountCheckService(): PromiseService {
+export function AccountCheckService(): PromiseServices['AccountCheckService'] {
   return getService('AccountCheckService')
+}
+
+export function KakaoService(): PromiseServices['KakaoService'] {
+  return getService('KakaoService')
+}
+
+export function MessageService(): PromiseServices['MessageService'] {
+  return getService('MessageService')
+}
+
+export function FaxService(): PromiseServices['FaxService'] {
+  return getService('FaxService')
 }

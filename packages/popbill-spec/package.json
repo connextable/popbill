@@ -18,8 +18,20 @@
   "types": "./dist/index.d.mts",
   "exports": {
     ".": "./dist/index.mjs",
+    "./common": "./dist/common/index.mjs",
     "./tax-invoice": "./dist/tax-invoice/index.mjs",
     "./tax-invoice/shims": "./dist/tax-invoice/shims/index.mjs",
+    "./cashbill": "./dist/cashbill/index.mjs",
+    "./statement": "./dist/statement/index.mjs",
+    "./home-tax-tax-invoice": "./dist/home-tax-tax-invoice/index.mjs",
+    "./home-tax-cashbill": "./dist/home-tax-cashbill/index.mjs",
+    "./closedown": "./dist/closedown/index.mjs",
+    "./biz-info-check": "./dist/biz-info-check/index.mjs",
+    "./easy-fin-bank": "./dist/easy-fin-bank/index.mjs",
+    "./account-check": "./dist/account-check/index.mjs",
+    "./kakao": "./dist/kakao/index.mjs",
+    "./message": "./dist/message/index.mjs",
+    "./fax": "./dist/fax/index.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {

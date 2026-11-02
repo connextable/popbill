@@ -1,37 +1,36 @@
 import { getConfiguration, registerConfigurationChangeListener, setConfiguration, type CompatConfig } from './config'
-import { MgtKeyType, MessageType, KakaoType } from './constants'
-import type { CallbackService } from './adapters/callback-adapter'
+import { MgtKeyType, KakaoType, MessageType } from './constants'
 import { createSingleton } from './internal/singleton'
-import * as services from './services'
+import * as services from './factory'
 
 interface CallbackServices {
-  TaxinvoiceService: services.TaxinvoiceCallbackService
-  StatementService: CallbackService
-  CashbillService: CallbackService
-  MessageService: CallbackService
-  KakaoService: CallbackService
-  FaxService: CallbackService
-  HTTaxinvoiceService: CallbackService
-  HTCashbillService: CallbackService
-  ClosedownService: CallbackService
-  BizInfoCheckService: CallbackService
-  EasyFinBankService: CallbackService
-  AccountCheckService: CallbackService
+  TaxinvoiceService: ReturnType<typeof services.createTaxinvoiceService>
+  CashbillService: ReturnType<typeof services.createCashbillService>
+  StatementService: ReturnType<typeof services.createStatementService>
+  HTTaxinvoiceService: ReturnType<typeof services.createHTTaxinvoiceService>
+  HTCashbillService: ReturnType<typeof services.createHTCashbillService>
+  ClosedownService: ReturnType<typeof services.createClosedownService>
+  BizInfoCheckService: ReturnType<typeof services.createBizInfoCheckService>
+  EasyFinBankService: ReturnType<typeof services.createEasyFinBankService>
+  AccountCheckService: ReturnType<typeof services.createAccountCheckService>
+  KakaoService: ReturnType<typeof services.createKakaoService>
+  MessageService: ReturnType<typeof services.createMessageService>
+  FaxService: ReturnType<typeof services.createFaxService>
 }
 
 const callbackServiceCreators = {
   TaxinvoiceService: services.createTaxinvoiceService,
-  StatementService: services.createStatementService,
   CashbillService: services.createCashbillService,
-  MessageService: services.createMessageService,
-  KakaoService: services.createKakaoService,
-  FaxService: services.createFaxService,
+  StatementService: services.createStatementService,
   HTTaxinvoiceService: services.createHTTaxinvoiceService,
   HTCashbillService: services.createHTCashbillService,
   ClosedownService: services.createClosedownService,
   BizInfoCheckService: services.createBizInfoCheckService,
   EasyFinBankService: services.createEasyFinBankService,
   AccountCheckService: services.createAccountCheckService,
+  KakaoService: services.createKakaoService,
+  MessageService: services.createMessageService,
+  FaxService: services.createFaxService,
 } as const satisfies { [K in keyof CallbackServices]: (config: CompatConfig) => CallbackServices[K] }
 
 const singleton = createSingleton<CallbackServices>()
@@ -39,7 +38,7 @@ registerConfigurationChangeListener(() => {
   singleton.clear()
 })
 
-export { MgtKeyType, MessageType, KakaoType }
+export { MgtKeyType, KakaoType, MessageType }
 export type { CompatConfig }
 
 export function config(nextConfig: CompatConfig): void {
@@ -51,50 +50,50 @@ function getService<TServiceKey extends keyof CallbackServices>(service: TServic
   return singleton.get(service, () => creator(getConfiguration()))
 }
 
-export function TaxinvoiceService(): services.TaxinvoiceCallbackService {
+export function TaxinvoiceService(): CallbackServices['TaxinvoiceService'] {
   return getService('TaxinvoiceService')
 }
 
-export function StatementService(): CallbackService {
-  return getService('StatementService')
-}
-
-export function CashbillService(): CallbackService {
+export function CashbillService(): CallbackServices['CashbillService'] {
   return getService('CashbillService')
 }
 
-export function MessageService(): CallbackService {
-  return getService('MessageService')
+export function StatementService(): CallbackServices['StatementService'] {
+  return getService('StatementService')
 }
 
-export function KakaoService(): CallbackService {
-  return getService('KakaoService')
-}
-
-export function FaxService(): CallbackService {
-  return getService('FaxService')
-}
-
-export function HTTaxinvoiceService(): CallbackService {
+export function HTTaxinvoiceService(): CallbackServices['HTTaxinvoiceService'] {
   return getService('HTTaxinvoiceService')
 }
 
-export function HTCashbillService(): CallbackService {
+export function HTCashbillService(): CallbackServices['HTCashbillService'] {
   return getService('HTCashbillService')
 }
 
-export function ClosedownService(): CallbackService {
+export function ClosedownService(): CallbackServices['ClosedownService'] {
   return getService('ClosedownService')
 }
 
-export function BizInfoCheckService(): CallbackService {
+export function BizInfoCheckService(): CallbackServices['BizInfoCheckService'] {
   return getService('BizInfoCheckService')
 }
 
-export function EasyFinBankService(): CallbackService {
+export function EasyFinBankService(): CallbackServices['EasyFinBankService'] {
   return getService('EasyFinBankService')
 }
 
-export function AccountCheckService(): CallbackService {
+export function AccountCheckService(): CallbackServices['AccountCheckService'] {
   return getService('AccountCheckService')
+}
+
+export function KakaoService(): CallbackServices['KakaoService'] {
+  return getService('KakaoService')
+}
+
+export function MessageService(): CallbackServices['MessageService'] {
+  return getService('MessageService')
+}
+
+export function FaxService(): CallbackServices['FaxService'] {
+  return getService('FaxService')
 }

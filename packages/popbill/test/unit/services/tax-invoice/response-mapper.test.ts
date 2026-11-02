@@ -93,13 +93,13 @@ describe('tax-invoice response mapper', () => {
     })
   })
 
-  test.each([0, '0', 1, '1', 2, '2'])('maps supported bulk transaction state: %j', (txState) => {
+  test.each([0, '0', 1, '1', 2, '2', 99, '99'])('preserves known and newly added bulk transaction states: %j', (txState) => {
     const result = mapTaxInvoiceBulkIssueSubmissionResult({ code: 1, message: 'OK', txState })
 
     expect(result.transactionState).toBe(Number(txState))
   })
 
-  test.each([-1, '99', 0.5, '', '   ', null, false])('omits unsupported bulk transaction state: %j', (txState) => {
+  test.each([-1, 0.5, '', '   ', null, false])('omits malformed bulk transaction state: %j', (txState) => {
     const result = mapTaxInvoiceBulkIssueSubmissionResult({ code: 1, message: 'OK', txState } as Spec.TaxInvoiceGetBulkResultApiResponse)
 
     expect(result).not.toHaveProperty('transactionState')

@@ -278,6 +278,25 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): ta
       })
     },
 
+    downloadInvoicePDF(request) {
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.downloadInvoicePDF', async () => {
+        const keyType = normalizeCodeValue(
+          request.invoiceDocumentKeyType,
+          [taxInvoiceTypes.TaxInvoiceDocumentKeyTypes.Sales],
+          'invoiceDocumentKeyType',
+          'taxInvoice.downloadInvoicePDF'
+        )
+        const response = await compatTaxInvoiceService.getPDF(
+          request.businessNumber,
+          keyType,
+          request.invoiceManagementKey,
+          input.defaultUserId,
+          documentMappers.mapTaxInvoicePdfPrintCopy(request.printCopy)
+        )
+        return responseMappers.mapTaxInvoicePdfDocument(response)
+      })
+    },
+
     searchInvoices(request) {
       return invokeTaxInvoiceMethod(input, 'taxInvoice.searchInvoices', async () => {
         const normalizedSearchRequest = normalizeSearchInvoicesRequest(request)
@@ -634,6 +653,19 @@ export function createTaxInvoiceService(input: CreateTaxInvoiceServiceInput): ta
         return responseMappers.mapTaxInvoiceTaxCertificateInfo(taxInvoiceApiResponse)
       })
     },
+    getChargeInfo(request) {
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getChargeInfo', async () => {
+        const response = await compatTaxInvoiceService.getChargeInfo(request.businessNumber, input.defaultUserId)
+        return responseMappers.mapTaxInvoiceChargeInfo(response)
+      })
+    },
+
+    getUnitCost(request) {
+      return invokeTaxInvoiceMethod(input, 'taxInvoice.getUnitCost', async () => {
+        const response = await compatTaxInvoiceService.getUnitCost(request.businessNumber)
+        return responseMappers.mapTaxInvoiceUnitCost(response)
+      })
+    },
   }
 }
 
@@ -645,18 +677,18 @@ interface NormalizedSearchInvoicesRequest {
   invoiceTypeCodes: taxInvoiceTypes.TaxInvoiceSearchInvoiceTypeCode[]
   taxationTypeCodes: taxInvoiceTypes.TaxInvoiceSearchTaxationTypeCode[]
   lateIssueOnly: boolean | null
-  sortOrder: taxInvoiceTypes.TaxInvoiceSortOrder
-  pageNumber: number
-  pageSize: number
   taxRegistrationIdentifierType?: taxInvoiceTypes.TaxInvoiceSearchTaxRegistrationIdentifierType
   taxRegistrationIdentifierAvailability?: taxInvoiceTypes.TaxInvoiceSearchTaxRegistrationIdentifierAvailability
   taxRegistrationIdentifier?: string
-  queryText?: string
   interoperabilityType?: taxInvoiceTypes.TaxInvoiceSearchInteroperabilityType
   issueTypeCodes?: taxInvoiceTypes.TaxInvoiceSearchIssueTypeCode[]
   registrationTypeCodes?: taxInvoiceTypes.TaxInvoiceSearchRegistrationTypeCode[]
   closeDownStateCodes?: taxInvoiceTypes.TaxInvoiceCloseDownStateCode[]
   invoiceManagementKeyOrNationalTaxServiceConfirmationNumber?: string
+  queryText?: string
+  sortOrder: taxInvoiceTypes.TaxInvoiceSortOrder
+  pageNumber: number
+  pageSize: number
 }
 
 function normalizeSearchInvoicesRequest(request: taxInvoiceTypes.SearchInvoicesInput): NormalizedSearchInvoicesRequest {
@@ -683,9 +715,6 @@ function normalizeSearchInvoicesRequest(request: taxInvoiceTypes.SearchInvoicesI
       SEARCH_INVOICES_OPERATION
     ),
     lateIssueOnly: request.lateIssueOnly,
-    sortOrder: normalizeCodeValue(request.sortOrder, Object.values(taxInvoiceTypes.TaxInvoiceSortOrder), 'sortOrder', SEARCH_INVOICES_OPERATION),
-    pageNumber: request.pageNumber,
-    pageSize: request.pageSize,
     taxRegistrationIdentifierType: normalizeOptionalCodeValue(
       request.taxRegistrationIdentifierType,
       Object.values(taxInvoiceTypes.TaxInvoiceSearchTaxRegistrationIdentifierTypes),
@@ -699,7 +728,6 @@ function normalizeSearchInvoicesRequest(request: taxInvoiceTypes.SearchInvoicesI
       SEARCH_INVOICES_OPERATION
     ),
     taxRegistrationIdentifier: request.taxRegistrationIdentifier,
-    queryText: request.queryText,
     interoperabilityType: normalizeOptionalCodeValue(
       request.interoperabilityType,
       Object.values(taxInvoiceTypes.TaxInvoiceSearchInteroperabilityTypes),
@@ -725,6 +753,10 @@ function normalizeSearchInvoicesRequest(request: taxInvoiceTypes.SearchInvoicesI
       SEARCH_INVOICES_OPERATION
     ),
     invoiceManagementKeyOrNationalTaxServiceConfirmationNumber: request.invoiceManagementKeyOrNationalTaxServiceConfirmationNumber,
+    queryText: request.queryText,
+    sortOrder: normalizeCodeValue(request.sortOrder, Object.values(taxInvoiceTypes.TaxInvoiceSortOrder), 'sortOrder', SEARCH_INVOICES_OPERATION),
+    pageNumber: request.pageNumber,
+    pageSize: request.pageSize,
   }
 }
 

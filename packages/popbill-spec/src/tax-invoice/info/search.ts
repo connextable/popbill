@@ -296,36 +296,6 @@ export interface TaxInvoiceSearchApiRequestQuery {
   TaxRegIDYN?: TaxInvoiceSearchTaxRegIDYN
 
   /**
-   * 조회 검색어.
-   *
-   * `-` 없이 입력한다.
-   * 기본값은 전체조회다.
-   */
-  QString?: string
-
-  /**
-   * 목록 페이지번호.
-   *
-   * 기본값은 `1`.
-   */
-  Page?: number
-
-  /**
-   * 페이지당 표시할 목록 건수.
-   *
-   * 최대 `1,000`, 기본값 `500`.
-   */
-  PerPage?: number
-
-  /**
-   * 정렬 방향.
-   *
-   * - `D`: 내림차순 (기본값)
-   * - `A`: 오름차순
-   */
-  Order?: common.TaxInvoiceSortOrder
-
-  /**
    * 세금계산서 작성유형.
    *
    * 기본값은 전체조회다.
@@ -352,6 +322,36 @@ export interface TaxInvoiceSearchApiRequestQuery {
    * 기본값은 전체조회다.
    */
   MgtKey?: string
+
+  /**
+   * 조회 검색어.
+   *
+   * `-` 없이 입력한다.
+   * 기본값은 전체조회다.
+   */
+  QString?: string
+
+  /**
+   * 정렬 방향.
+   *
+   * - `D`: 내림차순 (기본값)
+   * - `A`: 오름차순
+   */
+  Order?: common.TaxInvoiceSortOrder
+
+  /**
+   * 목록 페이지번호.
+   *
+   * 기본값은 `1`.
+   */
+  Page?: number
+
+  /**
+   * 페이지당 표시할 목록 건수.
+   *
+   * 최대 `1,000`, 기본값 `500`.
+   */
+  PerPage?: number
 }
 
 /**

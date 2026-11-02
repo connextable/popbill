@@ -13,7 +13,7 @@ describe('compat factory subpath', () => {
     await expect(resolveService()).resolves.toBe(service)
   })
 
-  test('acceptLanguage allows ko-KR and en-US, and rejects unknown values', () => {
+  test('acceptLanguage leaves language negotiation to the provider', () => {
     const baseConfig: CompatConfig = {
       LinkID: 'TEST_LINK_ID',
       SecretKey: Buffer.from('secret').toString('base64'),
@@ -39,7 +39,7 @@ describe('compat factory subpath', () => {
         ...baseConfig,
         acceptLanguage: 'ja-JP',
       })
-    }).toThrow(/acceptLanguage/)
+    }).not.toThrow()
   })
 
   test('factory instances keep their own default error handlers when the config object is reused', async () => {

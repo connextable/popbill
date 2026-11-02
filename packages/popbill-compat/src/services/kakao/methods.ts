@@ -1,0 +1,65 @@
+import type { KakaoPromiseService } from './types'
+export const KAKAO_METHODS = [
+  // 채널관리
+  'getPlusFriendMgtURL',
+  'listPlusFriendID',
+  // 발신번호
+  'getSenderNumberMgtURL',
+  'getSenderNumberList',
+  'checkSenderNumber',
+  // 템플릿관리
+  'getATSTemplateMgtURL',
+  'getATSTemplate',
+  'listATSTemplate',
+  'getBMSTemplateMgtURL',
+  'getBMSTemplate',
+  'listBMSTemplate',
+  // 이미지관리
+  'uploadImage',
+  'uploadImageBinary',
+  'uploadWideImage',
+  'uploadWideImageBinary',
+  'uploadWideListMainImage',
+  'uploadWideListMainImageBinary',
+  'uploadWideListImage',
+  'uploadWideListImageBinary',
+  'uploadCarouselFeedImage',
+  'uploadCarouselFeedImageBinary',
+  'uploadCommerceImage',
+  'uploadCommerceImageBinary',
+  'uploadCarouselCommerceImage',
+  'uploadCarouselCommerceImageBinary',
+  // 메시지 전송
+  'sendATS_one',
+  'sendATS_multi',
+  'sendATS_same',
+  'sendFTS_one',
+  'sendFTS_multi',
+  'sendFTS_same',
+  'sendFMS_one',
+  'sendFMS_multi',
+  'sendFMS_same',
+  'sendBMSText',
+  'sendBMSImage',
+  'sendBMSWideImage',
+  'sendBMSWideList',
+  'sendBMSCarouselFeed',
+  'sendBMSCommerce',
+  'sendBMSCarouselCommerce',
+  'sendBMSVariable',
+  // 예약취소
+  'cancelReserve',
+  'cancelReserveRN',
+  'cancelReservebyRCV',
+  'cancelReserveRNbyRCV',
+  // 결과조회
+  'getMessages',
+  'getMessagesRN',
+  'search',
+  'getURL',
+  'getSentListURL',
+  // 과금정보
+  'getUnitCost',
+  'getChargeInfo',
+] as const satisfies readonly (keyof KakaoPromiseService)[]
+export const KAKAO_REQUIRED_METHODS = KAKAO_METHODS

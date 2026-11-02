@@ -13,19 +13,19 @@ export const MgtKeyType: Record<'SELL' | 'BUY' | 'TRUSTEE', Spec.TaxInvoiceMgtKe
 }
 
 /**
- * 문자 발송유형.
- */
-export const MessageType = {
-  SMS: 'SMS',
-  LMS: 'LMS',
-  MMS: 'MMS',
-} as const
-
-/**
  * 카카오 발송유형.
  */
 export const KakaoType = {
   ATS: 'ATS',
   FTS: 'FTS',
   FMS: 'FMS',
+} as const
+
+/**
+ * 문자 발송유형.
+ */
+export const MessageType = {
+  SMS: 'SMS',
+  LMS: 'LMS',
+  MMS: 'MMS',
 } as const

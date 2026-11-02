@@ -903,9 +903,9 @@ export type TaxInvoiceSearchResultItemApiModel = TaxInvoiceInfoApiModel
  */
 export interface TaxInvoiceSearchResultApiModel extends common.TaxInvoiceApiResponseBase {
   /**
-   * 검색결과 전체 건수
+   * 페이지 번호
    */
-  total?: number | string
+  pageNum?: number | string
 
   /**
    * 페이지당 목록개수
@@ -913,14 +913,13 @@ export interface TaxInvoiceSearchResultApiModel extends common.TaxInvoiceApiResp
   perPage?: number | string
 
   /**
-   * 페이지 번호
-   */
-  pageNum?: number | string
-
-  /**
    * 페이지수
    */
   pageCount?: number | string
+  /**
+   * 검색결과 전체 건수
+   */
+  total?: number | string
 
   /**
    * 검색결과 목록
@@ -1004,19 +1003,13 @@ export interface TaxInvoiceBulkResultItemApiModel {
  */
 export interface TaxInvoiceBulkResultApiModel extends common.TaxInvoiceApiResponseBase {
   /**
-   * 접수아이디
-   */
-  receiptID?: string
-
-  /**
-   * 접수일시
-   */
-  receiptDT?: string
-
-  /**
    * 제출아이디
    */
   submitID?: string
+  /**
+   * 접수아이디
+   */
+  receiptID?: string
 
   /**
    * 제출건수
@@ -1039,16 +1032,6 @@ export interface TaxInvoiceBulkResultApiModel extends common.TaxInvoiceApiRespon
   txState?: number | string
 
   /**
-   * 처리시작일시
-   */
-  txStartDT?: string
-
-  /**
-   * 처리완료일시
-   */
-  txEndDT?: string
-
-  /**
    * 처리결과코드
    */
   txResultCode?: number | string
@@ -1057,6 +1040,21 @@ export interface TaxInvoiceBulkResultApiModel extends common.TaxInvoiceApiRespon
    * 세금계산서 발행처리 결과
    */
   issueResult?: TaxInvoiceBulkResultItemApiModel[]
+
+  /**
+   * 접수일시
+   */
+  receiptDT?: string
+
+  /**
+   * 처리시작일시
+   */
+  txStartDT?: string
+
+  /**
+   * 처리완료일시
+   */
+  txEndDT?: string
 }
 
 /**

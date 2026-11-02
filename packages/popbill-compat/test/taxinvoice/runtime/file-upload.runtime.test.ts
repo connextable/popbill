@@ -25,7 +25,7 @@ describe('taxinvoice runtime: file upload', () => {
 
     const requestInit = helpers.getTaxinvoiceRequestInit(fetchMock)
     const requestBody = Buffer.from(requestInit.body as Uint8Array).toString('utf8')
-    expect(requestBody).toContain(`name="Filedata"; filename="${expectedFileName}";`)
+    expect(requestBody).toContain(`name="Filedata"; filename="${expectedFileName}"\r\n`)
     expect(requestBody).toContain('# @connextable/popbill-compat')
   })
 })

@@ -102,6 +102,26 @@ describe('taxinvoice runtime: error-flow', () => {
     expect(defaultErrorHandler).not.toHaveBeenCalled()
   })
 
+  test.each(['throw', 'reject'] as const)('promise rejection preserves the API error when the default hook fails: %s', async (failure) => {
+    const defaultErrorHandler = vi.fn<() => void | Promise<never>>(() => {
+      if (failure === 'throw') throw new Error('hook failure')
+      return Promise.reject(new Error('async hook failure'))
+    })
+    helpers.configureCompat(defaultErrorHandler)
+    helpers.stubFetchResponses(
+      helpers.toJsonResponse(helpers.createTokenResponseBody()),
+      helpers.toJsonResponse({ code: -22345, message: 'Original API failure' }, 400)
+    )
+
+    await expect(helpers.promiseCompat.TaxinvoiceService().getPDFURL('1234567890', 'SELL', 'HOOK-ERROR')).rejects.toMatchObject({
+      code: -22345,
+      message: 'Original API failure',
+      stage: 'request_api',
+    })
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(defaultErrorHandler).toHaveBeenCalledTimes(1)
+  })
+
   test('bulk result callback observes async success callback rejections', async () => {
     const defaultErrorHandler = vi.fn<(error: unknown) => void>()
     helpers.configureCompat(defaultErrorHandler)

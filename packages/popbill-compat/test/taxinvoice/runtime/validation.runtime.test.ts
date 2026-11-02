@@ -1,4 +1,12 @@
-import { compat, configureCompat, promiseCompat } from './helpers'
+import {
+  compat,
+  configureCompat,
+  promiseCompat,
+  stubFetchResponses,
+  toJsonResponse,
+  createTokenResponseBody,
+  getTaxinvoiceRequestInit,
+} from './helpers'
 import type * as Spec from '@connextable/popbill-spec'
 
 describe('taxinvoice runtime: validation', () => {
@@ -132,26 +140,16 @@ describe('taxinvoice runtime: validation', () => {
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  test('bulk submit validates submit id and invoice count before network', async () => {
+  test('bulk submit validates submit id and batch shape before network', async () => {
     const fetchMock = vi.fn<typeof fetch>()
     vi.stubGlobal('fetch', fetchMock)
-    const taxinvoice = { issueType: '정발행' } as never
 
     await expect(promiseCompat.TaxinvoiceService().getBulkResult('1234567890', 'SUBMIT/001')).rejects.toMatchObject({
       code: -99999999,
       message: '제출아이디가 올바르지 않습니다.',
     })
 
-    await expect(
-      promiseCompat.TaxinvoiceService().bulkSubmit(
-        '1234567890',
-        'SUBMIT-001',
-        Array.from({ length: 101 }, () => taxinvoice)
-      )
-    ).rejects.toMatchObject({
-      code: -99999999,
-      message: '초대량 발행은 최대 100건까지 접수할 수 있습니다.',
-    })
+    await expect(promiseCompat.TaxinvoiceService().bulkSubmit('1234567890', 'SUBMIT-001', [])).rejects.toMatchObject({ code: -99999999 })
 
     await expect(
       promiseCompat.TaxinvoiceService().bulkSubmit('1234567890', 'SUBMIT-002', { issueType: '정발행' } as unknown as Spec.TaxInvoiceApiModel[])
@@ -161,6 +159,16 @@ describe('taxinvoice runtime: validation', () => {
     })
 
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  test('forwards batch sizes beyond the current provider limit without splitting', async () => {
+    const fetchMock = stubFetchResponses(toJsonResponse(createTokenResponseBody()), toJsonResponse({ code: 1, message: 'accepted' }))
+    const invoices = Array.from({ length: 101 }, () => ({ issueType: '정발행' as const }))
+
+    await promiseCompat.TaxinvoiceService().bulkSubmit('1234567890', 'SUBMIT-101', invoices)
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(JSON.parse(getTaxinvoiceRequestInit(fetchMock).body as string).invoices).toEqual(invoices)
   })
 
   test('reverse issue mutations reject unsupported key types before network', async () => {
