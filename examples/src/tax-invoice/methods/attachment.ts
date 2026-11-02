@@ -2,7 +2,7 @@ import { createManagementKey, createTempAttachmentFile } from '../taxinvoice-fix
 import type { MethodDefinition } from './types.ts'
 import { createDocumentRequest, prepareAttachedFileIdentifier, prepareDraftInvoiceKey } from './helpers.ts'
 import { logWarn } from '../utils/log.ts'
-import { summarizeArrayLength, summarizeInvoiceInfo, summarizeOperationResult } from '../utils/summarizers.ts'
+import { summarizeArrayLength, summarizeOperationResult } from '../utils/summarizers.ts'
 
 export const ATTACHMENT_METHODS = {
   attachFileFromPath: {
@@ -153,20 +153,9 @@ export const ATTACHMENT_METHODS = {
   assignInvoiceManagementKey: {
     description: '문서번호 할당',
     async run(context, runner) {
-      const managementKey = await prepareDraftInvoiceKey(context, runner, 'AMK')
-      if (!managementKey) {
-        return
-      }
-
-      const infoInput = createDocumentRequest(context, managementKey)
-      const infoResult = await runner.run('setup.getInvoiceInfo', infoInput, () => context.service.getInvoiceInfo(infoInput), summarizeInvoiceInfo)
-      if (!infoResult.ok) {
-        return
-      }
-
-      const itemKey = infoResult.value.itemKey
-      if (typeof itemKey !== 'string' || itemKey.length === 0) {
-        logWarn('assignInvoiceManagementKey skipped', { reason: 'itemKey not found from getInvoiceInfo response' })
+      const itemKey = context.config.assignItemKey
+      if (!itemKey) {
+        logWarn('assignInvoiceManagementKey skipped', { reason: 'POPBILL_ASSIGN_ITEM_KEY is empty' })
         return
       }
 

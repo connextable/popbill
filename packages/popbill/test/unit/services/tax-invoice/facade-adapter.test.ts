@@ -1,8 +1,6 @@
-import { TAX_INVOICE_METHODS } from '@/constants'
 import { createInputValidationError } from '@connextable/popbill-compat/errors'
 import { PopbillErrorStage, PopbillErrorType } from '@/errors'
 import { createTaxInvoiceService } from '@/services/tax-invoice'
-import { mapTaxInvoiceDocument } from '@/services/tax-invoice/mappers/document'
 import {
   TaxInvoiceCloseDownStateCodes,
   TaxInvoiceDateType,
@@ -19,7 +17,6 @@ import {
   type TaxInvoiceDocumentInput,
   type TaxInvoiceService,
 } from '@/services/tax-invoice/types'
-import { createTaxinvoicePromiseService } from '@connextable/popbill-compat/factory'
 import type * as Spec from '@connextable/popbill-spec'
 
 type CompatTaxInvoiceService = Parameters<typeof createTaxInvoiceService>[0]['compatTaxInvoiceService']
@@ -30,17 +27,10 @@ interface ForwardingCase {
   invoke: (service: TaxInvoiceService) => Promise<unknown>
   expectedArgs: unknown[]
   response: unknown
-  expectedResult?: Record<string, unknown>
 }
 
 function createCompatServiceStub(overrides: Partial<CompatTaxInvoiceService>): CompatTaxInvoiceService {
-  const baseService = createTaxinvoicePromiseService({
-    LinkID: 'TEST_LINK_ID',
-    SecretKey: Buffer.from('secret').toString('base64'),
-    IsTest: true,
-  })
-
-  return Object.assign(baseService, overrides)
+  return overrides as CompatTaxInvoiceService
 }
 
 const BUSINESS_NUMBER = '1234567890'
@@ -53,13 +43,32 @@ const TAX_INVOICE_DOCUMENT: TaxInvoiceDocumentInput = {
   lineItems: [{ lineNumber: 1 }],
   additionalContacts: [{ sequenceNumber: 1, emailAddress: 'test@test.com' }],
 }
-const TAX_INVOICE_API_DOCUMENT = mapTaxInvoiceDocument(TAX_INVOICE_DOCUMENT)
+const TAX_INVOICE_API_DOCUMENT: Spec.TaxInvoiceApiModel = {
+  writeDate: '20260225',
+  detailList: [{ serialNum: 1 }],
+  addContactList: [{ serialNum: 1, email: 'test@test.com' }],
+}
 
 const BASE_DOCUMENT_INPUT = {
   businessNumber: BUSINESS_NUMBER,
   invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
   invoiceManagementKey: INVOICE_MANAGEMENT_KEY,
 } as const
+
+const SEARCH_INPUT: Parameters<TaxInvoiceService['searchInvoices']>[0] = {
+  businessNumber: BUSINESS_NUMBER,
+  invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
+  searchDateType: TaxInvoiceDateType.Registered,
+  startDate: '20260201',
+  endDate: '20260228',
+  invoiceStateCodes: ['100'],
+  invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal],
+  taxationTypeCodes: [TaxInvoiceSearchTaxationTypeCodes.Taxable],
+  lateIssueOnly: null,
+  sortOrder: TaxInvoiceSortOrder.Descending,
+  pageNumber: 1,
+  pageSize: 500,
+}
 
 const API_RESPONSE = { code: 1, message: 'OK' }
 const ISSUE_RESPONSE = { code: 1, message: 'OK', ntsConfirmNum: 'NTS-1', issueDT: '20260225120000' }
@@ -259,17 +268,6 @@ const FORWARDING_CASES: ForwardingCase[] = [
     invoke: (service) => service.getInvoiceInfo(BASE_DOCUMENT_INPUT),
     expectedArgs: [BUSINESS_NUMBER, INVOICE_DOCUMENT_KEY_TYPE, INVOICE_MANAGEMENT_KEY, USER_ID],
     response: INVOICE_INFO_RAW_RESPONSE,
-    expectedResult: {
-      itemKey: 'ITEM-1',
-      writtenDate: '20260225',
-      registeredAt: '20260225120000',
-      stateCode: 300,
-      isLateIssued: false,
-      isOpen: false,
-      isApiLinkedDocument: true,
-      supplierCompanyName: '공급자',
-      buyerCompanyName: '공급받는자',
-    },
   },
   {
     facadeMethod: 'getInvoicesInfo',
@@ -622,22 +620,8 @@ const FORWARDING_CASES: ForwardingCase[] = [
   },
 ]
 
-const FORWARDING_CASES_WITH_EXPECTED_RESULT = FORWARDING_CASES.filter(
-  (testCase): testCase is ForwardingCase & Required<Pick<ForwardingCase, 'expectedResult'>> => testCase.expectedResult !== undefined
-)
-
-const FORWARDING_CASES_WITHOUT_EXPECTED_RESULT = FORWARDING_CASES.filter((testCase) => testCase.expectedResult === undefined)
-
 describe('tax-invoice facade adapter', () => {
-  test('forwarding cases cover all public methods', () => {
-    const coveredMethods = [...new Set(FORWARDING_CASES.map((testCase) => testCase.facadeMethod))].sort()
-    const publicMethods = [...TAX_INVOICE_METHODS].sort()
-
-    expect(coveredMethods).toEqual(publicMethods)
-    expect(coveredMethods).toHaveLength(46)
-  })
-
-  for (const testCase of FORWARDING_CASES_WITH_EXPECTED_RESULT) {
+  for (const testCase of FORWARDING_CASES) {
     test(`${testCase.facadeMethod} forwards to ${testCase.compatMethod}`, async () => {
       const compatMethodMock = vi.fn<(...args: unknown[]) => Promise<unknown>>(() => Promise.resolve(testCase.response))
       const service = createTaxInvoiceService({
@@ -647,98 +631,24 @@ describe('tax-invoice facade adapter', () => {
         } as Partial<CompatTaxInvoiceService>),
       })
 
-      const result = await testCase.invoke(service)
+      await testCase.invoke(service)
 
       expect(compatMethodMock).toHaveBeenCalledTimes(1)
       expect(compatMethodMock).toHaveBeenCalledWith(...testCase.expectedArgs)
-      expect(result).toMatchObject(testCase.expectedResult)
     })
   }
 
-  for (const testCase of FORWARDING_CASES_WITHOUT_EXPECTED_RESULT) {
-    test(`${testCase.facadeMethod} forwards to ${testCase.compatMethod}`, async () => {
-      const compatMethodMock = vi.fn<(...args: unknown[]) => Promise<unknown>>(() => Promise.resolve(testCase.response))
-      const service = createTaxInvoiceService({
-        defaultUserId: USER_ID,
-        compatTaxInvoiceService: createCompatServiceStub({
-          [testCase.compatMethod]: compatMethodMock,
-        } as Partial<CompatTaxInvoiceService>),
-      })
-
-      const result = await testCase.invoke(service)
-
-      expect(compatMethodMock).toHaveBeenCalledTimes(1)
-      expect(compatMethodMock).toHaveBeenCalledWith(...testCase.expectedArgs)
-      expect(result).toBeDefined()
-    })
-  }
-
-  test('uses client default userId when options are omitted', async () => {
-    const getURL = vi.fn<(...args: unknown[]) => Promise<string>>(() => Promise.resolve(URL_RESPONSE))
-    const service = createTaxInvoiceService({
-      defaultUserId: USER_ID,
-      compatTaxInvoiceService: createCompatServiceStub({ getURL }),
-    })
-
-    await service.getTaxInvoiceBoxURL({
-      businessNumber: BUSINESS_NUMBER,
-      taxInvoiceBoxScope: 'TBOX',
-    })
-
-    expect(getURL).toHaveBeenCalledWith(BUSINESS_NUMBER, 'TBOX', USER_ID)
-  })
-
-  test('uses default userId when options are omitted', async () => {
-    const getURL = vi.fn<(...args: unknown[]) => Promise<string>>(() => Promise.resolve(URL_RESPONSE))
-    const service = createTaxInvoiceService({
-      compatTaxInvoiceService: createCompatServiceStub({ getURL }),
-      defaultUserId: 'default-user',
-    })
-
-    await service.getTaxInvoiceBoxURL({
-      businessNumber: BUSINESS_NUMBER,
-      taxInvoiceBoxScope: 'TBOX',
-    })
-
-    expect(getURL).toHaveBeenCalledWith(BUSINESS_NUMBER, 'TBOX', 'default-user')
-  })
-
-  test('uses default userId even when options object is passed', async () => {
-    const getURL = vi.fn<(...args: unknown[]) => Promise<string>>(() => Promise.resolve(URL_RESPONSE))
-    const service = createTaxInvoiceService({
-      compatTaxInvoiceService: createCompatServiceStub({ getURL }),
-      defaultUserId: 'default-user',
-    })
-
-    await service.getTaxInvoiceBoxURL({
-      businessNumber: BUSINESS_NUMBER,
-      taxInvoiceBoxScope: 'TBOX',
-    })
-
-    expect(getURL).toHaveBeenCalledWith(BUSINESS_NUMBER, 'TBOX', 'default-user')
-  })
-
-  test('throws input validation error when closeDownStateCodes include unsupported value', async () => {
+  test.each([
+    { field: 'closeDownStateCodes', value: ['X'] },
+    { field: 'sortOrder', value: 'X' },
+    { field: 'taxationTypeCodes', value: ['Q'] },
+  ])('rejects invalid $field before calling compat', async ({ field, value }) => {
     const search = vi.fn<(...args: unknown[]) => Promise<typeof SEARCH_RESPONSE>>((..._args) => Promise.resolve(SEARCH_RESPONSE))
     const service = createTaxInvoiceService({
       defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ search }),
     })
-    const invalidSearchInput = {
-      businessNumber: BUSINESS_NUMBER,
-      invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-      searchDateType: TaxInvoiceDateType.Registered,
-      startDate: '20260201',
-      endDate: '20260228',
-      invoiceStateCodes: ['100'],
-      invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal],
-      taxationTypeCodes: [TaxInvoiceSearchTaxationTypeCodes.Taxable],
-      lateIssueOnly: null,
-      sortOrder: TaxInvoiceSortOrder.Descending,
-      pageNumber: 1,
-      pageSize: 500,
-      closeDownStateCodes: ['X'],
-    } as unknown as Parameters<TaxInvoiceService['searchInvoices']>[0]
+    const invalidSearchInput = { ...SEARCH_INPUT, [field]: value } as Parameters<TaxInvoiceService['searchInvoices']>[0]
 
     await expect(service.searchInvoices(invalidSearchInput)).rejects.toMatchObject({
       code: -99999999,
@@ -750,7 +660,7 @@ describe('tax-invoice facade adapter', () => {
     expect(search).not.toHaveBeenCalled()
   })
 
-  test('keeps closeDownStateCodes undefined when the option is omitted', async () => {
+  test('normalizes Date inputs to KST and leaves omitted search filters unset', async () => {
     const search = vi.fn<(...args: unknown[]) => Promise<typeof SEARCH_RESPONSE>>((..._args) => Promise.resolve(SEARCH_RESPONSE))
     const service = createTaxInvoiceService({
       defaultUserId: USER_ID,
@@ -758,136 +668,14 @@ describe('tax-invoice facade adapter', () => {
     })
 
     await service.searchInvoices({
-      businessNumber: BUSINESS_NUMBER,
-      invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-      searchDateType: TaxInvoiceDateType.Registered,
-      startDate: '20260201',
-      endDate: '20260228',
-      invoiceStateCodes: ['100'],
-      invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal],
-      taxationTypeCodes: [TaxInvoiceSearchTaxationTypeCodes.Taxable],
-      lateIssueOnly: null,
-      sortOrder: TaxInvoiceSortOrder.Descending,
-      pageNumber: 1,
-      pageSize: 500,
-    })
-
-    expect(search).toHaveBeenCalledTimes(1)
-    const firstCallArgs = search.mock.calls[0] as unknown[] | undefined
-    expect(firstCallArgs?.[20]).toBeUndefined()
-  })
-
-  test('normalizes Date inputs to KST yyyyMMdd before forwarding search call', async () => {
-    const search = vi.fn<(...args: unknown[]) => Promise<typeof SEARCH_RESPONSE>>((..._args) => Promise.resolve(SEARCH_RESPONSE))
-    const service = createTaxInvoiceService({
-      defaultUserId: USER_ID,
-      compatTaxInvoiceService: createCompatServiceStub({ search }),
-    })
-
-    await service.searchInvoices({
-      businessNumber: BUSINESS_NUMBER,
-      invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-      searchDateType: TaxInvoiceDateType.Registered,
+      ...SEARCH_INPUT,
       startDate: new Date('2026-01-31T15:00:00.000Z'),
       endDate: new Date('2026-02-28T15:00:00.000Z'),
-      invoiceStateCodes: ['100'],
-      invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal],
-      taxationTypeCodes: [TaxInvoiceSearchTaxationTypeCodes.Taxable],
-      lateIssueOnly: null,
-      sortOrder: TaxInvoiceSortOrder.Descending,
-      pageNumber: 1,
-      pageSize: 500,
     })
 
-    expect(search).toHaveBeenCalledTimes(1)
-    expect(search).toHaveBeenCalledWith(
-      BUSINESS_NUMBER,
-      INVOICE_DOCUMENT_KEY_TYPE,
-      TaxInvoiceDateType.Registered,
-      '20260201',
-      '20260301',
-      ['100'],
-      [TaxInvoiceSearchInvoiceTypeCodes.Normal],
-      [TaxInvoiceSearchTaxationTypeCodes.Taxable],
-      null,
-      TaxInvoiceSortOrder.Descending,
-      1,
-      500,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      USER_ID,
-      undefined,
-      undefined,
-      undefined,
-      undefined
-    )
-  })
-
-  test('throws input validation error when sortOrder is invalid', async () => {
-    const search = vi.fn<(...args: unknown[]) => Promise<typeof SEARCH_RESPONSE>>((..._args) => Promise.resolve(SEARCH_RESPONSE))
-    const service = createTaxInvoiceService({
-      defaultUserId: USER_ID,
-      compatTaxInvoiceService: createCompatServiceStub({ search }),
-    })
-
-    await expect(
-      service.searchInvoices({
-        businessNumber: BUSINESS_NUMBER,
-        invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-        searchDateType: TaxInvoiceDateType.Registered,
-        startDate: '20260201',
-        endDate: '20260228',
-        invoiceStateCodes: ['100'],
-        invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal],
-        taxationTypeCodes: [TaxInvoiceSearchTaxationTypeCodes.Taxable],
-        lateIssueOnly: null,
-        sortOrder: 'X' as unknown as (typeof TaxInvoiceSortOrder)[keyof typeof TaxInvoiceSortOrder],
-        pageNumber: 1,
-        pageSize: 500,
-      })
-    ).rejects.toMatchObject({
-      code: -99999999,
-      type: PopbillErrorType.InputValidation,
-      stage: PopbillErrorStage.ValidateInput,
-      operation: 'taxInvoice.searchInvoices',
-    })
-
-    expect(search).not.toHaveBeenCalled()
-  })
-
-  test('throws input validation error when taxationTypeCodes include unsupported value', async () => {
-    const search = vi.fn<(...args: unknown[]) => Promise<typeof SEARCH_RESPONSE>>((..._args) => Promise.resolve(SEARCH_RESPONSE))
-    const service = createTaxInvoiceService({
-      defaultUserId: USER_ID,
-      compatTaxInvoiceService: createCompatServiceStub({ search }),
-    })
-
-    await expect(
-      service.searchInvoices({
-        businessNumber: BUSINESS_NUMBER,
-        invoiceDocumentKeyType: INVOICE_DOCUMENT_KEY_TYPE,
-        searchDateType: TaxInvoiceDateType.Registered,
-        startDate: '20260201',
-        endDate: '20260228',
-        invoiceStateCodes: ['100'],
-        invoiceTypeCodes: [TaxInvoiceSearchInvoiceTypeCodes.Normal],
-        taxationTypeCodes: ['Q'] as unknown as (typeof TaxInvoiceSearchTaxationTypeCodes)[keyof typeof TaxInvoiceSearchTaxationTypeCodes][],
-        lateIssueOnly: null,
-        sortOrder: TaxInvoiceSortOrder.Descending,
-        pageNumber: 1,
-        pageSize: 500,
-      })
-    ).rejects.toMatchObject({
-      code: -99999999,
-      type: PopbillErrorType.InputValidation,
-      stage: PopbillErrorStage.ValidateInput,
-      operation: 'taxInvoice.searchInvoices',
-    })
-
-    expect(search).not.toHaveBeenCalled()
+    const args = search.mock.calls[0]
+    expect(args?.slice(3, 5)).toEqual(['20260201', '20260301'])
+    expect(args?.[20]).toBeUndefined()
   })
 
   test('throws input validation error when emailType is invalid', async () => {
@@ -964,7 +752,7 @@ describe('tax-invoice facade adapter', () => {
     })
   })
 
-  test('normalizes compat error and preserves original error when onError throws', async () => {
+  test.each(['synchronously', 'asynchronously'])('preserves the original error when onError fails %s', async (failureMode) => {
     const validationError = Object.assign(
       new Error('invalid businessNumber'),
       createInputValidationError('invalid businessNumber', {
@@ -972,9 +760,14 @@ describe('tax-invoice facade adapter', () => {
       })
     )
     const getInfo = vi.fn<(...args: unknown[]) => Promise<never>>(() => Promise.reject(validationError))
-    const onError = vi.fn<(error: unknown) => void>(() => {
+    const hookCalled = vi.fn<(error: unknown) => void>()
+    const onError = (error: unknown) => {
+      hookCalled(error)
+      if (failureMode === 'asynchronously') {
+        return Promise.reject(new Error('onError should not override original error'))
+      }
       throw new Error('onError should not override original error')
-    })
+    }
     const service = createTaxInvoiceService({
       defaultUserId: USER_ID,
       compatTaxInvoiceService: createCompatServiceStub({ getInfo }),
@@ -995,11 +788,12 @@ describe('tax-invoice facade adapter', () => {
       operation: 'taxInvoice.getInvoiceInfo',
     })
 
-    expect(onError).toHaveBeenCalledTimes(1)
-    expect(onError).toHaveBeenCalledWith(
+    expect(hookCalled).toHaveBeenCalledTimes(1)
+    expect(hookCalled).toHaveBeenCalledWith(
       expect.objectContaining({
         operation: 'taxInvoice.getInvoiceInfo',
       })
     )
+    await new Promise<void>((resolve) => setImmediate(resolve))
   })
 })

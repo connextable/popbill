@@ -45,7 +45,7 @@ export function mapTaxInvoiceIssueResult(taxInvoiceApiResponse: Spec.TaxInvoiceI
   return removeUndefinedProperties({
     ...mapTaxInvoiceOperationResult(taxInvoiceApiResponse),
     nationalTaxServiceConfirmationNumber: taxInvoiceApiResponse.ntsConfirmNum,
-    issuedAt: taxInvoiceApiResponse.issueDT,
+    issuedAt: taxInvoiceApiResponse.issueDT ?? undefined,
   })
 }
 
@@ -69,10 +69,11 @@ export function mapTaxInvoiceBulkIssueSubmissionResult(
     ...mapTaxInvoiceOperationResult(taxInvoiceApiResponse),
     receiptIdentifier: taxInvoiceApiResponse.receiptID,
     submissionIdentifier: taxInvoiceApiResponse.submitID,
+    receivedAt: taxInvoiceApiResponse.receiptDT,
     submittedDocumentCount: toOptionalNumber(taxInvoiceApiResponse.submitCount),
     succeededDocumentCount: toOptionalNumber(taxInvoiceApiResponse.successCount),
     failedDocumentCount: toOptionalNumber(taxInvoiceApiResponse.failCount),
-    transactionState: toOptionalNumber(taxInvoiceApiResponse.txState) as TaxInvoiceBulkIssueSubmissionTransactionState | undefined,
+    transactionState: toTaxInvoiceBulkIssueSubmissionTransactionState(taxInvoiceApiResponse.txState),
     transactionStartedAt: taxInvoiceApiResponse.txStartDT,
     transactionCompletedAt: taxInvoiceApiResponse.txEndDT,
     transactionResultCode: toOptionalNumber(taxInvoiceApiResponse.txResultCode),
@@ -292,7 +293,7 @@ export function mapTaxInvoiceTaxCertificateInfo(taxInvoiceApiResponse: Spec.TaxI
     issuerDistinguishedName: taxInvoiceApiResponse.issuerDN,
     subjectDistinguishedName: taxInvoiceApiResponse.subjectDN,
     issuerName: taxInvoiceApiResponse.issuerName,
-    policyObjectIdentifier: taxInvoiceApiResponse.OID,
+    policyObjectIdentifier: taxInvoiceApiResponse.OID ?? taxInvoiceApiResponse.oid,
     registeredContactName: taxInvoiceApiResponse.regContactName,
     registeredContactIdentifier: taxInvoiceApiResponse.regContactID,
   })
@@ -413,12 +414,12 @@ function mapTrusteeOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxIn
  * 문자열/숫자 값을 숫자로 안전하게 변환합니다.
  */
 function toOptionalNumber(value: number | string | undefined): number | undefined {
-  if (value === undefined) {
-    return undefined
-  }
-
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : undefined
+  }
+
+  if (typeof value !== 'string' || value.trim() === '') {
+    return undefined
   }
 
   const normalizedNumber = Number(value)
@@ -432,6 +433,16 @@ function toRequiredNumber(value: number | string | undefined, fieldName: string)
   }
 
   throw new Error(`유효하지 않은 ${fieldName} 응답값입니다. (${String(value)})`)
+}
+
+/**
+ * 초대량 처리 상태를 지원하는 도메인 상태값으로 정규화합니다.
+ */
+function toTaxInvoiceBulkIssueSubmissionTransactionState(
+  value: number | string | undefined
+): TaxInvoiceBulkIssueSubmissionTransactionState | undefined {
+  const transactionState = toOptionalNumber(value)
+  return transactionState === 0 || transactionState === 1 || transactionState === 2 ? transactionState : undefined
 }
 
 /**

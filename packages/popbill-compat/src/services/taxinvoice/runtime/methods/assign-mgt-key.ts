@@ -1,4 +1,5 @@
 import { validateCorpNum, validateItemKey, validateMgtKey, validateTaxInvoiceKeyType } from '@/internal/validation'
+import { encodePathSegment } from '@/services/taxinvoice/runtime/common'
 import type { TaxinvoiceRuntimeContext } from '@/services/taxinvoice/runtime/context'
 import type * as Spec from '@connextable/popbill-spec'
 
@@ -31,7 +32,7 @@ export async function requestAssignMgtKey(
   }
 
   return context.requestClient.requestJson<Spec.TaxInvoiceApiResponseBase>({
-    uri: `/Taxinvoice/${itemKey}/${keyType}`,
+    uri: `/Taxinvoice/${encodePathSegment(itemKey)}/${keyType}`,
     corpNum,
     userId,
     method: 'POST',

@@ -21,6 +21,25 @@ describe('createTokenProvider', () => {
     expect(issueTokenMock).toHaveBeenCalledTimes(1)
   })
 
+  test('issues Juso tokens without forwarding the local cache key', async () => {
+    const { authClient, issueTokenMock } = createMockAuthClient([createToken({ serviceId: 'JUSOLINK', scopes: ['200'] })])
+    const tokenProvider = createTokenProvider({
+      authClient,
+      serviceId: 'JUSOLINK',
+      scopes: ['200'],
+    })
+
+    await tokenProvider.getToken('local-cache-key')
+
+    expect(issueTokenMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        serviceId: 'JUSOLINK',
+        accessId: null,
+        scopes: ['200'],
+      })
+    )
+  })
+
   test('reissues token after expiration', async () => {
     const { authClient, issueTokenMock } = createMockAuthClient([
       createToken({ sessionToken: 'expired-token', expiredAt: '2000-01-01T00:00:00Z' }),

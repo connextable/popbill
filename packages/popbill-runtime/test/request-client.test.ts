@@ -1,6 +1,5 @@
 import { createPopbillRequestClient } from '@/api'
 import type { LinkhubTokenResponse, TokenProvider } from '@/auth/types'
-import { sha1Base64 } from '@connextable/popbill-utils'
 
 describe('createPopbillRequestClient', () => {
   afterEach(() => {
@@ -26,10 +25,10 @@ describe('createPopbillRequestClient', () => {
 
     const fetchCall = fetchSpy.mock.calls.at(-1)
     const requestInit = fetchCall?.[1]
-    const requestHeaders = requestInit?.headers as Record<string, string>
+    const requestHeaders = new Headers(requestInit?.headers)
 
     expect(requestInit?.method).toBe('GET')
-    expect(requestHeaders['X-HTTP-Method-Override']).toBeUndefined()
+    expect(requestHeaders.get('X-HTTP-Method-Override')).toBeNull()
   })
 
   test('normalizes lowercase delete method and applies HTTP method override', async () => {
@@ -51,15 +50,20 @@ describe('createPopbillRequestClient', () => {
 
     const fetchCall = fetchSpy.mock.calls.at(-1)
     const requestInit = fetchCall?.[1]
-    const requestHeaders = requestInit?.headers as Record<string, string>
+    const requestHeaders = new Headers(requestInit?.headers)
 
     expect(requestInit?.method).toBe('POST')
-    expect(requestHeaders['X-HTTP-Method-Override']).toBe('DELETE')
+    expect(requestHeaders.get('X-HTTP-Method-Override')).toBe('DELETE')
   })
 
-  test('applies bulk issue digest and submit id headers with lowercase method', async () => {
+  const messageBody = '{"invoices":[1,2,3]}'
+  const paddedBody = new Uint8Array([0, ...new TextEncoder().encode(messageBody), 255])
+
+  test.each([
+    { name: 'string', body: messageBody },
+    { name: 'offset byte view', body: paddedBody.subarray(1, -1) },
+  ])('applies bulk issue headers and digest to $name bodies', async ({ body }) => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }))
-    const messageBody = '{"invoices":[1,2,3]}'
 
     const requestClient = createPopbillRequestClient({
       apiBaseUrl: 'https://popbill.example.com',
@@ -73,18 +77,25 @@ describe('createPopbillRequestClient', () => {
     await requestClient.requestJson({
       uri: '/Taxinvoice',
       method: 'bulkissue',
-      body: messageBody,
+      body,
       submitId: 'SUBMIT-1',
+      headers: {
+        'x-http-method-override': 'DELETE',
+        'x-pb-message-digest': 'stale-digest',
+        'x-pb-submit-id': 'stale-submit-id',
+        'content-type': 'text/plain',
+      },
     })
 
     const fetchCall = fetchSpy.mock.calls.at(-1)
     const requestInit = fetchCall?.[1]
-    const requestHeaders = requestInit?.headers as Record<string, string>
+    const requestHeaders = new Headers(requestInit?.headers)
 
     expect(requestInit?.method).toBe('POST')
-    expect(requestHeaders['X-HTTP-Method-Override']).toBe('BULKISSUE')
-    expect(requestHeaders['X-PB-MESSAGE-DIGEST']).toBe(sha1Base64(messageBody))
-    expect(requestHeaders['X-PB-SUBMIT-ID']).toBe('SUBMIT-1')
+    expect(requestHeaders.get('X-HTTP-Method-Override')).toBe('BULKISSUE')
+    expect(requestHeaders.get('X-PB-MESSAGE-DIGEST')).toBe('qlHp+ILHyk1FW0Tkr2RDZ5B6hWU=')
+    expect(requestHeaders.get('X-PB-SUBMIT-ID')).toBe('SUBMIT-1')
+    expect(requestHeaders.get('Content-Type')).toBe('application/json;charset=utf-8')
   })
 
   test('wraps token issuance errors with issue_token stage', async () => {

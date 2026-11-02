@@ -31,7 +31,7 @@ function safelyDispatchError(handler: ((error: PopbillApiError) => void) | undef
   }
 
   try {
-    handler(error)
+    void Promise.resolve(handler(error)).catch(() => undefined)
   } catch {
     // onError 훅 예외는 삼켜서 원래 API 에러를 유지합니다.
   }

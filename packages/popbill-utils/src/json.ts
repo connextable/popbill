@@ -1,4 +1,5 @@
-export function stringifyWithoutEmptyValues(payload: unknown): string {
+/** 직렬화할 루트 값이 없으면 undefined를 반환합니다. */
+export function stringifyWithoutEmptyValues(payload: unknown): string | undefined {
   return JSON.stringify(payload, removeEmptyValuesReplacer)
 }
 

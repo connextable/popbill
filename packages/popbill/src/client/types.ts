@@ -56,7 +56,7 @@ export interface PopbillClientConfig {
   acceptLanguage?: string
 
   /**
-   * 요청 타임아웃(ms)입니다.
+   * 요청 타임아웃(ms)입니다. 1 이상 2147483647 이하의 정수를 사용합니다.
    *
    * @default 180_000 (3분)
    */

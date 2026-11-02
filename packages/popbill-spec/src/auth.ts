@@ -335,6 +335,23 @@ export const PopbillAuthScopes = {
 } as const satisfies Record<string, PopbillAuthScope>
 
 /**
+ * 주소링크 인증 scope 상수(raw).
+ */
+export const JusoLinkAuthScopes = {
+  AddressSearch: '200',
+} as const
+
+/**
+ * 주소링크 인증 scope(raw).
+ */
+export type JusoLinkAuthScope = (typeof JusoLinkAuthScopes)[keyof typeof JusoLinkAuthScopes]
+
+/**
+ * 링크허브 서비스 인증 scope(raw).
+ */
+export type LinkhubAuthScope = PopbillAuthScope | JusoLinkAuthScope
+
+/**
  * 토큰 발급 API path 파라미터(raw).
  */
 export interface PopbillIssueTokenApiRequestPath {
@@ -375,6 +392,21 @@ export interface PopbillIssueTokenApiRequestBody {
    */
   scope: PopbillAuthScope[]
 }
+
+/**
+ * 주소링크 토큰 발급 API body(raw).
+ *
+ * 주소링크 인증 요청은 access_id를 전송하지 않는다.
+ */
+export interface JusoLinkIssueTokenApiRequestBody {
+  access_id?: never
+  scope: JusoLinkAuthScope[]
+}
+
+/**
+ * 링크허브 토큰 발급 API body(raw).
+ */
+export type LinkhubIssueTokenApiRequestBody = PopbillIssueTokenApiRequestBody | JusoLinkIssueTokenApiRequestBody
 
 /**
  * 토큰 발급 API 요청(raw).
@@ -455,4 +487,11 @@ export interface PopbillIssueTokenApiResponse {
    * 형식: `yyyy-MM-ddTHH:mm:ssZ`
    */
   expiration: PopbillUtcDateTimeString
+}
+
+/**
+ * 링크허브 서비스 토큰 발급 API 응답(raw).
+ */
+export interface LinkhubIssueTokenApiResponse extends Omit<PopbillIssueTokenApiResponse, 'scope'> {
+  scope: LinkhubAuthScope[]
 }

@@ -15,20 +15,11 @@ export interface PackageManifest {
   publishConfig?: {
     access?: string
   }
-  files?: string[]
   types?: string
   exports?: unknown
   engines?: {
     node?: string
   }
-  license?: string
-  repository?: {
-    url?: string
-  }
-  bugs?: {
-    url?: string
-  }
-  dependencies?: Record<string, string>
 }
 
 export interface PublishPackageTarget {
@@ -130,8 +121,4 @@ export function collectExportPaths(exportsField: unknown): string[] {
 export function tarballNameFromPackage(packageName: string, version: string): string {
   const normalized = packageName.replace(/^@/, '').replaceAll('/', '-')
   return `${normalized}-${version}.tgz`
-}
-
-export function hasDependency(manifest: PackageManifest, dependencyName: string): boolean {
-  return Boolean(manifest.dependencies && manifest.dependencies[dependencyName])
 }

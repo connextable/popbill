@@ -491,11 +491,11 @@ export interface TaxInvoiceDocumentInput {
   /**
    * 책번호 권 항목입니다.
    */
-  bookVolumeNumber?: string
+  bookVolumeNumber?: number | string
   /**
    * 책번호 호 항목입니다.
    */
-  bookIssueNumber?: string
+  bookIssueNumber?: number | string
   /**
    * 사업자등록증 이미지 첨부 여부입니다.
    */

@@ -4,7 +4,7 @@ export function sha256Base64(input: string): string {
   return createHash('sha256').update(input).digest('base64')
 }
 
-export function sha1Base64(input: string): string {
+export function sha1Base64(input: string | Uint8Array): string {
   return createHash('sha1').update(input).digest('base64')
 }
 

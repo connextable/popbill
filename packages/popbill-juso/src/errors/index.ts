@@ -146,7 +146,7 @@ export function dispatchJusoApiErrorSafely(handler: ((error: JusoApiError) => vo
   }
 
   try {
-    handler(error)
+    void Promise.resolve(handler(error)).catch(() => {})
   } catch {
     // 사용자 에러 핸들러 예외는 원래 예외 흐름을 방해하지 않는다.
   }

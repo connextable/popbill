@@ -29,6 +29,13 @@ describe('fetchJson', () => {
     await expect(fetchJson('https://example.test/resource', { method: 'GET' }, { timeoutMs: 1_000 })).resolves.toEqual({})
   })
 
+  test('rejects timeout values that Node would shorten to one millisecond', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}'))
+
+    await expect(fetchJson('https://example.test/resource', {}, { timeoutMs: 2_147_483_648 })).rejects.toThrow(RangeError)
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
   test('propagates external abort signal', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (_requestUrl, requestInit) => {
       const signal = requestInit?.signal

@@ -82,10 +82,6 @@ function main(): void {
   const targets = loadPublishManifests()
   const version = getLockstepVersion(targets)
 
-  for (const { name, manifest } of targets) {
-    assertCondition(manifest.publishConfig?.access === 'public', `${name} must set publishConfig.access=public`)
-  }
-
   const outputs: Record<string, string> = {
     version,
     publish_any: 'false',

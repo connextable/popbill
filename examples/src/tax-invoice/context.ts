@@ -30,3 +30,17 @@ export function createExampleContext(config: RuntimeConfig): ExampleContext {
     },
   }
 }
+
+export function createCounterpartExampleContext(context: ExampleContext): ExampleContext | null {
+  if (!context.config.counterpartUserId) {
+    return null
+  }
+
+  return createExampleContext({
+    ...context.config,
+    corpNum: context.config.counterpartCorpNum,
+    userId: context.config.counterpartUserId,
+    counterpartCorpNum: context.businessNumber,
+    counterpartUserId: context.config.userId,
+  })
+}

@@ -51,7 +51,7 @@ function toRequiredStateCode(value: number | string): number {
     return value
   }
 
-  if (typeof value === 'string') {
+  if (typeof value === 'string' && value.trim() !== '') {
     const normalizedNumber = Number(value)
     if (Number.isFinite(normalizedNumber)) {
       return normalizedNumber

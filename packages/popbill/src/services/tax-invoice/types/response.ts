@@ -109,6 +109,10 @@ export interface TaxInvoiceBulkIssueSubmissionResult extends TaxInvoiceOperation
    */
   receiptIdentifier?: string
   /**
+   * 접수일시(yyyyMMddHHmmss)입니다.
+   */
+  receivedAt?: string
+  /**
    * 제출 식별자입니다.
    */
   submissionIdentifier?: string
@@ -185,7 +189,7 @@ export interface TaxInvoiceInfo {
   /**
    * 발행일시(yyyyMMddHHmmss)입니다.
    */
-  issuedAt: string
+  issuedAt?: string
   /**
    * 지연발행 여부입니다.
    */
@@ -201,7 +205,7 @@ export interface TaxInvoiceInfo {
   /**
    * 상태 메모입니다.
    */
-  stateMemo: string
+  stateMemo?: string
   /**
    * 상태 코드입니다.
    */

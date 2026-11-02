@@ -1,6 +1,6 @@
 import type * as Spec from '@connextable/popbill-spec'
 
-export type LinkhubTokenApiResponse = Spec.PopbillIssueTokenApiResponse
+export type LinkhubTokenApiResponse = Spec.LinkhubIssueTokenApiResponse
 
 export interface LinkhubTokenResponse {
   sessionToken: string
@@ -9,15 +9,15 @@ export interface LinkhubTokenResponse {
   userId: string
   partnerCode: string
   userCode: string
-  scopes: Spec.PopbillIssueTokenApiResponse['scope']
+  scopes: Spec.LinkhubIssueTokenApiResponse['scope']
   ipAddress: string
   expiredAt: Spec.PopbillIssueTokenApiResponse['expiration']
 }
 
 export interface IssueTokenRequest {
   serviceId: Spec.PopbillIssueTokenApiRequestPath['serviceId']
-  accessId: string
-  scopes: readonly Spec.PopbillIssueTokenApiRequestBody['scope'][number][]
+  accessId: string | null
+  scopes: readonly Spec.LinkhubAuthScope[]
   forwardedIp?: string
 }
 
@@ -54,7 +54,7 @@ export interface LinkhubAuthClientConfig {
    */
   useLocalTime?: boolean
   /**
-   * Request timeout in milliseconds.
+   * Request timeout in milliseconds, up to 2_147_483_647.
    * @default 180000
    */
   timeoutMs?: number
@@ -67,7 +67,7 @@ export interface TokenProvider {
 export interface CreateTokenProviderInput {
   authClient: LinkhubAuthClient
   serviceId: Spec.PopbillIssueTokenApiRequestPath['serviceId']
-  scopes: readonly Spec.PopbillIssueTokenApiRequestBody['scope'][number][]
+  scopes: readonly Spec.LinkhubAuthScope[]
   forwardedIp?: string
   /**
    * Refresh cached tokens this many milliseconds before expiration.

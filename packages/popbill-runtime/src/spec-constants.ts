@@ -15,7 +15,7 @@ export const LinkhubApiBaseUrls = {
   PopbillStaticProduction: PopbillApiBaseUrls.StaticProduction,
   PopbillGaTest: PopbillApiBaseUrls.GaTest,
   PopbillGaProduction: PopbillApiBaseUrls.GaProduction,
-  JusoLink: 'https://jusolink.linkhub.co.kr',
+  JusoLink: 'https://juso.linkhub.co.kr',
 } as const
 
 export const PopbillAuthBaseUrls = Spec.PopbillAuthBaseUrls
@@ -27,3 +27,5 @@ export const PopbillHttpMethodOverrides = Spec.PopbillHttpMethodOverrides
 export const PopbillLinkhubApiVersion = Spec.PopbillLinkhubApiVersion
 
 export const PopbillAuthScopes = Spec.PopbillAuthScopes
+
+export const JusoLinkAuthScopes = Spec.JusoLinkAuthScopes

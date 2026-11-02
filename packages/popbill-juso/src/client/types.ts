@@ -16,14 +16,14 @@ export interface JusoLinkClientConfig {
   secretKey: string
 
   /**
-   * 연동회원 식별자입니다.
+   * 클라이언트 내 토큰 캐시 식별자입니다. 주소링크 토큰 요청에는 전송하지 않습니다.
    */
   accessId: string
 
   /**
    * 주소링크 API 기본 URL 입니다.
    *
-   * @default https://jusolink.linkhub.co.kr
+   * @default https://juso.linkhub.co.kr
    */
   apiBaseUrl?: string
 
@@ -47,7 +47,7 @@ export interface JusoLinkClientConfig {
   useLocalTime?: boolean
 
   /**
-   * 요청 제한시간(밀리초)입니다.
+   * 요청 제한시간(밀리초)입니다. 1 이상 2147483647 이하의 정수를 입력합니다.
    *
    * @default 180000
    */

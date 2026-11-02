@@ -1,4 +1,5 @@
 import type { CreateTokenProviderInput, LinkhubTokenResponse, TokenProvider } from './types'
+import { LinkhubServiceIds } from '@/spec-constants'
 
 const DEFAULT_TOKEN_REFRESH_SKEW_MS = 60_000
 
@@ -22,7 +23,7 @@ export function createTokenProvider(input: CreateTokenProviderInput): TokenProvi
       const issueTokenPromise = input.authClient
         .issueToken({
           serviceId: input.serviceId,
-          accessId: businessNumber,
+          accessId: input.serviceId === LinkhubServiceIds.JusoLink ? null : businessNumber,
           scopes: input.scopes,
           forwardedIp: input.forwardedIp,
         })

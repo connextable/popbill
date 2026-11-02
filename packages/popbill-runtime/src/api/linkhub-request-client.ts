@@ -1,4 +1,5 @@
 import { fetchJson } from '@/transport/fetch-json'
+import { mergeRequestHeaders } from '@/transport/merge-headers'
 import type { TokenProvider } from '@/auth'
 import { normalizeOptionalString, trimTrailingSlash } from '@connextable/popbill-utils'
 
@@ -13,6 +14,7 @@ export interface LinkhubRequestStageError {
 
 export interface LinkhubRequestClientConfig {
   apiBaseUrl: string
+  /** Request timeout in milliseconds, up to 2_147_483_647. */
   timeoutMs: number
   tokenProvider: TokenProvider
   tokenCacheKey: string
@@ -41,8 +43,8 @@ export function createLinkhubRequestClient(config: LinkhubRequestClientConfig): 
   return {
     async requestJson<T>(options: LinkhubRequestOptions): Promise<T> {
       const method = (options.method ?? 'GET').toUpperCase()
+      const customHeaders = { ...options.headers }
       const requestHeaders: Record<string, string> = {
-        ...options.headers,
         'User-Agent': normalizedUserAgent,
       }
 
@@ -74,7 +76,7 @@ export function createLinkhubRequestClient(config: LinkhubRequestClientConfig): 
           `${normalizedApiBaseUrl}${options.uri}`,
           {
             method,
-            headers: requestHeaders,
+            headers: mergeRequestHeaders(customHeaders, requestHeaders),
             body: method === 'GET' ? undefined : (options.body ?? undefined),
           },
           { timeoutMs: config.timeoutMs }
