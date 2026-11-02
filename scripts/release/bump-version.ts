@@ -27,7 +27,7 @@ function readCliOptions(): CliOptions {
   const printVersion = args.includes('--print-version')
   const versionArgs = args.filter((arg) => arg !== '--dry-run' && arg !== '--allow-same' && arg !== '--print-version')
 
-  assertCondition(versionArgs.length === 1, 'Usage: pnpm release:bump <major|minor|patch|x.y.z> [--dry-run]')
+  assertCondition(versionArgs.length === 1, 'Usage: pnpm release bump <major|minor|patch|x.y.z> [--dry-run]')
 
   const versionSpec = versionArgs[0]
   assertCondition(typeof versionSpec === 'string' && versionSpec.length > 0, 'Version spec is required')

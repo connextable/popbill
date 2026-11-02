@@ -247,7 +247,7 @@ jobs:
 
       - name: Verify publish manifests
         id: verify_manifests
-        run: pnpm run release:verify-manifests
+        run: pnpm release verify-manifests
 
       - name: Pack publish targets
         id: pack
@@ -262,7 +262,7 @@ jobs:
           pnpm -C packages/popbill-runtime pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill-compat pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill pack --pack-destination "${PACK_DIR}"
-          pnpm run release:verify-tarballs -- "${PACK_DIR}"
+          pnpm release verify-tarballs "${PACK_DIR}"
 
       - name: Publish preview summary
         if: always()

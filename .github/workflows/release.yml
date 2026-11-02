@@ -50,13 +50,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Verify publish manifests
-        run: pnpm run release:verify-manifests
+        run: pnpm release verify-manifests
 
       - name: Check npm release readiness
         id: npm_readiness
         env:
           NPM_CONFIG_CACHE: ${{ runner.temp }}/.npm
-        run: pnpm run release:check-readiness -- --registry https://registry.npmjs.org
+        run: pnpm release check-readiness --registry https://registry.npmjs.org
 
       - name: Configure GitHub Packages auth
         env:
@@ -75,7 +75,7 @@ jobs:
         env:
           NPM_CONFIG_CACHE: ${{ runner.temp }}/.npm
           NPM_CONFIG_USERCONFIG: ${{ runner.temp }}/github-packages.npmrc
-        run: pnpm run release:check-readiness -- --registry https://npm.pkg.github.com
+        run: pnpm release check-readiness --registry https://npm.pkg.github.com
 
       - name: Build
         if: steps.npm_readiness.outputs.publish_any == 'true' || steps.github_packages_readiness.outputs.publish_any == 'true'
@@ -94,7 +94,7 @@ jobs:
           pnpm -C packages/popbill-runtime pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill-compat pack --pack-destination "${PACK_DIR}"
           pnpm -C packages/popbill pack --pack-destination "${PACK_DIR}"
-          pnpm run release:verify-tarballs -- "${PACK_DIR}" --artifacts-manifest
+          pnpm release verify-tarballs "${PACK_DIR}" --artifacts-manifest
 
       - name: Upload release tarballs
         id: tarballs
@@ -311,7 +311,7 @@ jobs:
         run: |
           set -euo pipefail
           git pull --ff-only origin develop
-          pnpm run release:bump -- "${VERSION}" --allow-same
+          pnpm release bump "${VERSION}" --allow-same
 
           if git diff --quiet -- package.json packages/*/package.json; then
             echo "changed=false" >> "${GITHUB_OUTPUT}"

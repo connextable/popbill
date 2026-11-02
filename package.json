@@ -14,12 +14,7 @@
     "test:release": "vitest run scripts/release",
     "test:coverage": "dotenvx run -- turbo run test:coverage --continue=dependencies-successful",
     "docs:generate": "jiti ./scripts/generate-sdk-docs.ts",
-    "release:bump": "jiti ./scripts/release/bump-version.ts",
-    "release:resolve-bump": "jiti ./scripts/release/resolve-bump.ts",
-    "release:verify": "pnpm run release:verify-manifests && pnpm build && pnpm run release:check-readiness -- --registry https://registry.npmjs.org",
-    "release:verify-manifests": "jiti ./scripts/release/verify-manifests.ts",
-    "release:verify-tarballs": "jiti ./scripts/release/verify-tarballs.ts",
-    "release:check-readiness": "jiti ./scripts/release/check-readiness.ts",
+    "release": "jiti ./scripts/release.ts",
     "clean": "turbo run clean && del node_modules .turbo"
   },
   "devDependencies": {

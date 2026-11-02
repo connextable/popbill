@@ -85,6 +85,8 @@ pnpm docs:generate
 
 실서버 통합 테스트: 기본 skip · [활성화 설정](./.env.example)
 
+릴리스: `pnpm release minor` → 릴리스 PR → CI 통과·병합 → Releaseway 발행
+
 ## 문서
 
 - SDK 레퍼런스: `pnpm docs:generate` → `docs/sdk/README.md`

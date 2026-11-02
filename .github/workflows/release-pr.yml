@@ -83,7 +83,7 @@ jobs:
               echo "custom_version can only be used when bump is custom." >&2
               exit 1
             fi
-            VERSION_SPEC="$(pnpm exec jiti ./scripts/release/resolve-bump.ts -- --require-sync-marker --base-ref "origin/${TARGET_BRANCH}" --print-bump)"
+            VERSION_SPEC="$(pnpm exec jiti ./scripts/release.ts resolve-bump --require-sync-marker --base-ref "origin/${TARGET_BRANCH}" --print-bump)"
           elif [[ "${BUMP}" == "custom" ]]; then
             if [[ -z "${CUSTOM_VERSION}" ]]; then
               echo "custom_version is required when bump is custom." >&2
@@ -99,7 +99,7 @@ jobs:
           fi
 
           echo "source_sha=${SOURCE_SHA}" >> "${GITHUB_OUTPUT}"
-          VERSION="$(pnpm exec jiti ./scripts/release/bump-version.ts -- "${VERSION_SPEC}" --print-version)"
+          VERSION="$(pnpm exec jiti ./scripts/release.ts bump "${VERSION_SPEC}" --print-version)"
           echo "version_spec=${VERSION_SPEC}" >> "${GITHUB_OUTPUT}"
           echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
           echo "branch=release/v${VERSION}" >> "${GITHUB_OUTPUT}"
@@ -110,7 +110,7 @@ jobs:
           TARGET_BRANCH: ${{ inputs.target_branch }}
         run: |
           set -euo pipefail
-          if COMMITS_MARKDOWN="$(pnpm exec jiti ./scripts/release/resolve-bump.ts -- --allow-none --require-sync-marker --base-ref "origin/${TARGET_BRANCH}" --print-markdown)"; then
+          if COMMITS_MARKDOWN="$(pnpm exec jiti ./scripts/release.ts resolve-bump --allow-none --require-sync-marker --base-ref "origin/${TARGET_BRANCH}" --print-markdown)"; then
             :
           else
             COMMITS_MARKDOWN="$(cat <<'MARKDOWN'
@@ -141,17 +141,17 @@ jobs:
             git apply --index "${PATCH_FILE}"
             git reset
           fi
-          pnpm run release:bump -- "${VERSION_SPEC}"
+          pnpm release bump "${VERSION_SPEC}"
 
       - name: Verify publish manifests
         id: verify_manifests
-        run: pnpm run release:verify-manifests
+        run: pnpm release verify-manifests
 
       - name: Check npm release readiness
         id: readiness
         env:
           NPM_CONFIG_CACHE: ${{ runner.temp }}/.npm
-        run: pnpm run release:check-readiness -- --registry https://registry.npmjs.org
+        run: pnpm release check-readiness --registry https://registry.npmjs.org
 
       - name: Reject already-published version
         if: steps.readiness.outputs.publish_any != 'true'

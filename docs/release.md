@@ -21,16 +21,38 @@ npm 발행은 GitHub 호스팅 러너에서 `id-token: write` 권한으로 실�
 
 ## 릴리스 실행
 
-1. GitHub Actions에서 `Prepare Release PR`을 실행합니다. 기본 소스는 `develop`, 대상은 `main`입니다.
-2. `bump`를 선택합니다. `auto`는 마지막 `chore(release): sync version to x.y.z` 커밋 이후의 변경으로 버전을 결정합니다. 첫 릴리스처럼 이 커밋이 없으면 `patch`, `minor`, `major` 또는 `custom`을 선택합니다. `custom`은 `custom_version`에 정확한 `x.y.z`가 필요합니다.
-3. 생성된 `release/vX.Y.Z` PR의 변경과 CI 결과를 검토한 뒤 병합합니다. 워크플로는 `main`에서 브랜치를 만들고 선택한 소스의 파일 변경을 적용합니다. `GITHUB_TOKEN`으로 생성·갱신한 PR에 CI 승인 배너가 표시되면 쓰기 권한이 있는 사용자가 **Approve workflows to run**을 선택한 뒤 CI 완료를 확인합니다. [GitHub의 워크플로 실행 규칙](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow#triggering-a-workflow-from-a-workflow)을 참고합니다.
-4. `Release`의 npm 발행과 GitHub Packages 발행 결과를 확인합니다. 두 발행이 필요한 경우 모두 성공해야 `develop`의 버전이 동기화됩니다.
+```sh
+pnpm release minor
+```
+
+| 항목        | 동작                                                           |
+| ----------- | -------------------------------------------------------------- |
+| 실행 조건   | `develop` · 커밋 완료 · GitHub CLI 로그인 · `origin` 쓰기 권한 |
+| 로컬 단계   | manifest 검증 → `origin/develop` 푸시 → 릴리스 PR 생성 요청    |
+| 저장소 선택 | `origin` 기준 · 별도 `upstream` 무시                           |
+| 버전 변경   | GitHub Actions에서 루트·공개 패키지 6개 동시 변경              |
+| 발행        | 릴리스 PR의 CI 통과 → `main` 병합 → npm·GitHub Packages        |
+| 완료 후     | 필요한 두 발행 성공 → `develop` 버전 동기화                    |
+
+| 명령                           | 용도                                                 |
+| ------------------------------ | ---------------------------------------------------- |
+| `pnpm release minor --dry-run` | 버전 계산·로컬 조건 확인 · 푸시·원격 실행 생략       |
+| `pnpm release patch` / `major` | 명시적 버전 증가                                     |
+| `pnpm release 1.1.0`           | 정확한 다음 버전 지정                                |
+| `pnpm release auto`            | 마지막 버전 동기화 커밋 이후의 변경으로 증가 폭 계산 |
+| `pnpm release verify`          | 로컬 manifest·빌드·현재 버전 발행 여부 확인          |
+
+`auto`의 첫 실행 전제: `chore(release): sync version to x.y.z` 커밋. 명시적 `minor`·`patch`·`major`는 커밋의 자동 버전 추론보다 우선.
+
+생성된 `release/vX.Y.Z` PR의 CI 완료 후 병합. CI 승인 배너 표시 시 **Approve workflows to run** 선택. [GitHub 워크플로 실행 규칙](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow#triggering-a-workflow-from-a-workflow).
+
+GitHub Actions에서 직접 실행할 때: `Prepare Release PR` → `bump` 선택 · 기본 소스 `develop` · 대상 `main`. 정확한 버전은 `bump=custom` · `custom_version=x.y.z`.
 
 Git 태그와 GitHub Release는 이 흐름에서 생성하지 않습니다. 버전의 기준은 릴리스 PR에 포함된 패키지 manifest입니다.
 
 ## 검증한 tarball 발행
 
-`prepare-release`가 빌드와 pack을 한 번 수행합니다. `release:verify-tarballs`는 패키지 이름·버전·파일과 공개 import/require 경로를 검증합니다. `--artifacts-manifest`를 지정하면 검증을 마친 압축 파일의 SHA-512 SRI와 원본 저장소·커밋을 `artifacts.json`에 기록합니다. 원본 커밋은 실제 checkout과 같아야 합니다.
+`prepare-release`가 빌드와 pack을 한 번 수행합니다. `pnpm release verify-tarballs`는 패키지 이름·버전·파일과 공개 import/require 경로를 검증합니다. `--artifacts-manifest`를 지정하면 검증을 마친 압축 파일의 SHA-512 SRI와 원본 저장소·커밋을 `artifacts.json`에 기록합니다. 원본 커밋은 실제 checkout과 같아야 합니다.
 
 tarball과 manifest는 같은 GitHub artifact에 업로드됩니다. 발행 작업은 이름 검색 대신 생성 단계의 정확한 artifact ID로 내려받습니다. npm은 [Releaseway npm Actions v0.8.0](https://github.com/releaseway/npm-actions/releases/tag/v0.8.0)의 `artifacts-manifest` 계약으로 발행하며, npm에 이미 존재하는 버전과 새로 발행하는 버전의 SHA-512를 검사합니다. 발행 대상과 순서는 최종 tarball의 의존성으로 결정합니다.
 
