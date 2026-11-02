@@ -1,5 +1,3 @@
-import type { CallbackService } from '@/adapters/callback-adapter'
-import type { PromiseService } from '@/adapters/promise-adapter'
 import type * as Spec from '@connextable/popbill-spec'
 
 /**
@@ -331,7 +329,7 @@ type LegacyRegistRequestCallback = LegacyOptionCallbacks<
 /**
  * Callback 기반 legacy TaxinvoiceService 인터페이스.
  */
-export interface TaxinvoiceCallbackService extends CallbackService {
+export interface TaxinvoiceCallbackService {
   // ============================================================================
   // [발행/전송]
   // ============================================================================
@@ -686,7 +684,7 @@ export interface TaxinvoiceCallbackService extends CallbackService {
 /**
  * Promise 기반 legacy TaxinvoiceService 인터페이스.
  */
-export interface TaxinvoicePromiseService extends PromiseService {
+export interface TaxinvoicePromiseService {
   // ============================================================================
   // [발행/전송]
   // ============================================================================

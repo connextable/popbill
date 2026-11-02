@@ -1,6 +1,6 @@
 import { expectTypeOf, test } from 'vitest'
 import type * as Spec from '@connextable/popbill-spec'
-import type { TaxinvoiceCallbackService } from '@/services/taxinvoice/types'
+import type { TaxinvoiceCallbackService, TaxinvoicePromiseService } from '@/services/taxinvoice/types'
 
 function checkLegacyCallbacks(service: TaxinvoiceCallbackService): void {
   const error = (_value: unknown): void => {}
@@ -49,4 +49,6 @@ function checkLegacyCallbacks(service: TaxinvoiceCallbackService): void {
 
 test('keeps callback types aligned with legacy arity', () => {
   expectTypeOf(checkLegacyCallbacks).toBeFunction()
+  expectTypeOf<string>().not.toExtend<keyof TaxinvoiceCallbackService>()
+  expectTypeOf<string>().not.toExtend<keyof TaxinvoicePromiseService>()
 })

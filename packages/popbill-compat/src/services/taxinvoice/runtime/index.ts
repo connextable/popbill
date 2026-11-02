@@ -1,21 +1,12 @@
 import type { CompatConfig } from '@/config'
 import { invokeUserCallback as handleCallbackSuccess } from '@/internal/callback'
 import type { TaxinvoiceCallbackService, TaxinvoicePromiseService } from '@/services/taxinvoice/types'
-import {
-  handleCallbackError,
-  parseLegacyUserIdAndCallbacks,
-  splitLegacyCallbackArguments,
-  throwPromiseError,
-  type TaxinvoiceRuntimeMethods,
-} from './common'
+import { handleCallbackError, parseLegacyUserIdAndCallbacks, splitLegacyCallbackArguments, throwPromiseError } from './common'
 import { createTaxinvoiceRuntimeContext } from './context'
 import * as parsers from './parsers'
 import * as methods from './methods'
 import type * as Spec from '@connextable/popbill-spec'
 import { createAdditionalTaxinvoiceRuntimeMethods } from './additional'
-
-type TaxinvoiceRuntimeCallbackMethods = Pick<TaxinvoiceCallbackService, TaxinvoiceRuntimeMethods>
-type TaxinvoiceRuntimePromiseMethods = Pick<TaxinvoicePromiseService, TaxinvoiceRuntimeMethods>
 
 interface ParsedMemoCallbacks<T> {
   memo: string
@@ -25,15 +16,14 @@ interface ParsedMemoCallbacks<T> {
 }
 
 export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
-  callback: TaxinvoiceRuntimeCallbackMethods
-  promise: TaxinvoiceRuntimePromiseMethods
+  callback: TaxinvoiceCallbackService
+  promise: TaxinvoicePromiseService
 } {
   const context = createTaxinvoiceRuntimeContext(config)
   const additional = createAdditionalTaxinvoiceRuntimeMethods(context)
 
   return {
     callback: {
-      ...additional.callback,
       // 발행/전송
       registIssue(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, ...args: unknown[]) {
         const parsed = parsers.parseRegistIssueCallbackArgs(args)
@@ -210,6 +200,11 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
+      send: additional.callback.send,
+      cancelSend: additional.callback.cancelSend,
+      accept: additional.callback.accept,
+      deny: additional.callback.deny,
+
       // 정보확인
       getInfo(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
@@ -275,6 +270,8 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
             handleCallbackError(context, 'getXML', error, parsed.error)
           })
       },
+
+      getPDF: additional.callback.getPDF,
 
       search(
         corpNum: string,
@@ -386,16 +383,16 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      getPDFURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+      getEPrintURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parsers.parseUrlMethodCallbackArgs(args)
 
         void methods
-          .requestGetPdfUrl(context, corpNum, keyType, mgtKey, parsed.userId)
+          .requestGetEPrintUrl(context, corpNum, keyType, mgtKey, parsed.userId)
           .then((url) => {
             handleCallbackSuccess(parsed.success, url)
           })
           .catch((error: unknown) => {
-            handleCallbackError(context, 'getPDFURL', error, parsed.error)
+            handleCallbackError(context, 'getEPrintURL', error, parsed.error)
           })
       },
 
@@ -412,19 +409,6 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
-      getEPrintURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
-        const parsed = parsers.parseUrlMethodCallbackArgs(args)
-
-        void methods
-          .requestGetEPrintUrl(context, corpNum, keyType, mgtKey, parsed.userId)
-          .then((url) => {
-            handleCallbackSuccess(parsed.success, url)
-          })
-          .catch((error: unknown) => {
-            handleCallbackError(context, 'getEPrintURL', error, parsed.error)
-          })
-      },
-
       getMailURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
         const parsed = parsers.parseUrlMethodCallbackArgs(args)
 
@@ -437,6 +421,21 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
             handleCallbackError(context, 'getMailURL', error, parsed.error)
           })
       },
+
+      getPDFURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, ...args: unknown[]) {
+        const parsed = parsers.parseUrlMethodCallbackArgs(args)
+
+        void methods
+          .requestGetPdfUrl(context, corpNum, keyType, mgtKey, parsed.userId)
+          .then((url) => {
+            handleCallbackSuccess(parsed.success, url)
+          })
+          .catch((error: unknown) => {
+            handleCallbackError(context, 'getPDFURL', error, parsed.error)
+          })
+      },
+
+      getOldPrintURL: additional.callback.getOldPrintURL,
 
       // 부가기능
       getSealURL(corpNum: string, ...args: unknown[]) {
@@ -649,6 +648,8 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           })
       },
 
+      getEmailPublicKeys: additional.callback.getEmailPublicKeys,
+
       // 인증서 관리
       getTaxCertURL(corpNum: string, ...args: unknown[]) {
         const parsed = parseLegacyUserIdAndCallbacks(args)
@@ -701,10 +702,12 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
             handleCallbackError(context, 'getTaxCertInfo', error, parsed.error)
           })
       },
-    } as TaxinvoiceRuntimeCallbackMethods,
+      // 과금정보
+      getChargeInfo: additional.callback.getChargeInfo,
+      getUnitCost: additional.callback.getUnitCost,
+    } satisfies TaxinvoiceCallbackService,
 
     promise: {
-      ...additional.promise,
       // 발행/전송
       async registIssue(corpNum: string, taxinvoice: Spec.TaxInvoiceApiModel, ...args: unknown[]) {
         const parsed = parsers.parseRegistIssuePromiseArgs(args)
@@ -816,6 +819,11 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         }
       },
 
+      send: additional.promise.send,
+      cancelSend: additional.promise.cancelSend,
+      accept: additional.promise.accept,
+      deny: additional.promise.deny,
+
       // 정보확인
       async getInfo(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
@@ -856,6 +864,8 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           return throwPromiseError(context, 'getXML', error)
         }
       },
+
+      getPDF: additional.promise.getPDF,
 
       async search(
         corpNum: string,
@@ -939,11 +949,11 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         }
       },
 
-      async getPDFURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+      async getEPrintURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
-          return await methods.requestGetPdfUrl(context, corpNum, keyType, mgtKey, userId ?? '')
+          return await methods.requestGetEPrintUrl(context, corpNum, keyType, mgtKey, userId ?? '')
         } catch (error) {
-          return throwPromiseError(context, 'getPDFURL', error)
+          return throwPromiseError(context, 'getEPrintURL', error)
         }
       },
 
@@ -955,14 +965,6 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         }
       },
 
-      async getEPrintURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
-        try {
-          return await methods.requestGetEPrintUrl(context, corpNum, keyType, mgtKey, userId ?? '')
-        } catch (error) {
-          return throwPromiseError(context, 'getEPrintURL', error)
-        }
-      },
-
       async getMailURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
         try {
           return await methods.requestGetMailUrl(context, corpNum, keyType, mgtKey, userId ?? '')
@@ -970,6 +972,16 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           return throwPromiseError(context, 'getMailURL', error)
         }
       },
+
+      async getPDFURL(corpNum: string, keyType: Spec.TaxInvoiceMgtKeyType, mgtKey: string, userId?: string) {
+        try {
+          return await methods.requestGetPdfUrl(context, corpNum, keyType, mgtKey, userId ?? '')
+        } catch (error) {
+          return throwPromiseError(context, 'getPDFURL', error)
+        }
+      },
+
+      getOldPrintURL: additional.promise.getOldPrintURL,
 
       // 부가기능
       async getSealURL(corpNum: string, userId?: string) {
@@ -1112,6 +1124,8 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
         }
       },
 
+      getEmailPublicKeys: additional.promise.getEmailPublicKeys,
+
       // 인증서 관리
       async getTaxCertURL(corpNum: string, userId?: string) {
         try {
@@ -1144,7 +1158,10 @@ export function createTaxinvoiceRuntimeMethods(config: CompatConfig): {
           return throwPromiseError(context, 'getTaxCertInfo', error)
         }
       },
-    } as TaxinvoiceRuntimePromiseMethods,
+      // 과금정보
+      getChargeInfo: additional.promise.getChargeInfo,
+      getUnitCost: additional.promise.getUnitCost,
+    } satisfies TaxinvoicePromiseService,
   }
 }
 
