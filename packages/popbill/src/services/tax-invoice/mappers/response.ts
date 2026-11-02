@@ -12,6 +12,7 @@ import type {
   TaxInvoiceChargeDirection,
   TaxInvoiceChargeInfo,
   TaxInvoiceDocumentOutput,
+  TaxInvoiceEmailPublicKeys,
   TaxInvoiceEmailSendSetting,
   TaxInvoiceInfo,
   TaxInvoiceInvoiceManagementKeyUsage,
@@ -281,6 +282,11 @@ export function mapTaxInvoiceSendToNationalTaxServiceSetting(
   return {
     sendToNationalTaxServiceEnabled: toBoolean(taxInvoiceApiResponse.sendToNTS),
   }
+}
+
+/** 공개되지 않은 유통메일 공개키 응답을 손실 없이 보존합니다. */
+export function mapTaxInvoiceEmailPublicKeys(response: Spec.TaxInvoiceGetEmailPublicKeysApiResponse): TaxInvoiceEmailPublicKeys {
+  return { publicKeys: response }
 }
 
 /**

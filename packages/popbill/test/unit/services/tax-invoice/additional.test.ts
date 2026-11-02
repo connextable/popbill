@@ -72,12 +72,12 @@ describe('tax invoice billing and PDF facade', () => {
     expect(onError).toHaveBeenCalledTimes(1)
   })
 
-  test('modern PDF accepts only the sales document type specified by the current HTTP contract', async () => {
-    const getPDF = vi.fn<CompatService['getPDF']>()
+  test.each(['SELL', 'BUY', 'TRUSTEE'] as const)('PDF forwards the SDK-supported %s document type', async (invoiceDocumentKeyType) => {
+    const getPDF = vi.fn<CompatService['getPDF']>().mockResolvedValue(Buffer.from([37, 80, 68, 70]))
     const service = createTaxInvoiceService({ compatTaxInvoiceService: { getPDF } as unknown as CompatService, defaultUserId: 'user' })
     await expect(
-      service.downloadInvoicePDF({ businessNumber: '1234567890', invoiceDocumentKeyType: 'BUY' as 'SELL', invoiceManagementKey: 'KEY-1' })
-    ).rejects.toMatchObject({ operation: 'taxInvoice.downloadInvoicePDF', stage: 'validate_input' })
-    expect(getPDF).not.toHaveBeenCalled()
+      service.downloadInvoicePDF({ businessNumber: '1234567890', invoiceDocumentKeyType, invoiceManagementKey: 'KEY-1' })
+    ).resolves.toMatchObject({ fileData: new Uint8Array([37, 80, 68, 70]) })
+    expect(getPDF).toHaveBeenCalledWith('1234567890', invoiceDocumentKeyType, 'KEY-1', 'user', undefined)
   })
 })

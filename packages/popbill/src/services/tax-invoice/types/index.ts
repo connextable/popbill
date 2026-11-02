@@ -662,6 +662,32 @@ export interface RefuseReverseIssueRequestInput extends TaxInvoiceDocumentReques
   historyMemo: string
 }
 
+/** 공식 SDK의 발행예정 전송 요청입니다. 현재 공개 HTTP 문서에는 설명되지 않은 레거시 동작입니다. */
+export interface SendInvoiceInput extends TaxInvoiceDocumentRequest {
+  /** 상태 이력에 남길 메모입니다. */
+  historyMemo?: string
+  /** 전송 안내 메일 제목입니다. */
+  emailSubject?: string
+}
+
+/** 공식 SDK의 발행예정 전송 취소 요청입니다. */
+export interface CancelInvoiceSendInput extends TaxInvoiceDocumentRequest {
+  /** 상태 이력에 남길 메모입니다. */
+  historyMemo?: string
+}
+
+/** 공식 SDK의 세금계산서 승인 요청입니다. */
+export interface AcceptInvoiceInput extends TaxInvoiceDocumentRequest {
+  /** 상태 이력에 남길 메모입니다. */
+  historyMemo?: string
+}
+
+/** 공식 SDK의 세금계산서 거부 요청입니다. */
+export interface DenyInvoiceInput extends TaxInvoiceDocumentRequest {
+  /** 상태 이력에 남길 메모입니다. */
+  historyMemo?: string
+}
+
 /**
  * 국세청 즉시 전송 입력입니다.
  */
@@ -687,7 +713,7 @@ export interface GetInvoicesInfoInput extends TaxInvoiceBusinessRequest {
 }
 
 /** 세금계산서 PDF 원본 다운로드 입력입니다. */
-export interface DownloadInvoicePdfInput extends TaxInvoiceDocumentRequest<typeof TaxInvoiceDocumentKeyTypes.Sales> {
+export interface DownloadInvoicePdfInput extends TaxInvoiceDocumentRequest {
   /** 출력할 사본. 생략하면 공급자용과 공급받는자용을 모두 출력합니다. */
   printCopy?: 'supplier' | 'buyer'
 }
@@ -1030,6 +1056,34 @@ export interface TaxInvoiceService {
   refuseReverseIssueRequest(input: RefuseReverseIssueRequestInput): Promise<response.TaxInvoiceOperationResult>
 
   /**
+   * 발행예정 문서를 전송합니다. 공식 SDK에 남아 있는 레거시 동작입니다.
+   *
+   * Compat: `send`
+   */
+  sendInvoice(input: SendInvoiceInput): Promise<response.TaxInvoiceOperationResult>
+
+  /**
+   * 발행예정 전송을 취소합니다.
+   *
+   * Compat: `cancelSend`
+   */
+  cancelInvoiceSend(input: CancelInvoiceSendInput): Promise<response.TaxInvoiceOperationResult>
+
+  /**
+   * 공식 SDK의 레거시 승인 동작을 요청합니다. 처리 가능한 문서 상태는 서버가 판단합니다.
+   *
+   * Compat: `accept`
+   */
+  acceptInvoice(input: AcceptInvoiceInput): Promise<response.TaxInvoiceOperationResult>
+
+  /**
+   * 공식 SDK의 레거시 거부 동작을 요청합니다. 처리 가능한 문서 상태는 서버가 판단합니다.
+   *
+   * Compat: `deny`
+   */
+  denyInvoice(input: DenyInvoiceInput): Promise<response.TaxInvoiceOperationResult>
+
+  /**
    * 문서를 삭제합니다.
    *
    * Compat: `delete`
@@ -1129,6 +1183,13 @@ export interface TaxInvoiceService {
    * Compat: `getEPrintURL`
    */
   getBuyerInvoicePrintURL(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceAccessUrl>
+
+  /**
+   * 구형 인쇄 팝업 URL을 조회합니다.
+   *
+   * Compat: `getOldPrintURL`
+   */
+  getLegacyInvoicePrintURL(input: TaxInvoiceDocumentRequest): Promise<response.TaxInvoiceAccessUrl>
 
   /**
    * 다건 인쇄 팝업 URL을 조회합니다.
@@ -1248,6 +1309,13 @@ export interface TaxInvoiceService {
    * Compat: `getSendToNTSConfig`
    */
   getSendToNTSSettings(input: TaxInvoiceBusinessRequest): Promise<response.TaxInvoiceSendToNationalTaxServiceSetting>
+
+  /**
+   * ASP사업자 유통메일 공개키 응답을 조회합니다. 공개되지 않은 응답 구조는 원문으로 보존합니다.
+   *
+   * Compat: `getEmailPublicKeys`
+   */
+  getEmailPublicKeys(input: TaxInvoiceBusinessRequest): Promise<response.TaxInvoiceEmailPublicKeys>
 
   /**
    * 인증서 등록 URL을 조회합니다.

@@ -20,15 +20,25 @@
 - modern은 객체 인자와 명확한 기능 이름을 제공한다. 범용 URL 함수·송신 함수의 호환 별칭을 추가하지 않는다.
 - 인증·HTTP·PDF 바이트 전송은 기존 runtime에서 처리한다. 서비스별 scope와 클라이언트별 설정·캐시를 분리한다.
 - 회원 탈퇴 후 같은 modern 클라이언트 및 같은 compat factory 설정 객체에 연결된 토큰을 폐기한다. compat singleton의 서비스 간 캐시는 기존 레거시처럼 독립적이다.
+- 모든 공개 서비스는 실제 메서드 객체를 반환하며 미구현 stub이나 임의 메서드명을 받아 주는 Proxy를 사용하지 않는다. `@connextable/popbill-compat/errors`의 공개 `NotImplementedError` 클래스는 기존 import 호환을 위해 남기며 SDK 내부에서 생성하지 않는다.
+
+modern과 compat의 메서드 수 차이는 같은 기능의 레거시 wrapper를 객체 API에 통합한 결과다. 생성 레퍼런스의 compat 연결은 modern 메서드가 호출하는 대표 메서드 하나를 기록하므로, 연결 목록에 레거시 이름이 없다는 이유만으로 기능 누락으로 보지 않는다.
+
+| 레거시 wrapper                        | modern에서 같은 기능을 사용하는 방법                                                                                                                  |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 문자 SMS·LMS·XMS 단건·다건·범용 전송  | `sendShortMessage`·`sendLongMessage`·`sendAutoLengthMessage`의 `recipients` 배열                                                                      |
+| 문자 MMS 단건·다건·경로·바이너리 전송 | `sendImageMessage`의 `recipients` 배열과 `image` 입력                                                                                                 |
+| 카카오 ATS·FTS·FMS 단건 전송          | `sendNotificationMessage`·`sendFriendTextMessage`·`sendFriendImageMessage`. 단건 참조키 보존을 위해 내부에서는 동보 전송 메서드에 수신자 한 명을 전달 |
+| 공통·카카오·문자·팩스의 범용 URL      | 로그인·충전·템플릿·발신번호·발송내역 등 목적별 URL 메서드                                                                                             |
 
 ## 문서와 레거시의 차이
 
 - **공통:** 회원·포인트 API는 modern의 `common`과 compat 도메인 서비스의 상속 메서드에서 제공한다. 범용 `getPopbillURL`은 compat에 유지한다. [회원·포인트 계약](../services/common.md)
-- **세금계산서:** 과금정보·문자열 단가·PDF 다운로드를 추가했다. modern PDF는 현행 HTTP 문서의 매출 문서 계약을 따르며 `printCopy`로 공급자·공급받는자 사본을 선택한다. `send`, `cancelSend`, `accept`, `deny`, `getOldPrintURL`, `getEmailPublicKeys`는 공식 SDK 코드의 레거시 계약으로 compat에 유지한다. 공개 스키마가 없는 이메일 공개키 응답은 `unknown`이다. [세금계산서 계약 기록](../services/tax-invoice.md)
+- **세금계산서:** 과금정보·문자열 단가·PDF 다운로드와 공식 SDK의 전송·전송취소·승인·거부·구 인쇄·메일 공개키 API를 compat와 modern에 제공한다. PDF는 매출·매입·위수탁 문서번호 유형을 받고 `printCopy`로 공급자·공급받는자 사본을 선택한다. 공개 스키마가 없는 메일 공개키 응답은 compat의 `unknown`, modern의 `{ publicKeys: unknown }`으로 보존한다. [세금계산서 계약 기록](../services/tax-invoice.md)
 - **현금영수증:** 대량 처리 응답의 접수·발행 시각을 임의로 바꾸지 않고 보존한다. [현금영수증 계약](../services/cashbill.md)
 - **수집:** 작업 완료와 수집 성공은 별개다. 완료 상태와 성공 결과코드를 함께 확인한다. 작업 ID는 요청 후 1시간 유효하며, 자동 폴링이나 자동 재요청을 하지 않는다. [홈택스 세금계산서](../services/home-tax-tax-invoice.md), [홈택스 현금영수증](../services/home-tax-cashbill.md), [계좌 조회](../services/easy-fin-bank.md)
-- **카카오:** 현재 문서의 알림톡·브랜드 메시지는 modern에도 제공한다. 친구톡과 범용 URL은 compat에 유지한다. 문서·SDK 간 scope와 메시지 모델 차이를 기록했다. [카카오 지원 범위](../services/kakao.md)
-- **문자:** modern은 하나의 수신자 배열로 단건·다건을 다룬다. 레거시 `getStates`의 문서화되지 않은 응답은 compat에 보존한다. 수신자별 부분 예약 취소는 현재 공식 HTTP의 `{ receiveNum }` 본문을 전송한다. [문자 계약](../services/message.md)
+- **카카오:** 알림톡·브랜드 메시지와 공식 SDK의 친구톡 텍스트·이미지 단건·대량·동보 기능을 modern에도 제공한다. 범용 URL은 compat에 유지하며 modern은 목적별 URL 메서드를 제공한다. 문서·SDK 간 scope와 메시지 모델 차이를 기록했다. [카카오 지원 범위](../services/kakao.md)
+- **문자:** modern은 하나의 수신자 배열로 단건·다건을 다룬다. 레거시 `getStates`는 modern의 `getMessageStatesByReceiptNumbers`로도 제공하며 문서화되지 않은 응답 전체를 `unknown`으로 보존한다. 수신자별 부분 예약 취소는 현재 공식 HTTP의 `{ receiveNum }` 본문을 전송한다. [문자 계약](../services/message.md)
 - **팩스:** 레거시의 바이너리 파일 검사, 단건 수신번호·이름 매핑, 재전송 인자 오류를 공식 계약대로 수정했다. [팩스 계약](../services/fax.md)
 - **콜백:** 선택 인자 자리가 `undefined`인 호출은 성공·오류 두 슬롯을 명시한다. 정의된 선택값 뒤의 단일 성공 콜백은 유지한다. 실제 허용 조합은 생성된 타입 서명을 따른다.
 

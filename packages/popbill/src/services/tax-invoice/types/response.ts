@@ -520,6 +520,12 @@ export interface TaxInvoiceSendToNationalTaxServiceSetting {
   sendToNationalTaxServiceEnabled: boolean
 }
 
+/** ASP사업자 유통메일 공개키 조회 결과입니다. */
+export interface TaxInvoiceEmailPublicKeys {
+  /** 공식 SDK의 원본 응답입니다. 공개된 필드 계약이 없어 사용 전에 구조를 확인해야 합니다. */
+  publicKeys: unknown
+}
+
 /**
  * 인증서 만료일 조회 결과입니다.
  */

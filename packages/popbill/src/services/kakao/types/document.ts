@@ -128,6 +128,43 @@ export interface SendIdenticalNotificationMessagesRequest extends SendNotificati
   fallbackBody?: string
   emphasizedTitle?: string
 }
+export type KakaoFriendRecipient = Pick<
+  KakaoRecipient,
+  'receiverPhoneNumber' | 'receiverName' | 'referenceKey' | 'messageBody' | 'fallbackSubject' | 'fallbackBody' | 'buttons'
+>
+export interface KakaoFriendMessageRecipient extends KakaoFriendRecipient {
+  messageBody: string
+}
+/** Legacy friendtalk transport; delivery availability is determined by Popbill. */
+export interface KakaoFriendRequest extends KakaoBusinessRequest {
+  requestNumber?: string
+  channelSearchId: string
+  senderPhoneNumber?: string
+  fallbackType?: 'C' | 'A'
+  reserveDateTime?: string
+  advertising?: boolean
+}
+export interface SendFriendTextMessageRequest extends KakaoFriendRequest, KakaoFriendMessageRecipient {}
+export interface SendFriendTextMessagesRequest extends KakaoFriendRequest {
+  recipients: KakaoFriendMessageRecipient[]
+  buttons?: KakaoButton[]
+}
+export interface SendIdenticalFriendTextMessagesRequest extends KakaoFriendRequest {
+  messageBody: string
+  fallbackSubject?: string
+  fallbackBody?: string
+  recipients: KakaoFriendRecipient[]
+  buttons?: KakaoButton[]
+}
+export interface KakaoFriendImage {
+  /** Local image uploaded as the FMS multipart file. */
+  filePath: string
+  /** Destination opened when the recipient selects the image. */
+  imageLink?: string
+}
+export interface SendFriendImageMessageRequest extends SendFriendTextMessageRequest, KakaoFriendImage {}
+export interface SendFriendImageMessagesRequest extends SendFriendTextMessagesRequest, KakaoFriendImage {}
+export interface SendIdenticalFriendImageMessagesRequest extends SendIdenticalFriendTextMessagesRequest, KakaoFriendImage {}
 /** I/O/N/M follows the HTTP reference; business eligibility remains a server decision. */
 export type KakaoBrandTarget = 'I' | 'O' | 'N' | 'M' | (string & {})
 export interface SendBrandMessageRequest extends KakaoBusinessRequest, KakaoMessageContent {

@@ -13,6 +13,10 @@ export const TAX_INVOICE_METHODS = [
   'requestReverseIssue',
   'cancelReverseIssueRequest',
   'refuseReverseIssueRequest',
+  'sendInvoice',
+  'cancelInvoiceSend',
+  'acceptInvoice',
+  'denyInvoice',
   'deleteInvoice',
   'sendInvoiceToNTS',
   // 정보확인
@@ -30,6 +34,7 @@ export const TAX_INVOICE_METHODS = [
   'getInvoiceViewURL',
   'getSupplierInvoicePrintURL',
   'getBuyerInvoicePrintURL',
+  'getLegacyInvoicePrintURL',
   'getBulkInvoicePrintURL',
   'getInvoiceMailURL',
   'getInvoicePDFURL',
@@ -48,6 +53,7 @@ export const TAX_INVOICE_METHODS = [
   'getEmailSendSettings',
   'updateEmailSendSettings',
   'getSendToNTSSettings',
+  'getEmailPublicKeys',
   // 인증서 관리
   'getTaxCertificateRegistrationURL',
   'getTaxCertificateExpirationDate',

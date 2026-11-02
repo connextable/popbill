@@ -8,7 +8,7 @@ export async function requestGetStates(
   corpNum: string,
   receiptNumList: string[],
   userId?: string
-): Promise<Spec.MessageReceiptStateApiModel[]> {
+): Promise<Spec.MessageGetStatesApiResponse> {
   if (!Array.isArray(receiptNumList) || !receiptNumList.length) throw createLegacyValidationError('문자전송 접수번호 배열이 입력되지 않았습니다.')
   return request(context, corpNum, '/Message/States', userId, 'POST', receiptNumList)
 }

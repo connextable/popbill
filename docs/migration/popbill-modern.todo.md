@@ -126,11 +126,11 @@
 
 ## TaxInvoice Additional Method Checklist
 
-| service     | method             | status | updated_at | notes                                                                     |
-| ----------- | ------------------ | ------ | ---------- | ------------------------------------------------------------------------- |
-| tax-invoice | getChargeInfo      | DONE   | 2026-11-03 | Compat `getChargeInfo`; decimal unit cost remains a string.               |
-| tax-invoice | getUnitCost        | DONE   | 2026-11-03 | Compat `getUnitCost`; no legacy user-ID parameter.                        |
-| tax-invoice | downloadInvoicePDF | DONE   | 2026-11-03 | Binary response; seller documents and optional supplier/buyer print copy. |
+| service     | method             | status | updated_at | notes                                                                                   |
+| ----------- | ------------------ | ------ | ---------- | --------------------------------------------------------------------------------------- |
+| tax-invoice | getChargeInfo      | DONE   | 2026-11-03 | Compat `getChargeInfo`; decimal unit cost remains a string.                             |
+| tax-invoice | getUnitCost        | DONE   | 2026-11-03 | Compat `getUnitCost`; no legacy user-ID parameter.                                      |
+| tax-invoice | downloadInvoicePDF | DONE   | 2026-11-03 | Binary response; SELL/BUY/TRUSTEE document keys and optional supplier/buyer print copy. |
 
 ## Additional Service Checklist
 
@@ -150,6 +150,18 @@
 
 TaxInvoice also adds `getChargeInfo`, `getUnitCost` and `downloadInvoicePDF`. `DONE` records local checks and independent contract review at the listed date; live server execution is separate. Current method counts and DTO/compat mappings are generated from source in the [SDK reference](../sdk/README.md). See [service coverage](./service-coverage.md) for accepted differences and [validation history](./validation-history.md) for past execution results.
 
+## Legacy Capability Completion
+
+The additional-service counts above record the earlier expansion. The following work closes the remaining modern capability gaps without introducing compatibility aliases. Current counts come from the generated reference.
+
+| service     | capability                                                          | status | updated_at | notes                                                                                                                                                        |
+| ----------- | ------------------------------------------------------------------- | ------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| tax-invoice | Legacy send/cancel/accept/deny, old print URL and email public keys | DONE   | 2026-11-03 | Object requests and normalized results; undocumented public keys remain `unknown`. PDF key restriction removed. See [contracts](../services/tax-invoice.md). |
+| kakao       | Friend text/image single, batch and identical-recipient sends       | DONE   | 2026-11-03 | Object DTOs preserve reference keys and multipart files. See [contracts](../services/kakao.md).                                                              |
+| message     | Batch receipt-number state lookup                                   | DONE   | 2026-11-03 | `getMessageStatesByReceiptNumbers` preserves the undocumented response as `unknown`. See [contracts](../services/message.md).                                |
+
+These SDK-backed legacy endpoints have not been verified against a live server. Removing the compat stub infrastructure does not establish provider availability; local verification is recorded in [validation history](./validation-history.md).
+
 ## Rules
 
 - Every endpoint migration must update `status`, `updated_at`, and `notes` in the same commit.
@@ -167,3 +179,4 @@ TaxInvoice also adds `getChargeInfo`, `getUnitCost` and `downloadInvoicePDF`. `D
 - 2026-11-02: 공식 계약에 맞춰 SMS `messageBody`를 필수화하고 `SWBOX`의 이름을 `StatementBoxScopes.IssuedDocumentBox`로 명시.
 - 2026-11-03: modern API의 호환 별칭을 제거하고 명세서 요약 매퍼를 `mappers/statement-info.ts`로 분리해 기존 세금계산서 매퍼 구조에 맞춤.
 - 2026-11-03: 공통과 나머지 10개 서비스 및 세금계산서 3개를 추가. 13개 그룹을 client·공개 타입·문서 생성·예제에 연결하고, 새 modern API에 호환 별칭을 추가하지 않음.
+- 2026-11-03: compat의 stub Proxy와 미구현 adapter를 제거하고, 세금계산서 레거시 기능·친구톡·문자 접수상태 일괄조회를 modern 객체 API에 연결. 기존 공개 `NotImplementedError` 타입은 import 호환을 위해 보존하며 SDK 내부 발생 경로는 제거.

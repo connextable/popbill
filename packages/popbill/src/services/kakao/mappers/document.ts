@@ -73,17 +73,19 @@ export function mapContent(value: Types.KakaoMessageContent) {
     altContent: value.fallbackBody,
   }
 }
-export function mapNotificationReceiver(value: Types.KakaoRecipient): Spec.KakaoLegacyReceiverApiModel {
+export function mapFriendReceiver(value: Types.KakaoFriendRecipient): Spec.KakaoLegacyReceiverApiModel {
   return {
     rcv: value.receiverPhoneNumber,
     rcvnm: value.receiverName,
     interOPRefKey: value.referenceKey,
     msg: value.messageBody,
-    emphasizeTitle: value.emphasizedTitle,
     btns: value.buttons?.map(mapButton),
     altsjt: value.fallbackSubject,
     altmsg: value.fallbackBody,
   }
+}
+export function mapNotificationReceiver(value: Types.KakaoRecipient): Spec.KakaoLegacyReceiverApiModel {
+  return { ...mapFriendReceiver(value), emphasizeTitle: value.emphasizedTitle }
 }
 export function mapBrandMessage(value: Types.SendBrandMessageRequest): Spec.KakaoBrandMessageApiModel {
   return {

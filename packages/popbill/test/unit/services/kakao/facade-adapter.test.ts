@@ -57,6 +57,12 @@ const cases = [
   ['sendNotificationMessage', '/ATS'],
   ['sendNotificationMessages', '/ATS'],
   ['sendIdenticalNotificationMessages', '/ATS'],
+  ['sendFriendTextMessage', '/FTS'],
+  ['sendFriendTextMessages', '/FTS'],
+  ['sendIdenticalFriendTextMessages', '/FTS'],
+  ['sendFriendImageMessage', '/FMS'],
+  ['sendFriendImageMessages', '/FMS'],
+  ['sendIdenticalFriendImageMessages', '/FMS'],
   ['getMessageHistoryURL', '/KakaoTalk/'],
   ['getMessagesByReceiptNumber', '/KakaoTalk/RECEIPT'],
   ['getMessagesByRequestNumber', '/KakaoTalk/Get/REQUEST'],
@@ -144,7 +150,7 @@ afterEach(() => vi.unstubAllGlobals())
 describe('modern Kakao client contracts', () => {
   it('exposes current service names without compatibility aliases', () => {
     expect(new Set(cases.map(([method]) => method))).toEqual(new Set(KAKAO_METHODS))
-    expect(Object.keys(service())).toHaveLength(46)
+    expect(Object.keys(service())).toHaveLength(52)
     expect(service()).not.toHaveProperty('sendFTS_one')
     expect(service()).not.toHaveProperty('sendBMSText')
   })
@@ -185,6 +191,136 @@ describe('modern Kakao client contracts', () => {
       },
     ])
   })
+  it('preserves friendtalk single-recipient references and send options through the full legacy tuple', async () => {
+    const fetchMock = stub({ receiptNum: 'R' })
+    await expect(
+      service().sendFriendTextMessage({
+        ...request,
+        referenceKey: 'single-friend',
+        fallbackSubject: '대체 제목',
+        fallbackBody: '대체 본문',
+        fallbackType: 'A',
+        reserveDateTime: '20261104120000',
+        advertising: false,
+      })
+    ).resolves.toEqual({ receiptNumber: 'R' })
+    expect(JSON.parse(fetchMock.mock.calls[1]![1]!.body as string)).toEqual({
+      plusFriendID: '@채널',
+      snd: '16008536',
+      content: '본문',
+      altSubject: '대체 제목',
+      altContent: '대체 본문',
+      altSendType: 'A',
+      sndDT: '20261104120000',
+      adsYN: false,
+      requestNum: 'REQUEST',
+      msgs: [
+        {
+          rcv: '01012345678',
+          rcvnm: '수신자',
+          msg: '본문',
+          altsjt: '대체 제목',
+          altmsg: '대체 본문',
+          interOPRefKey: 'single-friend',
+          btns: [{ n: '통화', t: 'TN', telNum: '16008536' }],
+        },
+      ],
+      btns: [{ t: 'TN', n: '통화', telNum: '16008536' }],
+    })
+  })
+  it('keeps friendtalk personalized content on each recipient and shared content on the send request', async () => {
+    const recipients = [
+      { ...receiver, messageBody: '첫 본문', fallbackSubject: '첫 제목', fallbackBody: '첫 대체문자' },
+      { receiverPhoneNumber: '01098765432', messageBody: '둘째 본문', referenceKey: 'second-ref' },
+    ]
+    const personalized = stub({ receiptNum: 'P' })
+    await service().sendFriendTextMessages({ ...request, recipients })
+    expect(JSON.parse(personalized.mock.calls[1]![1]!.body as string)).toEqual({
+      plusFriendID: '@채널',
+      snd: '16008536',
+      requestNum: 'REQUEST',
+      msgs: [
+        {
+          rcv: '01012345678',
+          rcvnm: '수신자',
+          msg: '첫 본문',
+          altsjt: '첫 제목',
+          altmsg: '첫 대체문자',
+          interOPRefKey: 'reference',
+          btns: [{ n: '통화', t: 'TN', telNum: '16008536' }],
+        },
+        { rcv: '01098765432', msg: '둘째 본문', interOPRefKey: 'second-ref' },
+      ],
+      btns: [{ t: 'TN', n: '통화', telNum: '16008536' }],
+    })
+    const shared = stub({ receiptNum: 'S' })
+    await service().sendIdenticalFriendTextMessages({
+      ...request,
+      fallbackSubject: '공통 제목',
+      fallbackBody: '공통 대체문자',
+      recipients: [{ receiverPhoneNumber: '01098765432', referenceKey: 'shared-ref' }],
+    })
+    expect(JSON.parse(shared.mock.calls[1]![1]!.body as string)).toMatchObject({
+      content: '본문',
+      altSubject: '공통 제목',
+      altContent: '공통 대체문자',
+      msgs: [{ rcv: '01098765432', interOPRefKey: 'shared-ref' }],
+    })
+  })
+  it.each(['sendFriendImageMessage', 'sendFriendImageMessages', 'sendIdenticalFriendImageMessages'] as const)(
+    '%s uploads the image file and keeps the image click URL in the JSON form',
+    async (method) => {
+      const fetchMock = stub({ receiptNum: 'IMAGE' })
+      await expect(
+        service()[method]({
+          ...request,
+          referenceKey: 'image-ref',
+          imageLink: 'https://www.popbill.com/',
+          advertising: false,
+          fallbackSubject: '이미지 대체 제목',
+          fallbackBody: '이미지 대체문자',
+          fallbackType: 'A',
+          reserveDateTime: '20261104120000',
+        })
+      ).resolves.toEqual({ receiptNumber: 'IMAGE' })
+      const init = fetchMock.mock.calls[1]![1]!
+      const form = await new Response(init.body, { headers: init.headers }).formData()
+      const body = JSON.parse(form.get('form') as string)
+      expect(body).toMatchObject({
+        plusFriendID: '@채널',
+        snd: '16008536',
+        imageURL: 'https://www.popbill.com/',
+        adsYN: false,
+        altSendType: 'A',
+        sndDT: '20261104120000',
+        requestNum: 'REQUEST',
+        msgs: [expect.objectContaining({ rcv: '01012345678' })],
+        btns: [{ n: '통화', t: 'TN', telNum: '16008536' }],
+      })
+      if (method === 'sendFriendImageMessages') {
+        expect(body).not.toHaveProperty('content')
+        expect(body).not.toHaveProperty('altSubject')
+      } else {
+        expect(body).toMatchObject({ content: '본문', altSubject: '이미지 대체 제목', altContent: '이미지 대체문자' })
+      }
+      const image = form.get('file') as File
+      expect(image.name).toBe('README.md')
+      expect(await image.text()).toContain('@connextable/popbill')
+    }
+  )
+  it.each(['sendFriendImageMessage', 'sendFriendImageMessages', 'sendIdenticalFriendImageMessages'] as const)(
+    '%s rejects a missing file before any accidental text send',
+    async (method) => {
+      const fetchMock = vi.fn<typeof fetch>()
+      vi.stubGlobal('fetch', fetchMock)
+      await expect(service()[method]({ ...request, filePath: undefined as unknown as string })).rejects.toMatchObject({
+        type: PopbillErrorType.InputValidation,
+        stage: PopbillErrorStage.ValidateInput,
+        operation: `kakao.${method}`,
+      })
+      expect(fetchMock).not.toHaveBeenCalled()
+    }
+  )
   it('preserves numeric zero states, string counts, and brand content details', async () => {
     stub(raw)
     await expect(service().getMessagesByReceiptNumber(request)).resolves.toMatchObject({

@@ -57,6 +57,18 @@ export interface KakaoService {
   sendNotificationMessages(request: Input.SendNotificationMessagesRequest): Promise<Output.KakaoReceipt>
   /** Compat: `sendATS_same` */
   sendIdenticalNotificationMessages(request: Input.SendIdenticalNotificationMessagesRequest): Promise<Output.KakaoReceipt>
+  /** Compat: `sendFTS_same`. A single recipient retains its reference key. */
+  sendFriendTextMessage(request: Input.SendFriendTextMessageRequest): Promise<Output.KakaoReceipt>
+  /** Compat: `sendFTS_multi` */
+  sendFriendTextMessages(request: Input.SendFriendTextMessagesRequest): Promise<Output.KakaoReceipt>
+  /** Compat: `sendFTS_same` */
+  sendIdenticalFriendTextMessages(request: Input.SendIdenticalFriendTextMessagesRequest): Promise<Output.KakaoReceipt>
+  /** Compat: `sendFMS_same`. A single recipient retains its reference key. */
+  sendFriendImageMessage(request: Input.SendFriendImageMessageRequest): Promise<Output.KakaoReceipt>
+  /** Compat: `sendFMS_multi` */
+  sendFriendImageMessages(request: Input.SendFriendImageMessagesRequest): Promise<Output.KakaoReceipt>
+  /** Compat: `sendFMS_same` */
+  sendIdenticalFriendImageMessages(request: Input.SendIdenticalFriendImageMessagesRequest): Promise<Output.KakaoReceipt>
   /** Compat: `sendBMSText` */
   sendBrandTextMessages(request: Input.SendBrandChannelMessagesRequest): Promise<Output.KakaoReceipt>
   /** Compat: `sendBMSImage` */

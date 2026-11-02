@@ -33,6 +33,8 @@ export interface MessageService {
   getMessagesByReceiptNumber(request: Input.MessageReceiptRequest): Promise<Output.SentMessage[]>
   /** Compat: `getMessagesRN` */
   getMessagesByRequestNumber(request: Input.MessageRequestNumberRequest): Promise<Output.SentMessage[]>
+  /** Compat: `getStates`. The provider response is undocumented and returned unchanged. */
+  getMessageStatesByReceiptNumbers(request: Input.MessageReceiptNumbersRequest): Promise<unknown>
   /** Compat: `search` */
   searchMessages(request: Input.MessageSearchRequest): Promise<Output.MessageSearchResult>
   /** Compat: `getSentListURL` */

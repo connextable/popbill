@@ -1,8 +1,8 @@
-import type { TaxInvoiceApiRequest, TaxInvoiceRequireRequestFields } from '../common'
+import type { TaxInvoiceApiRequest, TaxInvoiceMgtKeyType, TaxInvoiceRequireRequestFields } from '../common'
 
 export interface TaxInvoiceGetPdfApiRequestPath {
-  /** 현행 영문 HTTP 문서는 매출 문서만 명시한다. */
-  MgtKeyType: 'SELL'
+  /** 공식 Node SDK의 문서번호 유형. 영문 HTTP 예시에는 SELL만 표시된다. */
+  MgtKeyType: TaxInvoiceMgtKeyType
   MgtKey: string
 }
 
@@ -13,7 +13,11 @@ export interface TaxInvoiceGetPdfApiRequestQuery {
   PdfInvoiceType?: '1' | '2'
 }
 
-/** Source: https://developers.popbill.com/en/api-reference/taxinvoice/api/info#GetPDF */
+/**
+ * Sources:
+ * - https://developers.popbill.com/en/api-reference/taxinvoice/api/info#GetPDF
+ * - https://github.com/linkhub-sdk/node-popbill/blob/master/lib/TaxinvoiceService.js
+ */
 export type TaxInvoiceGetPdfApiRequest = TaxInvoiceRequireRequestFields<
   TaxInvoiceApiRequest<TaxInvoiceGetPdfApiRequestPath, TaxInvoiceGetPdfApiRequestQuery>,
   'path' | 'query'

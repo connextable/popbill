@@ -52,6 +52,8 @@
 
 `DONE` records implementation, local contract validation and independent review at the listed date. Live server operations have not been executed. Current method counts are generated from source in the [SDK reference](../sdk/README.md); historical execution results are recorded separately in [validation history](./validation-history.md).
 
+`LEGACY_ONLY` in the method checklist identifies an API whose contract comes from the legacy SDK rather than the current provider documentation. It does not mean the capability is exclusive to compat; modern now exposes those capabilities with object inputs. See [service coverage](./service-coverage.md) for the current mapping.
+
 ## TaxinvoiceService Method Checklist
 
 | service           | method                   | scope       | status | owner | updated_at | notes                                                                                                         |

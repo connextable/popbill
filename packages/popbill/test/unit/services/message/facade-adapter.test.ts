@@ -109,6 +109,14 @@ const cases: Case[] = [
     expected: [],
   },
   {
+    method: 'getMessageStatesByReceiptNumbers',
+    compatMethod: 'getStates',
+    input: { ...base, receiptNumbers: ['RECEIPT', 'RECEIPT-2'] },
+    args: [corp, ['RECEIPT', 'RECEIPT-2'], user],
+    response: [{ receiptNum: 'RECEIPT', state: 0, providerField: { pending: false } }],
+    expected: [{ receiptNum: 'RECEIPT', state: 0, providerField: { pending: false } }],
+  },
+  {
     method: 'searchMessages',
     compatMethod: 'search',
     input: {
@@ -200,6 +208,28 @@ describe('modern message DTO contracts', () => {
     const service = createMessageService({ compatMessageService: compat, defaultUserId: user })
     expect(await Reflect.apply(service[testCase.method], service, [testCase.input])).toEqual(testCase.expected)
     expect(spy).toHaveBeenCalledExactlyOnceWith(...testCase.args)
+  })
+  it.each([false, null, 0, 'provider-state', [], { receipts: [{ customState: 0 }], complete: false }].map((response) => ({ response })))(
+    'preserves undocumented receipt state responses: $response',
+    async ({ response }) => {
+      const getStates = vi.fn<Compat['getStates']>().mockResolvedValue(response)
+      const receiptNumbers = Object.freeze(['RECEIPT', 'RECEIPT-2'])
+      const service = createMessageService({ compatMessageService: { getStates } as unknown as Compat, defaultUserId: user })
+      expect(await service.getMessageStatesByReceiptNumbers(Object.freeze({ ...base, receiptNumbers }))).toBe(response)
+      expect(getStates).toHaveBeenCalledExactlyOnceWith(corp, ['RECEIPT', 'RECEIPT-2'], user)
+      expect(getStates.mock.calls[0]?.[1]).not.toBe(receiptNumbers)
+    }
+  )
+  it('normalizes receipt state errors with the public operation name', async () => {
+    const getStates = vi.fn<Compat['getStates']>().mockRejectedValue({ code: -15000001, message: '접수번호 오류' })
+    const onError = vi.fn<(error: unknown) => void>()
+    const service = createMessageService({ compatMessageService: { getStates } as unknown as Compat, defaultUserId: user, onError })
+    await expect(service.getMessageStatesByReceiptNumbers({ ...base, receiptNumbers: ['RECEIPT'] })).rejects.toMatchObject({
+      code: -15000001,
+      message: '접수번호 오류',
+      operation: 'message.getMessageStatesByReceiptNumbers',
+    })
+    expect(onError).toHaveBeenCalledTimes(1)
   })
   it('supports binary images and preserves input references', async () => {
     const spy = vi.fn<(...args: unknown[]) => Promise<string>>().mockResolvedValue('BINARY')

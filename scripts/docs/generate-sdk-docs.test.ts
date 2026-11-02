@@ -136,18 +136,20 @@ test('includes all service methods and supports mapped services, imported callba
       service: string
       methodName: string
       group: string
+      outputType?: string
+      compatMethodName?: string | null
       required?: boolean
       callback?: { overloadCount: number | null } | null
     }[]
   }
   const expectedServices: [string, string, number, number][] = [
-    ['taxInvoice', 'TaxinvoiceService', 49, 55],
+    ['taxInvoice', 'TaxinvoiceService', 55, 55],
     ['statement', 'StatementService', 34, 34],
     ['common', 'CommonService', 26, 27],
     ['cashbill', 'CashbillService', 33, 33],
-    ['message', 'MessageService', 19, 29],
+    ['message', 'MessageService', 20, 29],
     ['fax', 'FaxService', 16, 17],
-    ['kakao', 'KakaoService', 46, 53],
+    ['kakao', 'KakaoService', 52, 53],
     ['homeTaxTaxInvoice', 'HTTaxinvoiceService', 19, 19],
     ['homeTaxCashbill', 'HTCashbillService', 15, 15],
     ['easyFinBank', 'EasyFinBankService', 17, 17],
@@ -203,6 +205,32 @@ test('includes all service methods and supports mapped services, imported callba
     mappedModernMethodNames: string[]
   }
   expect(message.mappedModernMethodNames).toEqual(['sendShortMessage', 'sendLongMessage', 'sendAutoLengthMessage'])
+  const messageStates = index.methods.find((method) => method.service === 'message' && method.methodName === 'getMessageStatesByReceiptNumbers')
+  expect(messageStates).toMatchObject({ outputType: 'unknown', compatMethodName: 'getStates' })
+  const emailPublicKeys = JSON.parse(fixture.read('generated/schemas/popbill/tax-invoice/types/tax-invoice-email-public-keys.json')) as {
+    properties: { name: string; typeText: string }[]
+  }
+  expect(emailPublicKeys.properties).toContainEqual(expect.objectContaining({ name: 'publicKeys', typeText: 'unknown' }))
+  const compatMap = JSON.parse(fixture.read('generated/compat-map.json')) as {
+    mappings: { service: string; modernMethodName: string; compatMethodName: string }[]
+  }
+  for (const [service, modernMethodName, compatMethodName] of [
+    ['taxInvoice', 'sendInvoice', 'send'],
+    ['taxInvoice', 'cancelInvoiceSend', 'cancelSend'],
+    ['taxInvoice', 'acceptInvoice', 'accept'],
+    ['taxInvoice', 'denyInvoice', 'deny'],
+    ['taxInvoice', 'getLegacyInvoicePrintURL', 'getOldPrintURL'],
+    ['taxInvoice', 'getEmailPublicKeys', 'getEmailPublicKeys'],
+    ['kakao', 'sendFriendTextMessage', 'sendFTS_same'],
+    ['kakao', 'sendFriendTextMessages', 'sendFTS_multi'],
+    ['kakao', 'sendIdenticalFriendTextMessages', 'sendFTS_same'],
+    ['kakao', 'sendFriendImageMessage', 'sendFMS_same'],
+    ['kakao', 'sendFriendImageMessages', 'sendFMS_multi'],
+    ['kakao', 'sendIdenticalFriendImageMessages', 'sendFMS_same'],
+    ['message', 'getMessageStatesByReceiptNumbers', 'getStates'],
+  ]) {
+    expect(compatMap.mappings).toContainEqual(expect.objectContaining({ service, modernMethodName, compatMethodName }))
+  }
   // Cancellation requires either a whole cancellation or a partial cancellation with payment amounts.
   // Preserve the intersection and union dependency instead of guessing a flat required-field table.
   expect(fixture.read('popbill/cashbill/methods/revoke-cashbill.md')).toContain('CashbillCancellationAmounts &')

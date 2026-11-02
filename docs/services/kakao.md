@@ -4,7 +4,7 @@
 
 기존 레포의 spec → compat → modern 구조를 따릅니다.
 compat는 저장소 legacy와 공식 Node.js SDK 1.64.2의 브랜드 메시지 API를 포함합니다.
-modern은 현재 공식 문서의 알림톡·브랜드 메시지·채널·템플릿·전송결과·발신번호·과금 기능을 제공합니다. 전체 서명은 [생성 레퍼런스](../sdk/popbill/kakao/index.md)에서 확인합니다.
+modern은 알림톡·친구톡·브랜드 메시지·채널·템플릿·전송결과·발신번호·과금 기능을 제공합니다. 전체 서명은 [생성 레퍼런스](../sdk/popbill/kakao/index.md)에서 확인합니다.
 
 | 영역                                     | compat                                                                               | modern                                                                             |
 | ---------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
@@ -12,11 +12,14 @@ modern은 현재 공식 문서의 알림톡·브랜드 메시지·채널·템플
 | 브랜드 메시지 전송 8종                   | sendBMSText/Image/WideImage/WideList/CarouselFeed/Commerce/CarouselCommerce/Variable | sendBrand…Messages                                                                 |
 | 브랜드 이미지 업로드 7종 × 경로/바이너리 | upload…/upload…Binary                                                                | uploadBrand…FromPath/FromBinary                                                    |
 | 브랜드 템플릿 3개                        | getBMSTemplateMgtURL/getBMSTemplate/listBMSTemplate                                  | getBrandTemplateManagementURL/getBrandTemplate/listBrandTemplates                  |
-| 기존 친구톡 텍스트·이미지 6개            | sendFTS_one/multi/same, sendFMS_one/multi/same 유지                                  | 노출하지 않음                                                                      |
+| 친구톡 텍스트 단건·대량·동보             | sendFTS_one/multi/same                                                               | sendFriendTextMessage/sendFriendTextMessages/sendIdenticalFriendTextMessages       |
+| 친구톡 이미지 단건·대량·동보             | sendFMS_one/multi/same                                                               | sendFriendImageMessage/sendFriendImageMessages/sendIdenticalFriendImageMessages    |
 | 범용 getURL                              | 기존 이름 유지                                                                       | 목적별 관리 URL 메서드 제공                                                        |
 
-친구톡 6개는 현재 공개 목록에 없지만 공식 Node.js 1.64.2 원본에도 구현이 남아 있어 compat에 유지합니다.
+친구톡은 현재 공개 목록에 없지만 공식 Node.js 1.64.2 원본에 남아 있는 요청 계약을 compat와 modern에서 제공합니다.
 실서버에서의 이용 가능 여부는 이 작업에서 검증하지 않았습니다.
+
+친구톡은 단건 입력 또는 `recipients` 배열을 사용하며 광고 여부는 `advertising`으로 지정합니다. 이미지형의 `filePath`는 전송할 로컬 이미지 경로이고, 선택적 `imageLink`는 이미지를 눌렀을 때 이동할 URL입니다. 원격 이미지 URL을 파일 경로 대신 전달하지 않습니다. 단건에서도 `referenceKey`를 보존합니다.
 
 ## 위치 인자와 응답
 

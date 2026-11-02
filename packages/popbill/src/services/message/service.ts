@@ -95,6 +95,8 @@ export function createMessageService(input: CreateMessageServiceInput): Types.Me
       invoke('getMessagesByRequestNumber', async () =>
         (await compat.getMessagesRN(request.businessNumber, request.requestNumber, userId)).map(mapSentMessage)
       ),
+    getMessageStatesByReceiptNumbers: (request) =>
+      invoke('getMessageStatesByReceiptNumbers', () => compat.getStates(request.businessNumber, [...request.receiptNumbers], userId)),
     searchMessages: (request) =>
       invoke('searchMessages', async () =>
         mapMessageSearch(

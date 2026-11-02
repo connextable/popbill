@@ -179,7 +179,7 @@ export interface MessagePromiseService {
   cancelReserveRNbyRCV(corpNum: string, requestNum: string, receiveNum: string, userId?: string): Promise<Spec.MessageApiResponseBase>
   getMessages(corpNum: string, receiptNum: string, userId?: string): Promise<Spec.MessageSentApiModel[]>
   getMessagesRN(corpNum: string, requestNum: string, userId?: string): Promise<Spec.MessageSentApiModel[]>
-  getStates(corpNum: string, receiptNumList: string[], userId?: string): Promise<Spec.MessageReceiptStateApiModel[]>
+  getStates(corpNum: string, receiptNumList: string[], userId?: string): Promise<Spec.MessageGetStatesApiResponse>
   search(
     corpNum: string,
     startDate: string,

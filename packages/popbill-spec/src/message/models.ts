@@ -71,9 +71,3 @@ export interface MessageChargeInfoApiResponse {
   chargeMethod?: '연동' | '파트너'
   rateSystem?: string
 }
-/** Legacy States endpoint is absent from the current published API reference. Preserve provider fields. */
-export interface MessageReceiptStateApiModel {
-  receiptNum?: string
-  state?: string | number
-  [key: string]: unknown
-}

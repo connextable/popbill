@@ -19,6 +19,7 @@ export const MESSAGE_METHODS = [
   // 결과조회
   'getMessagesByReceiptNumber',
   'getMessagesByRequestNumber',
+  'getMessageStatesByReceiptNumbers',
   'searchMessages',
   'getSentMessageListURL',
   // 과금정보

@@ -1,9 +1,9 @@
 import type { KakaoPromiseService } from '@connextable/popbill-compat/factory'
 import { createInputValidationError } from '@connextable/popbill-compat/errors'
 import type { PopbillApiError } from '@/errors'
-import type { KakaoRecipient, KakaoService, SendBrandMessageRequest } from './types'
+import type { KakaoFriendImage, KakaoRecipient, KakaoService, SendBrandMessageRequest } from './types'
 import { invokeKakaoMethod } from './adapters/error'
-import { mapBrandMessage, mapButton, mapNotificationReceiver } from './mappers/document'
+import { mapBrandMessage, mapButton, mapFriendReceiver, mapNotificationReceiver } from './mappers/document'
 import * as map from './mappers/response'
 export interface CreateKakaoServiceInput {
   compatKakaoService: KakaoPromiseService
@@ -264,6 +264,141 @@ export function createKakaoService(input: CreateKakaoServiceInput): KakaoService
         }
       })
     },
+    sendFriendTextMessage(request) {
+      return invoke('sendFriendTextMessage', async () => {
+        validateRecipients([request])
+        return {
+          receiptNumber: await compat.sendFTS_same(
+            request.businessNumber,
+            request.channelSearchId,
+            request.senderPhoneNumber,
+            request.messageBody,
+            request.fallbackSubject,
+            request.fallbackBody,
+            request.fallbackType,
+            request.reserveDateTime,
+            request.advertising,
+            [mapFriendReceiver(request)],
+            request.buttons?.map(mapButton),
+            userId,
+            request.requestNumber
+          ),
+        }
+      })
+    },
+    sendFriendTextMessages(request) {
+      return invoke('sendFriendTextMessages', async () => {
+        validateRecipients(request.recipients)
+        return {
+          receiptNumber: await compat.sendFTS_multi(
+            request.businessNumber,
+            request.channelSearchId,
+            request.senderPhoneNumber,
+            request.fallbackType,
+            request.reserveDateTime,
+            request.advertising,
+            request.recipients.map(mapFriendReceiver),
+            request.buttons?.map(mapButton),
+            userId,
+            request.requestNumber
+          ),
+        }
+      })
+    },
+    sendIdenticalFriendTextMessages(request) {
+      return invoke('sendIdenticalFriendTextMessages', async () => {
+        validateRecipients(request.recipients)
+        return {
+          receiptNumber: await compat.sendFTS_same(
+            request.businessNumber,
+            request.channelSearchId,
+            request.senderPhoneNumber,
+            request.messageBody,
+            request.fallbackSubject,
+            request.fallbackBody,
+            request.fallbackType,
+            request.reserveDateTime,
+            request.advertising,
+            request.recipients.map(mapFriendReceiver),
+            request.buttons?.map(mapButton),
+            userId,
+            request.requestNumber
+          ),
+        }
+      })
+    },
+    sendFriendImageMessage(request) {
+      return invoke('sendFriendImageMessage', async () => {
+        validateRecipients([request])
+        validateFriendImage(request)
+        return {
+          receiptNumber: await compat.sendFMS_same(
+            request.businessNumber,
+            request.channelSearchId,
+            request.senderPhoneNumber,
+            request.messageBody,
+            request.fallbackSubject,
+            request.fallbackBody,
+            request.fallbackType,
+            request.reserveDateTime,
+            request.advertising,
+            request.imageLink,
+            request.filePath,
+            [mapFriendReceiver(request)],
+            request.buttons?.map(mapButton),
+            userId,
+            request.requestNumber
+          ),
+        }
+      })
+    },
+    sendFriendImageMessages(request) {
+      return invoke('sendFriendImageMessages', async () => {
+        validateRecipients(request.recipients)
+        validateFriendImage(request)
+        return {
+          receiptNumber: await compat.sendFMS_multi(
+            request.businessNumber,
+            request.channelSearchId,
+            request.senderPhoneNumber,
+            request.fallbackType,
+            request.reserveDateTime,
+            request.advertising,
+            request.imageLink,
+            request.filePath,
+            request.recipients.map(mapFriendReceiver),
+            request.buttons?.map(mapButton),
+            userId,
+            request.requestNumber
+          ),
+        }
+      })
+    },
+    sendIdenticalFriendImageMessages(request) {
+      return invoke('sendIdenticalFriendImageMessages', async () => {
+        validateRecipients(request.recipients)
+        validateFriendImage(request)
+        return {
+          receiptNumber: await compat.sendFMS_same(
+            request.businessNumber,
+            request.channelSearchId,
+            request.senderPhoneNumber,
+            request.messageBody,
+            request.fallbackSubject,
+            request.fallbackBody,
+            request.fallbackType,
+            request.reserveDateTime,
+            request.advertising,
+            request.imageLink,
+            request.filePath,
+            request.recipients.map(mapFriendReceiver),
+            request.buttons?.map(mapButton),
+            userId,
+            request.requestNumber
+          ),
+        }
+      })
+    },
     sendBrandTextMessages: (request) => sendBrand('sendBrandTextMessages', 'sendBMSText', request),
     sendBrandImageMessages: (request) => sendBrand('sendBrandImageMessages', 'sendBMSImage', request),
     sendBrandWideImageMessages: (request) => sendBrand('sendBrandWideImageMessages', 'sendBMSWideImage', request),
@@ -359,4 +494,7 @@ function validateRecipients(recipients: KakaoRecipient[]): void {
     recipients.some((receiver) => typeof receiver.receiverPhoneNumber !== 'string' || !receiver.receiverPhoneNumber.trim())
   )
     throw createInputValidationError('수신자는 1건 이상이며 수신번호가 필요합니다.')
+}
+function validateFriendImage(image: KakaoFriendImage): void {
+  if (typeof image.filePath !== 'string' || !image.filePath.trim()) throw createInputValidationError('친구톡 이미지 파일 경로가 입력되지 않았습니다.')
 }

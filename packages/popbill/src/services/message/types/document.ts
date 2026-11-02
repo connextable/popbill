@@ -32,6 +32,9 @@ export interface MessageReceiptRequest extends MessageBusinessRequest {
 export interface MessageRequestNumberRequest extends MessageBusinessRequest {
   requestNumber: string
 }
+export interface MessageReceiptNumbersRequest extends MessageBusinessRequest {
+  receiptNumbers: readonly string[]
+}
 export interface MessageReceiptRecipientRequest extends MessageReceiptRequest {
   receiverNumber: string
 }
