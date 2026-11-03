@@ -2,36 +2,6 @@ import type * as common from './common'
 import type * as responseCodes from './response-codes'
 import type { PopbillWebhookDocumentStateBody, PopbillWebhookBulkResultBody, PopbillWebhookEventBody, PopbillWebhookCode } from '../webhook/common'
 
-/** @see https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event */
-export interface TaxInvoiceStateWebhookBody extends PopbillWebhookDocumentStateBody {
-  ntsconfirmNum?: string
-  ntssendErrCode?: string
-  invoicerMgtKey?: string
-  invoiceeMgtKey?: string
-  trusteeMgtKey?: string
-  closeDownState?: PopbillWebhookCode
-  closeDownStateDate?: string
-}
-
-export interface TaxInvoiceBulkWebhookBody extends PopbillWebhookBulkResultBody<{
-  code?: PopbillWebhookCode
-  message?: string
-  issueDT?: string
-  ntsconfirmNum?: string
-  invoicerMgtKey?: string
-  trusteeMgtKey?: string
-}> {}
-
-export interface TaxInvoiceCertificateWebhookBody extends PopbillWebhookEventBody {
-  expireDT?: string
-  regContactID?: string
-  issuerDN?: string
-  subjectDN?: string
-  /** The table uses OID; the official example uses oid. Preserve both. */
-  OID?: string
-  oid?: string
-}
-
 type ExtensibleTaxInvoiceStateCode = responseCodes.TaxInvoiceStateCode | (number & {}) | (string & {})
 type ExtensibleTaxInvoiceNtsResultCode = responseCodes.TaxInvoiceNtsResultCode | (string & {}) // oxlint-disable-line
 
@@ -1159,4 +1129,34 @@ export interface TaxInvoiceEmailConfigApiModel {
   sendYN?: boolean | string
 
   [key: string]: unknown
+}
+
+/** @see https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event */
+export interface TaxInvoiceStateWebhookBody extends PopbillWebhookDocumentStateBody {
+  ntsconfirmNum?: string
+  ntssendErrCode?: string
+  invoicerMgtKey?: string
+  invoiceeMgtKey?: string
+  trusteeMgtKey?: string
+  closeDownState?: PopbillWebhookCode
+  closeDownStateDate?: string
+}
+
+export interface TaxInvoiceBulkWebhookBody extends PopbillWebhookBulkResultBody<{
+  code?: PopbillWebhookCode
+  message?: string
+  issueDT?: string
+  ntsconfirmNum?: string
+  invoicerMgtKey?: string
+  trusteeMgtKey?: string
+}> {}
+
+export interface TaxInvoiceCertificateWebhookBody extends PopbillWebhookEventBody {
+  expireDT?: string
+  regContactID?: string
+  issuerDN?: string
+  subjectDN?: string
+  /** The table uses OID; the official example uses oid. Preserve both. */
+  OID?: string
+  oid?: string
 }

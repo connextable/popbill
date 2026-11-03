@@ -20,6 +20,14 @@ export interface PopbillWebhookEventData {
   isApiLinkedDocument?: ProviderBoolean
 }
 
+export interface PopbillWebhookDeliveryData extends PopbillWebhookEventData {
+  sequenceNumber?: number
+}
+
+/** State callbacks omit party/detail fields required by the full invoice API. */
+export type TaxInvoiceStateWebhookData = Partial<TaxInvoiceInfo> & Pick<TaxInvoiceInfo, 'itemKey'> & PopbillWebhookEventData
+/** Bulk callbacks have no top-level API operation code/message. */
+export type TaxInvoiceBulkWebhookData = Omit<TaxInvoiceBulkIssueSubmissionResult, 'resultCode' | 'resultMessage'> & PopbillWebhookEventData
 export interface TaxInvoiceCertificateWebhookData extends PopbillWebhookEventData {
   expiresAt?: string
   registeredByUserId?: string
@@ -28,19 +36,11 @@ export interface TaxInvoiceCertificateWebhookData extends PopbillWebhookEventDat
   policyIdentifier?: string
 }
 
-/** State callbacks omit party/detail fields required by the full invoice API. */
-export type TaxInvoiceStateWebhookData = Partial<TaxInvoiceInfo> & Pick<TaxInvoiceInfo, 'itemKey'> & PopbillWebhookEventData
 export type CashbillStateWebhookData = CashbillInfo & PopbillWebhookEventData
-export type StatementWebhookData = StatementInfo & PopbillWebhookEventData
-/** Bulk callbacks have no top-level API operation code/message. */
-export type TaxInvoiceBulkWebhookData = Omit<TaxInvoiceBulkIssueSubmissionResult, 'resultCode' | 'resultMessage'> & PopbillWebhookEventData
 export type CashbillBulkWebhookData = Omit<CashbillBulkResult, 'resultCode' | 'resultMessage'> & PopbillWebhookEventData
+export type StatementWebhookData = StatementInfo & PopbillWebhookEventData
 export type HomeTaxTaxInvoiceWebhookData = HomeTaxTaxInvoiceDocument & { sentDate?: string }
 export type HomeTaxCashbillWebhookData = HomeTaxCashbillReceipt
-
-export interface PopbillWebhookDeliveryData extends PopbillWebhookEventData {
-  sequenceNumber?: number
-}
 
 export type KakaoWebhookData = Omit<KakaoMessage, 'stateCode' | 'resultCode' | 'fallbackResultCode' | 'contentTypeCode'> &
   PopbillWebhookDeliveryData & {

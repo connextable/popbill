@@ -18,7 +18,6 @@
   "types": "./dist/index.d.mts",
   "exports": {
     ".": "./dist/index.mjs",
-    "./webhook": "./dist/webhook/index.mjs",
     "./common": "./dist/common/index.mjs",
     "./tax-invoice": "./dist/tax-invoice/index.mjs",
     "./tax-invoice/shims": "./dist/tax-invoice/shims/index.mjs",
@@ -33,6 +32,7 @@
     "./kakao": "./dist/kakao/index.mjs",
     "./message": "./dist/message/index.mjs",
     "./fax": "./dist/fax/index.mjs",
+    "./webhook": "./dist/webhook/index.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {

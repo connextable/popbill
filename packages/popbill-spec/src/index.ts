@@ -2,7 +2,6 @@ export * from './auth'
 export * from './headers'
 export type * from './request'
 export * from './error-codes'
-export * from './webhook'
 
 export type * from './common'
 export type * as CommonSpec from './common'
@@ -35,3 +34,5 @@ export type * from './message'
 export type * as MessageSpec from './message'
 export type * from './fax'
 export type * as FaxSpec from './fax'
+
+export * from './webhook'

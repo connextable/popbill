@@ -9,26 +9,6 @@ import type {
 } from './common'
 import type { PopbillWebhookDocumentStateBody, PopbillWebhookBulkResultBody, PopbillWebhookCode } from '../webhook/common'
 
-/** @see https://developers.popbill.com/api-reference/cashbill/webhook/webhook-event */
-export interface CashbillStateWebhookBody extends PopbillWebhookDocumentStateBody {
-  franchiseCorpNum?: string
-  tradeDate?: string
-  confirmNum?: string
-  ntsresultCode?: string
-  mgtKey?: string
-}
-
-export interface CashbillBulkWebhookBody extends PopbillWebhookBulkResultBody<{
-  code?: PopbillWebhookCode
-  message?: string
-  confirmNum?: string
-  tradeDate?: string
-  issueDT?: string
-  mgtKey?: string
-}> {
-  franchiseCorpNum?: string
-}
-
 /** 현금영수증 원본 문서. 금액과 식별번호는 문자열을 유지합니다.
  * @see https://developers.popbill.com/api-reference/cashbill/api/issue
  */
@@ -143,3 +123,23 @@ export interface CashbillEmailConfigApiModel {
 
 /** PDF 다운로드 응답은 JSON이 아닌 PDF 바이너리입니다. */
 export type CashbillPdfApiResponse = Uint8Array
+
+/** @see https://developers.popbill.com/api-reference/cashbill/webhook/webhook-event */
+export interface CashbillStateWebhookBody extends PopbillWebhookDocumentStateBody {
+  franchiseCorpNum?: string
+  tradeDate?: string
+  confirmNum?: string
+  ntsresultCode?: string
+  mgtKey?: string
+}
+
+export interface CashbillBulkWebhookBody extends PopbillWebhookBulkResultBody<{
+  code?: PopbillWebhookCode
+  message?: string
+  confirmNum?: string
+  tradeDate?: string
+  issueDT?: string
+  mgtKey?: string
+}> {
+  franchiseCorpNum?: string
+}
