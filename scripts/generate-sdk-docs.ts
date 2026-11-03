@@ -4,10 +4,6 @@ import * as ts from '@typescript/typescript6'
 
 type JsonPrimitive = string | number | boolean | null
 
-interface PackageManifest {
-  version: string
-}
-
 interface MethodGroupItem {
   name: string
   group: string
@@ -103,12 +99,6 @@ interface TypeSchema {
   properties: TypeSchemaProperty[]
 }
 
-interface WriteRootReadmeInput {
-  popbillVersion: string
-  compatVersion: string
-  services: WriteGeneratedJsonInput[]
-}
-
 interface WritePopbillDocsInput {
   config: ModernServiceConfig
   methodGroups: MethodGroupItem[]
@@ -132,8 +122,6 @@ interface WriteCompatDocsInput {
 
 interface WriteGeneratedJsonInput {
   config: ServiceConfig
-  popbillVersion: string
-  compatVersion: string
   popbillMethodGroups: MethodGroupItem[]
   compatMethodGroups: MethodGroupItem[]
   popbillMethodByName: Map<string, MethodSignatureInfo>
@@ -264,8 +252,6 @@ const sourceFileCache = new Map<string, SourceWithAst>()
 main()
 
 function main() {
-  const popbillPackage = readJson<PackageManifest>(path.join(rootDir, 'packages/popbill/package.json'))
-  const compatPackage = readJson<PackageManifest>(path.join(rootDir, 'packages/popbill-compat/package.json'))
   const generatedInputs: WriteGeneratedJsonInput[] = []
 
   for (const config of serviceConfigs) {
@@ -364,8 +350,6 @@ function main() {
     })
     generatedInputs.push({
       config,
-      popbillVersion: popbillPackage.version,
-      compatVersion: compatPackage.version,
       popbillMethodGroups,
       compatMethodGroups,
       popbillMethodByName,
@@ -379,11 +363,7 @@ function main() {
   }
 
   const webhookMethods = writeWebhookDocs()
-  writeRootReadme({
-    popbillVersion: popbillPackage.version,
-    compatVersion: compatPackage.version,
-    services: generatedInputs,
-  })
+  writeRootReadme(generatedInputs)
   writeGeneratedJson(generatedInputs, webhookMethods)
 
   process.stdout.write('SDK docs generated at docs/sdk\n')
@@ -397,11 +377,13 @@ function resetServiceOutput(config: ServiceConfig) {
   fs.mkdirSync(docsRoot, { recursive: true })
 }
 
-function writeRootReadme({ popbillVersion, compatVersion, services }: WriteRootReadmeInput): void {
+function writeRootReadme(services: WriteGeneratedJsonInput[]): void {
   const content = [
     '# SDK Docs',
     '',
     '소스의 공개 서명·메서드 목록·DTO에서 생성한 API 레퍼런스입니다. 직접 수정하지 말고 저장소 루트에서 `pnpm docs:generate`를 실행합니다.',
+    '',
+    '현재 체크아웃의 소스를 설명합니다. 발행 버전은 아래 npm 페이지와 [릴리스 실행 요약](../release.md#릴리스-실행)에서 확인합니다.',
     '',
     '[사용 가이드와 계약 차이](../README.md) · [개발·검증 명령](../development.md)',
     '',
@@ -413,11 +395,6 @@ function writeRootReadme({ popbillVersion, compatVersion, services }: WriteRootR
     '- Workspace source',
     '  - [packages/popbill](../../packages/popbill)',
     '  - [packages/popbill-compat](../../packages/popbill-compat)',
-    '',
-    '## Versions',
-    '',
-    `- @connextable/popbill: \`${popbillVersion}\``,
-    `- @connextable/popbill-compat: \`${compatVersion}\``,
     '',
     '## Services',
     '',
@@ -791,8 +768,7 @@ function writeTypeSchemas(config: ModernServiceConfig, catalog: TypeCatalog): vo
 }
 
 function writeGeneratedJson(inputs: WriteGeneratedJsonInput[], webhookMethods: ReturnType<typeof modernMethodEntries>): void {
-  const first = inputs[0]
-  if (!first) {
+  if (inputs.length === 0) {
     throw new Error('At least one service is required to generate SDK documentation')
   }
 
@@ -800,10 +776,6 @@ function writeGeneratedJson(inputs: WriteGeneratedJsonInput[], webhookMethods: R
   writeJson(path.join(generatedRoot, 'method-index.json'), {
     schemaVersion: 1,
     generatedBy: 'scripts/generate-sdk-docs.ts',
-    packages: {
-      popbill: first.popbillVersion,
-      popbillCompat: first.compatVersion,
-    },
     methods: [...services.flatMap((service) => service.methods), ...webhookMethods],
   })
   writeJson(path.join(generatedRoot, 'compat-map.json'), {
@@ -815,8 +787,6 @@ function writeGeneratedJson(inputs: WriteGeneratedJsonInput[], webhookMethods: R
 
 function writeServiceGeneratedJson({
   config,
-  popbillVersion,
-  compatVersion,
   popbillMethodGroups,
   compatMethodGroups,
   popbillMethodByName,
@@ -827,39 +797,31 @@ function writeServiceGeneratedJson({
   compatRequiredMethods,
   popbillTypeCatalog,
 }: WriteGeneratedJsonInput) {
-  const methodIndex = {
-    schemaVersion: 1,
-    generatedBy: 'scripts/generate-sdk-docs.ts',
-    packages: {
-      popbill: popbillVersion,
-      popbillCompat: compatVersion,
-    },
-    methods: [
-      ...modernMethodEntries(config, popbillMethodGroups, popbillMethodByName),
-      ...compatMethodGroups
-        .map(({ name, group }) => {
-          const method = compatMethodByName.get(name)
-          if (!method) {
-            return null
-          }
+  const methods = [
+    ...modernMethodEntries(config, popbillMethodGroups, popbillMethodByName),
+    ...compatMethodGroups
+      .map(({ name, group }) => {
+        const method = compatMethodByName.get(name)
+        if (!method) {
+          return null
+        }
 
-          return {
-            sdk: 'popbill-compat',
-            service: config.compatService,
-            group,
-            methodName: name,
-            required: compatRequiredMethods.has(name),
-            promiseSignature: formatCompatSignature(name, method),
-            promiseSignatures: method.overloads.map((overload) => formatCompatSignature(name, overload)),
-            outputType: method.promiseReturnType ?? method.returnTypeText,
-            callback: compatCallbackMetadata.get(name) ?? null,
-            mappedModernMethodName: modernByCompatMethodName.get(name)?.[0] ?? null,
-            mappedModernMethodNames: modernByCompatMethodName.get(name) ?? [],
-          }
-        })
-        .filter(Boolean),
-    ],
-  }
+        return {
+          sdk: 'popbill-compat',
+          service: config.compatService,
+          group,
+          methodName: name,
+          required: compatRequiredMethods.has(name),
+          promiseSignature: formatCompatSignature(name, method),
+          promiseSignatures: method.overloads.map((overload) => formatCompatSignature(name, overload)),
+          outputType: method.promiseReturnType ?? method.returnTypeText,
+          callback: compatCallbackMetadata.get(name) ?? null,
+          mappedModernMethodName: modernByCompatMethodName.get(name)?.[0] ?? null,
+          mappedModernMethodNames: modernByCompatMethodName.get(name) ?? [],
+        }
+      })
+      .filter(Boolean),
+  ]
 
   writeTypeSchemas(config, popbillTypeCatalog)
 
@@ -914,7 +876,7 @@ function writeServiceGeneratedJson({
     methods: compatMethodSchemas,
   })
 
-  return { methods: methodIndex.methods, mappings: compatMap }
+  return { methods, mappings: compatMap }
 }
 
 function buildTypeCatalog(sources: SourceWithAst[]): TypeCatalog {
@@ -1576,10 +1538,6 @@ function readLocalTypeDependencies(source: SourceWithAst, visited = new Set<stri
     if (filePath) sources.push(...readLocalTypeDependencies(readSourceFile(filePath), visited))
   }
   return sources
-}
-
-function readJson<T>(filePath: string): T {
-  return JSON.parse(fs.readFileSync(filePath, 'utf8')) as T
 }
 
 function writeJson(filePath: string, value: unknown): void {

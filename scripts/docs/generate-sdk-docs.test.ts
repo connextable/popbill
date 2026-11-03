@@ -67,7 +67,7 @@ test('documents standalone webhook signatures and imported DTOs without fabricat
   expect(fixture.read('generated/compat-map.json')).not.toContain('webhook')
 })
 
-test('generates every service without losing shared method names or unrelated service output', () => {
+test('generates every service independently of package versions and preserves unrelated output', () => {
   const fixture = createFixture()
   const preservedFile = path.join(fixture.directory, 'docs/sdk/popbill/future-service/index.md')
   mkdirSync(path.dirname(preservedFile), { recursive: true })
@@ -166,10 +166,17 @@ test('generates every service without losing shared method names or unrelated se
 
   const staleFile = path.join(fixture.directory, 'docs/sdk/popbill/statement/methods/removed-method.md')
   writeFileSync(staleFile, 'Stale method documentation')
+  const readme = fixture.read('README.md')
+  for (const packageName of ['popbill', 'popbill-compat']) {
+    const manifestPath = path.join(fixture.directory, 'packages', packageName, 'package.json')
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as { version: string }
+    writeFileSync(manifestPath, JSON.stringify({ ...manifest, version: '999.0.0' }))
+  }
   const secondRun = fixture.run()
   expect({ status: secondRun.status, stderr: secondRun.stderr }).toEqual({ status: 0, stderr: '' })
   expect(existsSync(staleFile)).toBe(false)
   expect(existsSync(preservedFile)).toBe(true)
+  expect(fixture.read('README.md')).toEqual(readme)
   expect(fixture.read('generated/method-index.json')).toEqual(JSON.stringify(index, null, 2) + '\n')
 })
 
