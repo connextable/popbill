@@ -1,5 +1,8 @@
 import type { PopbillErrorCategory } from './code-catalog'
 import type { PopbillErrorDomain, PopbillErrorStage, PopbillErrorType } from './enums'
+import type { RequestAbortInfo } from '@connextable/popbill-runtime'
+
+export type PopbillAbortInfo = RequestAbortInfo
 
 interface PopbillApiErrorBase {
   code: number
@@ -12,6 +15,7 @@ interface PopbillApiErrorBase {
   retriable: boolean
   status?: number
   raw?: unknown
+  abort?: PopbillAbortInfo
 }
 
 export interface PopbillKnownApiError extends PopbillApiErrorBase {
@@ -29,6 +33,7 @@ export interface PopbillUnknownApiError extends PopbillApiErrorBase {
 export type PopbillApiError = PopbillKnownApiError | PopbillUnknownApiError
 
 export interface PopbillApiErrorInput {
+  abort?: PopbillAbortInfo
   code: number
   message: string
   knownCode?: boolean

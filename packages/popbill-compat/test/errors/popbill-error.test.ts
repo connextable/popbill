@@ -111,7 +111,7 @@ describe('popbill error catalog integration', () => {
     expect(networkError).toMatchObject({
       type: PopbillErrorType.Network,
       domain: PopbillErrorDomain.Unknown,
-      userMessage: '네트워크 문제로 팝빌 요청에 실패했어. 잠시 후 다시 시도해줘.',
+      userMessage: '네트워크 문제로 팝빌 응답을 확인하지 못했어. 재요청 전에 처리 결과를 확인해줘.',
       knownCode: false,
     })
   })
@@ -132,6 +132,19 @@ describe('popbill error catalog integration', () => {
 
     expect(knownResult).toBe('tax-invoice')
     expect(unknownResult).toBe('default')
+  })
+
+  test.each(['AbortError', 'TimeoutError'])('preserves native %s exceptions instead of treating their numeric codes as API codes', (name) => {
+    const original = new DOMException('native exception', name)
+    const error = normalizePopbillError(original, { stage: 'request_api' })
+    expect(error).toMatchObject({ type: PopbillErrorType.Unknown, code: -99999999, retriable: false, stage: 'request_api' })
+    expect(error.raw).toBe(original)
+    expect(normalizePopbillError(error).raw).toBe(original)
+  })
+
+  test('does not classify local argument errors with string codes as network failures', () => {
+    const original = Object.assign(new TypeError('invalid argument'), { code: 'ERR_INVALID_ARG_TYPE' })
+    expect(normalizePopbillError(original)).toMatchObject({ type: PopbillErrorType.Unknown, retriable: false, raw: original })
   })
 
   test('error definitions are structured by category', () => {

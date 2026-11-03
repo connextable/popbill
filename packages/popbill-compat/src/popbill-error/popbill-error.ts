@@ -3,11 +3,29 @@ import { getPopbillErrorCodeDefinition, POPBILL_ERROR_CATEGORIES } from './code-
 import { getPopbillErrorDomainLabel, resolvePopbillErrorDomainFromCategory } from './domains'
 import { PopbillErrorDomain, PopbillErrorStage, PopbillErrorType } from './enums'
 import type { PopbillApiError, PopbillApiErrorInput } from './types'
+import { isRequestAbortError, isResponseBodyError } from '@connextable/popbill-runtime'
+import { isLegacyValidationError } from './legacy-validation'
 
 const UNKNOWN_ERROR_CODE = -99999999
 const HTTP_ERROR_CODE = -99999996
 const NETWORK_ERROR_CODE = -99999998
 const TIMEOUT_ERROR_CODE = -99999997
+const NETWORK_ERROR_CODES = new Set([
+  'ECONNRESET',
+  'ECONNREFUSED',
+  'ECONNABORTED',
+  'ENOTFOUND',
+  'EAI_AGAIN',
+  'ETIMEDOUT',
+  'EPIPE',
+  'ENETUNREACH',
+  'EHOSTUNREACH',
+  'UND_ERR_SOCKET',
+  'UND_ERR_CONNECT_TIMEOUT',
+  'UND_ERR_HEADERS_TIMEOUT',
+  'UND_ERR_BODY_TIMEOUT',
+  'UND_ERR_RES_CONTENT_LENGTH_MISMATCH',
+])
 
 const POPBILL_ERROR_TYPE_SET = new Set<string>(Object.values(PopbillErrorType))
 const POPBILL_ERROR_STAGE_SET = new Set<string>(Object.values(PopbillErrorStage))
@@ -89,7 +107,7 @@ export function createTimeoutError(error: unknown, context?: PopbillErrorContext
     message: normalizeErrorMessage(error),
     type: PopbillErrorType.Timeout,
     raw: error,
-    retriable: true,
+    retriable: false,
     ...context,
   })
 }
@@ -106,6 +124,23 @@ export function createUnknownError(error: unknown, context?: PopbillErrorContext
 }
 
 export function normalizePopbillError(error: unknown, context?: PopbillErrorContext): PopbillApiError {
+  if (isRequestAbortError(error)) {
+    const normalized =
+      error.abort.source === 'request_timeout' ? createTimeoutError(error.abort.reason, context) : createUnknownError(error.abort.reason, context)
+    return { ...normalized, abort: error.abort, retriable: false }
+  }
+  if (isResponseBodyError(error)) {
+    const normalized = isNetworkError(error.cause) ? createNetworkError(error.cause, context) : createUnknownError(error.cause, context)
+    return { ...normalized, retriable: false }
+  }
+  if (isLegacyValidationError(error)) {
+    return createInputValidationError(error.message, { stage: PopbillErrorStage.ValidateInput, ...context })
+  }
+  // Native exceptions can have numeric codes (DOMException uses 20/23).
+  // Only SDK-normalized exceptions may take the API payload path.
+  if (error instanceof Error && !isPopbillApiError(error) && !isHttpErrorPayload(error)) {
+    return isNetworkError(error) ? createNetworkError(error, context) : createUnknownError(error, context)
+  }
   const parsedError = parseApiErrorBody(error)
   if (parsedError) {
     const payload = error as PopbillApiErrorInput
@@ -140,10 +175,6 @@ export function normalizePopbillError(error: unknown, context?: PopbillErrorCont
       })
     }
     return createHttpError(error.status, error.body, context)
-  }
-
-  if (isTimeoutError(error)) {
-    return createTimeoutError(error, context)
   }
 
   if (isNetworkError(error)) {
@@ -222,18 +253,18 @@ function parseApiErrorBody(payload: unknown): { code: number; message: string } 
   return code !== undefined && typeof payload.message === 'string' ? { code, message: payload.message } : undefined
 }
 
-function isTimeoutError(error: unknown): error is Error {
-  return error instanceof Error && error.name === 'AbortError'
-}
-
 function isNetworkError(error: unknown): error is Error {
   if (!(error instanceof Error)) {
     return false
   }
 
-  const code = (error as NodeJS.ErrnoException).code
-  if (typeof code === 'string' && code.length > 0) {
-    return true
+  const visited = new Set<unknown>()
+  let current: unknown = error
+  while (current instanceof Error && !visited.has(current)) {
+    visited.add(current)
+    const code = (current as NodeJS.ErrnoException).code
+    if (typeof code === 'string' && NETWORK_ERROR_CODES.has(code)) return true
+    current = current.cause
   }
 
   return error.name === 'TypeError' && /fetch/i.test(error.message)
@@ -318,11 +349,11 @@ function createStandardUserMessage(context: UserMessageContext): string {
   }
 
   if (context.type === PopbillErrorType.Network) {
-    return '네트워크 문제로 팝빌 요청에 실패했어. 잠시 후 다시 시도해줘.'
+    return '네트워크 문제로 팝빌 응답을 확인하지 못했어. 재요청 전에 처리 결과를 확인해줘.'
   }
 
   if (context.type === PopbillErrorType.Timeout) {
-    return '팝빌 응답 시간이 초과됐어. 잠시 후 다시 시도해줘.'
+    return '팝빌 응답 시간이 초과됐어. 재요청 전에 처리 결과를 확인해줘.'
   }
 
   if (context.type === PopbillErrorType.Http) {

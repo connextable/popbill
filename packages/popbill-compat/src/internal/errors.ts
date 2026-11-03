@@ -1,26 +1,14 @@
 import { normalizePopbillError, PopbillErrorStage, type PopbillApiError } from '@/errors'
 import { isPopbillRequestStageError } from '@connextable/popbill-runtime'
 import { invokeUserCallback } from './callback'
+import { isLegacyValidationError } from '../popbill-error/legacy-validation'
+export { createLegacyValidationError } from '../popbill-error/legacy-validation'
 
 export interface LegacyCompatError extends Error {
   code: number
 }
 
 export type CompatRuntimeError = LegacyCompatError | PopbillApiError
-
-class LegacyValidationError extends Error implements LegacyCompatError {
-  readonly code: number
-
-  constructor(message: string) {
-    super(message)
-    this.name = 'LegacyValidationError'
-    this.code = -99999999
-  }
-}
-
-export function createLegacyValidationError(message: string): LegacyCompatError {
-  return new LegacyValidationError(message)
-}
 
 export function asThrowableCompatError(error: CompatRuntimeError): Error & CompatRuntimeError {
   if (error instanceof Error) {
@@ -31,7 +19,7 @@ export function asThrowableCompatError(error: CompatRuntimeError): Error & Compa
 }
 
 export function toCompatRuntimeError(error: unknown, operation: string): CompatRuntimeError {
-  if (isLegacyCompatError(error)) {
+  if (isLegacyValidationError(error)) {
     return error
   }
 
@@ -54,16 +42,4 @@ export function dispatchCallbackError(
   defaultErrorHandler: ((error: CompatRuntimeError) => void) | undefined
 ): void {
   invokeUserCallback(errorCallback ?? defaultErrorHandler, error)
-}
-
-function isLegacyCompatError(error: unknown): error is LegacyCompatError {
-  if (!(error instanceof Error)) {
-    return false
-  }
-
-  if (!('code' in error)) {
-    return false
-  }
-
-  return typeof (error as { code: unknown }).code === 'number'
 }
