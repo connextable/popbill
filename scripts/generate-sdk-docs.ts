@@ -425,14 +425,7 @@ function writeRootReadme({ popbillVersion, compatVersion, services }: WriteRootR
     ),
     `| Total | ${services.reduce((total, service) => total + service.popbillMethodGroups.length, 0)} | | ${services.reduce((total, service) => total + service.compatMethodGroups.length, 0)} |`,
     '',
-    '## Human Docs',
-    '',
-    '- modern',
-    ...serviceConfigs.map((config) => `  - [popbill ${config.modernDirectory} index](./popbill/${config.modernDirectory}/index.md)`),
-    '- compat',
-    ...serviceConfigs.map((config) => `  - [popbill-compat ${config.compatDirectory} index](./popbill-compat/${config.compatDirectory}/index.md)`),
-    '',
-    '## AI Docs',
+    '## JSON indexes and schemas',
     '',
     '- indexes',
     '  - [method-index.json](./generated/method-index.json)',
@@ -475,10 +468,10 @@ function writePopbillDocs({ config, methodGroups, groupedMethods, methodByName, 
     lines.push('')
     lines.push(`# ${methodName}`)
     lines.push('')
-    lines.push('## Summary')
-    lines.push('')
-    lines.push(method.summary || '설명 없음')
-    lines.push('')
+    if (method.summary) {
+      lines.push(method.summary)
+      lines.push('')
+    }
     lines.push('## Signature')
     lines.push('')
     lines.push('```ts')
@@ -496,14 +489,7 @@ function writePopbillDocs({ config, methodGroups, groupedMethods, methodByName, 
       lines.push('')
 
       if (inputSchema && inputSchema.properties.length > 0) {
-        lines.push('| Field | Type | Required | Description |')
-        lines.push('| --- | --- | --- | --- |')
-        for (const property of inputSchema.properties) {
-          lines.push(
-            `| \`${property.name}\` | \`${escapeTable(property.typeText)}\` | ${property.required ? 'Y' : 'N'} | ${escapeTable(property.description)} |`
-          )
-        }
-        lines.push('')
+        appendTypeProperties(lines, inputSchema.properties)
       } else if (inputSchema && inputSchema.aliasOf) {
         lines.push(`- Alias of: \`${inputSchema.aliasOf}\``)
         lines.push('')
@@ -526,14 +512,7 @@ function writePopbillDocs({ config, methodGroups, groupedMethods, methodByName, 
     lines.push('')
 
     if (returnSchema && returnSchema.properties.length > 0) {
-      lines.push('| Field | Type | Required | Description |')
-      lines.push('| --- | --- | --- | --- |')
-      for (const property of returnSchema.properties) {
-        lines.push(
-          `| \`${property.name}\` | \`${escapeTable(property.typeText)}\` | ${property.required ? 'Y' : 'N'} | ${escapeTable(property.description)} |`
-        )
-      }
-      lines.push('')
+      appendTypeProperties(lines, returnSchema.properties)
     } else if (returnSchema && returnSchema.aliasOf) {
       lines.push(`- Alias of: \`${returnSchema.aliasOf}\``)
       lines.push('')
@@ -547,34 +526,19 @@ function writePopbillDocs({ config, methodGroups, groupedMethods, methodByName, 
     lines.push('## Compatibility')
     lines.push('')
     if (method.compatMethodName) {
-      lines.push(`- Compat method: \`${method.compatMethodName}\``)
+      lines.push(
+        `- Compat method: [\`${method.compatMethodName}\`](../../../popbill-compat/${config.compatDirectory}/methods/${toKebabCase(method.compatMethodName)}.md)`
+      )
     } else {
       lines.push('- Compat method: 없음')
     }
     lines.push(`- Group: \`${group}\``)
     lines.push('')
 
-    lines.push('## AI Metadata')
-    lines.push('')
-    lines.push('```json')
     lines.push(
-      JSON.stringify(
-        {
-          sdk: 'popbill',
-          service: config.modernService,
-          methodName,
-          group,
-          summary: method.summary,
-          signature: method.signature,
-          inputType,
-          outputType: method.promiseReturnType ?? method.returnTypeText,
-          compatMethodName: method.compatMethodName ?? null,
-        },
-        null,
-        2
-      )
+      '[메서드 JSON](../../../generated/method-index.json) · ' +
+        `[타입 스키마](../../../generated/schemas/popbill/${config.modernDirectory}/types/index.json)`
     )
-    lines.push('```')
     lines.push('')
 
     writeFile(path.join(methodDir, `${toKebabCase(methodName)}.md`), lines.join('\n'))
@@ -594,7 +558,7 @@ function writePopbillDocs({ config, methodGroups, groupedMethods, methodByName, 
       if (!method) {
         continue
       }
-      indexLines.push(`- [\`${item.name}\`](./methods/${toKebabCase(item.name)}.md): ${method.summary || '설명 없음'}`)
+      indexLines.push(`- [\`${item.name}\`](./methods/${toKebabCase(item.name)}.md)${method.summary ? `: ${method.summary}` : ''}`)
     }
     indexLines.push('')
   }
@@ -645,7 +609,9 @@ function writeCompatDocs({
     if (modernMethodName) {
       lines.push(`modern SDK 대응 메서드: ${modernMethodNames.map((name) => `\`${name}\``).join(', ')}`)
     } else {
-      lines.push('legacy 전용 메서드(현재 modern 대응 없음)')
+      lines.push(
+        '직접 연결된 modern 메서드가 없습니다. 통합된 오버로드와 동등 기능은 [지원 범위](../../../../migration/service-coverage.md)를 확인합니다.'
+      )
     }
     lines.push('')
     lines.push(method.overloads.length > 1 ? '## Promise Signatures' : '## Promise Signature')
@@ -669,10 +635,8 @@ function writeCompatDocs({
           return
         }
 
-        lines.push('| Name | Type | Optional |')
-        lines.push('| --- | --- | --- |')
         for (const parameter of overload.parameters) {
-          lines.push(`| \`${parameter.name}\` | \`${escapeTable(parameter.typeText)}\` | ${parameter.optional ? 'Y' : 'N'} |`)
+          lines.push(`- \`${parameter.name}\`${parameter.optional ? ' (선택)' : ' (필수)'}: \`${parameter.typeText}\``)
         }
         lines.push('')
       })
@@ -680,10 +644,8 @@ function writeCompatDocs({
       lines.push('- 파라미터 없음')
       lines.push('')
     } else {
-      lines.push('| Name | Type | Optional |')
-      lines.push('| --- | --- | --- |')
       for (const parameter of method.parameters) {
-        lines.push(`| \`${parameter.name}\` | \`${escapeTable(parameter.typeText)}\` | ${parameter.optional ? 'Y' : 'N'} |`)
+        lines.push(`- \`${parameter.name}\`${parameter.optional ? ' (선택)' : ' (필수)'}: \`${parameter.typeText}\``)
       }
       lines.push('')
     }
@@ -702,34 +664,9 @@ function writeCompatDocs({
       }
     }
     lines.push('')
-    lines.push('## Classification')
-    lines.push('')
-    lines.push(`- Group: \`${group}\``)
-    lines.push(`- Required method set: \`${required}\``)
-    lines.push(`- Modern mapping: ${modernMethodNames.length ? modernMethodNames.map((name) => `\`${name}\``).join(', ') : '`none`'}`)
-    lines.push('')
-    lines.push('## AI Metadata')
-    lines.push('')
-    lines.push('```json')
     lines.push(
-      JSON.stringify(
-        {
-          sdk: 'popbill-compat',
-          service: config.compatService,
-          methodName,
-          group,
-          required,
-          promiseSignature: formatCompatSignature(methodName, method),
-          promiseSignatures: method.overloads.map((overload) => formatCompatSignature(methodName, overload)),
-          modernMethodName,
-          modernMethodNames,
-          callback: callbackMeta,
-        },
-        null,
-        2
-      )
+      `[메서드 JSON과 콜백 메타데이터](../../../generated/schemas/popbill-compat/${config.compatDirectory}/methods/${toKebabCase(methodName)}.json)`
     )
-    lines.push('```')
     lines.push('')
 
     writeFile(path.join(methodDir, `${toKebabCase(methodName)}.md`), lines.join('\n'))
@@ -751,7 +688,7 @@ function writeCompatDocs({
       }
 
       const modernMethodNames = modernByCompatMethodName.get(item.name) ?? []
-      const suffix = modernMethodNames.length ? ` -> modern: ${modernMethodNames.map((name) => `\`${name}\``).join(', ')}` : ' -> legacy-only'
+      const suffix = modernMethodNames.length ? ` -> modern: ${modernMethodNames.map((name) => `\`${name}\``).join(', ')}` : ' (직접 매핑 없음)'
       indexLines.push(`- [\`${item.name}\`](./methods/${toKebabCase(item.name)}.md)${suffix}`)
     }
     indexLines.push('')
@@ -1093,22 +1030,22 @@ function flattenTypeProperties(
       required: false,
     }))
   }
-  if (reference.name === 'Omit' && reference.typeArguments[0] && reference.typeArguments[1]) {
+  if ((reference.name === 'Omit' || reference.name === 'Pick') && reference.typeArguments[0] && reference.typeArguments[1]) {
     const source = ts.createSourceFile('omitted-keys.ts', `type Keys = ${reference.typeArguments[1]}`, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
     const declaration = source.statements[0]
-    if (!declaration || !ts.isTypeAliasDeclaration(declaration)) throw new Error(`Cannot read omitted keys in ${typeName}`)
+    if (!declaration || !ts.isTypeAliasDeclaration(declaration)) throw new Error(`Cannot read property keys in ${typeName}`)
     const members = ts.isUnionTypeNode(declaration.type) ? declaration.type.types : [declaration.type]
-    const omitted = new Set(
+    const selected = new Set(
       members.map((member) => {
         if (!ts.isLiteralTypeNode(member) || !ts.isStringLiteral(member.literal)) {
-          throw new Error(`Unsupported omitted property key in ${typeName}`)
+          throw new Error(`Unsupported property key in ${typeName}`)
         }
         return member.literal.text
       })
     )
     // A response may widen a request property through Omit and redeclaration; retain its original reading order.
-    return flattenTypeProperties(typeCatalog, reference.typeArguments[0], visited).filter(
-      (property) => !omitted.has(property.name) || redeclaredProperties.has(property.name)
+    return flattenTypeProperties(typeCatalog, reference.typeArguments[0], visited).filter((property) =>
+      reference.name === 'Pick' ? selected.has(property.name) : !selected.has(property.name) || redeclaredProperties.has(property.name)
     )
   }
   const typeDef = typeCatalog.types.get(reference.name)
@@ -1560,14 +1497,21 @@ function readLocalTypeDependencies(source: SourceWithAst, visited = new Set<stri
   visited.add(source.filePath)
   const sources = [source]
   for (const statement of source.ast.statements) {
-    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) continue
+    if (
+      (!ts.isImportDeclaration(statement) && !ts.isExportDeclaration(statement)) ||
+      !statement.moduleSpecifier ||
+      !ts.isStringLiteral(statement.moduleSpecifier)
+    )
+      continue
     const specifier = statement.moduleSpecifier.text
     const packageSource = source.filePath.split(`${path.sep}src${path.sep}`)[0]
     const target = specifier.startsWith('.')
       ? path.resolve(path.dirname(source.filePath), specifier)
       : specifier.startsWith('@/')
         ? path.join(packageSource!, 'src', specifier.slice(2))
-        : undefined
+        : specifier === '@connextable/popbill-utils'
+          ? path.join(rootDir, 'packages/popbill-utils/src/index')
+          : undefined
     if (!target) continue
     const filePath = [`${target}.ts`, path.join(target, 'index.ts')].find((filePath) => fs.existsSync(filePath))
     if (filePath) sources.push(...readLocalTypeDependencies(readSourceFile(filePath), visited))
@@ -1820,9 +1764,15 @@ function toKebabCase(value: string): string {
     .toLowerCase()
 }
 
-function escapeTable(value: string): string {
-  if (!value) {
-    return ''
+function appendTypeProperties(lines: string[], properties: readonly TypeSchemaProperty[]): void {
+  for (const property of properties) {
+    lines.push(`### \`${property.name}\``)
+    lines.push('')
+    lines.push(`${property.required ? '필수' : '선택'} · 타입: \`${property.typeText}\``)
+    lines.push('')
+    if (property.description) {
+      lines.push(property.description)
+      lines.push('')
+    }
   }
-  return value.replace(/\|/g, '\\|').replace(/\n/g, '<br />')
 }

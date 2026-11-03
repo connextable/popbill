@@ -1,17 +1,21 @@
 # Popbill 서비스 구현 범위
 
-저장소의 레거시 코드, 공식 HTTP·Node 문서와 공식 Node SDK 1.64.2를 기준으로 구현했다. 이 문서는 서비스 공개 위치와 의도적인 계약 차이를 관리한다. 사용 흐름은 [서비스 가이드](../README.md), 현재 메서드 수·전체 서명·오버로드·DTO·compat 연결은 `pnpm docs:generate`로 생성하는 [SDK 레퍼런스](../sdk/README.md)에서 확인한다.
+저장소의 레거시 코드, 공식 HTTP·Node 문서와 공식 Node SDK 1.64.2를 기준으로 구현했다. 이 문서는 서비스 공개 위치와 의도적인 계약 차이를 설명한다. 사용 흐름은 [서비스 가이드](../README.md), 전체 서명·오버로드·DTO·compat 연결은 [SDK 레퍼런스](../sdk/README.md)에서 확인한다.
 
-| 분류        | modern 서비스                          | compat 서비스                                              |
-| ----------- | -------------------------------------- | ---------------------------------------------------------- |
-| 공통        | `common`                               | 공통 factory 및 공개 서비스의 상속 메서드                  |
-| 전자문서    | `taxInvoice`, `cashbill`, `statement`  | `TaxinvoiceService`, `CashbillService`, `StatementService` |
-| 홈택스 수집 | `homeTaxTaxInvoice`, `homeTaxCashbill` | `HTTaxinvoiceService`, `HTCashbillService`                 |
-| 사업자 조회 | `closedown`, `bizInfoCheck`            | `ClosedownService`, `BizInfoCheckService`                  |
-| 금융 조회   | `easyFinBank`, `accountCheck`          | `EasyFinBankService`, `AccountCheckService`                |
-| 메시징      | `kakao`, `message`, `fax`              | `KakaoService`, `MessageService`, `FaxService`             |
+공동인증서 직접 등록 `RegistTaxCert`·`RegistTaxCertPFX`는 지원 범위에서 제외한다. 인증서 등록 팝업 URL 방식은 제공한다. 공개 SDK 계약 구현과 실서버에서의 계정별 이용 가능성은 구분한다.
 
-상속된 공통 메서드를 각 서비스에 중복 집계하지 않는다. EasyFinBank 레거시의 `getChargeInfo` 중복 정의는 한 번만 제공한다. 문자에는 파일 바이너리 전송, 카카오에는 브랜드 메시지 API를 추가했다.
+## 서비스 공개 위치
+
+modern은 `client.services`의 다음 속성을 사용한다. compat는 대응하는 서비스를 factory와 singleton으로 제공한다.
+
+- **공통:** modern `common`. compat는 공개 서비스에 공통 메서드를 상속한다.
+- **전자문서:** `taxInvoice`·`cashbill`·`statement`. compat는 `TaxinvoiceService`·`CashbillService`·`StatementService`.
+- **홈택스 수집:** `homeTaxTaxInvoice`·`homeTaxCashbill`. compat는 `HTTaxinvoiceService`·`HTCashbillService`.
+- **사업자 조회:** `closedown`·`bizInfoCheck`. compat는 `ClosedownService`·`BizInfoCheckService`.
+- **금융 조회:** `easyFinBank`·`accountCheck`. compat는 `EasyFinBankService`·`AccountCheckService`.
+- **메시징:** `kakao`·`message`·`fax`. compat는 `KakaoService`·`MessageService`·`FaxService`.
+
+메서드 수는 소스에서 생성하며 상속된 공통 메서드를 서비스마다 중복 집계하지 않는다. EasyFinBank 레거시의 `getChargeInfo` 중복 정의도 한 번만 제공한다.
 
 ## 구조와 공개 계약
 
@@ -24,12 +28,9 @@
 
 modern과 compat의 메서드 수 차이는 같은 기능의 레거시 wrapper를 객체 API에 통합한 결과다. 생성 레퍼런스의 compat 연결은 modern 메서드가 호출하는 대표 메서드 하나를 기록하므로, 연결 목록에 레거시 이름이 없다는 이유만으로 기능 누락으로 보지 않는다.
 
-| 레거시 wrapper                        | modern에서 같은 기능을 사용하는 방법                                                                                                                  |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 문자 SMS·LMS·XMS 단건·다건·범용 전송  | `sendShortMessage`·`sendLongMessage`·`sendAutoLengthMessage`의 `recipients` 배열                                                                      |
-| 문자 MMS 단건·다건·경로·바이너리 전송 | `sendImageMessage`의 `recipients` 배열과 `image` 입력                                                                                                 |
-| 카카오 ATS·FTS·FMS 단건 전송          | `sendNotificationMessage`·`sendFriendTextMessage`·`sendFriendImageMessage`. 단건 참조키 보존을 위해 내부에서는 동보 전송 메서드에 수신자 한 명을 전달 |
-| 공통·카카오·문자·팩스의 범용 URL      | 로그인·충전·템플릿·발신번호·발송내역 등 목적별 URL 메서드                                                                                             |
+- **문자 단건·다건 전송:** SMS·LMS·XMS는 각각 `sendShortMessage`·`sendLongMessage`·`sendAutoLengthMessage`의 `recipients` 배열로 표현한다. MMS의 경로·바이너리 전송은 `sendImageMessage`의 `image`로 선택한다.
+- **카카오 단건 전송:** `sendNotificationMessage`·`sendFriendTextMessage`·`sendFriendImageMessage`를 사용한다. 단건 참조키를 보존하기 위해 내부에서는 동보 전송 메서드에 수신자 한 명을 전달한다.
+- **범용 URL:** 공통·카카오·문자·팩스의 범용 URL 기능을 로그인·충전·템플릿·발신번호·발송내역 등 목적별 메서드로 제공한다.
 
 ## 문서와 레거시의 차이
 
@@ -37,10 +38,22 @@ modern과 compat의 메서드 수 차이는 같은 기능의 레거시 wrapper�
 - **세금계산서:** 과금정보·문자열 단가·PDF 다운로드와 공식 SDK의 전송·전송취소·승인·거부·구 인쇄·메일 공개키 API를 compat와 modern에 제공한다. PDF는 매출·매입·위수탁 문서번호 유형을 받고 `printCopy`로 공급자·공급받는자 사본을 선택한다. 공개 스키마가 없는 메일 공개키 응답은 compat의 `unknown`, modern의 `{ publicKeys: unknown }`으로 보존한다. [세금계산서 계약 기록](../services/tax-invoice.md)
 - **현금영수증:** 대량 처리 응답의 접수·발행 시각을 임의로 바꾸지 않고 보존한다. [현금영수증 계약](../services/cashbill.md)
 - **수집:** 작업 완료와 수집 성공은 별개다. 완료 상태와 성공 결과코드를 함께 확인한다. 작업 ID는 요청 후 1시간 유효하며, 자동 폴링이나 자동 재요청을 하지 않는다. [홈택스 세금계산서](../services/home-tax-tax-invoice.md), [홈택스 현금영수증](../services/home-tax-cashbill.md), [계좌 조회](../services/easy-fin-bank.md)
-- **카카오:** 알림톡·브랜드 메시지와 공식 SDK의 친구톡 텍스트·이미지 단건·대량·동보 기능을 modern에도 제공한다. 범용 URL은 compat에 유지하며 modern은 목적별 URL 메서드를 제공한다. 문서·SDK 간 scope와 메시지 모델 차이를 기록했다. [카카오 지원 범위](../services/kakao.md)
+- **카카오:** 알림톡·브랜드 메시지와 공식 SDK의 친구톡 텍스트·이미지 단건·대량·동보 기능을 modern에도 제공한다. 범용 URL은 compat에 유지하며 modern은 목적별 URL 메서드를 제공한다. 전송 흐름은 [카카오 가이드](../services/kakao.md), 레거시 위치 인자와 인증 차이는 아래 절을 따른다.
 - **문자:** modern은 하나의 수신자 배열로 단건·다건을 다룬다. 레거시 `getStates`는 modern의 `getMessageStatesByReceiptNumbers`로도 제공하며 문서화되지 않은 응답 전체를 `unknown`으로 보존한다. 수신자별 부분 예약 취소는 현재 공식 HTTP의 `{ receiveNum }` 본문을 전송한다. [문자 계약](../services/message.md)
 - **팩스:** 레거시의 바이너리 파일 검사, 단건 수신번호·이름 매핑, 재전송 인자 오류를 공식 계약대로 수정했다. [팩스 계약](../services/fax.md)
 - **콜백:** 선택 인자 자리가 `undefined`인 호출은 성공·오류 두 슬롯을 명시한다. 정의된 선택값 뒤의 단일 성공 콜백은 유지한다. 실제 허용 조합은 생성된 타입 서명을 따른다.
+
+### 카카오 위치 인자와 응답
+
+compat의 ATS·FTS·FMS는 저장소 legacy의 위치 인자 순서를 유지한다. 최신 외부 SDK의 ATS `UserID` 위치로 바꾸지 않는다. 짧은 overload는 `altSubject`를 생략하며, 이를 포함하면 `UserID`·`requestNum`·`buttons`까지 전체 슬롯을 유지해야 arity를 구분할 수 있다. 정확한 조합은 [compat 서명](../sdk/popbill-compat/kakao/index.md)을 따른다.
+
+부분 예약취소는 compat의 수신번호 문자열 인자를 유지하면서 HTTP에는 `{ receiveNum }` 객체 본문을 전송한다. 저장소 legacy와 공식 Node SDK 1.64.2의 문자열 본문을 현재 HTTP 계약에 맞춘 의도적인 차이다.
+
+이미지 업로드는 HTTP 응답의 `imageUrl` 또는 `result`의 `formField`·`imageUrl`을 보존한다. 단건을 문자열로 설명한 Node 문서보다 HTTP 문서와 공식 SDK의 실제 반환 경로를 우선했다. modern의 반환 객체와 전송 입력은 [카카오 가이드](../services/kakao.md)를 따른다.
+
+### 카카오 인증
+
+compat는 `member`와 `153`~`159` scope를 사용한다. `154`·`155`는 기존 친구톡 호환용이고, 현행 HTTP 문서의 `159`는 브랜드 메시지 O 전송대상에 대응한다. I/O/N/M 전송대상은 현재 HTTP 계약을 따르며 채널별 이용 조건은 서버가 판단한다. 근거는 [인증 scope](https://developers.popbill.com/api-reference/kakaotalk/getting-started/authorization)를 확인한다.
 
 ## 검증과 한계
 

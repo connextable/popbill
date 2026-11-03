@@ -22,6 +22,7 @@ function createFixture() {
     cpSync(path.join(repoRoot, 'packages', packageName, 'src/services'), path.join(packageDirectory, 'src/services'), { recursive: true })
     cpSync(path.join(repoRoot, 'packages', packageName, 'src/internal'), path.join(packageDirectory, 'src/internal'), { recursive: true })
   }
+  cpSync(path.join(repoRoot, 'packages/popbill-utils/src'), path.join(directory, 'packages/popbill-utils/src'), { recursive: true })
 
   return {
     directory,
@@ -124,6 +125,16 @@ test('generates every service without losing shared method names or unrelated se
     typeText: 'ProviderBoolean',
     jsonType: 'union',
   })
+  const outputDoc = fixture.read('popbill/statement/methods/get-statement-detail-info.md')
+  expect(outputDoc).toContain('### `sendTextMessage`')
+  expect(outputDoc).toContain('타입: `ProviderBoolean`')
+  expect(outputDoc).not.toContain('| Field |')
+  expect(outputDoc).not.toContain('```json')
+  expect(fixture.read('popbill/kakao/index.md')).not.toContain('설명 없음')
+  const providerBoolean = JSON.parse(fixture.read('generated/schemas/popbill/statement/types/provider-boolean.json')) as {
+    typeText: string
+  }
+  expect(providerBoolean.typeText).toBe('boolean | string | number | null')
   expect(existsSync(preservedFile)).toBe(true)
 
   const staleFile = path.join(fixture.directory, 'docs/sdk/popbill/statement/methods/removed-method.md')
@@ -202,6 +213,12 @@ test('includes all service methods and supports mapped services, imported callba
     overloadCount: 6,
   })
   expect(fixture.read('popbill/kakao/methods/send-brand-text-messages.md')).toContain('sendBrandTextMessages')
+  const friendInput = JSON.parse(fixture.read('generated/schemas/popbill/kakao/types/send-friend-image-message-request.json')) as {
+    properties: { name: string; required: boolean }[]
+  }
+  expect(friendInput.properties).toContainEqual(expect.objectContaining({ name: 'receiverPhoneNumber', required: true }))
+  expect(friendInput.properties).toContainEqual(expect.objectContaining({ name: 'referenceKey', required: false }))
+  expect(fixture.read('popbill-compat/kakao/methods/send-fms-one.md')).not.toContain('legacy 전용')
   const commonInput = JSON.parse(fixture.read('generated/schemas/popbill/common/types/register-member-input.json')) as {
     properties: { name: string }[]
   }

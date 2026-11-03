@@ -1,34 +1,54 @@
-# 세금계산서 잔여 API 계약
+# 세금계산서
 
-[문서 목록](../README.md) · [실행 예제](../../examples/README.md#전자세금계산서-예제)
+[문서 목록](../README.md) · [실행 예제](../../examples/README.md#전자세금계산서-예제) · [API 레퍼런스](../sdk/popbill/tax-invoice/index.md)
 
-기존 세금계산서의 추가 API를 compat와 modern에 연결했다. compat는 레거시 이름과 위치 인자를, modern은 기능별 이름과 객체 인자를 제공한다. 현행 문서에서 빠진 API는 공식 Node SDK의 요청 계약을 따르며 실서버 지원 여부는 별도 확인이 필요하다.
+`client.services.taxInvoice`에서 세금계산서를 등록·발행하고 상태·상세·국세청 처리 결과를 조회합니다. 먼저 [modern SDK 설정](../../packages/popbill/README.md)을 마치고 팝빌에 발행용 공동인증서를 등록합니다. 인증서 등록은 SDK가 제공하는 팝업 URL을 사용합니다.
 
-| compat                                 | modern                                                             | 근거와 응답                                                                                                                |
-| -------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
-| `getChargeInfo`                        | `getChargeInfo`                                                    | 현행 Node 문서. `unitCost`, `chargeMethod`, `rateSystem` 객체                                                              |
-| `getUnitCost`                          | `getUnitCost`                                                      | 현행 Node 문서. compat은 단가 문자열, modern은 `{ unitCost }`                                                              |
-| `getPDF`                               | `downloadInvoicePDF`                                               | 현행 영문 HTTP 문서와 공식 Node SDK. compat은 `Buffer`, modern은 `{ fileData: Uint8Array }`                                |
-| `send`, `cancelSend`, `accept`, `deny` | `sendInvoice`, `cancelInvoiceSend`, `acceptInvoice`, `denyInvoice` | 레거시와 공식 Node SDK 1.64.2의 전송·전송취소·승인·거부 계약. modern은 `{ resultCode, resultMessage }` 반환                |
-| `getOldPrintURL`                       | `getLegacyInvoicePrintURL`                                         | 레거시와 공식 Node SDK의 `TG=PRINTOLD` 계약. modern은 `{ accessUrl }` 반환                                                 |
-| `getEmailPublicKeys`                   | `getEmailPublicKeys`                                               | 레거시와 공식 Node SDK의 GET 계약. 공개 응답 스키마가 없어 compat는 `unknown`, modern은 `{ publicKeys: unknown }`으로 보존 |
+## 발행과 상태 확인
 
-`getUnitCost`는 `UserID`를 받지 않는다. 단가를 숫자로 변환하지 않아 소수점과 문자열 표현을 보존한다. PDF는 `?PDF`에서 원본 바이트를 받으며 JSON이나 base64로 해석하지 않는다. 서버가 JSON 오류를 반환하면 일반 API 오류 계약으로 전달한다.
+문서관리번호를 발행 전에 저장하고 정발행·역발행·위수탁 흐름에 맞는 메서드를 선택합니다. 실행 가능한 문서 입력과 발행 예제는 [세금계산서 예제](../../examples/README.md#전자세금계산서-예제)에 있습니다. CLI의 조회·URL 시나리오도 필요한 문서를 먼저 발행할 수 있고 운영 모드를 허용하므로 실행할 시나리오의 준비 단계와 환경 설정을 확인합니다.
 
-PDF 출력 사본은 modern의 `downloadInvoicePDF({ ..., printCopy: 'supplier' })` 또는 `printCopy: 'buyer'`로 선택한다. 공급자용은 HTTP `PdfInvoiceType=1`, 공급받는자용은 `2`로 매핑한다. 생략하면 두 사본을 모두 출력한다. compat에서는 원래 `UserID` 다음에 선택 인자를 추가한 `getPDF(corpNum, keyType, mgtKey, userId, pdfInvoiceType)`를 사용한다. callback도 같은 순서 뒤에 성공·오류 콜백을 전달하며, 기존 호출 형식은 그대로 유지한다.
+발행 응답을 받지 못하면 같은 관리번호로 먼저 조회합니다. 문서 발행과 국세청 전송·처리는 서로 다른 단계이므로 업무에 필요한 상태까지 확인한 뒤 후속 작업을 수행합니다. 다음은 이미 등록한 매출 문서의 조회 예제입니다.
 
-PDF 입력은 공식 Node SDK처럼 매출(`SELL`)·매입(`BUY`)·위수탁(`TRUSTEE`) 문서번호 유형을 받는다. 영문 HTTP 문서의 매출 예시만으로 SDK 입력을 제한하지 않는다. 문서에 대한 실제 출력 권한과 지원 여부는 서버가 판단한다.
+```ts
+const info = await client.services.taxInvoice.getInvoiceInfo({
+  businessNumber: '1234567890',
+  invoiceDocumentKeyType: 'SELL',
+  invoiceManagementKey: 'EXISTING-INVOICE-001',
+})
+console.log(info)
+```
 
-callback에서 선택 인자 `UserID`를 생략한 `(기본 인자..., undefined, errorCallback)`은 레거시 인자 개수 규칙에 따라 오류 전용 호출이다. `UserID`를 명시적으로 `undefined`로 두고 성공 콜백을 전달하려면 `(기본 인자..., undefined, successCallback, undefined)`처럼 두 callback 슬롯을 모두 채운다. `send`의 제목 다음 `UserID` 또는 `getPDF`의 출력 사본을 `undefined`로 전달할 때도 두 callback 슬롯을 명시한다.
+응답의 코드·구분·플래그에는 새 값이나 `null`이 올 수 있습니다. 응답을 입력 타입으로 다시 가정하지 말고, 플래그는 `=== true`·`=== false`로 구분합니다. 전체 응답 타입과 이전 버전에서의 변경은 [2.0 이전 가이드](../migration/2.0.md)를 확인합니다.
 
-기존 세금계산서의 공통 callback 파서와 즉시발행·발행·검색·초대량발행의 선택 인자 파서도 같은 규칙을 적용한다. `register(corpNum, taxinvoice, userId, writeSpecification, success, error)`의 레거시 원형도 보존한다. Promise에서는 `register(corpNum, taxinvoice, userId, writeSpecification)`로 호출하며, `true`이면 입력 객체를 변경하지 않고 본문에 `writeSpecification: true`를 반영한다.
+## PDF와 인쇄
 
-`send`의 선택 문자열 하나는 레거시 오버로드에 따라 `UserID`다. 제목을 지정하려면 `EmailSubject`, `UserID` 두 슬롯을 모두 전달한다. Promise에서도 같은 규칙을 적용하며, 기본 사용자로 제목만 지정하려면 `send(corpNum, keyType, mgtKey, memo, emailSubject, undefined)`를 사용한다. callback에서는 마지막에 성공·오류 콜백을 전달한다. 인자 6개인 레거시 짧은 호출에서 내부 재호출이 잘못되는 버그는 재현하지 않고 정상 요청과 콜백을 제공한다.
+`downloadInvoicePDF`는 `{ fileData: Uint8Array }`로 PDF 원본 바이트를 반환합니다. JSON이나 base64 문자열로 해석하지 않습니다. 서버가 JSON 오류를 반환하면 일반 SDK 오류로 전달합니다.
 
-출처:
+```ts
+const { fileData } = await client.services.taxInvoice.downloadInvoicePDF({
+  businessNumber: '1234567890',
+  invoiceDocumentKeyType: 'SELL',
+  invoiceManagementKey: 'EXISTING-INVOICE-001',
+  printCopy: 'supplier',
+})
+console.log(fileData.byteLength)
+```
 
-- [공식 Node 과금정보·단가 문서](https://developers.popbill.com/reference/taxinvoice/node/common-api/point)
-- [공식 PDF HTTP 계약](https://developers.popbill.com/en/api-reference/taxinvoice/api/info#GetPDF)
-- [공식 Node SDK 소스](https://github.com/linkhub-sdk/node-popbill/blob/master/lib/TaxinvoiceService.js)
+`printCopy`는 공급자용 `supplier` 또는 공급받는자용 `buyer`이며, 생략하면 두 사본을 모두 출력합니다. 매출 `SELL`·매입 `BUY`·위수탁 `TRUSTEE` 문서번호 유형을 받으며 실제 출력 권한은 서버가 판단합니다. 웹 인쇄용 URL은 목적별 URL 메서드를 사용합니다.
 
-로컬 HTTP mock으로 요청·응답·callback·Promise·오류 및 PDF 바이트 보존을 검증한다. 회원별 권한과 레거시 전용 기능의 서버 지원 여부는 실서버 검증 범위다.
+## 발행단가와 과금
+
+`getUnitCost({ businessNumber })`는 `{ unitCost }`, `getChargeInfo`는 단가·과금방식·요금제를 반환합니다. 공식 단가 타입은 문자열이며, 소수점 표현을 보존하도록 숫자로 변환하지 않습니다. compat의 `getUnitCost`는 객체 대신 단가 필드를 바로 반환하고 `UserID` 인자를 받지 않습니다.
+
+## 기존 코드 이전
+
+compat는 기존 위치 인자와 callback·Promise 호출을 유지합니다. 다음 사항은 인자를 생략할 때 영향을 줍니다.
+
+- 선택 인자 뒤에 `undefined`와 callback 하나를 전달하면 레거시 규칙상 오류 callback으로 해석될 수 있습니다. 성공 callback을 쓰려면 `(기본 인자..., undefined, successCallback, undefined)`처럼 두 callback 슬롯을 명시합니다.
+- `send`의 선택 문자열 하나는 `UserID`입니다. 기본 사용자로 제목만 지정하려면 Promise에서 `send(corpNum, keyType, mgtKey, memo, emailSubject, undefined)`처럼 제목·사용자 슬롯을 모두 전달합니다.
+- `register`의 `writeSpecification` 옵션과 `getPDF`의 출력 사본 옵션도 유지합니다. 전체 서명은 [compat 레퍼런스](../sdk/popbill-compat/taxinvoice/index.md)에서 확인합니다.
+
+공개 문서에서 빠진 전송·승인·거부, 구형 인쇄, 이메일 공개키 조회도 공식 Node SDK의 요청 계약에 따라 제공합니다. 서버 지원 여부는 계정에서 확인해야 합니다. `getEmailPublicKeys`의 응답 스키마는 공개되어 있지 않아 modern은 `{ publicKeys: unknown }`으로 반환합니다. 사용하기 전에 응답 형태를 확인합니다.
+
+공식 계약: [Node API](https://developers.popbill.com/reference/taxinvoice/node/api), [발행단가·과금](https://developers.popbill.com/reference/taxinvoice/node/common-api/point), [PDF](https://developers.popbill.com/en/api-reference/taxinvoice/api/info#GetPDF).

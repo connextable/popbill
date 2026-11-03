@@ -4,9 +4,12 @@
 
 기존 코드가 callback 스타일 서비스 팩토리에 의존하거나, `@connextable/popbill`로 한 번에 전환하기보다 단계적으로 이전해야 할 때 사용합니다.
 
+1.1에서 업그레이드할 때는 [2.0 이전 가이드](../../docs/migration/2.0.md)의 미구현 서비스 구현과 반환 타입 변경을 확인합니다.
+
 ## 요구사항
 
 - Node.js 20+
+- ESM·CommonJS 진입점 지원
 
 ## 설치
 
@@ -15,6 +18,8 @@ npm install @connextable/popbill-compat
 ```
 
 ## Callback API
+
+Popbill 연동 아이디·base64 비밀키·회원 아이디·사업자등록번호를 각각 `POPBILL_LINK_ID`, `POPBILL_SECRET_KEY`, `POPBILL_USER_ID`, `POPBILL_CORP_NUM` 환경변수에 설정합니다. 아래 예제는 테스트 환경에 등록된 공동인증서의 만료일을 조회합니다.
 
 callback 방식은 성공 콜백과 에러 콜백을 함께 전달합니다.
 
@@ -82,20 +87,24 @@ const taxinvoice = createTaxinvoicePromiseService({
 
 ## 지원 서비스
 
-| 서비스 생성자                                                | 기능                                  |
-| ------------------------------------------------------------ | ------------------------------------- |
-| 공통 factory 및 각 서비스의 상속 메서드                      | 회원·담당자·기업정보·포인트·결제·환불 |
-| `TaxinvoiceService` / `CashbillService` / `StatementService` | 전자세금계산서·현금영수증·전자명세서  |
-| `HTTaxinvoiceService` / `HTCashbillService`                  | 홈택스 수집                           |
-| `ClosedownService` / `BizInfoCheckService`                   | 휴폐업·기업정보 조회                  |
-| `EasyFinBankService` / `AccountCheckService`                 | 계좌 거래내역·예금주 조회             |
-| `KakaoService` / `MessageService` / `FaxService`             | 카카오톡·문자·팩스                    |
+- 공통: 각 서비스의 회원·담당자·기업정보·포인트·결제·환불 메서드
+- 전자문서: `TaxinvoiceService`, `CashbillService`, `StatementService`
+- 홈택스 수집: `HTTaxinvoiceService`, `HTCashbillService`
+- 사업자 조회: `ClosedownService`, `BizInfoCheckService`
+- 금융 조회: `EasyFinBankService`, `AccountCheckService`
+- 메시징: `KakaoService`, `MessageService`, `FaxService`
 
 도메인 서비스는 callback·`/promise`·`/factory` 진입점을 제공합니다. factory 함수는 `createCashbillService`, `createCashbillPromiseService`처럼 기존 서비스명에 대응합니다. 공개 서비스 인스턴스에는 회원·포인트 등 공통 메서드도 연결되어 있습니다. 공통 메서드만 필요하면 `/factory`의 `createCommonService` 또는 `createCommonPromiseService`를 사용합니다.
 
-선택 인자 자리에 `undefined`를 전달하는 callback 호출은 성공·오류 두 슬롯을 명시합니다. 예: `service.getCorpInfo(corpNum, undefined, success, undefined)`. 인자 조합별 정확한 서명은 [생성 문서](../../docs/sdk/README.md)를 확인합니다.
+선택 인자 자리에 `undefined`를 전달하는 callback 호출은 성공·오류 두 슬롯을 명시합니다. 예: `service.getCorpInfo(corpNum, undefined, success, undefined)`. 인자 조합별 정확한 서명은 설치한 패키지의 타입 선언이나 [로컬 SDK 레퍼런스](../../docs/sdk/README.md)를 확인합니다. SDK 레퍼런스는 [문서 생성](../../docs/development.md#sdk-레퍼런스-생성) 후 로컬에서 열람합니다.
 
 서비스 사용 흐름과 원본 SDK와의 계약 차이는 [서비스 가이드](../../docs/README.md)를 확인합니다.
+
+## 응답과 오류 처리
+
+compat는 레거시 필드 이름을 유지하며 대부분 원본 응답이나 필요한 필드를 그대로 반환합니다. TypeScript의 응답 타입이 모든 서버 값의 런타임 검증을 뜻하지는 않습니다. 새로운 상태 코드·`null`·누락의 처리 기준은 [2.0 이전 가이드](../../docs/migration/2.0.md#응답-코드와-미확정-값)를 확인합니다.
+
+callback 호출은 오류 콜백으로, Promise 호출은 거절된 Promise로 오류를 전달합니다. `code`·`message`를 확인하고, 정규화된 `PopbillApiError`에는 추가로 `stage`·`retriable`이 있습니다. 일부 레거시 입력 검증 오류는 `code`를 가진 `Error`로 전달됩니다. 전송·발행 요청의 시간초과는 처리 여부가 미확정일 수 있으므로 관리번호나 요청번호로 먼저 조회합니다.
 
 ## 전자명세서
 
@@ -127,7 +136,7 @@ try {
 
 `register`로 임시저장하고, `registIssue`로 즉시발행합니다. 발행 요청의 응답을 받지 못하면 같은 문서유형·관리번호로 `getInfo`를 호출해 발행 여부를 먼저 확인합니다.
 
-`search`에서 중간 선택값을 생략할 때는 `undefined`로 뒤 인자 위치를 유지합니다. 검색어를 받는 전체형에서 `Order`를 생략하려면 `QString, Order, Page, PerPage, UserID` 다섯 자리를 모두 전달합니다. 예를 들어 마지막 인자들은 `'검색어', undefined, undefined, 10, undefined`로 지정합니다. 검색어 없는 단축형은 `'D', undefined, 10`처럼 페이지 번호만 생략할 수 있습니다.
+`search`의 중간 선택값을 생략하는 방법은 [전자명세서 가이드](../../docs/services/statement.md)를 확인합니다. 위치 인자를 옮기지 않고 `undefined`로 생략해야 합니다.
 
 ## Export Paths
 
@@ -138,6 +147,6 @@ try {
 
 ## 관련 문서
 
-- 저장소 가이드: [../../README.md](../../README.md)
-- 예제: [../../examples/README.md](../../examples/README.md)
-- 생성 SDK 문서: [../../docs/sdk/README.md](../../docs/sdk/README.md)
+- [문서 안내와 서비스 가이드](../../docs/README.md)
+- [예제 실행](../../examples/README.md)
+- [생성 SDK 레퍼런스](../../docs/sdk/README.md)

@@ -16,10 +16,6 @@ npm install @connextable/popbill-spec
 
 ## 사용 예시
 
-```ts
-import type { PopbillApiRequestHeaders, StatementSpec, TaxInvoiceSpec } from '@connextable/popbill-spec'
-```
-
 전자명세서 원본 모델을 직접 작성할 때는 전용 진입점을 사용합니다. `StatementItemCodes`는 거래명세서·청구서·견적서·발주서·입금표·영수증의 코드(`121`~`126`)를 제공합니다.
 
 ```ts
@@ -34,7 +30,9 @@ const request: StatementGetInfoApiRequest = {
 }
 ```
 
-`StatementSpec`은 타입 namespace이며 원본 요청·응답 타입을 담습니다. 이 패키지는 HTTP 요청을 실행하지 않습니다.
+이 예제는 관리번호로 조회할 요청의 타입만 검사합니다. HTTP 요청은 실행하지 않습니다. 루트에서 내보내는 `StatementSpec`, `TaxInvoiceSpec` 등의 타입 namespace로도 서비스별 원본 타입을 참조할 수 있습니다.
+
+원본 HTTP 필드명과 계약을 기술하는 타입이며 런타임 스키마 검증기는 아닙니다. 객체 기반 입력과 응답 정규화가 필요하면 `@connextable/popbill`을 사용합니다.
 
 ## Export Paths
 
@@ -56,5 +54,5 @@ const request: StatementGetInfoApiRequest = {
 
 ## 관련 문서
 
-- 저장소 가이드: [../../README.md](../../README.md)
-- 생성 SDK 문서: [../../docs/sdk/README.md](../../docs/sdk/README.md)
+- [저장소와 패키지 선택](../../README.md)
+- [로컬 SDK 레퍼런스](../../docs/sdk/README.md): [문서 생성](../../docs/development.md#sdk-레퍼런스-생성) 후 열람
