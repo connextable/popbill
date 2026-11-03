@@ -20,8 +20,10 @@ const statementStateEvents = new Set(['Issue', 'Cancel', 'OPEN', 'MANUAL'])
 /** Reuses service response mappers so field names and response normalization have one owner. */
 export function mapWebhookItem(item: ParsedPopbillWebhookItem, headerEventType?: string): PopbillWebhookEvent {
   const { body, ...metadata } = item
-  const eventType = optionalString(body['eventType']) ?? headerEventType
-  const source = { ...metadata, eventType, occurredAt: optionalString(body['eventDT']), raw: body }
+  const bodyEventType = body['eventType']
+  const eventType =
+    typeof bodyEventType === 'string' ? bodyEventType : bodyEventType === undefined || bodyEventType === null ? headerEventType : undefined
+  const source = { ...metadata, eventType, occurredAt: typeof body['eventDT'] === 'string' ? body['eventDT'] : undefined, raw: body }
   const common = eventData(body)
   switch (item.webhookType) {
     case PopbillWebhookTypes.TaxInvoice:
@@ -127,7 +129,8 @@ export function mapWebhookItem(item: ParsedPopbillWebhookItem, headerEventType?:
     default:
       return { ...source, kind: 'unknown', data: body }
   }
-  if (eventType === undefined) throw new PopbillWebhookError('INVALID_PAYLOAD', `Missing event type at index ${item.index}.`)
+  if (eventType === undefined || eventType.trim() === '')
+    throw new PopbillWebhookError('INVALID_PAYLOAD', `Missing or invalid event type at index ${item.index}.`)
   return { ...source, kind: 'unknown', data: body }
 }
 

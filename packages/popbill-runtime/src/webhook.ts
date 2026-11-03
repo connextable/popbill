@@ -70,7 +70,7 @@ export function createPopbillWebhookParser(config: PopbillWebhookReceiverConfig)
       const messageId = requiredHeader(input.headers, 'pb-webhook-mid')
       const headerEventType = readHeader(input.headers, 'pb-webhook-eventtype')
       const contentType = readHeader(input.headers, 'content-type')
-      if (contentType && !/^application\/json(?:\s*;|\s*$)/i.test(contentType)) {
+      if (contentType !== undefined && !/^application\/json(?:\s*;|\s*$)/i.test(contentType)) {
         throw new PopbillWebhookError('INVALID_HEADERS', 'Webhook content type must be application/json.')
       }
       const rawBody = parseBody(input.body)

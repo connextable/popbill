@@ -55,6 +55,21 @@ describe('typed webhook receiver', () => {
     }
   })
 
+  test('preserves future payload metadata without interpreting a different schema', () => {
+    const raw = { eventType: { revision: 2 }, eventDT: { utc: 1 }, future: true }
+    expect(receive(raw, 'FUTURE.TYPE').events[0]).toMatchObject({ kind: 'unknown', data: raw, raw })
+    const futureEvent = { eventType: 'FUTURE', eventDT: { utc: 1 } }
+    expect(receive(futureEvent).events[0]).toMatchObject({ kind: 'unknown', data: futureEvent, raw: futureEvent })
+  })
+
+  test('keeps missing party details absent on state callbacks', () => {
+    const event = receive({ eventType: 'Issue', itemKey: 'item' }).events[0]!
+    if (event.kind !== 'taxInvoice.state') throw new Error('Expected state event')
+    expect(event.data.itemKey).toBe('item')
+    expect(event.data.supplierCompanyName).toBeUndefined()
+    expect(event.data.supplierBusinessNumber).toBeUndefined()
+  })
+
   test('retains HomeTax document identity, money, and timestamps without inventing eventType or occurredAt', () => {
     const raw = { ntsconfirmNum: '0000123', supplyCostTotal: '000100', writeDate: '20261103', issueDT: '20261103090000', sendDate: '20261103' }
     const event = receive(raw, 'HT.TAXINVOICEXML').events[0]!

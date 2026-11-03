@@ -28,7 +28,8 @@ export interface TaxInvoiceCertificateWebhookData extends PopbillWebhookEventDat
   policyIdentifier?: string
 }
 
-export type TaxInvoiceStateWebhookData = TaxInvoiceInfo & PopbillWebhookEventData
+/** State callbacks omit party/detail fields required by the full invoice API. */
+export type TaxInvoiceStateWebhookData = Partial<TaxInvoiceInfo> & Pick<TaxInvoiceInfo, 'itemKey'> & PopbillWebhookEventData
 export type CashbillStateWebhookData = CashbillInfo & PopbillWebhookEventData
 export type StatementWebhookData = StatementInfo & PopbillWebhookEventData
 /** Bulk callbacks have no top-level API operation code/message. */

@@ -80,6 +80,7 @@ describe('webhook transport contract', () => {
       { ...headers, 'pb-webhook-mid': 'duplicate' },
       { ...headers, 'X-Api-Key': ['private-key', 'other'] },
       { ...headers, 'Content-Type': 'text/plain' },
+      { ...headers, 'Content-Type': '' },
     ])
       expectCode(() => parser.parse({ headers: altered, body: {} }), 'INVALID_HEADERS')
     expectCode(() => parser.parse({ headers: null, body: {} } as unknown as PopbillWebhookInput), 'INVALID_HEADERS')

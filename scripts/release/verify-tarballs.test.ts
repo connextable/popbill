@@ -13,7 +13,7 @@ const directories: string[] = []
 const webhookDeclaration = `
   export declare class PopbillWebhookError extends Error { constructor(code: 'AUTHENTICATION_FAILED', message: string) }
   export declare function createPopbillWebhookReceiver(config: { authentication: { type: 'apiKey'; apiKey: string } | { type: 'none' } }): {
-    parse(input: { headers: Record<string, string>; body: unknown }): { events: ({ kind: 'taxInvoice.state'; data: { stateCode?: number | string | null } } | { kind: 'unknown'; data: unknown })[] }
+    parse(input: { headers: Record<string, string>; body: unknown }): { events: ({ kind: 'taxInvoice.state'; data: { stateCode?: number | string | null; supplierCompanyName?: string } } | { kind: 'unknown'; data: unknown })[] }
     createSuccessResponse(): { status: 200; body: string; headers: Record<string, string> }
   }
 `

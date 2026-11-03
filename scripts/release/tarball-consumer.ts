@@ -74,6 +74,11 @@ for (const event of delivery.events) {
   if (event.kind === 'taxInvoice.state') {
     const state: number | string | null | undefined = event.data.stateCode
     void state
+    const supplierName: string | undefined = event.data.supplierCompanyName
+    void supplierName
+    // @ts-expect-error State callbacks do not promise party details from the full invoice API.
+    const guaranteedSupplierName: string = event.data.supplierCompanyName
+    void guaranteedSupplierName
     // @ts-expect-error Domain narrowing excludes messaging fields.
     event.data.receiptNumber
   }

@@ -69,7 +69,7 @@ createPopbillWebhookReceiver({ authentication: { type: 'none' } })
 | `events`          | 단건도 배열로 반환하는 이벤트 목록          |
 | `rawBody`         | 파싱된 원본 본문. 인증 헤더는 포함하지 않음 |
 
-각 이벤트에는 `kind`, `data`, `raw`, `webhookType`, `businessNumber`, `index`가 있습니다. 원본에 존재하면 `eventType`, `occurredAt`, `batchHeader`도 읽을 수 있습니다. 본문 사업자번호는 해당 DTO의 `data.businessNumber` 등으로 별도 보존합니다. 수신 회원과 문서 당사자가 같다고 가정하지 않습니다.
+각 이벤트에는 `kind`, `data`, `raw`, `webhookType`, `businessNumber`, `index`가 있습니다. 원본에 해석할 수 있는 문자열이 있으면 `eventType`, `occurredAt`도 읽을 수 있고, 배치에서는 `batchHeader`를 보존합니다. 본문 사업자번호는 해당 DTO의 `data.businessNumber` 등으로 별도 보존합니다. 수신 회원과 문서 당사자가 같다고 가정하지 않습니다.
 
 단건 객체는 이벤트 하나로 변환합니다. 대량 `{ header, body }[]`에서는 항목별 `TYPE`, `CORPNUM`, `QMNum` 등의 메타데이터와 입력 순서를 보존합니다. 항목에 `TYPE`·`CORPNUM`이 없으면 HTTP 헤더를 사용합니다. 빈 배치는 `events: []`이며, 잘못된 항목이 있으면 부분 결과 대신 전체 파싱이 실패합니다.
 
@@ -90,7 +90,7 @@ createPopbillWebhookReceiver({ authentication: { type: 'none' } })
 
 문서·메시징 수동 재실행의 `MANUAL`은 원문을 유지합니다. 문서 배치 결과는 본문 구조로 구분하며, 원래 이벤트가 `Issue` 또는 `NTS`였다고 추측하지 않습니다. 홈택스는 수집된 문서의 본문을 전달하므로 존재하지 않는 `eventType`·이벤트 실행시각·작업 완료 상태를 만들어내지 않습니다.
 
-`kind`를 검사하면 `data`가 해당 도메인 DTO로 좁혀집니다. 기존 조회 API와 같은 매퍼·필드명·정규화 함수를 사용합니다.
+`kind`를 검사하면 `data`가 해당 도메인 DTO로 좁혀집니다. 기존 조회 API와 같은 매퍼·필드명·정규화 함수를 사용합니다. 세금계산서 상태 웹훅의 `itemKey`는 필수이며, 전체 문서 조회에서만 제공하는 거래처 상세 필드 등은 선택값입니다.
 
 ```ts
 for (const event of message.events) {
