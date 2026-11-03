@@ -1,10 +1,10 @@
 import type { CommonCompanyInfo, CommonContactInput } from './document'
 export interface CommonOperationResult {
-  resultCode: number
+  resultCode: number | string | null
   resultMessage: string
 }
 export interface CommonHistoryResult<T> {
-  resultCode: number
+  resultCode: number | string | null
   resultMessage?: string
   pageNumber: number
   pageSize: number
@@ -32,7 +32,7 @@ export interface CommonPointBalance {
 }
 export interface CommonPaymentReceipt {
   settlementCode: string
-  resultCode: number
+  resultCode: number | string | null
   resultMessage: string
 }
 export interface CommonPaymentHistory {
@@ -62,7 +62,7 @@ export interface CommonRefundableBalance {
 }
 export interface CommonRefundReceipt {
   refundCode: string
-  resultCode: number
+  resultCode: number | string | null
   resultMessage: string
 }
 export interface CommonRefundHistory {

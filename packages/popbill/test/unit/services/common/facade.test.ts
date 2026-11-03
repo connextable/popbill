@@ -287,6 +287,22 @@ describe('common modern facade', () => {
       expect(mock).toHaveBeenCalledExactlyOnceWith(...entry.args)
       expect(entry.input).toEqual(before)
     })
+  it.each([1, '1', ' 1 '])('recognizes numeric success codes without rewriting the provider result: %j', async (code) => {
+    const member = facade('checkIsMember', { code, message: '성공' })
+    await expect(member.service.checkMemberRegistration(business)).resolves.toEqual({ resultCode: code, resultMessage: '성공', isMember: true })
+
+    const userId = facade('checkID', { code, message: '성공' })
+    await expect(userId.service.checkUserIdUsage({ userId: 'checked-user' })).resolves.toEqual({
+      resultCode: code,
+      resultMessage: '성공',
+      isInUse: true,
+    })
+  })
+
+  it.each([true, null, '', 'future-code', '1.5'])('does not infer a successful membership from an unknown code: %j', async (code) => {
+    const { service } = facade('checkIsMember', { code, message: '원본 응답' })
+    await expect(service.checkMemberRegistration(business)).resolves.toEqual({ resultCode: code, resultMessage: '원본 응답', isMember: false })
+  })
   it('validates calendar dates and positive integer pagination before invoking compat', async () => {
     const { mock, service } = facade('getPaymentHistory', {})
     await expect(service.getPointPaymentHistory({ ...history, startDate: '20260230' })).rejects.toMatchObject({ stage: 'validate_input' })

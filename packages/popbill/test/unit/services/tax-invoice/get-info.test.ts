@@ -109,6 +109,39 @@ describe('tax-invoice getInvoiceInfo', () => {
     expect(getFetchRequestUrl(fetchMock, 1)).toBe('https://popbill.linkhub.co.kr/Taxinvoice/SELL/20260224-001')
   })
 
+  test('keeps every summary when successful batch responses contain new or unavailable states', async () => {
+    const { stateCode: _stateCode, ...withoutState } = INVOICE_INFO_RESPONSE
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(Response.json(TOKEN_RESPONSE))
+      .mockResolvedValueOnce(
+        Response.json([
+          { ...INVOICE_INFO_RESPONSE, itemKey: 'KNOWN', stateCode: '300' },
+          { ...INVOICE_INFO_RESPONSE, itemKey: 'FUTURE', stateCode: 'future-state' },
+          { ...withoutState, itemKey: 'MISSING' },
+          { ...INVOICE_INFO_RESPONSE, itemKey: 'NULL', stateCode: null },
+        ])
+      )
+    vi.stubGlobal('fetch', fetchMock)
+    const onError = vi.fn<(error: unknown) => void>()
+    const service = createPopbillClient({ ...CLIENT_CONFIG, onError }).services.taxInvoice
+
+    const result = await service.getInvoicesInfo({
+      businessNumber: GET_INFO_INPUT.businessNumber,
+      invoiceDocumentKeyType: GET_INFO_INPUT.invoiceDocumentKeyType,
+      invoiceManagementKeys: ['KNOWN', 'FUTURE', 'MISSING', 'NULL'],
+    })
+
+    expect(result.map(({ itemKey, stateCode }) => ({ itemKey, stateCode }))).toEqual([
+      { itemKey: 'KNOWN', stateCode: 300 },
+      { itemKey: 'FUTURE', stateCode: 'future-state' },
+      { itemKey: 'MISSING', stateCode: undefined },
+      { itemKey: 'NULL', stateCode: null },
+    ])
+    expect(onError).not.toHaveBeenCalled()
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
   test('rejects invalid input before requesting the network and notifies onError', async () => {
     const fetchMock = vi.fn<typeof fetch>()
     vi.stubGlobal('fetch', fetchMock)

@@ -169,6 +169,30 @@ describe('createJusoLinkClient', () => {
     await new Promise<void>((resolve) => setImmediate(resolve))
   })
 
+  test.each([
+    [' -20010004 ', -20010004],
+    [-20010004.5, -20010004.5],
+    [Number.MAX_SAFE_INTEGER + 1, Number.MAX_SAFE_INTEGER + 1],
+  ])('원격 오류 코드의 문자열 변형과 기존 숫자를 보존한다 (%j)', async (code, expectedCode) => {
+    const body = { code, message: '검색어가 입력되지 않았습니다.', futureDetail: 'retained' }
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (requestInput) => {
+      if (resolveRequestUrl(requestInput) === 'https://auth.linkhub.co.kr/JUSOLINK/Token') return createTokenResponse()
+      return Response.json(body, { status: 400 })
+    })
+    const client = createJusoLinkClient({
+      linkId: 'TEST_LINK_ID',
+      secretKey: Buffer.from('SECRET').toString('base64'),
+      accessId: 'ACCESS_IDENTIFIER',
+    })
+
+    await expect(client.services.juso.searchAddresses({ searchKeyword: '유효검색어' })).rejects.toMatchObject({
+      code: expectedCode,
+      message: body.message,
+      httpStatusCode: 400,
+      cause: { body },
+    })
+  })
+
   test('알려지지 않은 시도 코드도 원본 키로 보존한다', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (requestInput) => {
       if (resolveRequestUrl(requestInput) === 'https://auth.linkhub.co.kr/JUSOLINK/Token') return createTokenResponse()

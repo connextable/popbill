@@ -1,4 +1,5 @@
 import type * as Spec from '@connextable/popbill-spec'
+import { parseSafeInteger } from '@connextable/popbill-utils'
 import type * as Types from '../types'
 import { preserveNumericCode } from '@/internal/collection-state'
 
@@ -52,7 +53,7 @@ export function mapCollectionStatus(value: Spec.EasyFinBankJobStateApiModel): Ty
     stateCode,
     resultCode: value.errorCode,
     resultMessage: value.errorReason,
-    isSuccessful: stateCode === 3 && value.errorCode === 1,
+    isSuccessful: stateCode === 3 && parseSafeInteger(value.errorCode) === 1,
     requestedAt: value.regDT,
     startedAt: value.jobStartDT,
     completedAt: value.jobEndDT,

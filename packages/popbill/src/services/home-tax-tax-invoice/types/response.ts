@@ -16,10 +16,10 @@ export interface HomeTaxTaxInvoiceJobState {
   startDate?: string
   endDate?: string
   stateCode?: number | string | null
-  resultCode?: number
+  resultCode?: number | string | null
   resultMessage?: string
   collectedCount?: number
-  /** stateCode가 3이고 resultCode가 1인 경우에만 true입니다. */
+  /** stateCode가 3이고 resultCode를 안전한 정수로 해석한 값이 1인 경우에만 true입니다. */
   isSearchable: boolean
   requestedAt?: string
   startedAt?: string

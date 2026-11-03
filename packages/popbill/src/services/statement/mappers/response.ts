@@ -1,10 +1,12 @@
 import type * as Spec from '@connextable/popbill-spec'
 import type * as Types from '../types'
+import { preserveNumericCode } from '@/internal/collection-state'
+import { optionalResponseNumber, preserveBooleanResponse } from '@/internal/response'
 import { ADDITIONAL_FIELD_NUMBERS, removeUndefinedProperties } from './document'
 import { mapStatementInfo } from './statement-info'
 
 export function mapStatementOperationResult(response: Spec.StatementApiResponseBase): Types.StatementOperationResult {
-  return { resultCode: response.code, resultMessage: response.message }
+  return { resultCode: preserveNumericCode(response.code), resultMessage: response.message }
 }
 
 export function mapStatementIssueResult(response: Spec.StatementRegistIssueApiResponse): Types.StatementIssueResult {
@@ -17,7 +19,7 @@ export function mapStatementIssueResult(response: Spec.StatementRegistIssueApiRe
 
 export function mapStatementDocumentOutput(response: Spec.StatementGetDetailInfoApiResponse): Types.StatementDocumentOutput {
   return removeUndefinedProperties({
-    documentTypeCode: response.itemCode,
+    documentTypeCode: preserveNumericCode(response.itemCode),
     managementKey: response.mgtKey,
     documentNumber: response.invoiceNum,
     documentSerialNumber: response.serialNum,
@@ -62,7 +64,7 @@ export function mapStatementDocumentOutput(response: Spec.StatementGetDetailInfo
     }),
     lineItems: response.detailList?.map((item) =>
       removeUndefinedProperties({
-        lineNumber: item.serialNum,
+        lineNumber: optionalResponseNumber(item.serialNum),
         transactionDate: item.purchaseDT,
         itemName: item.itemName,
         specification: item.spec,
@@ -78,28 +80,28 @@ export function mapStatementDocumentOutput(response: Spec.StatementGetDetailInfo
     remarkTwo: response.remark2,
     remarkThree: response.remark3,
     propertyBag: response.propertyBag === undefined ? undefined : { ...response.propertyBag },
-    includeBusinessLicenseImage: toOptionalBoolean(response.businessLicenseYN),
-    includeBankBookImage: toOptionalBoolean(response.bankBookYN),
-    sendTextMessage: toOptionalBoolean(response.smssendYN),
-    autoAcceptEnabled: toOptionalBoolean(response.autoAcceptYN),
-    sendFAXEnabled: toOptionalBoolean(response.faxsendYN),
+    includeBusinessLicenseImage: preserveBooleanResponse(response.businessLicenseYN),
+    includeBankBookImage: preserveBooleanResponse(response.bankBookYN),
+    sendTextMessage: preserveBooleanResponse(response.smssendYN),
+    autoAcceptEnabled: preserveBooleanResponse(response.autoAcceptYN),
+    sendFAXEnabled: preserveBooleanResponse(response.faxsendYN),
   })
 }
 
 export function mapStatementSearchResult(response: Spec.StatementSearchApiResponse): Types.StatementSearchResult {
   return removeUndefinedProperties({
     operationResult: mapStatementOperationResult(response),
-    pageNumber: toOptionalNumber(response.pageNum),
-    pageSize: toOptionalNumber(response.perPage),
-    pageCount: toOptionalNumber(response.pageCount),
-    totalCount: toOptionalNumber(response.total),
+    pageNumber: optionalResponseNumber(response.pageNum),
+    pageSize: optionalResponseNumber(response.perPage),
+    pageCount: optionalResponseNumber(response.pageCount),
+    totalCount: optionalResponseNumber(response.total),
     statementSummaries: (response.list ?? []).map(mapStatementInfo),
   })
 }
 
 export function mapStatementLog(response: Spec.StatementLog): Types.StatementLogEntry {
   return removeUndefinedProperties({
-    documentLogTypeCode: toOptionalNumber(response.docLogType),
+    documentLogTypeCode: preserveNumericCode(response.docLogType),
     logMessage: response.log,
     processTypeCode: response.procType,
     processCompanyName: response.procCorpName,
@@ -116,16 +118,16 @@ export function mapStatementAccessUrl(accessUrl: string): Types.StatementAccessU
 
 export function mapStatementAttachedFile(response: Spec.StatementFile): Types.StatementAttachedFile {
   return removeUndefinedProperties({
-    sequenceNumber: toOptionalNumber(response.serialNum),
+    sequenceNumber: optionalResponseNumber(response.serialNum),
     fileIdentifier: response.attachedFile,
-    fileSize: toOptionalNumber(response.fileSize),
+    fileSize: optionalResponseNumber(response.fileSize),
     displayName: response.displayName,
     registeredAt: response.regDT,
   })
 }
 
 export function mapStatementEmailSendSetting(response: Spec.StatementEmailConfig): Types.StatementEmailSendSetting {
-  return removeUndefinedProperties({ emailTypeCode: response.emailType, sendEnabled: toOptionalBoolean(response.sendYN) })
+  return removeUndefinedProperties({ emailTypeCode: response.emailType, sendEnabled: preserveBooleanResponse(response.sendYN) })
 }
 
 export function mapStatementChargeInfo(response: Spec.StatementChargeInfo): Types.StatementChargeInfo {
@@ -144,15 +146,4 @@ function mapAdditionalFields(item: Spec.StatementDetailApiModel): Types.Statemen
 function compactOptionalObject<T extends Record<string, unknown>>(source: T): T | undefined {
   const compacted = removeUndefinedProperties(source)
   return Object.keys(compacted).length > 0 ? compacted : undefined
-}
-
-function toOptionalNumber(value: number | string | undefined): number | undefined {
-  if (value === undefined || (typeof value === 'string' && value.trim() === '')) return undefined
-  const number = Number(value)
-  return Number.isFinite(number) ? number : undefined
-}
-
-function toOptionalBoolean(value: boolean | string | undefined): boolean | undefined {
-  if (value === undefined) return undefined
-  return value === true || value === 'true'
 }

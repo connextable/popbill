@@ -47,9 +47,9 @@ export interface EasyFinBankCollectionStatus {
   endDate: string
   /** 0 received, 1 waiting, 2 collecting, 3 completed (including failure). */
   stateCode: number | string | null
-  resultCode: number
+  resultCode: number | string | null
   resultMessage: string
-  /** Search only when stateCode is 3 and resultCode is 1. */
+  /** Search only when stateCode is 3 and resultCode represents the safe integer 1. */
   isSuccessful: boolean
   requestedAt: string
   startedAt: string

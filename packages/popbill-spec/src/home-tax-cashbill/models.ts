@@ -10,7 +10,7 @@ export interface HomeTaxCashbillJobStateApiModel {
   queryStDate?: string
   queryEnDate?: string
   jobState: number | string | null
-  errorCode?: number
+  errorCode?: number | string | null
   errorReason?: string
   collectCount?: number
   regDT?: string

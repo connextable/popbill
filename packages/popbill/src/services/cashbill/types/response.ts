@@ -1,7 +1,8 @@
+import type { ProviderBoolean, ProviderNumericCode } from '@/internal/response'
 import type { CashbillBuyerInput, CashbillDocumentInput, CashbillMerchantInput, CashbillPaymentInput } from './document'
 
 export interface CashbillOperationResult {
-  resultCode: number
+  resultCode: ProviderNumericCode | undefined
   resultMessage: string
 }
 export interface CashbillIssueResult extends CashbillOperationResult {
@@ -23,8 +24,8 @@ export interface CashbillBulkResult extends CashbillOperationResult {
   submittedCount?: number
   successCount?: number
   failureCount?: number
-  processingStateCode?: number
-  processingResultCode?: number
+  processingStateCode?: ProviderNumericCode
+  processingResultCode?: ProviderNumericCode
   issueResults: CashbillBulkIssueResult[]
   receivedAt?: string
   processingStartedAt?: string
@@ -33,12 +34,12 @@ export interface CashbillBulkResult extends CashbillOperationResult {
 
 export interface CashbillInfo extends CashbillDocumentOutput {
   itemKey?: string
-  stateCode?: number
+  stateCode?: ProviderNumericCode
   stateMemo?: string
-  nationalTaxServiceResultCode?: string
+  nationalTaxServiceResultCode?: ProviderNumericCode
   nationalTaxServiceResultMessage?: string
-  isPrinted?: boolean
-  isIssuedThroughAPI?: boolean
+  isPrinted?: ProviderBoolean
+  isIssuedThroughAPI?: ProviderBoolean
   registeredAt?: string
   issuedAt?: string
   stateChangedAt?: string
@@ -46,10 +47,21 @@ export interface CashbillInfo extends CashbillDocumentOutput {
   nationalTaxServiceResultReceivedAt?: string
 }
 
-export interface CashbillDocumentOutput extends Partial<Omit<CashbillDocumentInput, 'merchant' | 'buyer' | 'payment'>> {
+export interface CashbillDocumentOutput extends Partial<
+  Omit<
+    CashbillDocumentInput,
+    'transactionType' | 'usageType' | 'tradeOption' | 'taxType' | 'merchant' | 'buyer' | 'payment' | 'cancellationReason' | 'sendTextMessage'
+  >
+> {
+  transactionType?: string | null
+  usageType?: string | null
+  tradeOption?: string | null
+  taxType?: string | null
   merchant?: Partial<CashbillMerchantInput>
   buyer?: Partial<CashbillBuyerInput>
   payment?: Partial<CashbillPaymentInput>
+  cancellationReason?: ProviderNumericCode
+  sendTextMessage?: ProviderBoolean
   confirmationNumber?: string
   transactionDate?: string
   historyMemo?: string
@@ -69,9 +81,9 @@ export interface CashbillSearchResult {
 }
 
 export interface CashbillLogEntry {
-  documentLogTypeCode?: number
+  documentLogTypeCode?: ProviderNumericCode
   logMessage?: string
-  processTypeCode?: string
+  processTypeCode?: ProviderNumericCode
   processCompanyName?: string
   processContactName?: string
   processDescription?: string
@@ -83,13 +95,13 @@ export interface CashbillAccessUrl {
   accessUrl: string
 }
 export interface CashbillEmailSendSetting {
-  emailTypeCode?: string
-  sendEnabled?: boolean
+  emailTypeCode?: ProviderNumericCode
+  sendEnabled?: ProviderBoolean
 }
 export interface CashbillChargeInfo {
   unitCost?: string
-  chargeMethod?: string
-  rateSystem?: string
+  chargeMethod?: string | null
+  rateSystem?: string | null
 }
 export interface CashbillUnitCost {
   unitCost: string

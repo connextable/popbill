@@ -32,13 +32,8 @@ describe('tax-invoice response mapper', () => {
     })
   })
 
-  test.each(['invalid', '', '   ', null, false, Number.NaN, Number.POSITIVE_INFINITY])('throws when operation result code is invalid: %j', (code) => {
-    expect(() =>
-      mapTaxInvoiceOperationResult({
-        code,
-        message: 'BAD',
-      } as Spec.TaxInvoiceApiResponseBase)
-    ).toThrow('유효하지 않은 code 응답값입니다.')
+  test.each(['future-code', '', '   ', null, undefined, '9007199254740993'])('preserves provider operation codes: %j', (code) => {
+    expect(mapTaxInvoiceOperationResult({ code, message: 'OK' }).resultCode).toBe(code)
   })
 
   test.each([0, '0'])('preserves zero result code: %j', (code) => {
@@ -67,9 +62,12 @@ describe('tax-invoice response mapper', () => {
     expect(result.totalCount).toBe(0)
   })
 
-  test('omits empty document and log numeric codes', () => {
-    expect(mapTaxInvoiceDocumentOutput({ stateCode: '' })).not.toHaveProperty('stateCode')
-    expect(mapTaxInvoiceLogs([{ docLogType: '   ' }])).toEqual([{}])
+  test('preserves empty and future document and log codes', () => {
+    expect(mapTaxInvoiceDocumentOutput({ stateCode: '' }).stateCode).toBe('')
+    expect(mapTaxInvoiceLogs([{ docLogType: '   ' }, { docLogType: 'future-log' }])).toEqual([
+      { documentLogTypeCode: '   ' },
+      { documentLogTypeCode: 'future-log' },
+    ])
   })
 
   test('preserves numeric and legacy string book numbers in document output', () => {
@@ -99,13 +97,13 @@ describe('tax-invoice response mapper', () => {
     expect(result.transactionState).toBe(Number(txState))
   })
 
-  test.each([-1, 0.5, '', '   ', null, false])('omits malformed bulk transaction state: %j', (txState) => {
+  test.each([-1, 0.5, '', '   ', null, 'future-state', '9007199254740993'])('preserves unrecognized bulk transaction states: %j', (txState) => {
     const result = mapTaxInvoiceBulkIssueSubmissionResult({ code: 1, message: 'OK', txState } as Spec.TaxInvoiceGetBulkResultApiResponse)
 
-    expect(result).not.toHaveProperty('transactionState')
+    expect(result.transactionState).toBe(txState)
   })
 
-  test('omits empty bulk counts and result codes while retaining zero counts', () => {
+  test('omits empty bulk counts while retaining zero counts and original result codes', () => {
     const result = mapTaxInvoiceBulkIssueSubmissionResult({
       code: 1,
       message: 'OK',
@@ -120,7 +118,35 @@ describe('tax-invoice response mapper', () => {
       resultCode: 1,
       resultMessage: 'OK',
       submittedDocumentCount: 0,
-      issueResults: [{}],
+      transactionResultCode: '',
+      issueResults: [{ resultCode: '' }],
     })
+  })
+
+  test('keeps future charge directions and nullable document flags without changing amounts', () => {
+    expect(
+      mapTaxInvoiceDocumentOutput({
+        chargeDirection: 'future-direction',
+        stateCode: 'future-state',
+        supplyCostTotal: '00020.5000',
+        lateIssueYN: null,
+        openYN: 'future-flag',
+        businessLicenseYN: ' Y ',
+        bankBookYN: 'N',
+        invoicerSMSSendYN: null,
+        invoiceePrintYN: 'future-print-flag',
+      } as unknown as Spec.TaxInvoiceGetDetailInfoApiResponse)
+    ).toMatchObject({
+      chargeDirection: 'future-direction',
+      stateCode: 'future-state',
+      paymentSummary: { totalSupplyCostAmount: '00020.5000' },
+      isLateIssued: null,
+      isOpen: 'future-flag',
+      includeBusinessLicenseImage: true,
+      includeBankBookImage: false,
+      supplier: { sendTextMessage: null },
+      buyer: { printEnabled: 'future-print-flag' },
+    })
+    expect(mapTaxInvoiceDocumentOutput({ chargeDirection: null } as unknown as Spec.TaxInvoiceGetDetailInfoApiResponse).chargeDirection).toBeNull()
   })
 })

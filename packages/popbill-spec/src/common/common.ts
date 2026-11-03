@@ -10,7 +10,7 @@ export type CommonUnauthenticatedApiRequest<TPath = never, TQuery = never, TBody
 >
 export type CommonRequireRequestFields<T, K extends keyof T> = PopbillRequireRequestFields<T, K>
 export interface CommonOperationApiResponse {
-  code: number
+  code: number | string | null
   message: string
 }
 export interface CommonUrlApiResponse {
@@ -24,7 +24,7 @@ export interface CommonRefundableBalanceApiResponse {
   refundableBalance: string
 }
 export interface CommonPageApiResponse<T> {
-  code: number
+  code: number | string | null
   message?: string
   pageNum: number
   perPage: number

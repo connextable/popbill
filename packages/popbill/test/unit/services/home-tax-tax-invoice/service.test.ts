@@ -88,6 +88,13 @@ describe('홈택스 세금계산서 modern service', () => {
     { jobState: 2, errorCode: 1, expected: false },
     { jobState: 3, errorCode: -11100001, expected: false },
     { jobState: '3', errorCode: 1, expected: true },
+    { jobState: '3', errorCode: '1', expected: true },
+    { jobState: ' 3 ', errorCode: ' 1 ', expected: true },
+    { jobState: 3, errorCode: '-11100001', expected: false },
+    { jobState: 3, errorCode: '', expected: false },
+    { jobState: 3, errorCode: null, expected: false },
+    { jobState: 3, errorCode: 'future-result', expected: false },
+    { jobState: 3, errorCode: '9007199254740993', expected: false },
   ])('completion alone cannot imply collection success: $jobState / $errorCode', async ({ jobState, errorCode, expected }) => {
     const { service, compat } = setup()
     compat.getJobState.mockResolvedValueOnce({ jobID: jobId, jobState, errorCode })

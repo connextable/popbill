@@ -1,4 +1,5 @@
 import type * as document from './document'
+import type { ProviderBoolean, ProviderNumericCode } from '@/internal/response'
 
 /**
  * 세금계산서 공통 처리 결과입니다.
@@ -7,7 +8,7 @@ export interface TaxInvoiceOperationResult {
   /**
    * 처리 결과 코드입니다.
    */
-  resultCode: number
+  resultCode: ProviderNumericCode | undefined
   /**
    * 처리 결과 메시지입니다.
    */
@@ -59,9 +60,7 @@ export const TaxInvoiceBulkIssueSubmissionTransactionStates = {
 /**
  * 초대량 처리 상태 타입입니다.
  */
-export type TaxInvoiceBulkIssueSubmissionTransactionState =
-  | (typeof TaxInvoiceBulkIssueSubmissionTransactionStates)[keyof typeof TaxInvoiceBulkIssueSubmissionTransactionStates]
-  | (number & {})
+export type TaxInvoiceBulkIssueSubmissionTransactionState = ProviderNumericCode
 
 /**
  * 초대량 발행 개별 처리 결과입니다.
@@ -82,7 +81,7 @@ export interface TaxInvoiceBulkIssueSubmissionResultItem {
   /**
    * 개별 처리 결과 코드입니다.
    */
-  resultCode?: number
+  resultCode?: ProviderNumericCode
   /**
    * 개별 처리 결과 메시지입니다.
    */
@@ -132,7 +131,7 @@ export interface TaxInvoiceBulkIssueSubmissionResult extends TaxInvoiceOperation
   /**
    * 처리 결과 코드입니다.
    */
-  transactionResultCode?: number
+  transactionResultCode?: ProviderNumericCode
   /**
    * 개별 처리 결과 목록입니다.
    */
@@ -190,15 +189,15 @@ export interface TaxInvoiceInfo {
   /**
    * 과세유형입니다.
    */
-  taxType: document.TaxInvoiceTaxationType
+  taxType: string | null
   /**
    * 발행유형입니다.
    */
-  issueType: document.TaxInvoiceIssueType
+  issueType: string | null
   /**
    * 영수/청구 구분입니다.
    */
-  purposeType: document.TaxInvoicePurposeType
+  purposeType: string | null
   /**
    * 공급가액 합계입니다.
    */
@@ -210,7 +209,7 @@ export interface TaxInvoiceInfo {
   /**
    * 수정사유코드입니다.
    */
-  modificationCode?: document.TaxInvoiceModificationReasonCode
+  modificationCode?: ProviderNumericCode
   /**
    * 공급자 상호입니다.
    */
@@ -226,7 +225,7 @@ export interface TaxInvoiceInfo {
   /**
    * 상태 코드입니다.
    */
-  stateCode: number
+  stateCode?: ProviderNumericCode
   /**
    * 상태 메모입니다.
    */
@@ -234,39 +233,39 @@ export interface TaxInvoiceInfo {
   /**
    * 국세청 전송 결과 코드입니다.
    */
-  nationalTaxServiceResult?: string
+  nationalTaxServiceResult?: ProviderNumericCode
   /**
    * 국세청 전송 오류 코드입니다.
    */
-  nationalTaxServiceSendErrorCode?: string
+  nationalTaxServiceSendErrorCode?: ProviderNumericCode
   /**
    * 지연발행 여부입니다.
    */
-  isLateIssued: boolean
+  isLateIssued?: ProviderBoolean
   /**
    * 개봉 여부입니다.
    */
-  isOpen: boolean
+  isOpen?: ProviderBoolean
   /**
    * 연동 문서 여부입니다.
    */
-  isApiLinkedDocument: boolean
+  isApiLinkedDocument?: ProviderBoolean
   /**
    * 공급자 인쇄 여부입니다.
    */
-  isSupplierPrinted: boolean
+  isSupplierPrinted?: ProviderBoolean
   /**
    * 공급받는자 인쇄 여부입니다.
    */
-  isBuyerPrinted: boolean
+  isBuyerPrinted?: ProviderBoolean
   /**
    * 수탁자 인쇄 여부입니다.
    */
-  isTrusteePrinted?: boolean
+  isTrusteePrinted?: ProviderBoolean
   /**
    * 공급받는자 휴폐업 상태입니다.
    */
-  buyerBusinessStatus?: document.TaxInvoiceBusinessStatus
+  buyerBusinessStatus?: ProviderNumericCode
   /**
    * 작성일자(yyyyMMdd)입니다.
    */
@@ -302,9 +301,55 @@ export interface TaxInvoiceInfo {
 }
 
 /**
- * 문서 상세조회 결과입니다.
+ * 서버가 반환한 공급자·수탁자 플래그를 보존하는 정보입니다.
  */
-export interface TaxInvoiceDocumentOutput extends document.TaxInvoiceDocumentInput {
+export interface TaxInvoicePartyOutput extends Omit<document.TaxInvoicePartyInput, 'sendTextMessage' | 'printEnabled'> {
+  sendTextMessage?: ProviderBoolean
+  printEnabled?: ProviderBoolean
+}
+
+/** 공급받는자 분류와 플래그는 새로운 서버 값도 보존합니다. */
+export interface TaxInvoiceBuyerOutput extends Omit<
+  document.TaxInvoiceBuyerInput,
+  'sendTextMessage' | 'printEnabled' | 'recipientType' | 'businessStatus'
+> {
+  sendTextMessage?: ProviderBoolean
+  printEnabled?: ProviderBoolean
+  recipientType?: string | null
+  businessStatus?: ProviderNumericCode
+}
+
+/** 서버가 반환한 수정사유 코드를 보존합니다. */
+export interface TaxInvoiceModificationOutput extends Omit<document.TaxInvoiceModificationInput, 'modificationReasonCode'> {
+  modificationReasonCode?: ProviderNumericCode
+}
+
+/** 문서 상세조회 결과입니다. 입력 enum과 별도로 서버의 새 분류값을 보존합니다. */
+export interface TaxInvoiceDocumentOutput extends Omit<
+  document.TaxInvoiceDocumentInput,
+  | 'issueType'
+  | 'taxType'
+  | 'purposeType'
+  | 'chargeDirection'
+  | 'supplier'
+  | 'buyer'
+  | 'trustee'
+  | 'modification'
+  | 'writeSpecificationEnabled'
+  | 'includeBusinessLicenseImage'
+  | 'includeBankBookImage'
+> {
+  issueType?: string | null
+  taxType?: string | null
+  purposeType?: string | null
+  chargeDirection?: string | null
+  supplier?: TaxInvoicePartyOutput
+  buyer?: TaxInvoiceBuyerOutput
+  trustee?: TaxInvoicePartyOutput
+  modification?: TaxInvoiceModificationOutput
+  writeSpecificationEnabled?: ProviderBoolean
+  includeBusinessLicenseImage?: ProviderBoolean
+  includeBankBookImage?: ProviderBoolean
   /**
    * 국세청 승인번호입니다.
    */
@@ -312,27 +357,27 @@ export interface TaxInvoiceDocumentOutput extends document.TaxInvoiceDocumentInp
   /**
    * 상태 코드입니다.
    */
-  stateCode?: number
+  stateCode?: ProviderNumericCode
   /**
    * 국세청 전송 결과 코드입니다.
    */
-  nationalTaxServiceResultCode?: string
+  nationalTaxServiceResultCode?: ProviderNumericCode
   /**
    * 국세청 전송 오류 코드입니다.
    */
-  nationalTaxServiceSendErrorCode?: string
+  nationalTaxServiceSendErrorCode?: ProviderNumericCode
   /**
    * 지연발행 여부입니다.
    */
-  isLateIssued?: boolean
+  isLateIssued?: ProviderBoolean
   /**
    * 개봉 여부입니다.
    */
-  isOpen?: boolean
+  isOpen?: ProviderBoolean
   /**
    * API 연동 문서 여부입니다.
    */
-  isApiLinkedDocument?: boolean
+  isApiLinkedDocument?: ProviderBoolean
   /**
    * 발행일시(yyyyMMddHHmmss)입니다.
    */
@@ -433,7 +478,7 @@ export interface TaxInvoiceLogEntry {
   /**
    * 문서 이력 유형 코드입니다.
    */
-  documentLogTypeCode?: number
+  documentLogTypeCode?: ProviderNumericCode
   /**
    * 로그 메시지입니다.
    */
@@ -441,7 +486,7 @@ export interface TaxInvoiceLogEntry {
   /**
    * 처리 유형 코드입니다.
    */
-  processTypeCode?: string
+  processTypeCode?: string | null
   /**
    * 처리 회사명입니다.
    */
@@ -503,11 +548,11 @@ export interface TaxInvoiceEmailSendSetting {
   /**
    * 메일 유형 코드입니다.
    */
-  emailTypeCode?: string
+  emailTypeCode?: string | null
   /**
    * 전송 활성화 여부입니다.
    */
-  sendEnabled?: boolean
+  sendEnabled?: ProviderBoolean
 }
 
 /**
@@ -517,7 +562,7 @@ export interface TaxInvoiceSendToNationalTaxServiceSetting {
   /**
    * 즉시 전송 여부입니다.
    */
-  sendToNationalTaxServiceEnabled: boolean
+  sendToNationalTaxServiceEnabled?: ProviderBoolean
 }
 
 /** ASP사업자 유통메일 공개키 조회 결과입니다. */
@@ -578,8 +623,8 @@ export interface TaxInvoiceTaxCertificateInfo {
 export interface TaxInvoiceChargeInfo {
   /** 정밀도 손실 없는 단가 문자열. */
   unitCost: string
-  chargeMethod: string
-  rateSystem: string
+  chargeMethod: string | null
+  rateSystem: string | null
 }
 
 export interface TaxInvoiceUnitCost {

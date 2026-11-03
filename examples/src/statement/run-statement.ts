@@ -3,6 +3,7 @@ import {
   StatementItemCodes,
   StatementStateCodes,
   type StatementDocumentInput,
+  type StatementInfo,
   type StatementService,
 } from '@connextable/popbill'
 import { parseBooleanValue, parsePositiveIntegerValue, readEnvironmentString } from '../shared/environment.ts'
@@ -131,7 +132,7 @@ async function issueWithRecovery(
   }
 }
 
-function requireIssuedState(stateCode: number | undefined, managementKey: string): void {
+function requireIssuedState(stateCode: StatementInfo['stateCode'], managementKey: string): void {
   if (stateCode !== StatementStateCodes.Issued) {
     throw new Error(`State ${stateCode} requires inspection in Popbill before continuing. Management key: ${managementKey}`)
   }

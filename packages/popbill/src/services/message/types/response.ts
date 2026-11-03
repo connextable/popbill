@@ -21,8 +21,8 @@ export interface SentMessage {
   subject?: string
   body?: string
   carrierName?: string
-  stateCode?: string
-  resultCode?: string
+  stateCode?: string | null
+  resultCode?: string | null
   receivedAt?: string
   reservedAt?: string
   sentAt?: string

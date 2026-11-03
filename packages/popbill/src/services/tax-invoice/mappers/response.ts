@@ -1,15 +1,13 @@
-import { toBoolean } from '@connextable/popbill-utils'
 import { mapTaxInvoiceInfo } from './invoice-info'
-import { TaxInvoiceChargeDirectionValues } from '@/services/tax-invoice/types'
+import { preserveNumericCode } from '@/internal/collection-state'
+import { optionalResponseNumber, preserveBooleanResponse, type ProviderNumericCode } from '@/internal/response'
 import type {
   TaxInvoiceAccessUrl,
   TaxInvoiceAttachedFile,
   TaxInvoiceBulkIssueSubmissionResult,
   TaxInvoiceBulkIssueSubmissionResultItem,
-  TaxInvoiceBulkIssueSubmissionTransactionState,
   TaxInvoiceBulkSubmitResult,
-  TaxInvoiceBuyerInput,
-  TaxInvoiceChargeDirection,
+  TaxInvoiceBuyerOutput,
   TaxInvoiceChargeInfo,
   TaxInvoiceDocumentOutput,
   TaxInvoiceEmailPublicKeys,
@@ -19,7 +17,7 @@ import type {
   TaxInvoiceIssueResult,
   TaxInvoiceLogEntry,
   TaxInvoiceOperationResult,
-  TaxInvoicePartyInput,
+  TaxInvoicePartyOutput,
   TaxInvoicePdfDocument,
   TaxInvoiceSearchResult,
   TaxInvoiceSendToNationalTaxServiceSetting,
@@ -34,10 +32,10 @@ import type * as Spec from '@connextable/popbill-spec'
  * 공통 API 처리결과를 도메인 처리결과로 변환합니다.
  */
 export function mapTaxInvoiceOperationResult(
-  taxInvoiceApiResponse: Spec.TaxInvoiceApiResponseBase | { code: number | string; message: string }
+  taxInvoiceApiResponse: Spec.TaxInvoiceApiResponseBase | { code?: ProviderNumericCode; message: string }
 ): TaxInvoiceOperationResult {
   return {
-    resultCode: toRequiredNumber(taxInvoiceApiResponse.code, 'code'),
+    resultCode: preserveNumericCode(taxInvoiceApiResponse.code),
     resultMessage: taxInvoiceApiResponse.message,
   }
 }
@@ -73,11 +71,11 @@ export function mapTaxInvoiceBulkIssueSubmissionResult(
     ...mapTaxInvoiceOperationResult(taxInvoiceApiResponse),
     submissionIdentifier: taxInvoiceApiResponse.submitID,
     receiptIdentifier: taxInvoiceApiResponse.receiptID,
-    submittedDocumentCount: toOptionalNumber(taxInvoiceApiResponse.submitCount),
-    succeededDocumentCount: toOptionalNumber(taxInvoiceApiResponse.successCount),
-    failedDocumentCount: toOptionalNumber(taxInvoiceApiResponse.failCount),
-    transactionState: toTaxInvoiceBulkIssueSubmissionTransactionState(taxInvoiceApiResponse.txState),
-    transactionResultCode: toOptionalNumber(taxInvoiceApiResponse.txResultCode),
+    submittedDocumentCount: optionalResponseNumber(taxInvoiceApiResponse.submitCount),
+    succeededDocumentCount: optionalResponseNumber(taxInvoiceApiResponse.successCount),
+    failedDocumentCount: optionalResponseNumber(taxInvoiceApiResponse.failCount),
+    transactionState: preserveNumericCode(taxInvoiceApiResponse.txState),
+    transactionResultCode: preserveNumericCode(taxInvoiceApiResponse.txResultCode),
     issueResults: taxInvoiceApiResponse.issueResult?.map(mapTaxInvoiceBulkIssueSubmissionResultItem),
     receivedAt: taxInvoiceApiResponse.receiptDT,
     transactionStartedAt: taxInvoiceApiResponse.txStartDT,
@@ -105,7 +103,7 @@ export function mapTaxInvoiceDocumentOutput(taxInvoiceApiResponse: Spec.TaxInvoi
     issueTimingCode: taxInvoiceApiResponse.issueTiming,
     taxType: taxInvoiceApiResponse.taxType,
     purposeType: taxInvoiceApiResponse.purposeType,
-    chargeDirection: toTaxInvoiceChargeDirection(taxInvoiceApiResponse.chargeDirection),
+    chargeDirection: taxInvoiceApiResponse.chargeDirection,
     supplier: mapSupplierOutput(taxInvoiceApiResponse),
     buyer: mapBuyerOutput(taxInvoiceApiResponse),
     trustee: mapTrusteeOutput(taxInvoiceApiResponse),
@@ -119,7 +117,7 @@ export function mapTaxInvoiceDocumentOutput(taxInvoiceApiResponse: Spec.TaxInvoi
       creditAmount: taxInvoiceApiResponse.credit,
     }),
     modification: removeUndefinedProperties({
-      modificationReasonCode: taxInvoiceApiResponse.modifyCode,
+      modificationReasonCode: preserveNumericCode(taxInvoiceApiResponse.modifyCode),
       originalNationalTaxServiceConfirmationNumber: taxInvoiceApiResponse.orgNTSConfirmNum,
     }),
     lineItems: taxInvoiceApiResponse.detailList?.map((lineItem) =>
@@ -145,16 +143,16 @@ export function mapTaxInvoiceDocumentOutput(taxInvoiceApiResponse: Spec.TaxInvoi
     remarkOne: taxInvoiceApiResponse.remark1,
     remarkTwo: taxInvoiceApiResponse.remark2,
     remarkThree: taxInvoiceApiResponse.remark3,
-    writeSpecificationEnabled: taxInvoiceApiResponse.writeSpecification,
-    includeBusinessLicenseImage: toOptionalBoolean(taxInvoiceApiResponse.businessLicenseYN),
-    includeBankBookImage: toOptionalBoolean(taxInvoiceApiResponse.bankBookYN),
+    writeSpecificationEnabled: preserveBooleanResponse(taxInvoiceApiResponse.writeSpecification),
+    includeBusinessLicenseImage: preserveBooleanResponse(taxInvoiceApiResponse.businessLicenseYN),
+    includeBankBookImage: preserveBooleanResponse(taxInvoiceApiResponse.bankBookYN),
     nationalTaxServiceConfirmationNumber: taxInvoiceApiResponse.ntsconfirmNum,
-    stateCode: toOptionalNumber(taxInvoiceApiResponse.stateCode),
+    stateCode: preserveNumericCode(taxInvoiceApiResponse.stateCode),
     nationalTaxServiceResultCode: taxInvoiceApiResponse.ntsresult,
     nationalTaxServiceSendErrorCode: taxInvoiceApiResponse.ntssendErrCode,
-    isLateIssued: toOptionalBoolean(taxInvoiceApiResponse.lateIssueYN),
-    isOpen: toOptionalBoolean(taxInvoiceApiResponse.openYN),
-    isApiLinkedDocument: toOptionalBoolean(taxInvoiceApiResponse.interOPYN),
+    isLateIssued: preserveBooleanResponse(taxInvoiceApiResponse.lateIssueYN),
+    isOpen: preserveBooleanResponse(taxInvoiceApiResponse.openYN),
+    isApiLinkedDocument: preserveBooleanResponse(taxInvoiceApiResponse.interOPYN),
     issuedAt: taxInvoiceApiResponse.issueDT,
     stateChangedAt: taxInvoiceApiResponse.stateDT,
     openedAt: taxInvoiceApiResponse.openDT,
@@ -207,10 +205,10 @@ export function mapTaxInvoicePdfDocument(fileData: Uint8Array): TaxInvoicePdfDoc
 export function mapTaxInvoiceSearchResult(taxInvoiceApiResponse: Spec.TaxInvoiceSearchApiResponse): TaxInvoiceSearchResult {
   return removeUndefinedProperties({
     operationResult: mapTaxInvoiceOperationResult(taxInvoiceApiResponse),
-    pageNumber: toOptionalNumber(taxInvoiceApiResponse.pageNum),
-    pageSize: toOptionalNumber(taxInvoiceApiResponse.perPage),
-    pageCount: toOptionalNumber(taxInvoiceApiResponse.pageCount),
-    totalCount: toOptionalNumber(taxInvoiceApiResponse.total),
+    pageNumber: optionalResponseNumber(taxInvoiceApiResponse.pageNum),
+    pageSize: optionalResponseNumber(taxInvoiceApiResponse.perPage),
+    pageCount: optionalResponseNumber(taxInvoiceApiResponse.pageCount),
+    totalCount: optionalResponseNumber(taxInvoiceApiResponse.total),
     invoiceSummaries: (taxInvoiceApiResponse.list ?? []).map(mapTaxInvoiceInfo),
   })
 }
@@ -221,7 +219,7 @@ export function mapTaxInvoiceSearchResult(taxInvoiceApiResponse: Spec.TaxInvoice
 export function mapTaxInvoiceLogs(taxInvoiceApiResponse: Spec.TaxInvoiceGetLogsApiResponse): TaxInvoiceLogEntry[] {
   return taxInvoiceApiResponse.map((logEntry) =>
     removeUndefinedProperties({
-      documentLogTypeCode: toOptionalNumber(logEntry.docLogType),
+      documentLogTypeCode: preserveNumericCode(logEntry.docLogType),
       logMessage: logEntry.log,
       processTypeCode: logEntry.procType,
       processCompanyName: logEntry.procCorpName,
@@ -268,7 +266,7 @@ export function mapTaxInvoiceEmailSendSettings(taxInvoiceApiResponse: Spec.TaxIn
   return taxInvoiceApiResponse.map((emailSendSetting) =>
     removeUndefinedProperties({
       emailTypeCode: emailSendSetting.emailType,
-      sendEnabled: toOptionalBoolean(emailSendSetting.sendYN),
+      sendEnabled: preserveBooleanResponse(emailSendSetting.sendYN),
     })
   )
 }
@@ -280,7 +278,7 @@ export function mapTaxInvoiceSendToNationalTaxServiceSetting(
   taxInvoiceApiResponse: Spec.TaxInvoiceGetSendToNTSConfigApiResponse
 ): TaxInvoiceSendToNationalTaxServiceSetting {
   return {
-    sendToNationalTaxServiceEnabled: toBoolean(taxInvoiceApiResponse.sendToNTS),
+    sendToNationalTaxServiceEnabled: preserveBooleanResponse(taxInvoiceApiResponse.sendToNTS),
   }
 }
 
@@ -330,7 +328,7 @@ function mapTaxInvoiceBulkIssueSubmissionResultItem(
     invoiceDocumentKeyTypeCode: taxInvoiceApiResponse.keyType,
     supplierInvoiceManagementKey: taxInvoiceApiResponse.invoicerMgtKey,
     trusteeInvoiceManagementKey: taxInvoiceApiResponse.trusteeMgtKey,
-    resultCode: toOptionalNumber(taxInvoiceApiResponse.code),
+    resultCode: preserveNumericCode(taxInvoiceApiResponse.code),
     resultMessage: taxInvoiceApiResponse.message,
     nationalTaxServiceConfirmationNumber: taxInvoiceApiResponse.ntsconfirmNum,
     receivedAt: taxInvoiceApiResponse.receiptDT,
@@ -341,7 +339,7 @@ function mapTaxInvoiceBulkIssueSubmissionResultItem(
 /**
  * 공급자 응답 필드를 도메인 공급자 정보로 변환합니다.
  */
-function mapSupplierOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxInvoicePartyInput | undefined {
+function mapSupplierOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxInvoicePartyOutput | undefined {
   return compactOptionalObject({
     businessNumber: taxInvoiceApiResponse.invoicerCorpNum,
     managementKey: taxInvoiceApiResponse.invoicerMgtKey,
@@ -361,15 +359,15 @@ function mapSupplierOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxI
     telephoneNumber: taxInvoiceApiResponse.invoicerTEL,
     mobilePhoneNumber: taxInvoiceApiResponse.invoicerHP,
     emailAddress: taxInvoiceApiResponse.invoicerEmail,
-    sendTextMessage: toOptionalBoolean(taxInvoiceApiResponse.invoicerSMSSendYN),
-    printEnabled: toOptionalBoolean(taxInvoiceApiResponse.invoicerPrintYN),
+    sendTextMessage: preserveBooleanResponse(taxInvoiceApiResponse.invoicerSMSSendYN),
+    printEnabled: preserveBooleanResponse(taxInvoiceApiResponse.invoicerPrintYN),
   })
 }
 
 /**
  * 공급받는자 응답 필드를 도메인 공급받는자 정보로 변환합니다.
  */
-function mapBuyerOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxInvoiceBuyerInput | undefined {
+function mapBuyerOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxInvoiceBuyerOutput | undefined {
   return compactOptionalObject({
     businessNumber: taxInvoiceApiResponse.invoiceeCorpNum,
     managementKey: taxInvoiceApiResponse.invoiceeMgtKey,
@@ -389,8 +387,8 @@ function mapBuyerOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxInvo
     telephoneNumber: taxInvoiceApiResponse.invoiceeTEL1,
     mobilePhoneNumber: taxInvoiceApiResponse.invoiceeHP1,
     emailAddress: taxInvoiceApiResponse.invoiceeEmail1,
-    sendTextMessage: toOptionalBoolean(taxInvoiceApiResponse.invoiceeSMSSendYN),
-    printEnabled: toOptionalBoolean(taxInvoiceApiResponse.invoiceePrintYN),
+    sendTextMessage: preserveBooleanResponse(taxInvoiceApiResponse.invoiceeSMSSendYN),
+    printEnabled: preserveBooleanResponse(taxInvoiceApiResponse.invoiceePrintYN),
     recipientType: taxInvoiceApiResponse.invoiceeType,
     primaryDepartmentName: taxInvoiceApiResponse.invoiceeDeptName1,
     secondaryDepartmentName: taxInvoiceApiResponse.invoiceeDeptName2,
@@ -398,7 +396,7 @@ function mapBuyerOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxInvo
     secondaryTelephoneNumber: taxInvoiceApiResponse.invoiceeTEL2,
     secondaryMobilePhoneNumber: taxInvoiceApiResponse.invoiceeHP2,
     secondaryEmailAddress: taxInvoiceApiResponse.invoiceeEmail2,
-    businessStatus: taxInvoiceApiResponse.closeDownState,
+    businessStatus: preserveNumericCode(taxInvoiceApiResponse.closeDownState),
     businessStatusDate: taxInvoiceApiResponse.closeDownStateDate,
   })
 }
@@ -406,7 +404,7 @@ function mapBuyerOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxInvo
 /**
  * 수탁자 응답 필드를 도메인 수탁자 정보로 변환합니다.
  */
-function mapTrusteeOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxInvoicePartyInput | undefined {
+function mapTrusteeOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxInvoicePartyOutput | undefined {
   return compactOptionalObject({
     businessNumber: taxInvoiceApiResponse.trusteeCorpNum,
     managementKey: taxInvoiceApiResponse.trusteeMgtKey,
@@ -426,70 +424,9 @@ function mapTrusteeOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxIn
     telephoneNumber: taxInvoiceApiResponse.trusteeTEL,
     mobilePhoneNumber: taxInvoiceApiResponse.trusteeHP,
     emailAddress: taxInvoiceApiResponse.trusteeEmail,
-    sendTextMessage: toOptionalBoolean(taxInvoiceApiResponse.trusteeSMSSendYN),
-    printEnabled: toOptionalBoolean(taxInvoiceApiResponse.trusteePrintYN),
+    sendTextMessage: preserveBooleanResponse(taxInvoiceApiResponse.trusteeSMSSendYN),
+    printEnabled: preserveBooleanResponse(taxInvoiceApiResponse.trusteePrintYN),
   })
-}
-
-/**
- * 문자열/숫자 값을 숫자로 안전하게 변환합니다.
- */
-function toOptionalNumber(value: number | string | undefined): number | undefined {
-  if (typeof value === 'number') {
-    return Number.isFinite(value) ? value : undefined
-  }
-
-  if (typeof value !== 'string' || value.trim() === '') {
-    return undefined
-  }
-
-  const normalizedNumber = Number(value)
-  return Number.isFinite(normalizedNumber) ? normalizedNumber : undefined
-}
-
-function toRequiredNumber(value: number | string | undefined, fieldName: string): number {
-  const normalizedNumber = toOptionalNumber(value)
-  if (normalizedNumber !== undefined) {
-    return normalizedNumber
-  }
-
-  throw new Error(`유효하지 않은 ${fieldName} 응답값입니다. (${String(value)})`)
-}
-
-/**
- * 초대량 처리 상태를 숫자로 정규화하며 새 서버 상태코드도 보존합니다.
- */
-function toTaxInvoiceBulkIssueSubmissionTransactionState(
-  value: number | string | undefined
-): TaxInvoiceBulkIssueSubmissionTransactionState | undefined {
-  const transactionState = toOptionalNumber(value)
-  return transactionState !== undefined && Number.isInteger(transactionState) && transactionState >= 0 ? transactionState : undefined
-}
-
-/**
- * 불리언 문자열/값을 불리언으로 안전하게 변환합니다.
- */
-function toOptionalBoolean(value: boolean | string | undefined): boolean | undefined {
-  if (value === undefined) {
-    return undefined
-  }
-
-  return toBoolean(value)
-}
-
-/**
- * 과금 방향 문자열을 도메인 과금 방향으로 안전하게 정규화합니다.
- */
-function toTaxInvoiceChargeDirection(chargeDirection: string | undefined): TaxInvoiceChargeDirection | undefined {
-  if (chargeDirection === TaxInvoiceChargeDirectionValues.NormalCharge) {
-    return TaxInvoiceChargeDirectionValues.NormalCharge
-  }
-
-  if (chargeDirection === TaxInvoiceChargeDirectionValues.ReverseCharge) {
-    return TaxInvoiceChargeDirectionValues.ReverseCharge
-  }
-
-  return undefined
 }
 
 /**

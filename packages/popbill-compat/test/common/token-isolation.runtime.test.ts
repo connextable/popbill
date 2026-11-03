@@ -3,7 +3,7 @@ import { createStatementPromiseService } from '@/factory'
 import type { CompatConfig } from '@/config'
 
 afterEach(() => vi.unstubAllGlobals())
-it('withdrawal invalidates the published service domain and point tokens while preserving other clients', async () => {
+it.each([1, '1'])('withdrawal invalidates the published service domain and point tokens while preserving other clients (code: %j)', async (code) => {
   let sequence = 0
   const documentTokens: Array<string | null> = []
   const pointTokens: Array<string | null> = []
@@ -15,7 +15,7 @@ it('withdrawal invalidates the published service domain and point tokens while p
     else if (url.pathname.endsWith('/Point')) {
       pointTokens.push(new Headers(init?.headers).get('Authorization'))
       response = { remainPoint: '100' }
-    } else if (url.pathname.endsWith('/QuitRequest')) response = { code: 1, message: '완료' }
+    } else if (url.pathname.endsWith('/QuitRequest')) response = { code, message: '완료' }
     else if (url.pathname === '/Statement/121/KEY') {
       documentTokens.push(new Headers(init?.headers).get('Authorization'))
       response = { stateCode: 100 }

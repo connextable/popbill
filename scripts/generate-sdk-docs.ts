@@ -277,7 +277,10 @@ function main() {
       ).map((method) => method.name)
     )
 
-    const popbillTypeSources = readTypeSources(path.join(popbillServiceRoot, 'types'))
+    const visitedTypeSources = new Set<string>()
+    const popbillTypeSources = readTypeSources(path.join(popbillServiceRoot, 'types')).flatMap((source) =>
+      readLocalTypeDependencies(source, visitedTypeSources)
+    )
     const popbillTypeCatalog = buildTypeCatalog(popbillTypeSources)
 
     const popbillTypesSource = popbillTypeSources.find((source) => findTypeDeclaration(source, config.modernInterface))
@@ -1071,7 +1074,12 @@ function createSchemaForType(typeCatalog: TypeCatalog, typeName: string): TypeSc
   }
 }
 
-function flattenTypeProperties(typeCatalog: TypeCatalog, typeName: string, visited: Set<string> = new Set<string>()): TypeProperty[] {
+function flattenTypeProperties(
+  typeCatalog: TypeCatalog,
+  typeName: string,
+  visited: Set<string> = new Set<string>(),
+  redeclaredProperties: Set<string> = new Set<string>()
+): TypeProperty[] {
   if (visited.has(typeName)) {
     return []
   }
@@ -1079,11 +1087,29 @@ function flattenTypeProperties(typeCatalog: TypeCatalog, typeName: string, visit
 
   const reference = parseTypeReference(typeName)
   if (reference.name === 'Partial' && reference.typeArguments[0]) {
-    return flattenTypeProperties(typeCatalog, reference.typeArguments[0], visited).map((property) => ({
+    return flattenTypeProperties(typeCatalog, reference.typeArguments[0], visited, redeclaredProperties).map((property) => ({
       ...property,
       optional: true,
       required: false,
     }))
+  }
+  if (reference.name === 'Omit' && reference.typeArguments[0] && reference.typeArguments[1]) {
+    const source = ts.createSourceFile('omitted-keys.ts', `type Keys = ${reference.typeArguments[1]}`, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+    const declaration = source.statements[0]
+    if (!declaration || !ts.isTypeAliasDeclaration(declaration)) throw new Error(`Cannot read omitted keys in ${typeName}`)
+    const members = ts.isUnionTypeNode(declaration.type) ? declaration.type.types : [declaration.type]
+    const omitted = new Set(
+      members.map((member) => {
+        if (!ts.isLiteralTypeNode(member) || !ts.isStringLiteral(member.literal)) {
+          throw new Error(`Unsupported omitted property key in ${typeName}`)
+        }
+        return member.literal.text
+      })
+    )
+    // A response may widen a request property through Omit and redeclaration; retain its original reading order.
+    return flattenTypeProperties(typeCatalog, reference.typeArguments[0], visited).filter(
+      (property) => !omitted.has(property.name) || redeclaredProperties.has(property.name)
+    )
   }
   const typeDef = typeCatalog.types.get(reference.name)
   if (!typeDef) {
@@ -1103,8 +1129,9 @@ function flattenTypeProperties(typeCatalog: TypeCatalog, typeName: string, visit
   }
 
   const inherited: TypeProperty[] = []
+  const ownPropertyNames = new Set(typeDef.properties.map((property) => property.name))
   for (const parentName of typeDef.extendsTypes) {
-    inherited.push(...flattenTypeProperties(typeCatalog, substituteTypeParameters(parentName, substitutions), visited))
+    inherited.push(...flattenTypeProperties(typeCatalog, substituteTypeParameters(parentName, substitutions), visited, ownPropertyNames))
   }
 
   const merged = new Map<string, TypeProperty>()

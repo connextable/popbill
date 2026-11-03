@@ -38,8 +38,8 @@ export interface MessageSentApiModel {
   content?: string
   tranNet?: string
   /** HTTP docs use numbers; Node docs and older responses also use strings. */
-  state?: number | string
-  result?: number | string
+  state?: number | string | null
+  result?: number | string | null
   receiptDT?: string
   reserveDT?: string
   sendDT?: string

@@ -1,7 +1,8 @@
-import type { StatementDocumentInput, StatementItemCode } from './document'
+import type { ProviderBoolean, ProviderNumericCode } from '@/internal/response'
+import type { StatementDocumentInput, StatementLineItemInput } from './document'
 
 export interface StatementOperationResult {
-  resultCode: number
+  resultCode: ProviderNumericCode | undefined
   resultMessage: string
 }
 
@@ -13,24 +14,24 @@ export interface StatementIssueResult extends StatementOperationResult {
 export interface StatementPartySummary {
   businessNumber?: string
   companyName?: string
-  printEnabled?: boolean
+  printEnabled?: ProviderBoolean
 }
 
 /** 저장·발행 상태를 포함한 전자명세서 요약입니다. */
 export interface StatementInfo {
-  documentTypeCode?: StatementItemCode
+  documentTypeCode?: ProviderNumericCode
   itemKey?: string
   documentNumber?: string
   managementKey?: string
-  taxType?: string
-  purposeType?: string
+  taxType?: string | null
+  purposeType?: string | null
   sender?: StatementPartySummary
   receiver?: StatementPartySummary
   totalSupplyCostAmount?: string
   totalTaxAmount?: string
-  stateCode?: number
+  stateCode?: ProviderNumericCode
   stateMemo?: string
-  isOpen?: boolean
+  isOpen?: ProviderBoolean
   writtenDate?: string
   registeredAt?: string
   issuedAt?: string
@@ -38,11 +39,27 @@ export interface StatementInfo {
   openedAt?: string
 }
 
-/** 서버가 생략한 필드는 생략한 상태로 반환합니다. */
-export interface StatementDocumentOutput extends Partial<StatementDocumentInput> {
+export interface StatementLineItemOutput extends Omit<StatementLineItemInput, 'lineNumber'> {
+  lineNumber?: number
+}
+
+/** 서버가 생략한 필드는 생략하고, 알 수 없는 분류와 플래그 값은 보존합니다. */
+export interface StatementDocumentOutput extends Partial<
+  Omit<
+    StatementDocumentInput,
+    'documentTypeCode' | 'taxType' | 'purposeType' | 'lineItems' | 'includeBusinessLicenseImage' | 'includeBankBookImage' | 'sendTextMessage'
+  >
+> {
+  documentTypeCode?: ProviderNumericCode
   documentNumber?: string
-  autoAcceptEnabled?: boolean
-  sendFAXEnabled?: boolean
+  taxType?: string | null
+  purposeType?: string | null
+  lineItems?: StatementLineItemOutput[]
+  includeBusinessLicenseImage?: ProviderBoolean
+  includeBankBookImage?: ProviderBoolean
+  sendTextMessage?: ProviderBoolean
+  autoAcceptEnabled?: ProviderBoolean
+  sendFAXEnabled?: ProviderBoolean
 }
 
 export interface StatementManagementKeyUsage {
@@ -59,9 +76,9 @@ export interface StatementSearchResult {
 }
 
 export interface StatementLogEntry {
-  documentLogTypeCode?: number
+  documentLogTypeCode?: ProviderNumericCode
   logMessage?: string
-  processTypeCode?: string
+  processTypeCode?: string | null
   processCompanyName?: string
   processContactName?: string
   processDescription?: string
@@ -86,14 +103,14 @@ export interface StatementFAXReceipt {
 }
 
 export interface StatementEmailSendSetting {
-  emailTypeCode?: string
-  sendEnabled?: boolean
+  emailTypeCode?: string | null
+  sendEnabled?: ProviderBoolean
 }
 
 export interface StatementChargeInfo {
   unitCost?: string
-  chargeMethod?: string
-  rateSystem?: string
+  chargeMethod?: string | null
+  rateSystem?: string | null
 }
 
 export interface StatementUnitCost {

@@ -1,5 +1,6 @@
 import type { CommonPromiseService } from '@connextable/popbill-compat/factory'
 import { createInputValidationError } from '@connextable/popbill-compat/errors'
+import { parseSafeInteger } from '@connextable/popbill-utils'
 import { PopbillErrorStage, type PopbillApiError } from '@/errors'
 import { invokeCommonMethod } from './adapters/error'
 import { mapCompany, mapContact } from './mappers/document'
@@ -21,13 +22,13 @@ export function createCommonService(input: CreateCommonServiceInput): Types.Comm
     checkMemberRegistration(request) {
       return invoke('checkMemberRegistration', async () => {
         const result = await compat.checkIsMember(request.businessNumber)
-        return { ...map.operation(result), isMember: result.code === 1 }
+        return { ...map.operation(result), isMember: parseSafeInteger(result.code) === 1 }
       })
     },
     checkUserIdUsage(request) {
       return invoke('checkUserIdUsage', async () => {
         const result = await compat.checkID(request.userId)
-        return { ...map.operation(result), isInUse: result.code === 1 }
+        return { ...map.operation(result), isInUse: parseSafeInteger(result.code) === 1 }
       })
     },
     registerMember(request) {

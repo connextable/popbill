@@ -218,6 +218,13 @@ describe('HomeTaxCashbill modern service', () => {
     { jobState: 2, errorCode: 1, succeeded: false },
     { jobState: 3, errorCode: -14100001, succeeded: false },
     { jobState: '3', errorCode: 1, succeeded: true },
+    { jobState: '3', errorCode: '1', succeeded: true },
+    { jobState: ' 3 ', errorCode: ' 1 ', succeeded: true },
+    { jobState: 3, errorCode: '-14100001', succeeded: false },
+    { jobState: 3, errorCode: '', succeeded: false },
+    { jobState: 3, errorCode: null, succeeded: false },
+    { jobState: 3, errorCode: 'future-result', succeeded: false },
+    { jobState: 3, errorCode: '9007199254740993', succeeded: false },
   ])('separates collection completion from success $jobState/$errorCode', async ({ jobState, errorCode, succeeded }) => {
     const { service } = createService({ jobID: JOB, jobState, errorCode, errorReason: 'detail' })
     expect(await service.getCollectionJobState(JOB_INPUT)).toMatchObject({

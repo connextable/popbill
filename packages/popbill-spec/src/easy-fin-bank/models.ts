@@ -49,7 +49,7 @@ export interface EasyFinBankJobStateApiModel {
   startDate: string
   endDate: string
   jobState: number | string | null
-  errorCode: number
+  errorCode: number | string | null
   errorReason: string
   regDT: string
   jobStartDT: string

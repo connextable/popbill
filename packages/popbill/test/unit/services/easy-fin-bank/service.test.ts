@@ -70,6 +70,13 @@ it.each([
   [3, -18000001, false],
   ['3', 1, true],
   [3, 1, true],
+  ['3', '1', true],
+  [' 3 ', ' 1 ', true],
+  [3, '-18000001', false],
+  [3, '', false],
+  [3, null, false],
+  [3, 'future-result', false],
+  [3, '9007199254740993', false],
 ] as const)('keeps completion %s distinct from successful collection (result %s)', (jobState, errorCode, expected) => {
   const state: EasyFinBankJobStateApiModel = {
     jobID: collectionId,
@@ -77,7 +84,7 @@ it.each([
     startDate: '20261101',
     endDate: '20261103',
     errorCode,
-    errorReason: errorCode === 1 ? '' : '계좌 인증 실패',
+    errorReason: expected ? '' : '계좌 인증 실패',
     jobStartDT: '20261103100000',
     jobEndDT: '',
     regDT: '20261103095900',

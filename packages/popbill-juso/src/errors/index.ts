@@ -1,4 +1,4 @@
-import { normalizeErrorMessage } from '@connextable/popbill-utils'
+import { normalizeErrorMessage, parseSafeInteger } from '@connextable/popbill-utils'
 
 /**
  * 주소링크 요청 단계 상수입니다.
@@ -158,12 +158,13 @@ function extractRemoteError(value: unknown): { code: number; message: string } |
   }
 
   const candidate = value as { code?: unknown; message?: unknown }
-  if (typeof candidate.code !== 'number' || typeof candidate.message !== 'string') {
+  const code = typeof candidate.code === 'number' ? candidate.code : parseSafeInteger(candidate.code)
+  if (code === undefined || typeof candidate.message !== 'string') {
     return undefined
   }
 
   return {
-    code: candidate.code,
+    code,
     message: candidate.message,
   }
 }

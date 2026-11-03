@@ -12,7 +12,7 @@ export interface HomeTaxTaxInvoiceJobStateApiModel {
   queryEnDate?: string
   /** HTTP 문서는 number, Node.js SDK 문서는 string으로 명시합니다. */
   jobState?: number | string | null
-  errorCode?: number
+  errorCode?: number | string | null
   errorReason?: string
   collectCount?: number
   regDT?: string

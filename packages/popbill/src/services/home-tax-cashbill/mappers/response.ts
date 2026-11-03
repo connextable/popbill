@@ -1,4 +1,5 @@
 import type * as Spec from '@connextable/popbill-spec'
+import { parseSafeInteger } from '@connextable/popbill-utils'
 import type * as Output from '../types/response'
 import { preserveNumericCode } from '@/internal/collection-state'
 
@@ -14,7 +15,7 @@ export function mapCollectionJobState(raw: Spec.HomeTaxCashbillJobStateApiModel)
     resultCode: raw.errorCode,
     resultMessage: raw.errorReason,
     collectedCount: raw.collectCount,
-    collectionSucceeded: stateCode === 3 && raw.errorCode === 1,
+    collectionSucceeded: stateCode === 3 && parseSafeInteger(raw.errorCode) === 1,
     requestedAt: raw.regDT,
     startedAt: raw.jobStartDT,
     completedAt: raw.jobEndDT,

@@ -21,6 +21,8 @@ if (membership.isMember) {
 
 compat는 BaseService의 기존 메서드와 위치 인자를 유지합니다. `getPopbillURL`은 레거시에만 제공하며 modern에서는 `getLoginURL`과 목적별 포인트 URL을 사용합니다. compat의 `getRefundableBalance`는 레거시 코드처럼 `{ refundableBalance }` 응답을 유지하고, modern은 `{ refundablePoints }`로 반환합니다.
 
+회원·아이디 확인의 성공 플래그와 회원 탈퇴 후 토큰 폐기는 결과코드 `1`과 숫자 문자열 `"1"`을 같은 값으로 판단합니다. 반환하는 `resultCode`는 원문을 유지하며, `null`·빈 값·알 수 없는 코드는 성공으로 판단하지 않습니다. HTTP 오류의 숫자 문자열 코드도 인식하고 원문은 오류의 `raw`에서 확인할 수 있습니다.
+
 환불 요청 필드명은 공식 Node 문서의 PascalCase와 HTTP 문서의 소문자 표기가 다릅니다. compat는 레거시 입력을 변경 없이 전송하고 modern은 HTTP 문서의 필드명을 사용합니다. 실제 환불 요청은 로컬 계약 테스트에서 실행하지 않습니다.
 
 - [공식 회원 API](https://developers.popbill.com/api-reference/taxinvoice/common-api/member)

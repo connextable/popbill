@@ -5,6 +5,7 @@ import {
   normalizeErrorMessage,
   normalizeOptionalString,
   normalizeRequiredString,
+  parseSafeInteger,
   sha1Base64,
   sha256Base64,
   stringifyWithoutEmptyValues,
@@ -58,6 +59,40 @@ describe('popbill utils', () => {
     expect(toBoolean(true)).toBe(true)
     expect(toBoolean('Y')).toBe(true)
     expect(toBoolean('0')).toBe(false)
+  })
+
+  test.each([
+    [0, 0],
+    ['0', 0],
+    ['  -11000000  ', -11000000],
+    ['+1', 1],
+    ['001', 1],
+    [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER],
+    [String(Number.MIN_SAFE_INTEGER), Number.MIN_SAFE_INTEGER],
+  ])('reads numeric codes without changing safe integer values: %j', (value, expected) => {
+    expect(parseSafeInteger(value)).toBe(expected)
+  })
+
+  test.each([
+    undefined,
+    null,
+    '',
+    '  ',
+    true,
+    false,
+    [],
+    {},
+    1.5,
+    '1.5',
+    '1e2',
+    '0x10',
+    'future-code',
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+    Number.MAX_SAFE_INTEGER + 1,
+    '9007199254740993',
+  ])('does not manufacture an integer code from %j', (value) => {
+    expect(parseSafeInteger(value)).toBeUndefined()
   })
 
   test('error and crypto utilities produce deterministic output', () => {

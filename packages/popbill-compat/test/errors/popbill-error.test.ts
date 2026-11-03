@@ -72,6 +72,39 @@ describe('popbill error catalog integration', () => {
     })
   })
 
+  test.each([-11000000, -19999999])('normalizes numeric string API codes while retaining the original body: %i', (code) => {
+    const body = { code: ` ${String(code)} `, message: '원본 오류', futureDetail: 'retained' }
+    const apiError = normalizePopbillError({ status: 400, body })
+
+    expect(apiError).toMatchObject({ code, message: '원본 오류', status: 400, type: PopbillErrorType.ApiResponse })
+    expect(apiError.knownCode).toBe(getPopbillErrorCodeDefinition(code) !== undefined)
+    expect(apiError.raw).toBe(body)
+
+    const directError = normalizePopbillError(body)
+    expect(directError).toMatchObject({ code, message: '원본 오류' })
+    expect(directError.raw).toBe(body)
+  })
+
+  test.each(['future-code', '', null, false, '1.5', '9007199254740993'])('retains unsupported API codes in the raw HTTP error: %j', (code) => {
+    const body = { code, message: '원본 오류' }
+    const apiError = normalizePopbillError({ status: 400, body })
+
+    expect(apiError.type).toBe(PopbillErrorType.Http)
+    expect(apiError.raw).toBe(body)
+  })
+
+  test.each([-11000000.5, Number.MAX_SAFE_INTEGER + 1])(
+    'preserves previously accepted numeric error codes without imposing an integer constraint: %j',
+    (code) => {
+      const body = { code, message: '원본 숫자 오류' }
+      const apiError = normalizePopbillError({ status: 400, body })
+
+      expect(apiError).toMatchObject({ code, message: body.message, type: PopbillErrorType.ApiResponse })
+      expect(apiError.raw).toBe(body)
+      expect(normalizePopbillError(body)).toMatchObject({ code, message: body.message })
+    }
+  )
+
   test('createNetworkError standardizes user message', () => {
     const networkError = createNetworkError(new Error('fetch failed'))
 

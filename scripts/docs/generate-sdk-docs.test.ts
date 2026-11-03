@@ -103,18 +103,27 @@ test('generates every service without losing shared method names or unrelated se
   expect(searchSchema.overloads[2]?.parameters.find((parameter) => parameter.name === 'order')).toMatchObject({ type: 'undefined', optional: false })
   expect(searchSchema.overloads[2]?.parameters.find((parameter) => parameter.name === 'userId')).toMatchObject({ optional: false })
   const inputSchema = JSON.parse(fixture.read('generated/schemas/popbill/statement/types/statement-document-input.json')) as {
-    properties: { name: string }[]
+    properties: { name: string; jsonType: string }[]
   }
   expect(inputSchema.properties.map((property) => property.name)).toContain('documentTypeCode')
+  expect(inputSchema.properties.find((property) => property.name === 'sendTextMessage')).toMatchObject({ jsonType: 'boolean' })
   const smsSchema = JSON.parse(fixture.read('generated/schemas/popbill/statement/types/resend-statement-sms-input.json')) as {
     properties: { name: string; required: boolean }[]
   }
   expect(smsSchema.properties.find((property) => property.name === 'messageBody')).toMatchObject({ required: true })
   const outputSchema = JSON.parse(fixture.read('generated/schemas/popbill/statement/types/statement-document-output.json')) as {
-    properties: { name: string; required: boolean }[]
+    properties: { name: string; required: boolean; typeText: string; jsonType: string }[]
   }
   expect(outputSchema.properties).toContainEqual(expect.objectContaining({ name: 'documentTypeCode', required: false }))
   expect(outputSchema.properties).toContainEqual(expect.objectContaining({ name: 'sender', required: false }))
+  const outputPropertyNames = outputSchema.properties.map((property) => property.name)
+  expect(outputPropertyNames[0]).toBe('documentTypeCode')
+  expect(outputPropertyNames.indexOf('taxType')).toBeLessThan(outputPropertyNames.indexOf('sender'))
+  expect(outputSchema.properties.find((property) => property.name === 'taxType')).toMatchObject({ typeText: 'string | null', jsonType: 'union' })
+  expect(outputSchema.properties.find((property) => property.name === 'sendTextMessage')).toMatchObject({
+    typeText: 'ProviderBoolean',
+    jsonType: 'union',
+  })
   expect(existsSync(preservedFile)).toBe(true)
 
   const staleFile = path.join(fixture.directory, 'docs/sdk/popbill/statement/methods/removed-method.md')

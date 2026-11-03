@@ -1,4 +1,5 @@
 import type * as Spec from '@connextable/popbill-spec'
+import { parseSafeInteger } from '@connextable/popbill-utils'
 import type * as types from '../types'
 import { preserveNumericCode } from '@/internal/collection-state'
 
@@ -17,7 +18,7 @@ export function mapJob(value: Spec.HomeTaxTaxInvoiceJobStateApiModel): types.Hom
     resultCode: value.errorCode,
     resultMessage: value.errorReason,
     collectedCount: value.collectCount,
-    isSearchable: state === 3 && value.errorCode === 1,
+    isSearchable: state === 3 && parseSafeInteger(value.errorCode) === 1,
     requestedAt: value.regDT,
     startedAt: value.jobStartDT,
     completedAt: value.jobEndDT,

@@ -1,4 +1,10 @@
-import { createStatementService } from '@/services/statement'
+import {
+  createStatementService,
+  type StatementDocumentInput,
+  type StatementDocumentOutput,
+  type StatementInfo,
+  type StatementOperationResult,
+} from '@/services/statement'
 
 type CompatStatementService = Parameters<typeof createStatementService>[0]['compatStatementService']
 
@@ -220,5 +226,158 @@ describe('statement public response mapping', () => {
     await expect(service.sendStatementFAX({ ...documentInput, senderPhoneNumber: '0212345678', receiverPhoneNumber: '0288889999' })).resolves.toEqual(
       { receiptNumber: 'FAX-001' }
     )
+  })
+
+  test('preserves future, blank, null and missing codes across a batch without rejecting other documents', async () => {
+    const rawInfos = [
+      { itemCode: '121', stateCode: '00300', openYN: ' Y ', senderPrintYN: 'N', receiverPrintYN: 0 },
+      { itemCode: 'future-document', stateCode: 'future-state', openYN: 'pending', senderPrintYN: null, receiverPrintYN: 2 },
+      { itemCode: null, stateCode: null, openYN: null },
+      { itemCode: '', stateCode: '' },
+      {},
+    ]
+    const service = serviceWith({
+      getInfos: vi.fn<() => Promise<unknown>>(() => Promise.resolve(rawInfos)),
+    } as unknown as Partial<CompatStatementService>)
+
+    await expect(service.getStatementsInfo({ ...BASE_INPUT, managementKeys: ['STMT-001'] })).resolves.toEqual([
+      { documentTypeCode: 121, stateCode: 300, isOpen: true, sender: { printEnabled: false }, receiver: { printEnabled: false } },
+      {
+        documentTypeCode: 'future-document',
+        stateCode: 'future-state',
+        isOpen: 'pending',
+        sender: { printEnabled: null },
+        receiver: { printEnabled: 2 },
+      },
+      { documentTypeCode: null, stateCode: null, isOpen: null },
+      { documentTypeCode: '', stateCode: '' },
+      {},
+    ])
+  })
+
+  test('keeps open document classifications and flags while omitting invalid quantities', async () => {
+    const service = serviceWith({
+      getDetailInfo: vi.fn<() => Promise<unknown>>(() =>
+        Promise.resolve({
+          itemCode: 'future-document',
+          taxType: 'future-tax',
+          purposeType: null,
+          businessLicenseYN: null,
+          bankBookYN: 'pending',
+          smssendYN: ' TRUE ',
+          autoAcceptYN: '0',
+          faxsendYN: 2,
+          supplyCostTotal: '00020.5000',
+          detailList: [
+            { serialNum: null, qty: '000.50', unitCost: '001.0000' },
+            { serialNum: false },
+            { serialNum: ' ' },
+            { serialNum: '2', supplyCost: '00020.5000' },
+          ],
+        })
+      ),
+    } as unknown as Partial<CompatStatementService>)
+
+    await expect(service.getStatementDetailInfo(BASE_INPUT)).resolves.toEqual({
+      documentTypeCode: 'future-document',
+      taxType: 'future-tax',
+      purposeType: null,
+      includeBusinessLicenseImage: null,
+      includeBankBookImage: 'pending',
+      sendTextMessage: true,
+      autoAcceptEnabled: false,
+      sendFAXEnabled: 2,
+      paymentSummary: { totalSupplyCostAmount: '00020.5000' },
+      lineItems: [{ quantity: '000.50', unitCostAmount: '001.0000' }, {}, {}, { lineNumber: 2, supplyCostAmount: '00020.5000' }],
+    })
+  })
+
+  test.each([
+    ['0001', 1],
+    ['future-result', 'future-result'],
+    ['9007199254740993', '9007199254740993'],
+    ['', ''],
+    [null, null],
+    [undefined, undefined],
+  ])('preserves operation code %j without failing a successful response', async (code, expected) => {
+    const service = serviceWith({
+      register: vi.fn<() => Promise<unknown>>(() => Promise.resolve({ code, message: 'stored' })),
+    } as unknown as Partial<CompatStatementService>)
+
+    await expect(service.registerStatement({ businessNumber: BASE_INPUT.businessNumber, document: { documentTypeCode: 121 } })).resolves.toEqual({
+      resultCode: expected,
+      resultMessage: 'stored',
+    })
+  })
+
+  test('keeps log codes distinct from quantities and does not manufacture zero for null or boolean counts', async () => {
+    const service = serviceWith({
+      search: vi.fn<() => Promise<unknown>>(() =>
+        Promise.resolve({ code: 'future-result', message: 'OK', pageNum: '2', perPage: null, pageCount: false, total: ' ', list: [] })
+      ),
+      getLogs: vi.fn<() => Promise<unknown>>(() =>
+        Promise.resolve([
+          { docLogType: '00200', procType: 'future-process' },
+          { docLogType: 'future-log', procType: null },
+          { docLogType: null },
+          { docLogType: '' },
+        ])
+      ),
+      getFiles: vi.fn<() => Promise<unknown>>(() =>
+        Promise.resolve([
+          { serialNum: null, fileSize: false, attachedFile: 'FILE-001' },
+          { serialNum: ' ', fileSize: 'not-a-size' },
+          { serialNum: '2', fileSize: '0' },
+        ])
+      ),
+    } as unknown as Partial<CompatStatementService>)
+
+    await expect(
+      service.searchStatements({ businessNumber: BASE_INPUT.businessNumber, searchDateType: 'R', startDate: '20261101', endDate: '20261102' })
+    ).resolves.toEqual({
+      operationResult: { resultCode: 'future-result', resultMessage: 'OK' },
+      pageNumber: 2,
+      statementSummaries: [],
+    })
+    await expect(service.getStatementLogs(BASE_INPUT)).resolves.toEqual([
+      { documentLogTypeCode: 200, processTypeCode: 'future-process' },
+      { documentLogTypeCode: 'future-log', processTypeCode: null },
+      { documentLogTypeCode: null },
+      { documentLogTypeCode: '' },
+    ])
+    await expect(service.getAttachedFiles(BASE_INPUT)).resolves.toEqual([{ fileIdentifier: 'FILE-001' }, {}, { sequenceNumber: 2, fileSize: 0 }])
+  })
+
+  test('preserves email and charge classifications and recognizes common boolean spellings', async () => {
+    const service = serviceWith({
+      listEmailConfig: vi.fn<() => Promise<unknown>>(() =>
+        Promise.resolve([
+          { emailType: 'future-email', sendYN: 'pending' },
+          { emailType: null, sendYN: null },
+          { sendYN: ' Y ' },
+          { sendYN: ' false ' },
+          { sendYN: 1 },
+        ])
+      ),
+      getChargeInfo: vi.fn<() => Promise<unknown>>(() => Promise.resolve({ unitCost: '001.0000', chargeMethod: 'future-charge', rateSystem: null })),
+    } as unknown as Partial<CompatStatementService>)
+
+    await expect(service.getEmailSendSettings({ businessNumber: BASE_INPUT.businessNumber })).resolves.toEqual([
+      { emailTypeCode: 'future-email', sendEnabled: 'pending' },
+      { emailTypeCode: null, sendEnabled: null },
+      { sendEnabled: true },
+      { sendEnabled: false },
+      { sendEnabled: true },
+    ])
+    await expect(service.getChargeInfo(BASE_INPUT)).resolves.toEqual({ unitCost: '001.0000', chargeMethod: 'future-charge', rateSystem: null })
+  })
+
+  test('describes open provider output values without opening document input enums', () => {
+    expectTypeOf<StatementOperationResult['resultCode']>().toEqualTypeOf<number | string | null | undefined>()
+    expectTypeOf<StatementInfo['stateCode']>().toEqualTypeOf<number | string | null | undefined>()
+    expectTypeOf<StatementDocumentOutput['documentTypeCode']>().toEqualTypeOf<number | string | null | undefined>()
+    expectTypeOf<StatementDocumentOutput['sendTextMessage']>().toEqualTypeOf<boolean | string | number | null | undefined>()
+    expectTypeOf<StatementDocumentInput['documentTypeCode']>().toEqualTypeOf<121 | 122 | 123 | 124 | 125 | 126>()
+    expectTypeOf<StatementDocumentInput['sendTextMessage']>().toEqualTypeOf<boolean | undefined>()
   })
 })

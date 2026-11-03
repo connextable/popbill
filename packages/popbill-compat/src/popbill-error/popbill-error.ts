@@ -1,4 +1,4 @@
-import { normalizeErrorMessage } from '@connextable/popbill-utils'
+import { normalizeErrorMessage, parseSafeInteger } from '@connextable/popbill-utils'
 import { getPopbillErrorCodeDefinition, POPBILL_ERROR_CATEGORIES } from './code-catalog'
 import { getPopbillErrorDomainLabel, resolvePopbillErrorDomainFromCategory } from './domains'
 import { PopbillErrorDomain, PopbillErrorStage, PopbillErrorType } from './enums'
@@ -106,37 +106,39 @@ export function createUnknownError(error: unknown, context?: PopbillErrorContext
 }
 
 export function normalizePopbillError(error: unknown, context?: PopbillErrorContext): PopbillApiError {
-  if (isPopbillApiErrorPayload(error)) {
-    const inferredType = error.type ?? inferErrorTypeFromCode(error.code)
-    const inferredStage = context?.stage ?? error.stage ?? inferErrorStageFromCode(error.code)
+  const parsedError = parseApiErrorBody(error)
+  if (parsedError) {
+    const payload = error as PopbillApiErrorInput
+    const inferredType = payload.type ?? inferErrorTypeFromCode(parsedError.code)
+    const inferredStage = context?.stage ?? payload.stage ?? inferErrorStageFromCode(parsedError.code)
 
     return createError({
-      ...error,
-      code: error.code,
-      message: error.message,
+      ...payload,
+      code: parsedError.code,
+      message: parsedError.message,
       type: inferredType,
-      operation: context?.operation ?? error.operation,
+      operation: context?.operation ?? payload.operation,
       stage: inferredStage,
-      retriable: error.retriable ?? inferRetriable(error.status),
-      status: error.status,
-      raw: error.raw,
-      userMessage: error.userMessage,
-      domain: error.domain,
-      category: error.category,
-      canonicalMessage: error.canonicalMessage,
-      knownCode: error.knownCode,
-    })
-  }
-
-  if (isHttpErrorPayload(error) && isApiErrorBody(error.body)) {
-    return createApiResponseError(error.body.code, error.body.message, {
-      status: error.status,
-      raw: error.body,
-      ...context,
+      retriable: payload.retriable ?? inferRetriable(payload.status),
+      status: payload.status,
+      raw: payload.raw === undefined && payload.code !== parsedError.code ? error : payload.raw,
+      userMessage: payload.userMessage,
+      domain: payload.domain,
+      category: payload.category,
+      canonicalMessage: payload.canonicalMessage,
+      knownCode: payload.knownCode,
     })
   }
 
   if (isHttpErrorPayload(error)) {
+    const body = parseApiErrorBody(error.body)
+    if (body) {
+      return createApiResponseError(body.code, body.message, {
+        status: error.status,
+        raw: error.body,
+        ...context,
+      })
+    }
     return createHttpError(error.status, error.body, context)
   }
 
@@ -207,16 +209,17 @@ function isHttpErrorPayload(payload: unknown): payload is HttpErrorPayload {
   return 'status' in payload && 'body' in payload
 }
 
-function isApiErrorBody(payload: unknown): payload is { code: number; message: string } {
+function parseApiErrorBody(payload: unknown): { code: number; message: string } | undefined {
   if (typeof payload !== 'object' || payload === null) {
-    return false
+    return undefined
   }
 
   if (!('code' in payload) || !('message' in payload)) {
-    return false
+    return undefined
   }
 
-  return typeof (payload as { code: unknown }).code === 'number' && typeof (payload as { message: unknown }).message === 'string'
+  const code = typeof payload.code === 'number' ? payload.code : parseSafeInteger(payload.code)
+  return code !== undefined && typeof payload.message === 'string' ? { code, message: payload.message } : undefined
 }
 
 function isTimeoutError(error: unknown): error is Error {

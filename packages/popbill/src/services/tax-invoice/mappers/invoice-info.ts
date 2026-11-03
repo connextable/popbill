@@ -1,4 +1,5 @@
-import { toBoolean } from '@connextable/popbill-utils'
+import { preserveNumericCode } from '@/internal/collection-state'
+import { preserveBooleanResponse } from '@/internal/response'
 import type { TaxInvoiceInfo } from '@/services/tax-invoice/types'
 import type * as Spec from '@connextable/popbill-spec'
 
@@ -20,21 +21,21 @@ export function mapTaxInvoiceInfo(response: Spec.TaxInvoiceGetInfoApiResponse): 
     purposeType: response.purposeType,
     totalSupplyCost: response.supplyCostTotal,
     totalTax: response.taxTotal,
-    modificationCode: response.modifyCode,
+    modificationCode: preserveNumericCode(response.modifyCode),
     supplierCompanyName: response.invoicerCorpName,
     buyerCompanyName: response.invoiceeCorpName,
     trusteeCompanyName: response.trusteeCorpName,
-    stateCode: toRequiredStateCode(response.stateCode),
+    stateCode: preserveNumericCode(response.stateCode),
     stateMemo: response.stateMemo,
     nationalTaxServiceResult: response.ntsresult,
     nationalTaxServiceSendErrorCode: response.ntssendErrCode,
-    isLateIssued: toBoolean(response.lateIssueYN),
-    isOpen: toBoolean(response.openYN),
-    isApiLinkedDocument: toBoolean(response.interOPYN),
-    isSupplierPrinted: toBoolean(response.invoicerPrintYN),
-    isBuyerPrinted: toBoolean(response.invoiceePrintYN),
-    isTrusteePrinted: response.trusteePrintYN === undefined ? undefined : toBoolean(response.trusteePrintYN),
-    buyerBusinessStatus: response.closeDownState,
+    isLateIssued: preserveBooleanResponse(response.lateIssueYN),
+    isOpen: preserveBooleanResponse(response.openYN),
+    isApiLinkedDocument: preserveBooleanResponse(response.interOPYN),
+    isSupplierPrinted: preserveBooleanResponse(response.invoicerPrintYN),
+    isBuyerPrinted: preserveBooleanResponse(response.invoiceePrintYN),
+    isTrusteePrinted: preserveBooleanResponse(response.trusteePrintYN),
+    buyerBusinessStatus: preserveNumericCode(response.closeDownState),
     writtenDate: response.writeDate,
     registeredAt: response.regDT,
     issuedAt: response.issueDT,
@@ -44,19 +45,4 @@ export function mapTaxInvoiceInfo(response: Spec.TaxInvoiceGetInfoApiResponse): 
     nationalTaxServiceResultReceivedAt: response.ntsresultDT,
     buyerBusinessStatusDate: response.closeDownStateDate,
   }
-}
-
-function toRequiredStateCode(value: number | string): number {
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return value
-  }
-
-  if (typeof value === 'string' && value.trim() !== '') {
-    const normalizedNumber = Number(value)
-    if (Number.isFinite(normalizedNumber)) {
-      return normalizedNumber
-    }
-  }
-
-  throw new Error(`유효하지 않은 stateCode 응답값입니다. (${String(value)})`)
 }

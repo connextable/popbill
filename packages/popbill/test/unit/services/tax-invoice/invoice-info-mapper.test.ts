@@ -59,16 +59,40 @@ describe('tax-invoice invoice-info mapper', () => {
     expect(result.isTrusteePrinted).toBe(true)
   })
 
-  test.each(['invalid', '', '   ', Number.NaN, Number.POSITIVE_INFINITY])('throws when stateCode is invalid: %j', (stateCode) => {
-    expect(() =>
-      mapTaxInvoiceInfo({
-        ...BASE_RESPONSE,
-        stateCode,
-      } as unknown as Spec.TaxInvoiceGetInfoApiResponse)
-    ).toThrow('유효하지 않은 stateCode 응답값입니다.')
-  })
+  test.each(['future-state', '', '   ', null, undefined, '9007199254740993'])(
+    'preserves provider state without rejecting the summary: %j',
+    (stateCode) => {
+      expect(
+        mapTaxInvoiceInfo({
+          ...BASE_RESPONSE,
+          stateCode,
+        } as unknown as Spec.TaxInvoiceGetInfoApiResponse).stateCode
+      ).toBe(stateCode)
+    }
+  )
 
   test.each([0, '0'])('preserves zero stateCode: %j', (stateCode) => {
     expect(mapTaxInvoiceInfo({ ...BASE_RESPONSE, stateCode }).stateCode).toBe(0)
+  })
+
+  test('preserves unavailable and future flags while normalizing recognized boolean forms', () => {
+    const result = mapTaxInvoiceInfo({
+      ...BASE_RESPONSE,
+      lateIssueYN: null,
+      openYN: 'future-flag',
+      interOPYN: ' Y ',
+      invoicerPrintYN: '0',
+      invoiceePrintYN: 1,
+      trusteePrintYN: null,
+    } as unknown as Spec.TaxInvoiceGetInfoApiResponse)
+
+    expect(result).toMatchObject({
+      isLateIssued: null,
+      isOpen: 'future-flag',
+      isApiLinkedDocument: true,
+      isSupplierPrinted: false,
+      isBuyerPrinted: true,
+      isTrusteePrinted: null,
+    })
   })
 })
