@@ -23,3 +23,10 @@ export function normalizeOptionalString(value: string | undefined): string | und
   const trimmed = value.trim()
   return trimmed.length === 0 ? undefined : trimmed
 }
+
+/** Escape a multipart filename without changing its path or display-name policy. */
+export function escapeMultipartFileName(value: string): string {
+  // WHATWG multipart encoding escapes only CR, LF and quotes. Keep backslashes literal.
+  // https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#multipart-form-data
+  return value.replace(/\r/g, '%0D').replace(/\n/g, '%0A').replace(/"/g, '%22')
+}

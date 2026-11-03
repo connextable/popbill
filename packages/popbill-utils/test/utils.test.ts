@@ -1,4 +1,5 @@
 import {
+  escapeMultipartFileName,
   hmacSha256Base64,
   isBlank,
   isValidDate8,
@@ -43,6 +44,17 @@ describe('popbill utils', () => {
     for (const payload of [undefined, null, '']) {
       expect(stringifyWithoutEmptyValues(payload)).toBeUndefined()
     }
+  })
+
+  test.each([
+    ['attachment.pdf', 'attachment.pdf'],
+    ['견적 "최종"\r\n.pdf', '견적 %22최종%22%0D%0A.pdf'],
+    ['one\rtwo\n"three"', 'one%0Dtwo%0A%22three%22'],
+    ['folder/견적\\최종.pdf', 'folder/견적\\최종.pdf'],
+    ['100%20.pdf', '100%20.pdf'],
+    ['', ''],
+  ])('escapes multipart header delimiters while preserving filename %j', (value, expected) => {
+    expect(escapeMultipartFileName(value)).toBe(expected)
   })
 
   test('validation and cast utilities operate consistently', () => {

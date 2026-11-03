@@ -1,8 +1,6 @@
 import type * as Spec from '@connextable/popbill-spec'
+import { removeUndefinedProperties } from '@connextable/popbill-utils'
 import type * as Types from '../types'
-function compact<T extends object>(value: T): T {
-  return Object.fromEntries(Object.entries(value).filter(([, field]) => field !== undefined)) as T
-}
 export function operation(response: Spec.CommonOperationApiResponse): Types.CommonOperationResult {
   return { resultCode: response.code, resultMessage: response.message }
 }
@@ -16,7 +14,7 @@ export function company(response: Spec.CommonCorpInfoApiModel): Types.CommonComp
   }
 }
 export function contact(response: Spec.CommonContactApiModel): Types.CommonContact {
-  return compact({
+  return removeUndefinedProperties({
     userId: response.id,
     personName: response.personName,
     phoneNumber: response.tel,
@@ -28,7 +26,7 @@ export function contact(response: Spec.CommonContactApiModel): Types.CommonConta
   })
 }
 export function payment(response: Spec.CommonPaymentHistoryApiModel): Types.CommonPaymentHistory {
-  return compact({
+  return removeUndefinedProperties({
     productType: response.productType,
     productName: response.productName,
     paymentType: response.settleType,
@@ -42,7 +40,7 @@ export function payment(response: Spec.CommonPaymentHistoryApiModel): Types.Comm
   })
 }
 export function use(response: Spec.CommonUseHistoryApiModel): Types.CommonPointUseHistory {
-  return compact({
+  return removeUndefinedProperties({
     serviceCode: response.itemCode,
     serviceUserId: response.serviceUserID,
     userId: response.userID,
@@ -54,7 +52,7 @@ export function use(response: Spec.CommonUseHistoryApiModel): Types.CommonPointU
   })
 }
 export function refund(response: Spec.CommonRefundHistoryApiModel): Types.CommonRefundHistory {
-  return compact({
+  return removeUndefinedProperties({
     bankName: response.accountBank,
     accountNumber: response.accountNum,
     accountHolderName: response.accountName,
@@ -65,7 +63,7 @@ export function refund(response: Spec.CommonRefundHistoryApiModel): Types.Common
   })
 }
 export function page<T, R>(response: Spec.CommonPageApiResponse<T>, mapper: (value: T) => R): Types.CommonHistoryResult<R> {
-  return compact({
+  return removeUndefinedProperties({
     resultCode: response.code,
     resultMessage: response.message,
     pageNumber: response.pageNum,

@@ -1,4 +1,5 @@
 import type * as Spec from '@connextable/popbill-spec'
+import { removeUndefinedProperties } from '@connextable/popbill-utils'
 import type { StatementAdditionalFieldNumber, StatementDocumentInput, StatementLineItemInput } from '../types'
 
 export const ADDITIONAL_FIELD_NUMBERS: readonly StatementAdditionalFieldNumber[] = [
@@ -72,8 +73,4 @@ function mapLineItem(item: StatementLineItemInput): Spec.StatementDetailApiModel
     if (value !== undefined) mapped[`spare${number}`] = value
   }
   return mapped
-}
-
-export function removeUndefinedProperties<T extends Record<string, unknown>>(source: T): T {
-  return Object.fromEntries(Object.entries(source).filter(([, value]) => value !== undefined)) as T
 }

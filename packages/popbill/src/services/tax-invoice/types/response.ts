@@ -1,5 +1,5 @@
 import type * as document from './document'
-import type { ProviderBoolean, ProviderNumericCode } from '@/internal/response'
+import type { ProviderBoolean, ProviderNumericCode } from '@connextable/popbill-utils'
 
 /**
  * 세금계산서 공통 처리 결과입니다.

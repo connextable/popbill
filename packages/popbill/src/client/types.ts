@@ -63,7 +63,7 @@ export interface PopbillClientConfig {
   /**
    * 요청 `Accept-Language` 헤더 값입니다.
    *
-   * @default ko-KR
+   * 생략하면 해당 헤더를 보내지 않습니다.
    */
   acceptLanguage?: string
 

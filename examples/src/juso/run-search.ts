@@ -191,7 +191,7 @@ function printUsage(): void {
   lines.push('옵션')
   lines.push('  --keyword <string>                 검색어')
   lines.push('  --page-number <number>             페이지 번호(1 이상)')
-  lines.push('  --page-size <number>               페이지 크기(1 이상, 최대 100)')
+  lines.push('  --page-size <number>               페이지 크기(1 이상, 서버 정책 적용)')
   lines.push('  --disable-differential-search      차등검색 비활성화')
   lines.push('  --disable-suggestion               수정 제시어 비활성화')
   lines.push('')

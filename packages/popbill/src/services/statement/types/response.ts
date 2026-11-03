@@ -1,4 +1,4 @@
-import type { ProviderBoolean, ProviderNumericCode } from '@/internal/response'
+import type { ProviderBoolean, ProviderNumericCode } from '@connextable/popbill-utils'
 import type { StatementDocumentInput, StatementLineItemInput } from './document'
 
 export interface StatementOperationResult {

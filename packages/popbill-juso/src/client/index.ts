@@ -8,11 +8,15 @@ import {
 } from '@connextable/popbill-runtime'
 import { JusoLinkBaseUrls, JusoLinkDefaultRequestTimeoutMilliseconds, JusoLinkUserAgent } from '@/constants'
 import { createJusoService } from '@/services/juso'
-import { normalizeOptionalString, normalizeRequiredString, trimTrailingSlash } from '@connextable/popbill-utils'
+import {
+  isValidTimeoutMilliseconds,
+  MAX_TIMEOUT_MILLISECONDS,
+  normalizeOptionalString,
+  normalizeRequiredString,
+  trimTrailingSlash,
+} from '@connextable/popbill-utils'
 
 export type { JusoLinkClient, JusoLinkClientConfig } from './types'
-
-const MAX_REQUEST_TIMEOUT_MILLISECONDS = 2_147_483_647
 
 interface ResolvedJusoLinkClientConfig {
   /**
@@ -130,8 +134,8 @@ function normalizeRequestTimeoutMilliseconds(value: number | undefined): number 
     return JusoLinkDefaultRequestTimeoutMilliseconds
   }
 
-  if (!Number.isInteger(value) || value <= 0 || value > MAX_REQUEST_TIMEOUT_MILLISECONDS) {
-    throw new Error(`requestTimeoutMilliseconds는 1 이상 ${String(MAX_REQUEST_TIMEOUT_MILLISECONDS)} 이하의 정수여야 합니다.`)
+  if (!isValidTimeoutMilliseconds(value)) {
+    throw new Error(`requestTimeoutMilliseconds는 1 이상 ${String(MAX_TIMEOUT_MILLISECONDS)} 이하의 정수여야 합니다.`)
   }
 
   return value

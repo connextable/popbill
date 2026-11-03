@@ -1,8 +1,13 @@
 import type * as Spec from '@connextable/popbill-spec'
 import type * as Types from '../types'
-import { preserveNumericCode } from '@/internal/collection-state'
-import { optionalResponseNumber, preserveBooleanResponse } from '@/internal/response'
-import { ADDITIONAL_FIELD_NUMBERS, removeUndefinedProperties } from './document'
+import {
+  compactOptionalObject,
+  optionalResponseNumber,
+  preserveBooleanResponse,
+  preserveNumericCode,
+  removeUndefinedProperties,
+} from '@connextable/popbill-utils'
+import { ADDITIONAL_FIELD_NUMBERS } from './document'
 import { mapStatementInfo } from './statement-info'
 
 export function mapStatementOperationResult(response: Spec.StatementApiResponseBase): Types.StatementOperationResult {
@@ -141,9 +146,4 @@ function mapAdditionalFields(item: Spec.StatementDetailApiModel): Types.Statemen
     if (value !== undefined) mapped[number] = value
   }
   return Object.keys(mapped).length > 0 ? mapped : undefined
-}
-
-function compactOptionalObject<T extends Record<string, unknown>>(source: T): T | undefined {
-  const compacted = removeUndefinedProperties(source)
-  return Object.keys(compacted).length > 0 ? compacted : undefined
 }

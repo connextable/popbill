@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { escapeMultipartFileName } from '@connextable/popbill-utils'
 
 const CRLF = '\r\n'
 
@@ -34,10 +35,4 @@ export function buildSingleFileMultipartPayload(options: {
     body: Buffer.concat(chunks),
     contentType: `multipart/form-data;charset=utf-8; boundary=${boundary}`,
   }
-}
-
-function escapeMultipartFileName(value: string): string {
-  // WHATWG multipart encoding escapes only CR, LF and quotes. Keep backslashes literal.
-  // https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#multipart-form-data
-  return value.replace(/\r/g, '%0D').replace(/\n/g, '%0A').replace(/"/g, '%22')
 }

@@ -1,5 +1,6 @@
 import type { HTTaxinvoicePromiseService } from '@connextable/popbill-compat/factory'
 import { createInputValidationError } from '@connextable/popbill-compat/errors'
+import { isValidCalendarDate8 } from '@connextable/popbill-utils'
 import type { PopbillApiError } from '@/errors'
 import { invokeHomeTaxTaxInvoice } from './adapters/error'
 import * as mappers from './mappers'
@@ -134,12 +135,7 @@ function invalid(message: string, method: string): never {
 function validateDateRange(startDate: string, endDate: string): void {
   for (const dateValue of [startDate, endDate]) {
     if (typeof dateValue !== 'string' || !/^\d{8}$/.test(dateValue)) invalid('수집일자는 yyyyMMdd 형식이어야 합니다.', 'requestCollection')
-    const year = Number(dateValue.slice(0, 4)),
-      month = Number(dateValue.slice(4, 6)),
-      day = Number(dateValue.slice(6, 8))
-    const date = new Date(Date.UTC(year, month - 1, day))
-    if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day)
-      invalid('유효한 수집일자가 아닙니다.', 'requestCollection')
+    if (!isValidCalendarDate8(dateValue)) invalid('유효한 수집일자가 아닙니다.', 'requestCollection')
   }
   if (startDate > endDate) invalid('startDate는 endDate 이후일 수 없습니다.', 'requestCollection')
 }

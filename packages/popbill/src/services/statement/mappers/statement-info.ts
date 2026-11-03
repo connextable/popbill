@@ -1,8 +1,6 @@
 import type * as Spec from '@connextable/popbill-spec'
 import type { StatementInfo } from '../types'
-import { preserveNumericCode } from '@/internal/collection-state'
-import { preserveBooleanResponse } from '@/internal/response'
-import { removeUndefinedProperties } from './document'
+import { compactOptionalObject, preserveBooleanResponse, preserveNumericCode, removeUndefinedProperties } from '@connextable/popbill-utils'
 
 /** compat `getInfo` 응답을 modern StatementInfo로 변환합니다. */
 export function mapStatementInfo(response: Spec.StatementInfo): StatementInfo {
@@ -34,9 +32,4 @@ export function mapStatementInfo(response: Spec.StatementInfo): StatementInfo {
     stateChangedAt: response.stateDT,
     openedAt: response.openDT,
   })
-}
-
-function compactOptionalObject<T extends Record<string, unknown>>(source: T): T | undefined {
-  const compacted = removeUndefinedProperties(source)
-  return Object.keys(compacted).length > 0 ? compacted : undefined
 }

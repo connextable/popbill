@@ -1,7 +1,6 @@
 import type * as Spec from '@connextable/popbill-spec'
-import { parseSafeInteger } from '@connextable/popbill-utils'
+import { parseSafeInteger, preserveNumericCode } from '@connextable/popbill-utils'
 import type * as Output from '../types/response'
-import { preserveNumericCode } from '@/internal/collection-state'
 
 export function mapCollectionJobState(raw: Spec.HomeTaxCashbillJobStateApiModel): Output.HomeTaxCashbillCollectionJobState {
   const stateCode = preserveNumericCode(raw.jobState)

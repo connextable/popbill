@@ -1,5 +1,4 @@
-import { preserveNumericCode } from '@/internal/collection-state'
-import { preserveBooleanResponse } from '@/internal/response'
+import { preserveBooleanResponse, preserveNumericCode } from '@connextable/popbill-utils'
 import type { TaxInvoiceInfo } from '@/services/tax-invoice/types'
 import type * as Spec from '@connextable/popbill-spec'
 

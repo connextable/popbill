@@ -1,4 +1,4 @@
-import { normalizeErrorMessage, parseSafeInteger } from '@connextable/popbill-utils'
+import { invokeUserCallback, normalizeErrorMessage, parseSafeInteger } from '@connextable/popbill-utils'
 
 /**
  * 주소링크 요청 단계 상수입니다.
@@ -141,15 +141,7 @@ export function normalizeJusoApiError(error: unknown, context: NormalizeJusoApiE
  * 에러 핸들러를 안전하게 호출합니다.
  */
 export function dispatchJusoApiErrorSafely(handler: ((error: JusoApiError) => void) | undefined, error: JusoApiError): void {
-  if (!handler) {
-    return
-  }
-
-  try {
-    void Promise.resolve(handler(error)).catch(() => {})
-  } catch {
-    // 사용자 에러 핸들러 예외는 원래 예외 흐름을 방해하지 않는다.
-  }
+  invokeUserCallback(handler, error)
 }
 
 function extractRemoteError(value: unknown): { code: number; message: string } | undefined {

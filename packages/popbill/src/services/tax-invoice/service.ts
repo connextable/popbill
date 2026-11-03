@@ -5,6 +5,7 @@ import * as responseMappers from './mappers/response'
 import * as taxInvoiceTypes from './types'
 import { createInputValidationError } from '@connextable/popbill-compat/errors'
 import type { TaxinvoicePromiseService as CompatTaxInvoiceService } from '@connextable/popbill-compat/factory'
+import { isValidCalendarDate8 } from '@connextable/popbill-utils'
 import { PopbillErrorStage, type PopbillApiError } from '@/errors'
 
 const KOREA_TIME_ZONE = 'Asia/Seoul'
@@ -875,7 +876,7 @@ function normalizeSearchDateInput(dateInput: taxInvoiceTypes.TaxInvoiceDateInput
   }
 
   const normalizedDateInput = dateInput.trim()
-  if (!isValidDateString(normalizedDateInput)) {
+  if (!isValidCalendarDate8(normalizedDateInput)) {
     throw createInputValidationError(`${fieldName}는 yyyyMMdd 형식의 유효한 날짜여야 해.`, {
       operation,
       stage: PopbillErrorStage.ValidateInput,
@@ -907,20 +908,6 @@ function formatDateToKoreaDateString(date: Date): string {
   }
 
   return `${year}${month}${day}`
-}
-
-function isValidDateString(dateString: string): boolean {
-  const match = /^(\d{4})(\d{2})(\d{2})$/.exec(dateString)
-  if (!match) {
-    return false
-  }
-
-  const year = Number(match[1])
-  const month = Number(match[2])
-  const day = Number(match[3])
-  const normalizedDate = new Date(Date.UTC(year, month - 1, day))
-
-  return normalizedDate.getUTCFullYear() === year && normalizedDate.getUTCMonth() === month - 1 && normalizedDate.getUTCDate() === day
 }
 
 function normalizeStatementItemCode(

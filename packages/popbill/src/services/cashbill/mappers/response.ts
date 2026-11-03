@@ -1,15 +1,19 @@
 import type * as Spec from '@connextable/popbill-spec'
-import { preserveNumericCode } from '@/internal/collection-state'
-import { optionalResponseNumber, preserveBooleanResponse } from '@/internal/response'
+import {
+  compactOptionalObject,
+  optionalResponseNumber,
+  preserveBooleanResponse,
+  preserveNumericCode,
+  removeUndefinedProperties,
+} from '@connextable/popbill-utils'
 import type * as Types from '../types'
-import { compact, optionalObject } from './document'
 
 export function mapCashbillOperationResult(value: Spec.CashbillApiResponseBase): Types.CashbillOperationResult {
   return { resultCode: preserveNumericCode(value.code), resultMessage: value.message }
 }
 
 export function mapCashbillIssueResult(value: Spec.CashbillIssueResultApiModel): Types.CashbillIssueResult {
-  return compact({
+  return removeUndefinedProperties({
     ...mapCashbillOperationResult(value),
     confirmationNumber: value.confirmNum,
     transactionDate: value.tradeDate,
@@ -19,11 +23,11 @@ export function mapCashbillIssueResult(value: Spec.CashbillIssueResultApiModel):
 }
 
 export function mapCashbillBulkSubmissionResult(value: Spec.CashbillBulkSubmitApiResponse): Types.CashbillBulkSubmissionResult {
-  return compact({ ...mapCashbillOperationResult(value), receiptIdentifier: value.receiptID })
+  return removeUndefinedProperties({ ...mapCashbillOperationResult(value), receiptIdentifier: value.receiptID })
 }
 
 export function mapCashbillBulkResult(value: Spec.CashbillGetBulkResultApiResponse): Types.CashbillBulkResult {
-  return compact({
+  return removeUndefinedProperties({
     ...mapCashbillOperationResult(value),
     submissionIdentifier: value.submitID,
     receiptIdentifier: value.receiptID,
@@ -32,7 +36,9 @@ export function mapCashbillBulkResult(value: Spec.CashbillGetBulkResultApiRespon
     failureCount: optionalResponseNumber(value.failCount),
     processingStateCode: preserveNumericCode(value.txState),
     processingResultCode: preserveNumericCode(value.txResultCode),
-    issueResults: (value.issueResult ?? []).map((result) => compact({ ...mapCashbillIssueResult(result), managementKey: result.mgtKey })),
+    issueResults: (value.issueResult ?? []).map((result) =>
+      removeUndefinedProperties({ ...mapCashbillIssueResult(result), managementKey: result.mgtKey })
+    ),
     receivedAt: value.receiptDT,
     processingStartedAt: value.txStartDT,
     processingCompletedAt: value.txEndDT,
@@ -40,7 +46,7 @@ export function mapCashbillBulkResult(value: Spec.CashbillGetBulkResultApiRespon
 }
 
 export function mapCashbillInfo(value: Spec.CashbillInfoApiModel): Types.CashbillInfo {
-  return compact({
+  return removeUndefinedProperties({
     ...mapCashbillDocumentOutput(value),
     itemKey: value.itemKey,
     stateCode: preserveNumericCode(value.stateCode),
@@ -58,14 +64,14 @@ export function mapCashbillInfo(value: Spec.CashbillInfoApiModel): Types.Cashbil
 }
 
 export function mapCashbillDocumentOutput(value: Spec.CashbillApiModel): Types.CashbillDocumentOutput {
-  return compact({
+  return removeUndefinedProperties({
     managementKey: value.mgtKey,
     confirmationNumber: value.confirmNum,
     transactionType: value.tradeType,
     usageType: value.tradeUsage,
     tradeOption: value.tradeOpt,
     taxType: value.taxationType,
-    merchant: optionalObject({
+    merchant: compactOptionalObject({
       businessNumber: value.franchiseCorpNum,
       taxRegistrationIdentifier: value.franchiseTaxRegID,
       companyName: value.franchiseCorpName,
@@ -73,13 +79,13 @@ export function mapCashbillDocumentOutput(value: Spec.CashbillApiModel): Types.C
       address: value.franchiseAddr,
       telephoneNumber: value.franchiseTEL,
     }),
-    buyer: optionalObject({
+    buyer: compactOptionalObject({
       identificationNumber: value.identityNum,
       customerName: value.customerName,
       emailAddress: value.email,
       mobilePhoneNumber: value.hp,
     }),
-    payment: optionalObject({
+    payment: compactOptionalObject({
       totalAmount: value.totalAmount,
       supplyCostAmount: value.supplyCost,
       taxAmount: value.tax,
@@ -99,7 +105,7 @@ export function mapCashbillDocumentOutput(value: Spec.CashbillApiModel): Types.C
 }
 
 export function mapCashbillSearchResult(value: Spec.CashbillSearchApiResponse): Types.CashbillSearchResult {
-  return compact({
+  return removeUndefinedProperties({
     operationResult: mapCashbillOperationResult(value),
     pageNumber: optionalResponseNumber(value.pageNum),
     pageSize: optionalResponseNumber(value.perPage),
@@ -110,7 +116,7 @@ export function mapCashbillSearchResult(value: Spec.CashbillSearchApiResponse): 
 }
 
 export function mapCashbillLog(value: Spec.CashbillLogApiModel): Types.CashbillLogEntry {
-  return compact({
+  return removeUndefinedProperties({
     documentLogTypeCode: preserveNumericCode(value.docLogType),
     logMessage: value.log,
     processTypeCode: value.procType,
@@ -127,9 +133,9 @@ export function mapCashbillAccessUrl(accessUrl: string): Types.CashbillAccessUrl
 }
 
 export function mapCashbillEmailSendSetting(value: Spec.CashbillEmailConfigApiModel): Types.CashbillEmailSendSetting {
-  return compact({ emailTypeCode: value.emailType, sendEnabled: preserveBooleanResponse(value.sendYN) })
+  return removeUndefinedProperties({ emailTypeCode: value.emailType, sendEnabled: preserveBooleanResponse(value.sendYN) })
 }
 
 export function mapCashbillChargeInfo(value: Spec.CashbillChargeInfoApiResponse): Types.CashbillChargeInfo {
-  return compact({ unitCost: value.unitCost, chargeMethod: value.chargeMethod, rateSystem: value.rateSystem })
+  return removeUndefinedProperties({ unitCost: value.unitCost, chargeMethod: value.chargeMethod, rateSystem: value.rateSystem })
 }

@@ -1,7 +1,6 @@
 import type * as Spec from '@connextable/popbill-spec'
-import { parseSafeInteger } from '@connextable/popbill-utils'
+import { parseSafeInteger, preserveNumericCode } from '@connextable/popbill-utils'
 import type * as types from '../types'
-import { preserveNumericCode } from '@/internal/collection-state'
 
 export function mapOperation(value: Spec.HomeTaxTaxInvoiceApiResponseBase): types.HomeTaxTaxInvoiceOperationResult {
   return { resultCode: value.code, resultMessage: value.message }

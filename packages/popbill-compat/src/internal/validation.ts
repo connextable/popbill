@@ -1,4 +1,4 @@
-import { isBlank } from '@connextable/popbill-utils'
+import { isBlank, isValidDate8 } from '@connextable/popbill-utils'
 import { createLegacyValidationError, type LegacyCompatError } from './errors'
 import type * as Spec from '@connextable/popbill-spec'
 
@@ -110,7 +110,7 @@ export function validateSearchDate(value: string, missingMessage: string, invali
     return createLegacyValidationError(missingMessage)
   }
 
-  if (!isValidDate(value)) {
+  if (!isValidDate8(value)) {
     return createLegacyValidationError(invalidMessage)
   }
 
@@ -171,8 +171,4 @@ function isTaxInvoiceKeyType(value: string): value is Spec.TaxInvoiceMgtKeyType 
 
 function isTaxinvoiceTogo(value: string): value is Spec.TaxInvoiceGetUrlTogo {
   return value === 'TBOX' || value === 'SWBOX' || value === 'SBOX' || value === 'PWBOX' || value === 'PBOX' || value === 'WRITE'
-}
-
-function isValidDate(value: string): boolean {
-  return /^(\d{4})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$/.test(value)
 }

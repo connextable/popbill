@@ -1,5 +1,6 @@
 import type { StatementPromiseService as CompatStatementService } from '@connextable/popbill-compat/factory'
 import { createInputValidationError } from '@connextable/popbill-compat/errors'
+import { isValidCalendarDate8 } from '@connextable/popbill-utils'
 import type { PopbillApiError } from '@/errors'
 import { PopbillErrorStage } from '@/errors'
 import { invokeStatementMethod } from './adapters/error'
@@ -334,10 +335,6 @@ function normalizeDate(value: string, field: string, fail: (message: string) => 
   if (typeof value !== 'string') fail(`${field}는 yyyyMMdd 형식이어야 합니다.`)
   const normalized = value.trim()
   if (!/^\d{8}$/.test(normalized)) fail(`${field}는 yyyyMMdd 형식이어야 합니다.`)
-  const year = Number(normalized.slice(0, 4))
-  const month = Number(normalized.slice(4, 6))
-  const day = Number(normalized.slice(6, 8))
-  const date = new Date(Date.UTC(year, month - 1, day))
-  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) fail(`${field}가 유효한 날짜가 아닙니다.`)
+  if (!isValidCalendarDate8(normalized)) fail(`${field}가 유효한 날짜가 아닙니다.`)
   return normalized
 }

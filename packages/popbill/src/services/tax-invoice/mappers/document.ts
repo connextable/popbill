@@ -7,6 +7,7 @@ import type {
 } from '@/services/tax-invoice/types'
 import type * as Spec from '@connextable/popbill-spec'
 import { createInputValidationError } from '@connextable/popbill-compat/errors'
+import { removeUndefinedProperties } from '@connextable/popbill-utils'
 import { PopbillErrorStage } from '@/errors'
 
 export function mapTaxInvoicePdfPrintCopy(printCopy: unknown): Spec.TaxInvoiceGetPdfApiRequestQuery['PdfInvoiceType'] {
@@ -195,12 +196,4 @@ function mapAdditionalContact(
     contactName: additionalContactInput.contactName,
     email: additionalContactInput.emailAddress,
   }
-}
-
-/**
- * 객체에서 `undefined` 값만 제거하여 API 요청 본문을 정리합니다.
- */
-function removeUndefinedProperties<T extends Record<string, unknown>>(sourceObject: T): T {
-  const definedEntries = Object.entries(sourceObject).filter(([, value]) => value !== undefined)
-  return Object.fromEntries(definedEntries) as T
 }

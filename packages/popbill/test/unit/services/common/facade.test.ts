@@ -306,6 +306,7 @@ describe('common modern facade', () => {
   it('validates calendar dates and positive integer pagination before invoking compat', async () => {
     const { mock, service } = facade('getPaymentHistory', {})
     await expect(service.getPointPaymentHistory({ ...history, startDate: '20260230' })).rejects.toMatchObject({ stage: 'validate_input' })
+    await expect(service.getPointPaymentHistory({ ...history, startDate: '09991231' })).rejects.toMatchObject({ stage: 'validate_input' })
     await expect(service.getPointPaymentHistory({ ...history, pageSize: 0 })).rejects.toMatchObject({ stage: 'validate_input' })
     await expect(service.getPointPaymentHistory({ ...history, pageNumber: 1.5 })).rejects.toMatchObject({ stage: 'validate_input' })
     expect(mock).not.toHaveBeenCalled()

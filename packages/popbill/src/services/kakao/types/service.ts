@@ -57,13 +57,13 @@ export interface KakaoService {
   sendNotificationMessages(request: Input.SendNotificationMessagesRequest): Promise<Output.KakaoReceipt>
   /** Compat: `sendATS_same` */
   sendIdenticalNotificationMessages(request: Input.SendIdenticalNotificationMessagesRequest): Promise<Output.KakaoReceipt>
-  /** Compat: `sendFTS_same`. A single recipient retains its reference key. */
+  /** 단건 친구톡 텍스트를 전송하며 수신자의 참조 키를 유지합니다. Compat: `sendFTS_same` */
   sendFriendTextMessage(request: Input.SendFriendTextMessageRequest): Promise<Output.KakaoReceipt>
   /** Compat: `sendFTS_multi` */
   sendFriendTextMessages(request: Input.SendFriendTextMessagesRequest): Promise<Output.KakaoReceipt>
   /** Compat: `sendFTS_same` */
   sendIdenticalFriendTextMessages(request: Input.SendIdenticalFriendTextMessagesRequest): Promise<Output.KakaoReceipt>
-  /** Compat: `sendFMS_same`. A single recipient retains its reference key. */
+  /** 단건 친구톡 이미지를 전송하며 수신자의 참조 키를 유지합니다. Compat: `sendFMS_same` */
   sendFriendImageMessage(request: Input.SendFriendImageMessageRequest): Promise<Output.KakaoReceipt>
   /** Compat: `sendFMS_multi` */
   sendFriendImageMessages(request: Input.SendFriendImageMessagesRequest): Promise<Output.KakaoReceipt>

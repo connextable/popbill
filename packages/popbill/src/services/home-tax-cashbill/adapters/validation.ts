@@ -1,4 +1,5 @@
 import { createInputValidationError, PopbillErrorStage } from '@connextable/popbill-compat/errors'
+import { isValidCalendarDate8 } from '@connextable/popbill-utils'
 import type { HomeTaxCashbillFilterInput, RequestHomeTaxCashbillCollectionInput, SearchHomeTaxCashbillsInput } from '../types'
 
 export function failInput(operation: string, message: string): never {
@@ -14,11 +15,7 @@ export function validateCollectionInput(input: RequestHomeTaxCashbillCollectionI
     ['endDate', input.endDate],
   ] as const) {
     if (typeof value !== 'string' || !/^\d{8}$/.test(value)) fail(`${field}는 yyyyMMdd 형식이어야 합니다.`)
-    const year = Number(value.slice(0, 4)),
-      month = Number(value.slice(4, 6)),
-      day = Number(value.slice(6, 8))
-    const date = new Date(Date.UTC(year, month - 1, day))
-    if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) fail(`${field}가 유효한 날짜가 아닙니다.`)
+    if (!isValidCalendarDate8(value)) fail(`${field}가 유효한 날짜가 아닙니다.`)
   }
   if (input.startDate > input.endDate) fail('startDate는 endDate 이후일 수 없습니다.')
 }

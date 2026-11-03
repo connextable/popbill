@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
-import { stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
+import { escapeMultipartFileName, stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
 import type * as Spec from '@connextable/popbill-spec'
 import { createLegacyValidationError } from '@/internal/errors'
 import { validateCorpNum } from '@/internal/validation'
@@ -179,7 +179,7 @@ function multipart(form: Spec.FaxSendApiModel, files: FaxBinaryFile[]): { body: 
     Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="form"\r\n\r\n${stringifyWithoutEmptyValues(form)}\r\n`),
   ]
   for (const file of files) {
-    const fileName = path.basename(file.fileName).replace(/\r/g, '%0D').replace(/\n/g, '%0A').replace(/"/g, '%22')
+    const fileName = escapeMultipartFileName(path.basename(file.fileName))
     chunks.push(
       Buffer.from(
         `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${fileName}"\r\nContent-Type: application/octet-stream\r\n\r\n`

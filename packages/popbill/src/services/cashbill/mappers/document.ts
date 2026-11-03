@@ -1,19 +1,9 @@
 import type * as Spec from '@connextable/popbill-spec'
+import { removeUndefinedProperties } from '@connextable/popbill-utils'
 import type { CashbillDocumentInput } from '../types'
 
-export function compact<T extends object>(source: T): T {
-  const result = { ...source }
-  for (const key of Object.keys(result) as (keyof T)[]) if (result[key] === undefined) delete result[key]
-  return result
-}
-
-export function optionalObject<T extends object>(source: T): T | undefined {
-  const result = compact(source)
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
 export function mapCashbillDocument(document: CashbillDocumentInput): Spec.CashbillApiModel {
-  return compact({
+  return removeUndefinedProperties({
     mgtKey: document.managementKey,
     tradeDT: document.transactedAt,
     tradeType: document.transactionType,

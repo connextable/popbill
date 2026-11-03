@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
 import path from 'node:path'
-import { stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
+import { escapeMultipartFileName, stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
 import type * as Spec from '@connextable/popbill-spec'
 import { createLegacyValidationError } from '@/internal/errors'
 import { validateCorpNum } from '@/internal/validation'
@@ -196,7 +196,7 @@ export async function upload<T>(
   for (const file of files) {
     required(file.fileName, '파일명이 입력되지 않았습니다.')
     if (!Buffer.isBuffer(file.fileData)) throw createLegacyValidationError('파일 데이터가 입력되지 않았습니다.')
-    const name = path.basename(file.fileName).replace(/\r/g, '%0D').replace(/\n/g, '%0A').replace(/"/g, '%22')
+    const name = escapeMultipartFileName(path.basename(file.fileName))
     chunks.push(
       Buffer.from(
         '--' +

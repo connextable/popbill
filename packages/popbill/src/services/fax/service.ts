@@ -1,5 +1,6 @@
 import type { FaxPromiseService } from '@connextable/popbill-compat/factory'
 import { createInputValidationError } from '@connextable/popbill-compat/errors'
+import { isValidCalendarDate8 } from '@connextable/popbill-utils'
 import { PopbillErrorStage, type PopbillApiError } from '@/errors'
 import { invokeFaxMethod } from './adapters/error'
 import { mapFaxResendInput, mapFaxSendInput } from './mappers/document'
@@ -111,12 +112,7 @@ function normalizeSearch(input: SearchFaxesInput) {
   const date = (value: string, field: string): string => {
     if (typeof value !== 'string' || !/^\d{8}$/.test(value.trim())) return fail(`${field}는 yyyyMMdd 형식이어야 합니다.`)
     const normalized = value.trim()
-    const year = Number(normalized.slice(0, 4)),
-      month = Number(normalized.slice(4, 6)),
-      day = Number(normalized.slice(6, 8))
-    const parsed = new Date(Date.UTC(year, month - 1, day))
-    if (parsed.getUTCFullYear() !== year || parsed.getUTCMonth() !== month - 1 || parsed.getUTCDate() !== day)
-      return fail(`${field}가 유효한 날짜가 아닙니다.`)
+    if (!isValidCalendarDate8(normalized)) return fail(`${field}가 유효한 날짜가 아닙니다.`)
     return normalized
   }
   const startDate = date(input.startDate, 'startDate'),

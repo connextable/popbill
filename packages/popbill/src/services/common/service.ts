@@ -1,6 +1,6 @@
 import type { CommonPromiseService } from '@connextable/popbill-compat/factory'
 import { createInputValidationError } from '@connextable/popbill-compat/errors'
-import { parseSafeInteger } from '@connextable/popbill-utils'
+import { isValidCalendarDate8, parseSafeInteger } from '@connextable/popbill-utils'
 import { PopbillErrorStage, type PopbillApiError } from '@/errors'
 import { invokeCommonMethod } from './adapters/error'
 import { mapCompany, mapContact } from './mappers/document'
@@ -200,9 +200,8 @@ function validateHistory(request: Types.CommonHistoryInput, method: keyof Types.
   validatePage(request, method)
   for (const date of [request.startDate, request.endDate]) {
     if (!/^\d{8}$/.test(date)) invalid('조회일자는 yyyyMMdd 형식이어야 합니다.', method)
-    const parsed = new Date(Date.UTC(Number(date.slice(0, 4)), Number(date.slice(4, 6)) - 1, Number(date.slice(6, 8))))
-    if (`${parsed.getUTCFullYear()}${String(parsed.getUTCMonth() + 1).padStart(2, '0')}${String(parsed.getUTCDate()).padStart(2, '0')}` !== date)
-      invalid('유효한 조회일자를 입력해야 합니다.', method)
+    // History dates previously serialized the year without leading zeroes.
+    if (!isValidCalendarDate8(date) || date.startsWith('0')) invalid('유효한 조회일자를 입력해야 합니다.', method)
   }
   if (request.startDate > request.endDate) invalid('startDate는 endDate 이후일 수 없습니다.', method)
 }

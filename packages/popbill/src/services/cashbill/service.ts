@@ -1,5 +1,6 @@
 import type { CashbillPromiseService as CompatCashbillService } from '@connextable/popbill-compat/factory'
 import { createInputValidationError } from '@connextable/popbill-compat/errors'
+import { isValidCalendarDate8 } from '@connextable/popbill-utils'
 import { PopbillErrorStage, type PopbillApiError } from '@/errors'
 import { invokeCashbillMethod } from './adapters/error'
 import { mapCashbillDocument } from './mappers/document'
@@ -277,13 +278,7 @@ function validateSearch(request: types.SearchCashbillsInput): void {
     ['endDate', request.endDate],
   ]) {
     if (typeof date !== 'string' || !/^\d{8}$/.test(date)) invalid(`${name}는 yyyyMMdd 형식이어야 합니다.`)
-    const parsed = new Date(Date.UTC(Number(date!.slice(0, 4)), Number(date!.slice(4, 6)) - 1, Number(date!.slice(6, 8))))
-    if (
-      parsed.getUTCFullYear() !== Number(date!.slice(0, 4)) ||
-      parsed.getUTCMonth() + 1 !== Number(date!.slice(4, 6)) ||
-      parsed.getUTCDate() !== Number(date!.slice(6, 8))
-    )
-      invalid(`${name}가 유효한 날짜가 아닙니다.`)
+    if (!isValidCalendarDate8(date!)) invalid(`${name}가 유효한 날짜가 아닙니다.`)
   }
   if (request.startDate > request.endDate) invalid('startDate는 endDate 이후일 수 없습니다.')
   if (request.sortOrder !== undefined && !Object.values(types.CashbillSortOrder).includes(request.sortOrder))

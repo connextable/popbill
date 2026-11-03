@@ -1,6 +1,12 @@
 import { mapTaxInvoiceInfo } from './invoice-info'
-import { preserveNumericCode } from '@/internal/collection-state'
-import { optionalResponseNumber, preserveBooleanResponse, type ProviderNumericCode } from '@/internal/response'
+import {
+  compactOptionalObject,
+  optionalResponseNumber,
+  preserveBooleanResponse,
+  preserveNumericCode,
+  removeUndefinedProperties,
+  type ProviderNumericCode,
+} from '@connextable/popbill-utils'
 import type {
   TaxInvoiceAccessUrl,
   TaxInvoiceAttachedFile,
@@ -427,20 +433,4 @@ function mapTrusteeOutput(taxInvoiceApiResponse: Spec.TaxInvoiceApiModel): TaxIn
     sendTextMessage: preserveBooleanResponse(taxInvoiceApiResponse.trusteeSMSSendYN),
     printEnabled: preserveBooleanResponse(taxInvoiceApiResponse.trusteePrintYN),
   })
-}
-
-/**
- * 모든 필드가 비어있으면 `undefined`를 반환하고, 아니면 정리된 객체를 반환합니다.
- */
-function compactOptionalObject<T extends Record<string, unknown>>(sourceObject: T): T | undefined {
-  const normalizedObject = removeUndefinedProperties(sourceObject)
-  return Object.keys(normalizedObject).length === 0 ? undefined : normalizedObject
-}
-
-/**
- * 객체에서 `undefined` 값만 제거합니다.
- */
-function removeUndefinedProperties<T extends Record<string, unknown>>(sourceObject: T): T {
-  const definedEntries = Object.entries(sourceObject).filter(([, value]) => value !== undefined)
-  return Object.fromEntries(definedEntries) as T
 }

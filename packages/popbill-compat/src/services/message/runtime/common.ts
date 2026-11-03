@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
 import path from 'node:path'
-import { stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
+import { escapeMultipartFileName, stringifyWithoutEmptyValues } from '@connextable/popbill-utils'
 import { createLegacyValidationError } from '@/internal/errors'
 import { validateCorpNum } from '@/internal/validation'
 import type { MessageBinaryFile, MessageRecipient } from '../types'
@@ -86,7 +86,7 @@ export async function send(
   required(binary.fileName, '첨부파일명이 입력되지 않았습니다.')
   // MMS uses file; document attachment APIs use Filedata.
   const boundary = '----POPBILL-MESSAGE-' + randomUUID()
-  const fileName = path.basename(binary.fileName).replace(/\r/g, '%0D').replace(/\n/g, '%0A').replace(/"/g, '%22')
+  const fileName = escapeMultipartFileName(path.basename(binary.fileName))
   const payload = Buffer.concat([
     Buffer.from('--' + boundary + '\r\nContent-Disposition: form-data; name="form"\r\n\r\n' + stringifyWithoutEmptyValues(body) + '\r\n'),
     Buffer.from(
