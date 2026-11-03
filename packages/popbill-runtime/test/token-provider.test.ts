@@ -36,7 +36,8 @@ describe('createTokenProvider', () => {
         serviceId: 'JUSOLINK',
         accessId: null,
         scopes: ['200'],
-      })
+      }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
     )
   })
 
@@ -175,6 +176,31 @@ describe('createTokenProvider', () => {
     await expect(tokenProvider.getToken('1234567890')).resolves.toMatchObject({ sessionToken: 'member-a-new' })
     await expect(tokenProvider.getToken('0987654321')).resolves.toMatchObject({ sessionToken: 'member-b' })
     expect(issueTokenMock).toHaveBeenCalledTimes(3)
+  })
+
+  test('cancels an invalidated waiter without aborting or removing its replacement', async () => {
+    const signals: AbortSignal[] = []
+    const resolvers: ((token: LinkhubTokenResponse) => void)[] = []
+    const authClient: LinkhubAuthClient = {
+      issueToken: (_request, options) => {
+        signals.push(options!.signal!)
+        return new Promise((resolve) => resolvers.push(resolve))
+      },
+    }
+    const provider = createTokenProvider({ authClient, serviceId: 'POPBILL_TEST', scopes: ['member'] })
+    const controller = new AbortController()
+    const old = provider.getToken('1234567890', { signal: controller.signal }).catch((error: unknown) => error)
+    provider.invalidate('1234567890')
+    const fresh = provider.getToken('1234567890')
+    controller.abort()
+    expect(await old).toMatchObject({ abort: { source: 'signal' } })
+    expect(signals[0]?.aborted).toBe(true)
+    expect(signals[1]?.aborted).toBe(false)
+    resolvers[0]!(createToken({ sessionToken: 'stale' }))
+    resolvers[1]!(createToken({ sessionToken: 'fresh' }))
+    await fresh
+    await expect(provider.getToken('1234567890')).resolves.toMatchObject({ sessionToken: 'fresh' })
+    expect(signals).toHaveLength(2)
   })
 
   test('does not cache an invalidated in-flight token or remove a newer pending request', async () => {

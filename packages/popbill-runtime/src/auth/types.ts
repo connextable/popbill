@@ -1,4 +1,5 @@
 import type * as Spec from '@connextable/popbill-spec'
+import type { RequestCallOptions, RequestContext } from '../api/request-context'
 
 export type LinkhubTokenApiResponse = Spec.LinkhubIssueTokenApiResponse
 
@@ -22,17 +23,19 @@ export interface IssueTokenRequest {
 }
 
 export interface LinkhubAuthClient {
-  issueToken(request: IssueTokenRequest): Promise<LinkhubTokenResponse>
+  issueToken(request: IssueTokenRequest, options?: RequestCallOptions): Promise<LinkhubTokenResponse>
 }
 
 /** Auth-host point APIs authenticated by an issued service token. */
 export interface LinkhubPointClient {
-  getBalance(token: LinkhubTokenResponse): Promise<string>
-  getPartnerBalance(token: LinkhubTokenResponse): Promise<string>
-  getPartnerURL(token: LinkhubTokenResponse, toGo: string): Promise<string>
+  getBalance(token: LinkhubTokenResponse, options?: RequestCallOptions): Promise<string>
+  getPartnerBalance(token: LinkhubTokenResponse, options?: RequestCallOptions): Promise<string>
+  getPartnerURL(token: LinkhubTokenResponse, toGo: string, options?: RequestCallOptions): Promise<string>
 }
 
 export interface LinkhubAuthClientConfig {
+  fetch?: typeof globalThis.fetch
+  requestContext?: RequestContext
   /**
    * Linkhub LinkID (required).
    */
@@ -68,7 +71,7 @@ export interface LinkhubAuthClientConfig {
 }
 
 export interface TokenProvider {
-  getToken(businessNumber: string): Promise<LinkhubTokenResponse>
+  getToken(businessNumber: string, options?: RequestCallOptions): Promise<LinkhubTokenResponse>
   /** Clear a member's cached token without caching any older in-flight issuance. */
   invalidate?(businessNumber: string): void
 }
@@ -78,6 +81,7 @@ export interface CachedTokenProvider extends TokenProvider {
 }
 
 export interface CreateTokenProviderInput {
+  requestContext?: RequestContext
   authClient: LinkhubAuthClient
   serviceId: Spec.PopbillIssueTokenApiRequestPath['serviceId']
   scopes: readonly Spec.LinkhubAuthScope[]
@@ -90,6 +94,8 @@ export interface CreateTokenProviderInput {
 }
 
 export interface ResolvedLinkhubAuthClientConfig {
+  fetch?: typeof globalThis.fetch
+  requestContext?: RequestContext
   linkId: string
   secretKey: string
   authBaseUrl?: string

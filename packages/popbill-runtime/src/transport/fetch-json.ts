@@ -1,5 +1,8 @@
+import { RequestAbortError, ResponseBodyError, throwIfRequestAborted, type RequestAbortInfo } from './errors'
+
 export interface FetchJsonOptions {
   timeoutMs: number
+  fetch?: typeof globalThis.fetch
 }
 
 const MAX_TIMEOUT_MS = 2_147_483_647
@@ -22,7 +25,7 @@ class HttpResponseError extends Error implements HttpErrorPayload {
 }
 
 export async function fetchJson<T>(requestUrl: string, requestInit: RequestInit, options: FetchJsonOptions): Promise<T> {
-  const { response, body: responseText } = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs, (value) => value.text())
+  const { response, body: responseText } = await fetchWithTimeout(requestUrl, requestInit, options, (value) => value.text())
 
   if (!response.ok) {
     throw createHttpErrorPayload(response.status, parseErrorResponseBody(responseText))
@@ -32,7 +35,7 @@ export async function fetchJson<T>(requestUrl: string, requestInit: RequestInit,
 }
 
 export async function fetchText(requestUrl: string, requestInit: RequestInit, options: FetchJsonOptions): Promise<string> {
-  const { response, body: responseText } = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs, (value) => value.text())
+  const { response, body: responseText } = await fetchWithTimeout(requestUrl, requestInit, options, (value) => value.text())
 
   if (!response.ok) {
     throw createHttpErrorPayload(response.status, responseText)
@@ -43,7 +46,7 @@ export async function fetchText(requestUrl: string, requestInit: RequestInit, op
 
 /** Reads bytes without text decoding, retaining JSON API errors and the body-read timeout. */
 export async function fetchBinary(requestUrl: string, requestInit: RequestInit, options: FetchJsonOptions): Promise<Uint8Array> {
-  const { response, body } = await fetchWithTimeout(requestUrl, requestInit, options.timeoutMs, (value) => value.arrayBuffer())
+  const { response, body } = await fetchWithTimeout(requestUrl, requestInit, options, (value) => value.arrayBuffer())
   const bytes = new Uint8Array(body)
   if (!response.ok || response.headers.get('content-type')?.toLowerCase().includes('application/json')) {
     throw createHttpErrorPayload(response.status, parseErrorResponseBody(new TextDecoder().decode(bytes)))
@@ -54,17 +57,25 @@ export async function fetchBinary(requestUrl: string, requestInit: RequestInit, 
 async function fetchWithTimeout<T>(
   requestUrl: string,
   requestInit: RequestInit,
-  timeoutMs: number,
+  options: FetchJsonOptions,
   readBody: (response: Response) => Promise<T>
 ): Promise<{ response: Response; body: T }> {
+  const { timeoutMs } = options
   if (timeoutMs > MAX_TIMEOUT_MS) {
     throw new RangeError(`timeoutMs must not exceed ${String(MAX_TIMEOUT_MS)} milliseconds.`)
   }
 
   const externalSignal = requestInit.signal
+  throwIfRequestAborted(externalSignal)
   const abortController = new AbortController()
+  let abortInfo: RequestAbortInfo | undefined
+  const abort = (info: RequestAbortInfo) => {
+    if (abortController.signal.aborted) return
+    abortInfo = info
+    abortController.abort(info.reason)
+  }
   const abortFromExternalSignal = () => {
-    abortController.abort(externalSignal?.reason)
+    abort({ source: 'signal', reason: externalSignal?.reason })
   }
 
   if (externalSignal?.aborted) {
@@ -74,16 +85,27 @@ async function fetchWithTimeout<T>(
   }
 
   const timer = setTimeout(() => {
-    abortController.abort()
+    abort({ source: 'request_timeout', reason: new DOMException('Popbill request timed out.', 'TimeoutError') })
   }, timeoutMs)
 
   try {
-    const response = await fetch(requestUrl, {
+    const fetchImpl = options.fetch ?? globalThis.fetch
+    const response = await fetchImpl(requestUrl, {
       ...requestInit,
       signal: abortController.signal,
     })
-    const body = await readBody(response)
+    let body: T
+    try {
+      body = await readBody(response)
+    } catch (error) {
+      if (abortInfo) throw new RequestAbortError(abortInfo)
+      throw new ResponseBodyError(error)
+    }
+    if (abortInfo) throw new RequestAbortError(abortInfo)
     return { response, body }
+  } catch (error) {
+    if (abortInfo) throw new RequestAbortError(abortInfo)
+    throw error
   } finally {
     clearTimeout(timer)
     externalSignal?.removeEventListener('abort', abortFromExternalSignal)

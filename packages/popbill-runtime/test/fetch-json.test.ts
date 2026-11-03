@@ -70,6 +70,17 @@ describe('fetchJson', () => {
 
     abortController.abort(abortReason)
 
-    await expect(requestPromise).rejects.toBe(abortReason)
+    const failure: unknown = await requestPromise.catch((error: unknown) => error)
+    expect(failure).toMatchObject({ abort: { source: 'signal', reason: abortReason } })
+    expect((failure as { cause: unknown }).cause).toBe(abortReason)
+  })
+
+  test('does not invoke an injected fetch for an already cancelled call', async () => {
+    const injectedFetch = vi.fn<typeof fetch>()
+    const reason = { code: -11000000, message: 'caller cancelled' }
+    await expect(
+      fetchJson('https://example.test/', { signal: AbortSignal.abort(reason) }, { timeoutMs: 1000, fetch: injectedFetch })
+    ).rejects.toMatchObject({ abort: { source: 'signal', reason } })
+    expect(injectedFetch).not.toHaveBeenCalled()
   })
 })

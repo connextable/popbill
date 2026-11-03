@@ -5,6 +5,9 @@ import type { TokenProvider } from '@/auth'
 import { PopbillHttpMethodOverrides } from '@/spec-constants'
 import { isBlank, normalizeOptionalString, sha1Base64, trimTrailingSlash } from '@connextable/popbill-utils'
 import type * as Spec from '@connextable/popbill-spec'
+import type { RequestContext } from './request-context'
+import { throwIfRequestAborted } from '../transport/errors'
+import { getRequestToken } from '../auth/token-provider'
 
 const POPBILL_USER_AGENT = 'NODEJS POPBILL SDK'
 
@@ -16,6 +19,8 @@ export interface PopbillRequestStageError {
 }
 
 export interface PopbillRequestClientConfig {
+  fetch?: typeof globalThis.fetch
+  requestContext?: RequestContext
   apiBaseUrl: string
   /** Request timeout in milliseconds, up to 2_147_483_647. */
   timeoutMs: number
@@ -25,6 +30,7 @@ export interface PopbillRequestClientConfig {
 }
 
 export interface PopbillRequestOptions {
+  signal?: AbortSignal
   /** API path and query appended to apiBaseUrl; dot path segments are not allowed. */
   uri: string
   corpNum?: string
@@ -62,6 +68,7 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
     options: PopbillRequestOptions,
     transport: (url: string, init: RequestInit, options: FetchJsonOptions) => Promise<T>
   ): Promise<T> {
+    const signal = options.signal ?? config.requestContext?.getSignal()
     const method = (options.method ?? 'GET').toUpperCase()
     const requestHeaders: Record<string, string> = {
       'User-Agent': POPBILL_USER_AGENT,
@@ -99,13 +106,14 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
       }
     }
 
-    if (isNonBlankString(options.corpNum)) {
-      try {
-        const token = await config.tokenProvider.getToken(options.corpNum)
+    try {
+      throwIfRequestAborted(signal)
+      if (isNonBlankString(options.corpNum)) {
+        const token = await getRequestToken(config.tokenProvider, options.corpNum, signal)
         requestHeaders['Authorization'] = `Bearer ${token.sessionToken}`
-      } catch (error) {
-        throw createStageError('issue_token', error)
       }
+    } catch (error) {
+      throw createStageError(isNonBlankString(options.corpNum) ? 'issue_token' : 'request_api', error)
     }
 
     try {
@@ -115,8 +123,9 @@ export function createPopbillRequestClient(config: PopbillRequestClientConfig): 
           method: method === 'GET' ? 'GET' : 'POST',
           headers: mergeRequestHeaders(options.headers, requestHeaders),
           body: method === 'GET' ? undefined : (options.body ?? undefined),
+          signal,
         },
-        { timeoutMs: config.timeoutMs }
+        { timeoutMs: config.timeoutMs, fetch: config.fetch }
       )
     } catch (error) {
       throw createStageError('request_api', error)

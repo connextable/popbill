@@ -4,6 +4,8 @@ import { JusoLinkAuthScopes, LinkhubServiceIds, PopbillAuthBaseUrls, PopbillAuth
 import { hmacSha256Base64, normalizeOptionalString, sha256Base64, stringifyWithoutEmptyValues, trimTrailingSlash } from '@connextable/popbill-utils'
 import type * as Spec from '@connextable/popbill-spec'
 import type * as Types from './types'
+import type { RequestCallOptions } from '../api/request-context'
+import { isRequestAbortError, throwIfRequestAborted } from '../transport/errors'
 
 const LINKHUB_VERSION = PopbillLinkhubApiVersion
 const LINKHUB_USER_AGENT = 'NODEJS LINKHUB SDK'
@@ -13,6 +15,8 @@ const JUSOLINK_SCOPE_SET = new Set<string>(Object.values(JusoLinkAuthScopes))
 
 export function createLinkhubAuthClient(config: Types.LinkhubAuthClientConfig): Types.LinkhubAuthClient & Types.LinkhubPointClient {
   const resolvedConfig: Types.ResolvedLinkhubAuthClientConfig = {
+    fetch: config.fetch,
+    requestContext: config.requestContext,
     linkId: config.linkId,
     secretKey: config.secretKey,
     authBaseUrl: normalizeAuthBaseUrl(config.authBaseUrl),
@@ -22,31 +26,33 @@ export function createLinkhubAuthClient(config: Types.LinkhubAuthClientConfig): 
     timeoutMs: config.timeoutMs ?? DEFAULT_TIMEOUT_MS,
   }
 
-  function requestTokenResource<T>(token: Types.LinkhubTokenResponse, resource: string): Promise<T> {
+  function requestTokenResource<T>(token: Types.LinkhubTokenResponse, resource: string, options?: RequestCallOptions): Promise<T> {
     const requestClient = createLinkhubRequestClient({
       apiBaseUrl: resolveAuthBaseUrl(resolvedConfig),
       timeoutMs: resolvedConfig.timeoutMs,
       tokenProvider: { getToken: async () => token },
       tokenCacheKey: token.userId,
       acceptEncoding: null,
+      fetch: resolvedConfig.fetch,
+      requestContext: resolvedConfig.requestContext,
     })
-    return requestClient.requestJson<T>({ uri: `/${token.serviceId}/${resource}` })
+    return requestClient.requestJson<T>({ uri: `/${token.serviceId}/${resource}`, signal: options?.signal })
   }
 
   return {
-    async issueToken(request: Types.IssueTokenRequest): Promise<Types.LinkhubTokenResponse> {
-      return issueTokenRequest(resolvedConfig, request)
+    async issueToken(request: Types.IssueTokenRequest, options?: RequestCallOptions): Promise<Types.LinkhubTokenResponse> {
+      return issueTokenRequest(resolvedConfig, request, options?.signal ?? resolvedConfig.requestContext?.getSignal())
     },
-    async getBalance(token: Types.LinkhubTokenResponse): Promise<string> {
-      const response = await requestTokenResource<{ remainPoint: string }>(token, 'Point')
+    async getBalance(token: Types.LinkhubTokenResponse, options?: RequestCallOptions): Promise<string> {
+      const response = await requestTokenResource<{ remainPoint: string }>(token, 'Point', options)
       return response.remainPoint
     },
-    async getPartnerBalance(token: Types.LinkhubTokenResponse): Promise<string> {
-      const response = await requestTokenResource<{ remainPoint: string }>(token, 'PartnerPoint')
+    async getPartnerBalance(token: Types.LinkhubTokenResponse, options?: RequestCallOptions): Promise<string> {
+      const response = await requestTokenResource<{ remainPoint: string }>(token, 'PartnerPoint', options)
       return response.remainPoint
     },
-    async getPartnerURL(token: Types.LinkhubTokenResponse, toGo: string): Promise<string> {
-      const response = await requestTokenResource<{ url: string }>(token, `URL?TG=${encodeURIComponent(toGo)}`)
+    async getPartnerURL(token: Types.LinkhubTokenResponse, toGo: string, options?: RequestCallOptions): Promise<string> {
+      const response = await requestTokenResource<{ url: string }>(token, `URL?TG=${encodeURIComponent(toGo)}`, options)
       return response.url
     },
   }
@@ -65,8 +71,10 @@ function resolveAuthBaseUrl(config: Types.ResolvedLinkhubAuthClientConfig): stri
 
 async function issueTokenRequest(
   config: Types.ResolvedLinkhubAuthClientConfig,
-  request: Types.IssueTokenRequest
+  request: Types.IssueTokenRequest,
+  signal?: AbortSignal
 ): Promise<Types.LinkhubTokenResponse> {
+  throwIfRequestAborted(signal)
   validateIssueTokenRequest(request)
 
   const authBaseUrl = resolveAuthBaseUrl(config)
@@ -78,7 +86,8 @@ async function issueTokenRequest(
   const body = stringifyWithoutEmptyValues(requestBody) ?? ''
 
   const bodyDigest = sha256Base64(body)
-  const dateHeader = await resolveDateHeader(config, authBaseUrl)
+  const dateHeader = await resolveDateHeader(config, authBaseUrl, signal)
+  throwIfRequestAborted(signal)
 
   const canonicalHeaders = buildCanonicalHeaders(request.forwardedIp)
   const canonicalizedHeaderValues = canonicalizeLinkhubHeaderValues(canonicalHeaders)
@@ -103,25 +112,31 @@ async function issueTokenRequest(
       method: 'POST',
       headers: requestHeaders,
       body,
+      signal,
     },
-    { timeoutMs: config.timeoutMs }
+    { timeoutMs: config.timeoutMs, fetch: config.fetch }
   )
 
   return mapToLinkhubTokenResponse(rawResponse)
 }
 
-async function resolveDateHeader(config: Types.ResolvedLinkhubAuthClientConfig, authBaseUrl: string): Promise<Spec.PopbillUtcDateTimeString> {
+async function resolveDateHeader(
+  config: Types.ResolvedLinkhubAuthClientConfig,
+  authBaseUrl: string,
+  signal?: AbortSignal
+): Promise<Spec.PopbillUtcDateTimeString> {
   if (config.useLocalTime) {
     return formatUtcDateTime(new Date())
   }
 
   try {
-    const serverTime = await fetchText(`${authBaseUrl}/Time`, { method: 'GET' }, { timeoutMs: config.timeoutMs })
+    const serverTime = await fetchText(`${authBaseUrl}/Time`, { method: 'GET', signal }, { timeoutMs: config.timeoutMs, fetch: config.fetch })
     const normalizedServerTime = normalizeUtcDateTime(serverTime)
     if (normalizedServerTime) {
       return normalizedServerTime
     }
-  } catch {
+  } catch (error) {
+    if (isRequestAbortError(error) && error.abort.source === 'signal') throw error
     // Fallback to local UTC timestamp when server time API is not reachable.
   }
 

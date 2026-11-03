@@ -5,6 +5,29 @@ describe('createLinkhubAuthClient', () => {
     vi.restoreAllMocks()
   })
 
+  test('retains local-time fallback when the server time request itself times out', async () => {
+    const fetch = vi.fn<typeof globalThis.fetch>().mockImplementation(async (target, init) => {
+      if (String(target).endsWith('/Time'))
+        return await new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true })
+        })
+      return Response.json({ session_token: 'session', serviceID: 'POPBILL_TEST', expiration: '2099-01-01T00:00:00Z' })
+    })
+    const client = createLinkhubAuthClient({
+      linkId: 'LINK',
+      secretKey: Buffer.from('secret').toString('base64'),
+      useLocalTime: false,
+      timeoutMs: 25,
+      fetch,
+    })
+    await expect(client.issueToken({ serviceId: 'POPBILL_TEST', accessId: '1234567890', scopes: ['member'] })).resolves.toMatchObject({
+      sessionToken: 'session',
+    })
+    expect(fetch).toHaveBeenCalledTimes(2)
+    expect(String(fetch.mock.calls[0]![0])).toMatch(/\/Time$/)
+    expect(String(fetch.mock.calls[1]![0])).toMatch(/\/Token$/)
+  })
+
   test.each([
     { name: 'default auth host', authBaseUrl: undefined, expectedUrl: 'https://auth.linkhub.co.kr/JUSOLINK/Token' },
     { name: 'custom auth host', authBaseUrl: 'https://custom-auth.example.com/', expectedUrl: 'https://custom-auth.example.com/JUSOLINK/Token' },

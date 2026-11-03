@@ -1,4 +1,5 @@
 import { invokeUserCallback, normalizeErrorMessage, parseSafeInteger } from '@connextable/popbill-utils'
+import { isRequestAbortError, isResponseBodyError } from '@connextable/popbill-runtime'
 
 /**
  * 주소링크 요청 단계 상수입니다.
@@ -107,6 +108,9 @@ export function normalizeJusoApiError(error: unknown, context: NormalizeJusoApiE
   if (error instanceof JusoApiError) {
     return error
   }
+
+  if (isRequestAbortError(error)) return normalizeJusoApiError(error.abort.reason, context)
+  if (isResponseBodyError(error)) return normalizeJusoApiError(error.cause, context)
 
   if (isJusoLinkRequestStageError(error)) {
     return normalizeJusoApiError(error.cause, {

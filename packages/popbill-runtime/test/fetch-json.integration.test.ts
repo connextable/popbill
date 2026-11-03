@@ -46,7 +46,7 @@ describe('response body cancellation', () => {
       })
 
       await expect(fetchResponse(requestUrl, { method: 'GET' }, { timeoutMs: 200 })).rejects.toMatchObject({
-        name: 'AbortError',
+        abort: { source: 'request_timeout', reason: { name: 'TimeoutError' } },
       })
       expect(headersReceived).toBe(true)
     },
@@ -80,7 +80,7 @@ describe('response body cancellation', () => {
       await new Promise<void>((resolve) => setImmediate(resolve))
       abortController.abort()
 
-      await expect(responseOutcome).resolves.toMatchObject({ error: { name: 'AbortError' } })
+      await expect(responseOutcome).resolves.toMatchObject({ error: { abort: { source: 'signal', reason: abortController.signal.reason } } })
     },
     1_000
   )

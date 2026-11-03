@@ -3,6 +3,9 @@ import { mergeRequestHeaders } from '@/transport/merge-headers'
 import { buildRequestUrl } from '@/transport/build-request-url'
 import type { TokenProvider } from '@/auth'
 import { normalizeOptionalString, trimTrailingSlash } from '@connextable/popbill-utils'
+import type { RequestContext } from './request-context'
+import { throwIfRequestAborted } from '../transport/errors'
+import { getRequestToken } from '../auth/token-provider'
 
 const LINKHUB_USER_AGENT = 'NODEJS LINKHUB SDK'
 
@@ -14,6 +17,8 @@ export interface LinkhubRequestStageError {
 }
 
 export interface LinkhubRequestClientConfig {
+  fetch?: typeof globalThis.fetch
+  requestContext?: RequestContext
   apiBaseUrl: string
   /** Request timeout in milliseconds, up to 2_147_483_647. */
   timeoutMs: number
@@ -25,6 +30,7 @@ export interface LinkhubRequestClientConfig {
 }
 
 export interface LinkhubRequestOptions {
+  signal?: AbortSignal
   /** API path and query appended to apiBaseUrl; dot path segments are not allowed. */
   uri: string
   method?: string
@@ -44,6 +50,7 @@ export function createLinkhubRequestClient(config: LinkhubRequestClientConfig): 
 
   return {
     async requestJson<T>(options: LinkhubRequestOptions): Promise<T> {
+      const signal = options.signal ?? config.requestContext?.getSignal()
       const method = (options.method ?? 'GET').toUpperCase()
       const requestHeaders: Record<string, string> = {
         'User-Agent': normalizedUserAgent,
@@ -66,7 +73,8 @@ export function createLinkhubRequestClient(config: LinkhubRequestClientConfig): 
       }
 
       try {
-        const token = await config.tokenProvider.getToken(config.tokenCacheKey)
+        throwIfRequestAborted(signal)
+        const token = await getRequestToken(config.tokenProvider, config.tokenCacheKey, signal)
         requestHeaders['Authorization'] = `Bearer ${token.sessionToken}`
       } catch (error) {
         throw createLinkhubStageError('issue_token', error)
@@ -79,8 +87,9 @@ export function createLinkhubRequestClient(config: LinkhubRequestClientConfig): 
             method,
             headers: mergeRequestHeaders(options.headers, requestHeaders),
             body: method === 'GET' ? undefined : (options.body ?? undefined),
+            signal,
           },
-          { timeoutMs: config.timeoutMs }
+          { timeoutMs: config.timeoutMs, fetch: config.fetch }
         )
       } catch (error) {
         throw createLinkhubStageError('request_api', error)

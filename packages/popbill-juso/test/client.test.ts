@@ -5,6 +5,24 @@ describe('createJusoLinkClient', () => {
     vi.restoreAllMocks()
   })
 
+  test('본문 읽기 실패의 원본 예외와 API 단계를 보존한다', async () => {
+    const original = new TypeError('terminated', { cause: Object.assign(new Error('socket closed'), { code: 'UND_ERR_SOCKET' }) })
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (target) => {
+      if (resolveRequestUrl(target).endsWith('/Token')) return createTokenResponse()
+      return new Response(
+        new ReadableStream({
+          start(controller) {
+            controller.error(original)
+          },
+        })
+      )
+    })
+    const client = createJusoLinkClient({ linkId: 'LINK', secretKey: Buffer.from('secret').toString('base64'), accessId: 'ACCESS' })
+    const error: unknown = await client.services.juso.searchAddresses({ searchKeyword: '삼성동' }).catch((failure: unknown) => failure)
+    expect(error).toMatchObject({ requestStage: 'request_api' })
+    expect((error as { cause: unknown }).cause).toBe(original)
+  })
+
   test('요청 제한시간은 Node 타이머가 지원하는 정수 범위만 허용한다', () => {
     const config = {
       linkId: 'TEST_LINK_ID',
