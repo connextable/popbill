@@ -38,7 +38,7 @@ GitHub Actions의 `Release`를 `main`에서 수동 실행한다. Releaseway가 G
 
 [Releaseway 설정](../.github/releaseway.yml)이 `main`과 `v` 접두사의 source tag를 기준으로 다음 버전을 계산한다. 일반 변경은 patch, `feat`는 minor, `BREAKING CHANGE`나 `!`가 있는 변경은 major 증가 대상이다.
 
-기준 태그가 없는 첫 정식 릴리스는 이미 발행한 `2.0.0` 다음인 `2.0.1`에서 시작한다. 이후에는 태그와 커밋 이력을 사용한다. 저장소의 `package.json` 버전은 빌드용 원본이며 발행 버전은 Git 태그를 따른다. Releaseway가 발행 작업 안에서 패키지 버전과 내부 의존성을 맞추므로 버전 변경 커밋을 만들지 않는다.
+기준 태그가 없는 첫 정식 릴리스는 웹훅 기능 추가를 반영한 `2.1.0`에서 시작한다. 이후에는 태그와 커밋 이력을 사용한다. 저장소의 `package.json` 버전은 빌드용 원본이며 발행 버전은 Git 태그를 따른다. Releaseway가 발행 작업 안에서 패키지 버전과 내부 의존성을 맞추므로 버전 변경 커밋을 만들지 않는다.
 
 ## 검증과 발행
 
