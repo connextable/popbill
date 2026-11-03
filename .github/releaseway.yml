@@ -2,5 +2,5 @@ strategy: source-tag
 branch: main
 tag-prefix: v
 # Used only before the first reachable version tag. Keep fixed for later releases.
-initial-version: 2.0.1
+initial-version: 2.1.0
 bump: auto
