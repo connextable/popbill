@@ -1,4 +1,4 @@
-import { RequestAbortError, ResponseBodyError, throwIfRequestAborted, type RequestAbortInfo } from './errors'
+import { FetchRequestError, RequestAbortError, ResponseBodyError, throwIfRequestAborted, type RequestAbortInfo } from './errors'
 
 export interface FetchJsonOptions {
   timeoutMs: number
@@ -90,10 +90,15 @@ async function fetchWithTimeout<T>(
 
   try {
     const fetchImpl = options.fetch ?? globalThis.fetch
-    const response = await fetchImpl(requestUrl, {
-      ...requestInit,
-      signal: abortController.signal,
-    })
+    let response: Response
+    try {
+      response = await fetchImpl(requestUrl, {
+        ...requestInit,
+        signal: abortController.signal,
+      })
+    } catch (error) {
+      throw new FetchRequestError(error)
+    }
     let body: T
     try {
       body = await readBody(response)

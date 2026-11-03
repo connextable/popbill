@@ -1,5 +1,5 @@
 import { invokeUserCallback, normalizeErrorMessage, parseSafeInteger } from '@connextable/popbill-utils'
-import { isRequestAbortError, isResponseBodyError } from '@connextable/popbill-runtime'
+import { isFetchRequestError, isRequestAbortError, isResponseBodyError } from '@connextable/popbill-runtime'
 
 /**
  * 주소링크 요청 단계 상수입니다.
@@ -109,8 +109,8 @@ export function normalizeJusoApiError(error: unknown, context: NormalizeJusoApiE
     return error
   }
 
-  if (isRequestAbortError(error)) return normalizeJusoApiError(error.abort.reason, context)
-  if (isResponseBodyError(error)) return normalizeJusoApiError(error.cause, context)
+  if (isRequestAbortError(error)) return createUnexpectedError(error.abort.reason, context)
+  if (isFetchRequestError(error) || isResponseBodyError(error)) return createUnexpectedError(error.cause, context)
 
   if (isJusoLinkRequestStageError(error)) {
     return normalizeJusoApiError(error.cause, {
@@ -132,6 +132,10 @@ export function normalizeJusoApiError(error: unknown, context: NormalizeJusoApiE
     })
   }
 
+  return createUnexpectedError(error, context)
+}
+
+function createUnexpectedError(error: unknown, context: NormalizeJusoApiErrorContext): JusoApiError {
   return new JusoApiError({
     code: JusoLinkErrorCodes.Unexpected,
     message: normalizeErrorMessage(error),

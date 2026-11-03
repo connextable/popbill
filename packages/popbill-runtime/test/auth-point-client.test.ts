@@ -68,7 +68,7 @@ describe('Linkhub auth-host point APIs', () => {
 
     await expect(authClient.getPartnerBalance(createToken())).rejects.toMatchObject({
       requestStage: 'request_api',
-      cause: networkError,
+      cause: { name: 'PopbillFetchRequestError', cause: networkError },
     })
   })
 })

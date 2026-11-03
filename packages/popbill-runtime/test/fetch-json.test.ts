@@ -1,4 +1,4 @@
-import { fetchJson } from '@/transport/fetch-json'
+import { fetchBinary, fetchJson, fetchText } from '@/transport/fetch-json'
 
 describe('fetchJson', () => {
   afterEach(() => {
@@ -82,5 +82,13 @@ describe('fetchJson', () => {
       fetchJson('https://example.test/', { signal: AbortSignal.abort(reason) }, { timeoutMs: 1000, fetch: injectedFetch })
     ).rejects.toMatchObject({ abort: { source: 'signal', reason } })
     expect(injectedFetch).not.toHaveBeenCalled()
+  })
+
+  test.each([fetchJson, fetchText, fetchBinary])('retains fetch rejection origin and original cause', async (transport) => {
+    const reason = { status: 403, body: { code: -11000000, message: 'policy blocked' } }
+    const fetch = vi.fn<typeof globalThis.fetch>().mockRejectedValue(reason)
+    const failure: unknown = await transport('https://example.test/', {}, { timeoutMs: 1000, fetch }).catch((error: unknown) => error)
+    expect(failure).toMatchObject({ name: 'PopbillFetchRequestError' })
+    expect((failure as Error).cause).toBe(reason)
   })
 })

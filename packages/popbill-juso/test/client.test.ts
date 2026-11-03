@@ -5,6 +5,33 @@ describe('createJusoLinkClient', () => {
     vi.restoreAllMocks()
   })
 
+  test.each(['auth', 'api', 'body'])('전송 실패 값의 모양으로 %s 단계나 원격 오류 코드를 추측하지 않는다', async (phase) => {
+    const original = {
+      message: 'local policy failed',
+      status: 403,
+      body: { code: -20010004, message: 'fake API error' },
+      requestStage: 'issue_token',
+      cause: 'original detail',
+    }
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (target) => {
+      if (phase !== 'auth' && resolveRequestUrl(target).endsWith('/Token')) return createTokenResponse()
+      if (phase === 'body')
+        return new Response(
+          new ReadableStream({
+            start(controller) {
+              controller.error(original)
+            },
+          })
+        )
+      throw original
+    })
+    const client = createJusoLinkClient({ linkId: 'LINK', secretKey: Buffer.from('secret').toString('base64'), accessId: 'ACCESS' })
+    const error: unknown = await client.services.juso.searchAddresses({ searchKeyword: '삼성동' }).catch((failure: unknown) => failure)
+    expect(error).toMatchObject({ code: -99999999, message: original.message, requestStage: phase === 'auth' ? 'issue_token' : 'request_api' })
+    expect((error as { cause: unknown }).cause).toBe(original)
+    expect((error as { httpStatusCode?: number }).httpStatusCode).toBeUndefined()
+  })
+
   test('본문 읽기 실패의 원본 예외와 API 단계를 보존한다', async () => {
     const original = new TypeError('terminated', { cause: Object.assign(new Error('socket closed'), { code: 'UND_ERR_SOCKET' }) })
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (target) => {

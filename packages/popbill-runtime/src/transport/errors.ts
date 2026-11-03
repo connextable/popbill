@@ -1,3 +1,5 @@
+import { normalizeErrorMessage } from '@connextable/popbill-utils'
+
 export interface RequestAbortInfo {
   source: 'signal' | 'request_timeout'
   reason: unknown
@@ -15,8 +17,16 @@ export class RequestAbortError extends Error {
 
 export class ResponseBodyError extends Error {
   constructor(cause: unknown) {
-    super(cause instanceof Error ? cause.message : String(cause), { cause })
+    super(normalizeErrorMessage(cause), { cause })
     this.name = 'PopbillResponseBodyError'
+  }
+}
+
+/** A fetch rejection is distinct from an HTTP response, regardless of its shape. */
+export class FetchRequestError extends Error {
+  constructor(cause: unknown) {
+    super(normalizeErrorMessage(cause), { cause })
+    this.name = 'PopbillFetchRequestError'
   }
 }
 
@@ -35,6 +45,10 @@ export function isRequestAbortError(error: unknown): error is RequestAbortError 
 
 export function isResponseBodyError(error: unknown): error is ResponseBodyError {
   return error instanceof Error && error.name === 'PopbillResponseBodyError' && 'cause' in error
+}
+
+export function isFetchRequestError(error: unknown): error is FetchRequestError {
+  return error instanceof Error && error.name === 'PopbillFetchRequestError' && 'cause' in error
 }
 
 export function throwIfRequestAborted(signal: AbortSignal | null | undefined): void {

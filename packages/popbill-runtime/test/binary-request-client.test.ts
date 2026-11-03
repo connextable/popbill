@@ -87,7 +87,7 @@ describe('binary request client', () => {
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(networkError)
     await expect(client().requestBinary({ uri: '/Taxinvoice/SELL/KEY?PDF', corpNum: '1234567890' })).rejects.toMatchObject({
       requestStage: 'request_api',
-      cause: networkError,
+      cause: { name: 'PopbillFetchRequestError', cause: networkError },
     })
   })
 
