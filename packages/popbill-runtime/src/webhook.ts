@@ -91,7 +91,7 @@ export function createPopbillWebhookParser(config: PopbillWebhookReceiverConfig)
         : [{ webhookType, businessNumber, body: rawBody, index: 0 }]
       return { messageId, businessNumber, webhookType, headerEventType, items, rawBody }
     },
-    createSuccessResponse(): PopbillWebhookSuccessResponse {
+    createSuccessResponse(this: void): PopbillWebhookSuccessResponse {
       return { status: 200, headers: { 'content-type': 'application/json; charset=utf-8' }, body: '{"result":"OK"}' }
     },
   }

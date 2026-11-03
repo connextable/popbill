@@ -1,4 +1,5 @@
 import type * as Spec from '@connextable/popbill-spec'
+import { preserveStringCode } from '@connextable/popbill-utils'
 import type * as Types from '../types'
 export function mapSentMessage(raw: Spec.MessageSentApiModel): Types.SentMessage {
   return {
@@ -13,8 +14,8 @@ export function mapSentMessage(raw: Spec.MessageSentApiModel): Types.SentMessage
     subject: raw.subject,
     body: raw.content,
     carrierName: raw.tranNet,
-    stateCode: raw.state === undefined || raw.state === null ? raw.state : String(raw.state),
-    resultCode: raw.result === undefined || raw.result === null ? raw.result : String(raw.result),
+    stateCode: preserveStringCode(raw.state),
+    resultCode: preserveStringCode(raw.result),
     receivedAt: raw.receiptDT,
     reservedAt: raw.reserveDT,
     sentAt: raw.sendDT,

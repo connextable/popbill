@@ -1,0 +1,664 @@
+[
+  {
+    "source": "https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "taxinvoice Issue - 발행",
+    "webhookType": "TAXINVOICE.STATE",
+    "expectedKind": "taxInvoice.state",
+    "payload": {
+      "corpNum": "1234567890",
+      "itemKey": "026071816220700001",
+      "ntsconfirmNum": "202607188888888800000019",
+      "stateCode": 300,
+      "stateDT": "20260718162207",
+      "issueDT": "20260718162207",
+      "invoicerMgtKey": "20260718-001",
+      "eventDT": "20260718162207",
+      "eventType": "Issue",
+      "interOPYN": true,
+      "stateMemo": "memo"
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "taxinvoice CancelIssue - 발행취소",
+    "webhookType": "TAXINVOICE.STATE",
+    "expectedKind": "taxInvoice.state",
+    "payload": {
+      "corpNum": "1234567890",
+      "itemKey": "026071816232400001",
+      "ntsconfirmNum": "20260718888888880000001a",
+      "stateCode": 600,
+      "stateDT": "20260718162332",
+      "issueDT": "20260718162324",
+      "invoicerMgtKey": "20260718-002",
+      "eventDT": "20260718162332",
+      "eventType": "CancelIssue",
+      "closeDownState": 0,
+      "interOPYN": true,
+      "stateMemo": "cancelIssue memo"
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "taxinvoice CLOSEDOWN - 사업자등록상태조회 결과",
+    "webhookType": "TAXINVOICE.STATE",
+    "expectedKind": "taxInvoice.state",
+    "payload": {
+      "corpNum": "1234567890",
+      "itemKey": "026071816232400001",
+      "ntsconfirmNum": "20260718888888880000001a",
+      "stateCode": 300,
+      "stateDT": "20260718162325",
+      "issueDT": "20260718162324",
+      "invoicerMgtKey": "20260718-002",
+      "eventDT": "20260718162324",
+      "eventType": "CLOSEDOWN",
+      "closeDownState": 0,
+      "interOPYN": true,
+      "stateMemo": "memo"
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "taxinvoice NTS - 국세청 전송상태",
+    "webhookType": "TAXINVOICE.STATE",
+    "expectedKind": "taxInvoice.state",
+    "payload": {
+      "corpNum": "1234567890",
+      "itemKey": "026071816220700001",
+      "ntsconfirmNum": "202607188888888800000019",
+      "ntssendDT": "20260718162207",
+      "ntsresultDT": "20260718162707",
+      "ntssendErrCode": "SUC001",
+      "stateCode": 304,
+      "stateDT": "20260718162207",
+      "issueDT": "20260718162207",
+      "invoicerMgtKey": "20260718-001",
+      "eventDT": "20260718162707",
+      "eventType": "NTS",
+      "closeDownState": 0,
+      "interOPYN": true,
+      "stateMemo": "memo"
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "taxinvoice OPEN - 발행 안내 메일 확인",
+    "webhookType": "TAXINVOICE.STATE",
+    "expectedKind": "taxInvoice.state",
+    "payload": {
+      "corpNum": "1234567890",
+      "itemKey": "026072113485500001",
+      "ntsconfirmNum": "20260721888888880000000d",
+      "stateCode": 300,
+      "stateDT": "20260721134858",
+      "issueDT": "20260721134858",
+      "eventDT": "20260721135006",
+      "eventType": "OPEN",
+      "closeDownState": 0,
+      "interOPYN": false
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "taxinvoice Request - 역발행요청",
+    "webhookType": "TAXINVOICE.STATE",
+    "expectedKind": "taxInvoice.state",
+    "payload": {
+      "corpNum": "1234567890",
+      "itemKey": "026081411142600001",
+      "stateCode": 200,
+      "stateDT": "20260814111429",
+      "invoiceeMgtKey": "20260814-TEST",
+      "eventDT": "20260814111429",
+      "eventType": "Request",
+      "interOPYN": false
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "taxinvoice CancelRequest - 역발행요청 취소",
+    "webhookType": "TAXINVOICE.STATE",
+    "expectedKind": "taxInvoice.state",
+    "payload": {
+      "corpNum": "1234567890",
+      "itemKey": "026081411142600001",
+      "stateCode": 500,
+      "stateDT": "20260814111547",
+      "invoiceeMgtKey": "20260814-TEST",
+      "eventDT": "20260814111547",
+      "eventType": "CancelRequest",
+      "interOPYN": false
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "taxinvoice Refuse - 역발행요청 거부",
+    "webhookType": "TAXINVOICE.STATE",
+    "expectedKind": "taxInvoice.state",
+    "payload": {
+      "corpNum": "1234567890",
+      "itemKey": "026072716565000001",
+      "stateCode": 400,
+      "stateDT": "20260814110048",
+      "eventDT": "20260814110048",
+      "eventType": "Refuse",
+      "interOPYN": false
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "taxinvoice BULK.RESULT - 접수결과",
+    "webhookType": "TAXINVOICE.STATE",
+    "expectedKind": "taxInvoice.bulkResult",
+    "payload": {
+      "corpNum": "1234567890",
+      "submitID": "20260713-TEST-2",
+      "receiptID": "0260713-4e1a30b927ab4f88ad3d3f4a7ed9",
+      "receiptDT": "20260713154838",
+      "eventType": "BULK.RESULT",
+      "eventDT": "20260713154839",
+      "submitCount": 5,
+      "successCount": 5,
+      "failCount": 0,
+      "txState": 2,
+      "txResultCode": 1,
+      "txStartDT": "20260713154839",
+      "txEndDT": "20260713154839",
+      "issueResult": [
+        {
+          "code": 1,
+          "issueDT": "20260713154839",
+          "ntsconfirmNum": "202607138888888800000068",
+          "invoicerMgtKey": "20260713-TEST-2-0"
+        },
+        {
+          "code": 1,
+          "issueDT": "20260713154839",
+          "ntsconfirmNum": "202607138888888800000069",
+          "invoicerMgtKey": "20260713-TEST-2-1"
+        }
+      ]
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "taxinvoice CLOSEDOWN - 사업자등록상태조회 결과",
+    "webhookType": "TAXINVOICE.STATE",
+    "expectedKind": "taxInvoice.state",
+    "payload": [
+      {
+        "header": {
+          "QMNum": "202607138888888800000068",
+          "CORPNUM": "1234567890",
+          "TYPE": "TAXINVOICE.STATE"
+        },
+        "body": {
+          "corpNum": "1234567890",
+          "itemKey": "026071315483900001",
+          "ntsconfirmNum": "202607138888888800000068",
+          "ntssendDT": "20260713154839",
+          "stateCode": 303,
+          "stateDT": "20260713154839",
+          "issueDT": "20260713154839",
+          "invoicerMgtKey": "20260713-TEST-2-0",
+          "eventDT": "20260713154839",
+          "eventType": "CLOSEDOWN",
+          "closeDownState": 0,
+          "interOPYN": true
+        }
+      },
+      {
+        "header": {
+          "QMNum": "202607138888888800000069",
+          "CORPNUM": "1234567890",
+          "TYPE": "TAXINVOICE.STATE"
+        },
+        "body": {
+          "invoicerMgtKey": "20260713-TEST-2-1",
+          "stateDT": "20260713154839",
+          "eventType": "CLOSEDOWN",
+          "closeDownState": 0,
+          "itemKey": "026071315483900002",
+          "ntsconfirmNum": "202607138888888800000069",
+          "corpNum": "1234567890",
+          "interOPYN": true,
+          "ntssendDT": "20260713154839",
+          "stateCode": 303,
+          "eventDT": "20260713154839",
+          "issueDT": "20260713154839"
+        }
+      }
+    ]
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "taxinvoice NTS - 국세청 전송 처리결과",
+    "webhookType": "TAXINVOICE.STATE",
+    "expectedKind": "taxInvoice.state",
+    "payload": [
+      {
+        "header": {
+          "QMNum": "20260713888888880000006b",
+          "CORPNUM": "1234567890",
+          "TYPE": "TAXINVOICE.STATE"
+        },
+        "body": {
+          "corpNum": "1234567890",
+          "itemKey": "026071315483900004",
+          "ntsconfirmNum": "20260713888888880000006b",
+          "ntssendDT": "20260713154839",
+          "ntsresultDT": "20260713155339",
+          "ntssendErrCode": "SUC001",
+          "stateCode": 304,
+          "stateDT": "20260713154839",
+          "issueDT": "20260713154839",
+          "invoicerMgtKey": "20260713-TEST-2-3",
+          "eventDT": "20260713155339",
+          "eventType": "NTS",
+          "closeDownState": 0,
+          "interOPYN": true
+        }
+      },
+      {
+        "header": {
+          "QMNum": "20260713888888880000006c",
+          "CORPNUM": "1234567890",
+          "MEMBERCODE": "014070000004"
+        },
+        "body": {
+          "invoicerMgtKey": "20260713-TEST-2-4",
+          "stateDT": "20260713154840",
+          "eventType": "NTS",
+          "closeDownState": 0,
+          "itemKey": "026071315483900005",
+          "ntsconfirmNum": "20260713888888880000006c",
+          "corpNum": "1234567890",
+          "ntssendErrCode": "SUC001",
+          "interOPYN": true,
+          "ntssendDT": "20260713154840",
+          "stateCode": 304,
+          "ntsresultDT": "20260713155339",
+          "eventDT": "20260713155339",
+          "issueDT": "20260713154839"
+        }
+      }
+    ]
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "taxinvoice CancelIssue - 발행취소",
+    "webhookType": "TAXINVOICE.STATE",
+    "expectedKind": "taxInvoice.state",
+    "payload": {
+      "corpNum": "1234567890",
+      "itemKey": "026071816232400001",
+      "ntsconfirmNum": "20260718888888880000001a",
+      "stateCode": 600,
+      "stateDT": "20260718162332",
+      "issueDT": "20260718162324",
+      "invoicerMgtKey": "20260718-002",
+      "eventDT": "20260718162332",
+      "eventType": "CancelIssue",
+      "closeDownState": 0,
+      "interOPYN": true,
+      "stateMemo": "cancelIssue memo"
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "taxinvoice REGIST - 등록/재등록",
+    "webhookType": "TAXINVOICE.STATE",
+    "expectedKind": "taxInvoice.certificate",
+    "payload": {
+      "corpNum": "1234567890",
+      "expireDT": "20260906145209",
+      "regContactID": "linkhub",
+      "issuerDN": "CN=Root CA, OU=Certification Authority, O=Organaization, C=KR",
+      "eventType": "REGIST",
+      "oid": "1.2.410.200004.5.1.1.5",
+      "eventDT": "20260823135523",
+      "subjectDN": "CN=홍길동, OU=Organaization Unit, O=Organaization, C=KR"
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/taxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "taxinvoice DELETE - 삭제",
+    "webhookType": "TAXINVOICE.STATE",
+    "expectedKind": "taxInvoice.certificate",
+    "payload": {
+      "corpNum": "1234567890",
+      "eventType": "DELETE",
+      "eventDT": "20260823135523"
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/cashbill/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "cashbill Issue - 발행",
+    "webhookType": "CASHBILL.STATE",
+    "expectedKind": "cashbill.state",
+    "payload": {
+      "corpNum": "1234567890",
+      "franchiseCorpNum": "1234567890",
+      "itemKey": "026092116193800001",
+      "tradeDate": "20260921",
+      "confirmNum": "TB0001147",
+      "stateCode": 300,
+      "stateDT": "20260921161938",
+      "issueDT": "20260921161938",
+      "mgtKey": "20260921-002",
+      "eventDT": "20260921161938",
+      "eventType": "Issue",
+      "interOPYN": true
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/cashbill/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "cashbill NTS - 국세청 전송상태",
+    "webhookType": "CASHBILL.STATE",
+    "expectedKind": "cashbill.state",
+    "payload": {
+      "corpNum": "1234567890",
+      "franchiseCorpNum": "1234567890",
+      "itemKey": "026092116191200001",
+      "tradeDate": "20260921",
+      "confirmNum": "TB0001146",
+      "ntssendDT": "20260922000000",
+      "ntsresultDT": "20260922100033",
+      "ntsresultCode": "0000",
+      "stateCode": 304,
+      "stateDT": "20260921161912",
+      "issueDT": "20260921161912",
+      "mgtKey": "20260921-001",
+      "eventDT": "20260922100033",
+      "eventType": "NTS",
+      "interOPYN": true
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/cashbill/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "cashbill BULK.RESULT - 접수결과",
+    "webhookType": "CASHBILL.STATE",
+    "expectedKind": "cashbill.bulkResult",
+    "payload": {
+      "corpNum": "1234567890",
+      "franchiseCorpNum": "1234567890",
+      "submitID": "20260921-BULK",
+      "receiptID": "0260922-0ffafb03af714057b7a77658fc75",
+      "receiptDT": "20260922100306",
+      "eventType": "BULK.RESULT",
+      "eventDT": "20260922100306",
+      "submitCount": 2,
+      "successCount": 2,
+      "failCount": 0,
+      "txState": 2,
+      "txResultCode": 1,
+      "txStartDT": "20260922100306",
+      "txEndDT": "20260922100306",
+      "issueResult": [
+        {
+          "code": 1,
+          "confirmNum": "TB0000023",
+          "tradeDate": "20260922",
+          "issueDT": "20260922100306",
+          "mgtKey": "20260921-BULK~,-_1"
+        }
+      ]
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/cashbill/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "cashbill NTS - 국세청 전송 처리결과",
+    "webhookType": "CASHBILL.STATE",
+    "expectedKind": "cashbill.state",
+    "payload": [
+      {
+        "header": {
+          "QMNum": "TB0000045",
+          "CORPNUM": "1234567890",
+          "TYPE": "CASHBILL.STATE"
+        },
+        "body": {
+          "corpNum": "1234567890",
+          "itemKey": "026080814151400002",
+          "confirmNum": "TB0000045",
+          "ntssendDT": "20260809000207",
+          "ntsresultDT": "20260809100017",
+          "ntsresultCode": "0000",
+          "ntsresultMessage": "더미승인",
+          "stateCode": 304,
+          "stateDT": "20260808141514",
+          "issueDT": "20260808141514",
+          "mgtKey": "20260808-JSP-BULK-2",
+          "eventDT": "20260809100017",
+          "eventType": "NTS",
+          "interOPYN": true
+        }
+      }
+    ]
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/statement/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "statement Issue - 발행",
+    "webhookType": "STATEMENT.STATE",
+    "expectedKind": "statement.state",
+    "payload": {
+      "corpNum": "1234567890",
+      "itemKey": "026081416074100001",
+      "invoiceNum": "123456789020260814000001",
+      "stateCode": 300,
+      "stateDT": "20260814160743",
+      "issueDT": "20260814160743",
+      "eventDT": "20260814160743",
+      "eventType": "Issue",
+      "itemCode": 121,
+      "interOPYN": false
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/statement/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "statement Cancel - 발행취소",
+    "webhookType": "STATEMENT.STATE",
+    "expectedKind": "statement.state",
+    "payload": {
+      "corpNum": "1234567890",
+      "itemKey": "026081416205800001",
+      "invoiceNum": "123456789020260814000002",
+      "stateCode": 500,
+      "stateDT": "20260814162103",
+      "issueDT": "20260814162100",
+      "eventDT": "20260814162103",
+      "eventType": "Cancel",
+      "itemCode": 121,
+      "interOPYN": false
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/statement/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "statement OPEN - 발행 안내 메일 확인",
+    "webhookType": "STATEMENT.STATE",
+    "expectedKind": "statement.state",
+    "payload": {
+      "corpNum": "1234567890",
+      "itemKey": "026081416074100001",
+      "invoiceNum": "123456789020260814000001",
+      "stateCode": 300,
+      "stateDT": "20260814160743",
+      "issueDT": "20260814160743",
+      "eventDT": "20260814161852",
+      "eventType": "OPEN",
+      "itemCode": 121,
+      "interOPYN": false
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/httaxinvoice/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "httaxinvoice HT.TAXINVOICEXML - 전자세금계산서 매입/매출 내역수집",
+    "webhookType": "HT.TAXINVOICEXML",
+    "expectedKind": "homeTaxTaxInvoice.collected",
+    "payload": {
+      "writeDate": "20260811",
+      "sendDate": "20260811",
+      "issueDT": "20260811112809",
+      "invoiceType": 101,
+      "taxType": "과세",
+      "invoicerCorpNum": "6798700433",
+      "invoicerCorpName": "(주)링크허브",
+      "invoicerCEOName": "공급자 대표",
+      "invoicerAddr": "공급자 주소",
+      "invoicerBizType": "공급자 업태",
+      "invoicerBizClass": "공급자  종목",
+      "invoicerContactName": "공급자  담당자 성명",
+      "invoicerTEL": "공급자 담당자 연락처",
+      "invoicerEmail": "공급자 담당자 메일",
+      "invoiceeCorpNum": "1234567890",
+      "invoiceeType": "사업자",
+      "invoiceeCorpName": "공급받는자 사업자",
+      "invoiceeCEOName": "공급받는자 대표",
+      "invoiceeAddr": "공급받는자 주소",
+      "invoiceeBizType": "공급받는자 업태",
+      "invoiceeBizClass": "공급받는자 종목",
+      "invoiceeContactName1": "공급받는자 담당자 성명",
+      "invoiceeEmail1": "공급받는자 담당자 메일",
+      "taxTotal": "20000",
+      "supplyCostTotal": "200000",
+      "totalAmount": "220000",
+      "purposeType": "청구",
+      "ntsconfirmNum": "202608114100020300000777",
+      "detailList": [
+        {
+          "serialNum": 1,
+          "purchaseDT": "20260811",
+          "itemName": "테스트 결제",
+          "supplyCost": "200000",
+          "tax": "20000"
+        }
+      ]
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/htcashbill/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "htcashbill HT.CASHBILL - 현금영수증 매입/매출 내역수집",
+    "webhookType": "HT.CASHBILL",
+    "expectedKind": "homeTaxCashbill.collected",
+    "payload": {
+      "ntsconfirmNum": "K00178490",
+      "tradeDate": "20260719",
+      "tradeDT": "20260719000000",
+      "tradeType": "승인거래",
+      "tradeUsage": "소득공제용",
+      "totalAmount": "5000",
+      "supplyCost": "4545",
+      "tax": "455",
+      "serviceFee": "0",
+      "invoiceType": "매출",
+      "franchiseCorpNum": "6798700433",
+      "franchiseCorpType": 0,
+      "identityNumType": 3,
+      "identityNum": "5117",
+      "customerName": "홍길동",
+      "deductionType": 0
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/kakaotalk/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "kakaotalk RESULT - 전송결과",
+    "webhookType": "KAKAO.STATE",
+    "expectedKind": "kakao.result",
+    "payload": {
+      "corpNum": "1234567890",
+      "receiptNum": "026091411593500001",
+      "serialNum": 1,
+      "state": 3,
+      "result": 100,
+      "receiptDT": "20260814115935",
+      "resultDT": "20260814115937",
+      "sendDT": "20260814115937",
+      "sendNum": "07043042991",
+      "contentType": 2,
+      "receiveNum": "01011112222",
+      "eventType": "RESULT",
+      "eventDT": "20260814115938",
+      "interOPYN": false
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/sms/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "sms RESULT - 전송결과",
+    "webhookType": "SMS.STATE",
+    "expectedKind": "message.result",
+    "payload": {
+      "corpNum": "1234567890",
+      "receiptNum": "026091411000000012",
+      "serialNum": 1,
+      "state": 3,
+      "result": 100,
+      "receiptDT": "20260814115429",
+      "resultDT": "20260814115433",
+      "sendDT": "20260814115432",
+      "sendNum": "07043042991",
+      "receiveNum": "01011112222",
+      "receiveName": "수신자",
+      "type": "SMS",
+      "content": "테스트 내용입니다.",
+      "tranNet": "KT",
+      "eventType": "RESULT",
+      "eventDT": "20260814115434",
+      "interOPYN": false
+    }
+  },
+  {
+    "source": "https://developers.popbill.com/api-reference/fax/webhook/webhook-event",
+    "checkedAt": "2026-11-03",
+    "name": "fax RESULT - 전송결과",
+    "webhookType": "FAX.STATE",
+    "expectedKind": "fax.result",
+    "payload": {
+      "corpNum": "1234567890",
+      "receiptNum": "026091414242700001",
+      "serialNum": 1,
+      "state": 3,
+      "result": 100,
+      "receiptDT": "20260814142428",
+      "resultDT": "20260814142639",
+      "sendDT": "20260814142432",
+      "title": "",
+      "sendNum": "07043042981",
+      "receiveNumType": "일반",
+      "receiveNum": "0264429700",
+      "sendPageCnt": 1,
+      "successPageCnt": 1,
+      "failPageCnt": 0,
+      "chargePageCnt": 1,
+      "eventType": "RESULT",
+      "eventDT": "20260814142646",
+      "tiffFileSize": 92973,
+      "interOPYN": true
+    }
+  }
+]

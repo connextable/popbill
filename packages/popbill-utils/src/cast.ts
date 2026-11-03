@@ -24,6 +24,11 @@ export function preserveNumericCode<T extends ProviderNumericCode | undefined>(v
   return parseSafeInteger(value) ?? value
 }
 
+/** String-based response contracts retain null and absence while normalizing numeric codes. */
+export function preserveStringCode(value: ProviderNumericCode | undefined): string | null | undefined {
+  return value === undefined || value === null ? value : String(value)
+}
+
 /** Normalize known response flags while preserving null and future provider values. */
 export function preserveBooleanResponse<T extends ProviderBoolean | undefined>(value: T): boolean | T {
   if (typeof value === 'boolean') return value
