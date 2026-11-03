@@ -107,6 +107,21 @@ describe('popbill utils', () => {
     expect(parseSafeInteger(value)).toBeUndefined()
   })
 
+  test('retains structured error messages without interpreting their codes', () => {
+    expect(normalizeErrorMessage({ code: -11000000, message: 'policy blocked' })).toBe('policy blocked')
+  })
+
+  test.each([
+    Object.create(null) as unknown,
+    {
+      toString() {
+        throw new Error('cannot stringify')
+      },
+    },
+  ])('formats non-stringifiable failures without throwing', (error) => {
+    expect(normalizeErrorMessage(error)).toBe('Unknown error')
+  })
+
   test('error and crypto utilities produce deterministic output', () => {
     const error = Object.assign(new Error('network failed'), { code: 'ECONNRESET' })
     expect(normalizeErrorMessage(error)).toBe('ECONNRESET network failed')
