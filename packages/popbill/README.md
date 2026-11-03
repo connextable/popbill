@@ -90,6 +90,8 @@ await clientWithTransport.services.common.getCompanyInfo({ businessNumber: proce
 
 오류의 `abort.source`는 호출자 signal이면 `signal`, SDK의 HTTP 제한시간이면 `request_timeout`입니다. 호출자가 만든 기한 초과 signal도 `signal`로 분류하며 원래 값은 `abort.reason`과 `raw`에 보존합니다. `stage`는 인증 중이면 `issue_token`, 업무 전송 중이면 `request_api`이며 호출 시작 전 취소는 `unknown`입니다. `onError`에는 Promise가 거절되는 최종 오류를 호출당 한 번 전달합니다.
 
+사용자 지정 `fetch`가 던진 값은 HTTP 오류 응답 본문과 구분하며 원본을 `raw`에 보존합니다. 해당 값의 숫자 코드나 객체 모양으로 팝빌 원격 오류를 추측하지 않습니다. 전송 함수의 코드·설정 오류는 `unknown`, 확인된 네트워크 오류는 `network`로 분류합니다.
+
 ## 서비스
 
 `client.services`에서 다음 서비스를 이용합니다.
@@ -114,6 +116,8 @@ modern API는 객체 인자를 받으며 레거시 호환 별칭을 제공하지
 응답의 상태·분류 코드는 새로운 서버 값과 `null`·누락을 보존할 수 있습니다. 플래그도 미확정 값이 올 수 있으므로 `=== true`·`=== false`로 구분합니다. [응답 처리 기준](../../docs/migration/2.0.md#응답-코드와-미확정-값)에서 타입 변경과 호출 예제를 확인합니다.
 
 실패한 호출은 `PopbillApiError` 형태로 거절됩니다. `code`·`message`는 오류 내용, `stage`는 입력·인증·API 호출 단계입니다. 취소·SDK timeout·응답 본문 수신 실패는 `retriable: false`이며 SDK는 자동 재시도하지 않습니다. 그 밖의 `retriable: true`도 서버 작업의 안전한 재전송을 보장하지 않습니다. 전송·발행 요청이 중단되면 문서 관리번호나 요청번호로 처리 여부를 먼저 조회합니다. HTTP 중단은 서버에 이미 접수된 작업을 취소하지 않습니다.
+
+입력 검증 오류는 `type: 'input_validation'`, `stage: 'validate_input'`입니다. 응답 매핑 중 예외처럼 SDK가 발생 단계를 특정하지 못한 오류는 `stage: 'unknown'`이며, 공통 내부 코드만으로 입력 검증 실패로 분류하지 않습니다.
 
 SDK timeout을 `unknown`으로 처리하거나 원본 예외를 잃던 경로는 `timeout`으로 정정하며 내부 코드 `-99999997`을 사용합니다. 응답 본문 수신 중 연결이 끊긴 경우는 `network`, 내부 코드 `-99999998`로 정정하고 중첩된 socket 원인은 `raw`에 보존합니다. 이 오류들을 `code`·`type`으로 분기하던 호출부는 변경된 분류를 확인해야 합니다. 서버가 반환한 오류 코드와 본문의 기존 정규화 규칙은 유지합니다.
 
