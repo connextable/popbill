@@ -1,3 +1,8 @@
+/** Objects received at JSON boundaries; arrays and null are separate shapes. */
+export function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
 /** 객체의 최상위 필드 중 undefined만 제거하고 null·빈 문자열·false·0은 유지합니다. */
 export function removeUndefinedProperties<T extends object>(source: T): T {
   return Object.fromEntries(Object.entries(source).filter(([, value]) => value !== undefined)) as T
