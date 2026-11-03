@@ -1,4 +1,5 @@
 import type { FaxApiResponseBase, FaxReceiveNumberType } from './common'
+import type { PopbillWebhookDeliveryBody } from '../webhook/common'
 
 /** Raw multipart form JSON. A separate `file` part is sent for each file. */
 export interface FaxSendApiModel {
@@ -71,4 +72,16 @@ export interface FaxChargeInfoApiModel {
   unitCost: string
   chargeMethod: string
   rateSystem: string
+}
+/** @see https://developers.popbill.com/api-reference/fax/webhook/webhook-event */
+export interface FaxWebhookBody extends PopbillWebhookDeliveryBody {
+  title?: string
+  receiveNumType?: string
+  sendPageCnt?: number
+  successPageCnt?: number
+  failPageCnt?: number
+  cancelPageCnt?: number
+  chargePageCnt?: number
+  refundPageCnt?: number
+  tiffFileSize?: number
 }

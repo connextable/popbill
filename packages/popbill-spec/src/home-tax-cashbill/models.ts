@@ -59,3 +59,5 @@ export interface HomeTaxCashbillChargeInfoApiModel {
   chargeMethod?: '연동' | '파트너' | (string & {})
   rateSystem?: '정액제' | '종량제' | (string & {})
 }
+/** @see https://developers.popbill.com/api-reference/htcashbill/webhook/webhook-event */
+export interface HomeTaxCashbillWebhookBody extends HomeTaxCashbillApiModel {}

@@ -2,6 +2,7 @@ export * from './auth'
 export * from './headers'
 export type * from './request'
 export * from './error-codes'
+export * from './webhook'
 
 export type * from './common'
 export type * as CommonSpec from './common'

@@ -6,6 +6,7 @@ import type {
   StatementPurposeType,
   StatementTaxType,
 } from './common'
+import type { PopbillWebhookDocumentStateBody, PopbillWebhookCode } from '../webhook/common'
 
 /**
  * 전자명세서 상세항목(raw).
@@ -176,3 +177,9 @@ export interface StatementEmailConfigApiModel {
 }
 
 export type StatementEmailConfig = StatementEmailConfigApiModel
+/** @see https://developers.popbill.com/api-reference/statement/webhook/webhook-event */
+export interface StatementWebhookBody extends PopbillWebhookDocumentStateBody {
+  invoiceNum?: string
+  mgtKey?: string
+  itemCode?: PopbillWebhookCode
+}

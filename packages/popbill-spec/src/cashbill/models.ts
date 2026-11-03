@@ -7,6 +7,27 @@ import type {
   CashbillTradeType,
   CashbillTradeUsage,
 } from './common'
+import type { PopbillWebhookDocumentStateBody, PopbillWebhookBulkResultBody, PopbillWebhookCode } from '../webhook/common'
+
+/** @see https://developers.popbill.com/api-reference/cashbill/webhook/webhook-event */
+export interface CashbillStateWebhookBody extends PopbillWebhookDocumentStateBody {
+  franchiseCorpNum?: string
+  tradeDate?: string
+  confirmNum?: string
+  ntsresultCode?: string
+  mgtKey?: string
+}
+
+export interface CashbillBulkWebhookBody extends PopbillWebhookBulkResultBody<{
+  code?: PopbillWebhookCode
+  message?: string
+  confirmNum?: string
+  tradeDate?: string
+  issueDT?: string
+  mgtKey?: string
+}> {
+  franchiseCorpNum?: string
+}
 
 /** 현금영수증 원본 문서. 금액과 식별번호는 문자열을 유지합니다.
  * @see https://developers.popbill.com/api-reference/cashbill/api/issue

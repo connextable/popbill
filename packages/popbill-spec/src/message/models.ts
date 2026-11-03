@@ -1,4 +1,14 @@
 import type { MessageApiResponseBase, MessageType } from './common'
+import type { PopbillWebhookDeliveryBody } from '../webhook/common'
+
+/** @see https://developers.popbill.com/api-reference/sms/webhook/webhook-event */
+export interface MessageWebhookBody extends PopbillWebhookDeliveryBody {
+  sendName?: string
+  receiveName?: string
+  type?: string
+  content?: string
+  tranNet?: string
+}
 
 /** HTTP request recipient; per-recipient fields override shared send fields. */
 export interface MessageRecipientApiModel {

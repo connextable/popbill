@@ -158,3 +158,9 @@ export interface HomeTaxTaxInvoiceChargeInfoApiResponse {
   chargeMethod?: string
   rateSystem?: string
 }
+/** Collected document payload; this is not a collection-job completion event.
+ * @see https://developers.popbill.com/api-reference/httaxinvoice/webhook/webhook-event
+ */
+export interface HomeTaxTaxInvoiceWebhookBody extends HomeTaxTaxInvoiceApiModel {
+  sendDate?: string
+}

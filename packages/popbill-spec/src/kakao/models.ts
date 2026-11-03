@@ -1,4 +1,5 @@
 import type { KakaoBrandTargeting, KakaoMessageType } from './common'
+import type { PopbillWebhookDeliveryBody, PopbillWebhookCode } from '../webhook/common'
 /** Official Kakao wire button fields. */
 export interface KakaoButtonApiModel {
   n: string
@@ -268,4 +269,11 @@ export interface KakaoSearchApiQuery {
   Order?: 'D' | 'A'
   Page?: number
   PerPage?: number
+}
+/** @see https://developers.popbill.com/api-reference/kakaotalk/webhook/webhook-event */
+export interface KakaoWebhookBody extends PopbillWebhookDeliveryBody {
+  altResult?: PopbillWebhookCode
+  altResultDT?: string
+  altSendDT?: string
+  contentType?: PopbillWebhookCode
 }

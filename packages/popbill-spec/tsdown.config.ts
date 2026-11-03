@@ -3,6 +3,7 @@ import { defineConfig } from 'tsdown'
 export default defineConfig({
   entry: [
     'src/index.ts',
+    'src/webhook/index.ts',
     'src/common/index.ts',
     'src/tax-invoice/index.ts',
     'src/tax-invoice/shims/index.ts',
