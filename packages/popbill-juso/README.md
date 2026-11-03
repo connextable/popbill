@@ -4,7 +4,7 @@
 
 ## 요구사항
 
-- Node.js 20+
+- Node.js: [package.json](./package.json)의 `engines.node` 지원 범위
 - ESM 호환 TypeScript 도구
 
 ## 설치

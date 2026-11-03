@@ -6,7 +6,7 @@ SDK나 어댑터를 구현할 때 사용하는 정규화·검증·JSON·해시·
 
 ## 요구사항
 
-- Node.js 20+
+- Node.js: [package.json](./package.json)의 `engines.node` 지원 범위
 
 ## 설치
 

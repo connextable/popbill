@@ -4,7 +4,7 @@ Popbill 전자문서·메시징·사업자 및 금융 조회와 JusoLink 주소�
 
 ## 빠른 시작
 
-- 실행 환경: Node.js 20+ · ESM
+- 실행 환경: ESM. Node.js 지원 범위는 [SDK의 `engines.node`](./packages/popbill/package.json)를 확인합니다.
 - 사전 준비: Popbill 연동 아이디·비밀키와 테스트 회원 계정. 아래 예제는 공동인증서가 등록된 사업자로 실행합니다.
 
 ```sh

@@ -6,7 +6,7 @@ SDK 내부 구현, adapter, 또는 원본 API 모델을 직접 다루는 고급 
 
 ## 요구사항
 
-- Node.js 20+
+- Node.js: [package.json](./package.json)의 `engines.node` 지원 범위
 
 ## 설치
 

@@ -6,7 +6,7 @@ Popbill 및 Linkhub SDK 패키지에서 공유하는 런타임 클라이언트 �
 
 ## 요구사항
 
-- Node.js 20+
+- Node.js: [package.json](./package.json)의 `engines.node` 지원 범위
 
 ## 설치
 

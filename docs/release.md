@@ -38,7 +38,7 @@ GitHub Actions의 `Release`를 `main`에서 수동 실행한다. Releaseway가 G
 
 [Releaseway 설정](../.github/releaseway.yml)이 `main`과 `v` 접두사의 source tag를 기준으로 다음 버전을 계산한다. 일반 변경은 patch, `feat`는 minor, `BREAKING CHANGE`나 `!`가 있는 변경은 major 증가 대상이다.
 
-기준 태그가 없는 첫 정식 릴리스는 웹훅 기능 추가를 반영한 `2.1.0`에서 시작한다. 이후에는 태그와 커밋 이력을 사용한다. 저장소의 `package.json` 버전은 빌드용 원본이며 발행 버전은 Git 태그를 따른다. Releaseway가 발행 작업 안에서 패키지 버전과 내부 의존성을 맞추므로 버전 변경 커밋을 만들지 않는다.
+기준 태그가 없으면 [Releaseway 설정](../.github/releaseway.yml)의 `initial-version`을 사용하고, 이후에는 태그와 커밋 이력으로 버전을 결정한다. 확정된 버전은 Release 실행 요약과 각 패키지의 npm 페이지에서 확인한다. 저장소의 `package.json` 버전은 빌드용 원본이며 발행 버전은 Git 태그를 따른다. Releaseway가 발행 작업 안에서 패키지 버전과 내부 의존성을 맞추므로 버전 변경 커밋을 만들지 않는다.
 
 ## 검증과 발행
 
@@ -55,7 +55,7 @@ pnpm build
 pnpm check:packages
 ```
 
-이미 pack한 tarball을 검사하려면 `pnpm check:packages <디렉터리>`를 사용한다. 소비자 실행 검사는 현재 Node.js에서 수행하며, manifest의 Node.js 20 이상 요구사항도 확인한다.
+이미 pack한 tarball을 검사하려면 `pnpm check:packages <디렉터리>`를 사용한다. 소비자 실행 검사는 현재 Node.js에서 수행하며, manifest의 Node.js 지원 범위도 확인한다.
 
 ## 실패 후 재실행
 

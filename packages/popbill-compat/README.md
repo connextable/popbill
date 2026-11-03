@@ -8,7 +8,7 @@
 
 ## 요구사항
 
-- Node.js 20+
+- Node.js: [package.json](./package.json)의 `engines.node` 지원 범위
 - ESM·CommonJS 진입점 지원
 
 ## 설치
