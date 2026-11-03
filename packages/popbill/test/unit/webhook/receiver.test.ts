@@ -96,6 +96,19 @@ describe('typed webhook receiver', () => {
     expect(message.events[1]).toMatchObject({ kind: 'cashbill.state', businessNumber: '1234567890', index: 1 })
   })
 
+  test('preserves input order when document transitions arrive out of chronological order', () => {
+    const body = [
+      { header: {}, body: { eventType: 'CancelIssue', eventDT: '20261103100000', itemKey: 'document' } },
+      { header: {}, body: { eventType: 'Issue', eventDT: '20261103090000', itemKey: 'document' } },
+    ]
+    const message = receive(body)
+    expect(message.events).toMatchObject([
+      { index: 0, eventType: 'CancelIssue', occurredAt: '20261103100000', data: { itemKey: 'document' }, raw: body[0]!.body },
+      { index: 1, eventType: 'Issue', occurredAt: '20261103090000', data: { itemKey: 'document' }, raw: body[1]!.body },
+    ])
+    expect(message.rawBody).toEqual(body)
+  })
+
   test.each([
     ['TAXINVOICE.STATE', { eventType: 'Issue' }],
     ['TAXINVOICE.STATE', { eventType: 'BULK.RESULT', submitID: 's', receiptID: 'r', issueResult: [null] }],

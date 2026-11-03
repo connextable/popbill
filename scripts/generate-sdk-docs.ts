@@ -116,6 +116,7 @@ interface WritePopbillDocsInput {
   methodByName: Map<string, MethodSignatureInfo>
   serviceDescription: string
   typeCatalog: TypeCatalog
+  factory?: { signature: string; importPath: string }
 }
 
 interface WriteCompatDocsInput {
@@ -440,18 +441,26 @@ function writeRootReadme({ popbillVersion, compatVersion, services }: WriteRootR
     '  - [method-index.json](./generated/method-index.json)',
     '  - [compat-map.json](./generated/compat-map.json)',
     '- schema indexes',
-    '  - [popbill webhook type schemas](./generated/schemas/popbill/webhook/types/index.json)',
     ...serviceConfigs.flatMap((config) => [
       `  - [popbill ${config.modernDirectory} type schemas](./generated/schemas/popbill/${config.modernDirectory}/types/index.json)`,
       `  - [popbill-compat ${config.compatDirectory} method schemas](./generated/schemas/popbill-compat/${config.compatDirectory}/methods/index.json)`,
     ]),
+    '  - [popbill webhook type schemas](./generated/schemas/popbill/webhook/types/index.json)',
     '',
   ].join('\n')
 
   writeFile(path.join(docsRoot, 'README.md'), content)
 }
 
-function writePopbillDocs({ config, methodGroups, groupedMethods, methodByName, serviceDescription, typeCatalog }: WritePopbillDocsInput): void {
+function writePopbillDocs({
+  config,
+  methodGroups,
+  groupedMethods,
+  methodByName,
+  serviceDescription,
+  typeCatalog,
+  factory,
+}: WritePopbillDocsInput): void {
   const methodDir = path.join(docsRoot, 'popbill', config.modernDirectory, 'methods')
   const indexPath = path.join(docsRoot, 'popbill', config.modernDirectory, 'index.md')
 
@@ -559,6 +568,10 @@ function writePopbillDocs({ config, methodGroups, groupedMethods, methodByName, 
   indexLines.push('')
   indexLines.push(serviceDescription || `${config.modernInterface} modern facade 서비스 인터페이스입니다.`)
   indexLines.push('')
+
+  if (factory) {
+    indexLines.push('## Factory', '', `Import: \`${factory.importPath}\``, '', '```ts', factory.signature, '```', '')
+  }
 
   for (const [group, methods] of groupedMethods) {
     indexLines.push(`## ${group}`)
@@ -722,6 +735,12 @@ function writeWebhookDocs() {
   const methods = parseMethodSignatures(source, config.modernInterface)
   const methodByName = buildMethodByName(methods)
   const methodGroups = methods.map(({ name }) => ({ name, group: 'Webhook' }))
+  const entry = readSourceFile(path.join(sourceRoot, 'index.ts'))
+  const factory = entry.ast.statements.find(
+    (statement): statement is ts.FunctionDeclaration => ts.isFunctionDeclaration(statement) && statement.name?.text === 'createPopbillWebhookReceiver'
+  )
+  if (!factory) throw new Error('Public createPopbillWebhookReceiver factory not found')
+  const signature = `${factory.name!.text}(${factory.parameters.map((parameter) => parameter.getText(entry.ast)).join(', ')}): ${factory.type?.getText(entry.ast) ?? 'unknown'}`
   for (const target of [path.join(docsRoot, 'popbill/webhook'), path.join(generatedRoot, 'schemas/popbill/webhook')]) {
     fs.rmSync(target, { recursive: true, force: true })
   }
@@ -732,18 +751,8 @@ function writeWebhookDocs() {
     methodByName,
     serviceDescription: parseInterfaceDescription(source, config.modernInterface),
     typeCatalog,
+    factory: { signature, importPath: '@connextable/popbill/webhook' },
   })
-  const entry = readSourceFile(path.join(sourceRoot, 'index.ts'))
-  const factory = entry.ast.statements.find(
-    (statement): statement is ts.FunctionDeclaration => ts.isFunctionDeclaration(statement) && statement.name?.text === 'createPopbillWebhookReceiver'
-  )
-  if (!factory) throw new Error('Public createPopbillWebhookReceiver factory not found')
-  const signature = `${factory.name!.text}(${factory.parameters.map((parameter) => parameter.getText(entry.ast)).join(', ')}): ${factory.type?.getText(entry.ast) ?? 'unknown'}`
-  const indexPath = path.join(docsRoot, 'popbill/webhook/index.md')
-  writeFile(
-    indexPath,
-    fs.readFileSync(indexPath, 'utf8') + `\n## Factory\n\n\`\`\`ts\n${signature}\n\`\`\`\n\nImport: \`@connextable/popbill/webhook\`\n`
-  )
   writeTypeSchemas(config, typeCatalog)
   return modernMethodEntries(config, methodGroups, methodByName)
 }

@@ -84,7 +84,7 @@ export type PopbillWebhookEvent = PopbillWebhookEventSource &
   )
 
 export interface PopbillWebhookMessage extends Omit<ParsedPopbillWebhookMessage, 'items'> {
-  /** Always an array, including single-object deliveries. No batch item is silently discarded. */
+  /** Always an array in input order, including single-object deliveries. No batch item is silently discarded. */
   events: PopbillWebhookEvent[]
 }
 

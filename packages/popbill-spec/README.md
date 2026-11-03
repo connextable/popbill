@@ -37,7 +37,6 @@ const request: StatementGetInfoApiRequest = {
 ## Export Paths
 
 - `@connextable/popbill-spec`: 공통 인증·헤더·요청·오류 코드와 전체 서비스의 원본 타입
-- `@connextable/popbill-spec/webhook`: 8개 상품의 웹훅 원본 본문·공통 헤더·배치 타입·유형 상수
 - `@connextable/popbill-spec/common`: 회원·담당자·포인트·결제·환불
 - `@connextable/popbill-spec/tax-invoice`: 전자세금계산서 요청/응답 모델
 - `@connextable/popbill-spec/tax-invoice/shims`: 호환 shim 타입
@@ -52,6 +51,7 @@ const request: StatementGetInfoApiRequest = {
 - `@connextable/popbill-spec/kakao`: 카카오톡
 - `@connextable/popbill-spec/message`: 문자
 - `@connextable/popbill-spec/fax`: 팩스
+- `@connextable/popbill-spec/webhook`: 8개 상품의 웹훅 원본 본문·공통 헤더·배치 타입·유형 상수
 
 ## 관련 문서
 

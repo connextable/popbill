@@ -47,9 +47,11 @@ test('documents standalone webhook signatures and imported DTOs without fabricat
   const fixture = createFixture()
   const result = fixture.run()
   expect({ status: result.status, stderr: result.stderr }).toEqual({ status: 0, stderr: '' })
-  expect(fixture.read('popbill/webhook/index.md')).toContain(
-    'createPopbillWebhookReceiver(config: PopbillWebhookReceiverConfig): PopbillWebhookReceiver'
-  )
+  const webhookDoc = fixture.read('popbill/webhook/index.md')
+  expect(webhookDoc).toContain('createPopbillWebhookReceiver(config: PopbillWebhookReceiverConfig): PopbillWebhookReceiver')
+  expect(webhookDoc.indexOf('## Factory')).toBeGreaterThan(0)
+  expect(webhookDoc.indexOf('## Factory')).toBeLessThan(webhookDoc.indexOf('## Webhook'))
+  expect(webhookDoc.indexOf('`parse`')).toBeLessThan(webhookDoc.indexOf('`createSuccessResponse`'))
   expect(fixture.read('popbill/webhook/methods/parse.md')).toContain('PopbillWebhookMessage')
   const schema = JSON.parse(fixture.read('generated/schemas/popbill/webhook/types/popbill-webhook-message.json')) as {
     properties: { name: string }[]
