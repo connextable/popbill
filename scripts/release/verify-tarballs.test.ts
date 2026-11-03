@@ -23,8 +23,19 @@ const webhookRuntime = `export function createPopbillWebhookReceiver() {
 }`
 
 const declarations: Record<string, string> = {
-  popbill: `export declare function createPopbillClient(): {
-    services: { common: { getMemberPointBalance(input: { businessNumber: string }): Promise<{ remainingPoints: string }> } }
+  popbill: `
+  export interface PopbillCallOptions { signal?: AbortSignal }
+  export interface PopbillApiError { abort?: { source: 'signal' | 'request_timeout'; reason: unknown } }
+  export declare function createPopbillClient(config: { linkId: string; secretKey: string; userId: string; fetch?: typeof globalThis.fetch }): {
+    services: {
+      common: {
+        getMemberPointBalance(input: { businessNumber: string }): Promise<{ remainingPoints: string }>
+        getCompanyInfo(input: { businessNumber: string }, options?: PopbillCallOptions): Promise<{ companyName: string }>
+      }
+      taxInvoice: {
+        downloadInvoicePDF(input: { businessNumber: string; invoiceDocumentKeyType: 'SELL'; invoiceManagementKey: string }, options?: PopbillCallOptions): Promise<{ content: Uint8Array }>
+      }
+    }
   }`,
   'popbill-compat': `export declare function createTaxinvoicePromiseService(): {
     getUnitCost(businessNumber: string): Promise<string>

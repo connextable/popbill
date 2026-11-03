@@ -14,6 +14,8 @@ import type { MessageService } from '@/services/message/types'
 import type { FaxService } from '@/services/fax/types'
 
 export interface PopbillClientConfig {
+  /** 인증·시간·업무 요청 전체에 사용할 Fetch 호환 전송 함수입니다. */
+  fetch?: typeof globalThis.fetch
   linkId: string
   secretKey: string
   userId: string

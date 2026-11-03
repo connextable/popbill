@@ -1,3 +1,4 @@
+import type { WithPopbillCallOptions } from '@/client/call-options'
 import {
   TaxInvoiceModificationReasonCodes,
   type TaxInvoiceDateString,
@@ -975,9 +976,11 @@ export interface UpdateEmailSendSettingsInput extends TaxInvoiceBusinessRequest 
 
 /**
  * TaxInvoice modern facade 서비스 인터페이스입니다.
- * 모든 메서드는 `input`만 받으며 실패 시 `PopbillApiError`를 throw 합니다.
+ * 모든 메서드는 `input`과 선택 호출 옵션을 받으며 실패 시 `PopbillApiError`를 throw 합니다.
  */
-export interface TaxInvoiceService {
+export interface TaxInvoiceService extends WithPopbillCallOptions<TaxInvoiceServiceOperations> {}
+
+interface TaxInvoiceServiceOperations {
   /**
    * 등록과 동시에 세금계산서를 즉시 발행합니다.
    *

@@ -1,3 +1,4 @@
+import type { WithPopbillCallOptions } from '@/client/call-options'
 export interface CompanyInfoInput {
   businessNumber: string
   targetBusinessNumber: string
@@ -44,7 +45,9 @@ export interface BizInfoCheckUnitCost {
   unitCost: string
 }
 
-export interface BizInfoCheckService {
+export interface BizInfoCheckService extends WithPopbillCallOptions<BizInfoCheckServiceOperations> {}
+
+interface BizInfoCheckServiceOperations {
   /** 기업정보 조회. Compat: `checkBizInfo` */
   getCompanyInfo(request: CompanyInfoInput): Promise<CompanyInfo>
   /** 과금정보 조회. Compat: `getChargeInfo` */

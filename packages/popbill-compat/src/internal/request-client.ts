@@ -70,6 +70,8 @@ export function createCompatRequestClient(config: CompatConfig, scopes: readonly
   const resolvedConfig = resolveCompatRequestConfig(config)
 
   const authClient = createLinkhubAuthClient({
+    fetch: config.fetch,
+    requestContext: config.requestContext,
     linkId: config.LinkID,
     secretKey: config.SecretKey,
     useStaticIp: resolvedConfig.useStaticIp,
@@ -79,6 +81,7 @@ export function createCompatRequestClient(config: CompatConfig, scopes: readonly
   })
 
   const tokenProvider = createTokenProvider({
+    requestContext: config.requestContext,
     authClient,
     serviceId: resolvedConfig.isTest ? PopbillServiceIds.Test : PopbillServiceIds.Production,
     scopes,
@@ -87,6 +90,8 @@ export function createCompatRequestClient(config: CompatConfig, scopes: readonly
 
   registerCompatTokenProvider(config, tokenProvider)
   const requestClient = createPopbillRequestClient({
+    fetch: config.fetch,
+    requestContext: config.requestContext,
     apiBaseUrl: resolveApiBaseUrl(resolvedConfig),
     timeoutMs: resolvedConfig.requestTimeoutMs,
     tokenProvider,

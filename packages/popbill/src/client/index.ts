@@ -1,5 +1,8 @@
 import type { PopbillClient, PopbillClientConfig } from './types'
 export type { PopbillClient, PopbillClientConfig } from './types'
+export type { PopbillCallOptions } from './call-options'
+import { wrapClientServices } from './call-options'
+import { createRequestContext, type RequestContext } from '@connextable/popbill-runtime'
 import { createCommonService } from '@/services/common'
 import { createTaxInvoiceService } from '@/services/tax-invoice'
 import { createCashbillService } from '@/services/cashbill'
@@ -21,6 +24,8 @@ const DEFAULT_REQUEST_TIMEOUT_MILLISECONDS = 180_000
 const DEFAULT_ACCEPT_ENCODING = 'gzip'
 
 interface ResolvedPopbillClientConfig {
+  fetch?: typeof globalThis.fetch
+  requestContext: RequestContext
   linkId: string
   secretKey: string
   userId: string
@@ -40,40 +45,47 @@ interface ResolvedPopbillClientConfig {
  */
 export function createPopbillClient(config: PopbillClientConfig): PopbillClient {
   const normalizedConfig = normalizeClientConfiguration(config)
-  const serviceInput = { defaultUserId: normalizedConfig.userId, onError: normalizedConfig.onError }
+  const serviceInput = { defaultUserId: normalizedConfig.userId }
 
   return {
-    services: {
-      common: createCommonService({
-        ...serviceInput,
-        linkId: normalizedConfig.linkId,
-        compatCommonService: bridges.createCompatCommonService(normalizedConfig),
-      }),
-      taxInvoice: createTaxInvoiceService({ ...serviceInput, compatTaxInvoiceService: bridges.createCompatTaxInvoiceService(normalizedConfig) }),
-      cashbill: createCashbillService({ ...serviceInput, compatCashbillService: bridges.createCompatCashbillService(normalizedConfig) }),
-      statement: createStatementService({ ...serviceInput, compatStatementService: bridges.createCompatStatementService(normalizedConfig) }),
-      homeTaxTaxInvoice: createHomeTaxTaxInvoiceService({
-        ...serviceInput,
-        compatHTTaxinvoiceService: bridges.createCompatHomeTaxTaxInvoiceService(normalizedConfig),
-      }),
-      homeTaxCashbill: createHomeTaxCashbillService({
-        ...serviceInput,
-        compatHomeTaxCashbillService: bridges.createCompatHomeTaxCashbillService(normalizedConfig),
-      }),
-      closedown: createClosedownService({ ...serviceInput, compatClosedownService: bridges.createCompatClosedownService(normalizedConfig) }),
-      bizInfoCheck: createBizInfoCheckService({
-        ...serviceInput,
-        compatBizInfoCheckService: bridges.createCompatBizInfoCheckService(normalizedConfig),
-      }),
-      easyFinBank: createEasyFinBankService({ ...serviceInput, compatEasyFinBankService: bridges.createCompatEasyFinBankService(normalizedConfig) }),
-      accountCheck: createAccountCheckService({
-        ...serviceInput,
-        compatAccountCheckService: bridges.createCompatAccountCheckService(normalizedConfig),
-      }),
-      kakao: createKakaoService({ ...serviceInput, compatKakaoService: bridges.createCompatKakaoService(normalizedConfig) }),
-      message: createMessageService({ ...serviceInput, compatMessageService: bridges.createCompatMessageService(normalizedConfig) }),
-      fax: createFaxService({ ...serviceInput, compatFaxService: bridges.createCompatFaxService(normalizedConfig) }),
-    },
+    services: wrapClientServices(
+      {
+        common: createCommonService({
+          ...serviceInput,
+          linkId: normalizedConfig.linkId,
+          compatCommonService: bridges.createCompatCommonService(normalizedConfig),
+        }),
+        taxInvoice: createTaxInvoiceService({ ...serviceInput, compatTaxInvoiceService: bridges.createCompatTaxInvoiceService(normalizedConfig) }),
+        cashbill: createCashbillService({ ...serviceInput, compatCashbillService: bridges.createCompatCashbillService(normalizedConfig) }),
+        statement: createStatementService({ ...serviceInput, compatStatementService: bridges.createCompatStatementService(normalizedConfig) }),
+        homeTaxTaxInvoice: createHomeTaxTaxInvoiceService({
+          ...serviceInput,
+          compatHTTaxinvoiceService: bridges.createCompatHomeTaxTaxInvoiceService(normalizedConfig),
+        }),
+        homeTaxCashbill: createHomeTaxCashbillService({
+          ...serviceInput,
+          compatHomeTaxCashbillService: bridges.createCompatHomeTaxCashbillService(normalizedConfig),
+        }),
+        closedown: createClosedownService({ ...serviceInput, compatClosedownService: bridges.createCompatClosedownService(normalizedConfig) }),
+        bizInfoCheck: createBizInfoCheckService({
+          ...serviceInput,
+          compatBizInfoCheckService: bridges.createCompatBizInfoCheckService(normalizedConfig),
+        }),
+        easyFinBank: createEasyFinBankService({
+          ...serviceInput,
+          compatEasyFinBankService: bridges.createCompatEasyFinBankService(normalizedConfig),
+        }),
+        accountCheck: createAccountCheckService({
+          ...serviceInput,
+          compatAccountCheckService: bridges.createCompatAccountCheckService(normalizedConfig),
+        }),
+        kakao: createKakaoService({ ...serviceInput, compatKakaoService: bridges.createCompatKakaoService(normalizedConfig) }),
+        message: createMessageService({ ...serviceInput, compatMessageService: bridges.createCompatMessageService(normalizedConfig) }),
+        fax: createFaxService({ ...serviceInput, compatFaxService: bridges.createCompatFaxService(normalizedConfig) }),
+      },
+      normalizedConfig.requestContext,
+      normalizedConfig.onError
+    ),
   }
 }
 
@@ -81,11 +93,14 @@ export function createPopbillClient(config: PopbillClientConfig): PopbillClient 
  * 입력 설정을 런타임 안전성 기준으로 정규화합니다.
  */
 function normalizeClientConfiguration(config: PopbillClientConfig): ResolvedPopbillClientConfig {
+  if (config.fetch !== undefined && typeof config.fetch !== 'function') throw new TypeError('fetch must be a function.')
   const linkId = normalizeRequiredString(config.linkId, 'linkId는 필수입니다.')
   const secretKey = normalizeRequiredString(config.secretKey, 'secretKey는 필수입니다.')
   const userId = normalizeRequiredString(config.userId, 'userId는 필수입니다.')
 
   return {
+    fetch: config.fetch,
+    requestContext: createRequestContext(),
     linkId,
     secretKey,
     userId,

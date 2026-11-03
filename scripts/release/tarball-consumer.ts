@@ -10,7 +10,7 @@ const compilerPath = path.join(path.dirname(require.resolve('typescript/package.
 // Compile these examples against the extracted packages, without workspace source aliases.
 // Explicit any checks catch declarations that silently degrade when dependencies were not built.
 const consumerSource = `
-import { createPopbillClient } from '@connextable/popbill'
+import { createPopbillClient, type PopbillCallOptions, type PopbillApiError } from '@connextable/popbill'
 import { createPopbillWebhookReceiver, PopbillWebhookError } from '@connextable/popbill/webhook'
 import { PopbillWebhookTypes, type TaxInvoiceStateWebhookBody } from '@connextable/popbill-spec/webhook'
 import { createTaxinvoicePromiseService } from '@connextable/popbill-compat/factory'
@@ -52,6 +52,14 @@ void memberTokenBody
 declare const modern: ModernClient
 declare const legacy: LegacyService
 declare const juso: JusoClient
+const injectedModern = createPopbillClient({ linkId: 'LINK', secretKey: 'c2VjcmV0', userId: 'operator', fetch: globalThis.fetch })
+void injectedModern
+const callOptions: PopbillCallOptions = { signal: new AbortController().signal }
+modern.services.common.getCompanyInfo({ businessNumber: '1234567890' }, callOptions)
+modern.services.taxInvoice.downloadInvoicePDF({ businessNumber: '1234567890', invoiceDocumentKeyType: 'SELL', invoiceManagementKey: 'KEY' }, callOptions)
+declare const sdkError: PopbillApiError
+const abortSource: 'signal' | 'request_timeout' | undefined = sdkError.abort?.source
+void abortSource
 modern.services.common.getMemberPointBalance({ businessNumber: '1234567890' }).then((balance) => {
   const remainingPoints: string = balance.remainingPoints
   return remainingPoints

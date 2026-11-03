@@ -1138,6 +1138,9 @@ function collectServiceMembers(source: SourceWithAst, name: string, visited = ne
     const inherited = (declaration.heritageClauses ?? []).flatMap((clause) =>
       clause.types.flatMap((type) => {
         const parentName = type.expression.getText(source.ast)
+        if (parentName === 'WithPopbillCallOptions' && type.typeArguments?.[0]) {
+          return membersFromType(source, type.typeArguments[0], nextVisited)
+        }
         return findTypeDeclaration(source, parentName) ? collectServiceMembers(source, parentName, nextVisited) : []
       })
     )
@@ -1153,7 +1156,12 @@ function collectServiceMembers(source: SourceWithAst, name: string, visited = ne
 
 function membersFromType(source: SourceWithAst, type: ts.TypeNode, visited: Set<string>): { source: SourceWithAst; member: ServiceMember }[] {
   if (ts.isParenthesizedTypeNode(type)) return membersFromType(source, type.type, visited)
-  if (ts.isTypeReferenceNode(type)) return collectServiceMembers(source, type.typeName.getText(source.ast), visited)
+  if (ts.isTypeReferenceNode(type)) {
+    if (type.typeName.getText(source.ast) === 'WithPopbillCallOptions' && type.typeArguments?.[0]) {
+      return membersFromType(source, type.typeArguments[0], visited)
+    }
+    return collectServiceMembers(source, type.typeName.getText(source.ast), visited)
+  }
   if (ts.isIntersectionTypeNode(type)) return type.types.flatMap((part) => membersFromType(source, part, visited))
   if (ts.isTypeLiteralNode(type))
     return type.members
@@ -1199,6 +1207,16 @@ function resolveIndexedTypeText(source: SourceWithAst, typeText: string): string
 
 function parseMethodSignatures(rootSource: SourceWithAst, interfaceName: string): MethodSignatureInfo[] {
   const methods: MethodSignatureInfo[] = []
+  const declaration = findTypeDeclaration(rootSource, interfaceName)
+  const withCallOptions =
+    declaration &&
+    ((ts.isTypeAliasDeclaration(declaration) &&
+      ts.isTypeReferenceNode(declaration.type) &&
+      declaration.type.typeName.getText(rootSource.ast) === 'WithPopbillCallOptions') ||
+      (ts.isInterfaceDeclaration(declaration) &&
+        declaration.heritageClauses?.some((clause) =>
+          clause.types.some((type) => type.expression.getText(rootSource.ast) === 'WithPopbillCallOptions')
+        )))
   for (const { source, member } of collectServiceMembers(rootSource, interfaceName)) {
     const callable = ts.isMethodSignature(member) ? member : member.type && ts.isFunctionTypeNode(member.type) ? member.type : undefined
     if (!callable) continue
@@ -1222,6 +1240,7 @@ function parseMethodSignatures(rootSource: SourceWithAst, interfaceName: string)
         },
       ]
     })
+    if (withCallOptions) parameters.push({ name: 'options', optional: true, typeText: 'PopbillCallOptions' })
     const returnTypeText = callable.type ? resolveIndexedTypeText(source, callable.type.getText(source.ast)) : 'void'
     const promiseReturnType = extractPromiseReturnType(callable.type, source.ast)
     const summary = getNodeDescription(member)

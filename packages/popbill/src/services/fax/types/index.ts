@@ -1,10 +1,13 @@
+import type { WithPopbillCallOptions } from '@/client/call-options'
 import type * as Request from './request'
 import type * as Response from './response'
 
 export type * from './request'
 export type * from './response'
 
-export interface FaxService {
+export interface FaxService extends WithPopbillCallOptions<FaxServiceOperations> {}
+
+interface FaxServiceOperations {
   /** Compat: `getSenderNumberMgtURL` */
   getFaxSenderRegistrationURL(input: Request.FaxBusinessInput): Promise<Response.FaxAccessURL>
   /** Compat: `getSenderNumberList` */

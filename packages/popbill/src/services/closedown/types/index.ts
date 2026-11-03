@@ -1,3 +1,4 @@
+import type { WithPopbillCallOptions } from '@/client/call-options'
 export interface BusinessStatusInput {
   businessNumber: string
   targetBusinessNumber: string
@@ -29,7 +30,9 @@ export interface ClosedownUnitCost {
   unitCost: string
 }
 
-export interface ClosedownService {
+export interface ClosedownService extends WithPopbillCallOptions<ClosedownServiceOperations> {}
+
+interface ClosedownServiceOperations {
   /** 사업자등록상태 단건 조회. Compat: `checkCorpNum` */
   checkBusinessStatus(request: BusinessStatusInput): Promise<BusinessStatus>
   /** 사업자등록상태 대량 조회. Compat: `checkCorpNums` */

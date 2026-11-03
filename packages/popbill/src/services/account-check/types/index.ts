@@ -1,3 +1,4 @@
+import type { WithPopbillCallOptions } from '@/client/call-options'
 export type AccountCheckServiceType = '성명' | '실명'
 export type AccountIdentityNumberType = 'P' | 'B'
 export interface AccountHolderNameInput {
@@ -42,7 +43,9 @@ export interface AccountCheckUnitCost {
   unitCost: string
 }
 
-export interface AccountCheckService {
+export interface AccountCheckService extends WithPopbillCallOptions<AccountCheckServiceOperations> {}
+
+interface AccountCheckServiceOperations {
   /** 예금주 성명 조회. Compat: `checkAccountInfo` */
   checkAccountHolderName(request: AccountHolderNameInput): Promise<AccountHolderInfo>
   /** 실명번호를 이용한 예금주 조회. Compat: `checkDepositorInfo` */

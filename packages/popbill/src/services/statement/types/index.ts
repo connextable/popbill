@@ -1,3 +1,4 @@
+import type { WithPopbillCallOptions } from '@/client/call-options'
 import type { StatementDocumentInput, StatementItemCode } from './document'
 import type * as response from './response'
 
@@ -148,7 +149,9 @@ export type GetStatementChargeInfoInput = StatementTypeRequest
 export type GetStatementUnitCostInput = StatementTypeRequest
 
 /** 전자명세서 modern API입니다. 사용자 ID는 client 생성 시 지정합니다. */
-export interface StatementService {
+export interface StatementService extends WithPopbillCallOptions<StatementServiceOperations> {}
+
+interface StatementServiceOperations {
   /** 즉시발행합니다. Compat: `registIssue` */
   issueStatementImmediately(input: IssueStatementImmediatelyInput): Promise<response.StatementIssueResult>
   /** 임시저장합니다. Compat: `register` */

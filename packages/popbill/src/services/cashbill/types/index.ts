@@ -1,3 +1,4 @@
+import type { WithPopbillCallOptions } from '@/client/call-options'
 import type { CashbillApprovalDocumentInput, CashbillCancellationReason, CashbillDocumentInput, CashbillPaymentInput } from './document'
 import type * as Response from './response'
 export * from './document'
@@ -119,7 +120,9 @@ export type GetCashbillChargeInfoInput = CashbillBusinessRequest
 export type GetCashbillUnitCostInput = CashbillBusinessRequest
 
 /** 사용자 ID는 client 생성 시 지정하며, compatibility 별칭을 제공하지 않습니다. */
-export interface CashbillService {
+export interface CashbillService extends WithPopbillCallOptions<CashbillServiceOperations> {}
+
+interface CashbillServiceOperations {
   /** Compat: `registIssue` */
   issueCashbillImmediately(input: IssueCashbillImmediatelyInput): Promise<Response.CashbillIssueResult>
   /** Compat: `revokeRegistIssue` */

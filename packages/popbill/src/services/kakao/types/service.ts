@@ -1,6 +1,9 @@
+import type { WithPopbillCallOptions } from '@/client/call-options'
 import type * as Input from './document'
 import type * as Output from './response'
-export interface KakaoService {
+export interface KakaoService extends WithPopbillCallOptions<KakaoServiceOperations> {}
+
+interface KakaoServiceOperations {
   /** Compat: `getPlusFriendMgtURL` */
   getBusinessChannelManagementURL(request: Input.KakaoBusinessRequest): Promise<Output.KakaoAccessUrl>
   /** Compat: `listPlusFriendID` */

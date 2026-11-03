@@ -4,6 +4,8 @@ import { createCompatRequestClient, registerCompatTokenProvider } from '@/intern
 
 export function createCommonRuntimeContext(config: CompatConfig) {
   const authClient = createLinkhubAuthClient({
+    fetch: config.fetch,
+    requestContext: config.requestContext,
     linkId: config.LinkID,
     secretKey: config.SecretKey,
     useStaticIp: config.UseStaticIP ?? false,
@@ -12,6 +14,7 @@ export function createCommonRuntimeContext(config: CompatConfig) {
     timeoutMs: config.requestTimeoutMs ?? 180_000,
   })
   const tokenProvider = createTokenProvider({
+    requestContext: config.requestContext,
     authClient,
     serviceId: config.IsTest ? PopbillServiceIds.Test : PopbillServiceIds.Production,
     scopes: [LinkhubAuthScope.Member],

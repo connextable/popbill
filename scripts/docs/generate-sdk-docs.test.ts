@@ -43,6 +43,20 @@ afterEach(() => {
   for (const directory of directories.splice(0)) rmSync(directory, { recursive: true, force: true })
 })
 
+test('documents optional call cancellation without changing input or response contracts', () => {
+  const fixture = createFixture()
+  const result = fixture.run()
+  expect({ status: result.status, stderr: result.stderr }).toEqual({ status: 0, stderr: '' })
+  expect(fixture.read('popbill/common/methods/get-company-info.md')).toContain('options?: PopbillCallOptions')
+  expect(fixture.read('popbill/common/methods/get-company-info.md')).toContain('input: Input.CommonBusinessInput')
+  const index = JSON.parse(fixture.read('generated/method-index.json')) as {
+    methods: { sdk: string; service: string; signature: string }[]
+  }
+  const clientMethods = index.methods.filter((method) => method.sdk === 'popbill' && method.service !== 'webhook')
+  expect(new Set(clientMethods.map((method) => method.service)).size).toBe(13)
+  expect(clientMethods.every((method) => method.signature.includes('options?: PopbillCallOptions'))).toBe(true)
+})
+
 test('documents standalone webhook signatures and imported DTOs without fabricating compat mappings', () => {
   const fixture = createFixture()
   const result = fixture.run()

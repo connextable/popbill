@@ -1,10 +1,13 @@
+import type { WithPopbillCallOptions } from '@/client/call-options'
 import type * as Input from './document'
 import type * as Output from './response'
 export type * from './document'
 export type * from './response'
 
 /** 회원·담당자·포인트 API입니다. 사용자 ID는 client 설정을 사용합니다. */
-export interface CommonService {
+export interface CommonService extends WithPopbillCallOptions<CommonServiceOperations> {}
+
+interface CommonServiceOperations {
   /** Compat: `checkIsMember` */
   checkMemberRegistration(input: Input.CommonBusinessInput): Promise<Output.CommonMembershipStatus>
   /** Compat: `checkID` */

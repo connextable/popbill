@@ -1,3 +1,4 @@
+import type { WithPopbillCallOptions } from '@/client/call-options'
 import type * as Response from './response'
 export type * from './response'
 
@@ -42,7 +43,9 @@ export interface RegisterHomeTaxCashbillDepartmentUserInput extends HomeTaxCashb
 }
 
 /** 홈택스 현금영수증 수집 modern API. 자동 폴링 없이 작업아이디를 반환합니다. */
-export interface HomeTaxCashbillService {
+export interface HomeTaxCashbillService extends WithPopbillCallOptions<HomeTaxCashbillServiceOperations> {}
+
+interface HomeTaxCashbillServiceOperations {
   /** Compat: `getCertificatePopUpURL` */
   getAuthenticationRegistrationUrl(input: HomeTaxCashbillBusinessInput): Promise<Response.HomeTaxCashbillAccessUrl>
   /** Compat: `getCertificateExpireDate` */

@@ -1,6 +1,9 @@
 import type { PopbillApiError } from '@/errors'
+import type { RequestContext } from '@connextable/popbill-runtime'
 
 export interface CompatConfig {
+  fetch?: typeof globalThis.fetch
+  requestContext?: RequestContext
   LinkID: string
   SecretKey: string
   IsTest?: boolean

@@ -1,8 +1,11 @@
+import type { WithPopbillCallOptions } from '@/client/call-options'
 import type * as Input from './document'
 import type * as Output from './response'
 export type * from './document'
 export type * from './response'
-export interface MessageService {
+export interface MessageService extends WithPopbillCallOptions<MessageServiceOperations> {}
+
+interface MessageServiceOperations {
   /** Compat: `getSenderNumberMgtURL` */
   getSenderNumberRegistrationURL(request: Input.MessageBusinessRequest): Promise<Output.MessageAccessURL>
   /** Compat: `getSenderNumberList` */

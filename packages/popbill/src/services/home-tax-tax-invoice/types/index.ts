@@ -1,3 +1,4 @@
+import type { WithPopbillCallOptions } from '@/client/call-options'
 import type * as response from './response'
 export type * from './response'
 
@@ -46,7 +47,9 @@ export interface RegisterHomeTaxTaxInvoiceDepartmentUserInput extends HomeTaxTax
   identityNumber?: string | null
 }
 /** 명시적으로 수집을 요청하고 상태를 확인합니다. 자동 재요청이나 polling은 수행하지 않습니다. */
-export interface HomeTaxTaxInvoiceService {
+export interface HomeTaxTaxInvoiceService extends WithPopbillCallOptions<HomeTaxTaxInvoiceServiceOperations> {}
+
+interface HomeTaxTaxInvoiceServiceOperations {
   /** 인증정보 등록 URL. Compat: `getCertificatePopUpURL` */
   getAuthenticationRegistrationUrl(input: HomeTaxTaxInvoiceBusinessInput): Promise<response.HomeTaxTaxInvoiceAccessUrl>
   /** 인증서 만료일시. Compat: `getCertificateExpireDate` */

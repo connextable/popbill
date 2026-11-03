@@ -1,9 +1,12 @@
+import type { WithPopbillCallOptions } from '@/client/call-options'
 import type * as Document from './document'
 import type * as Response from './response'
 export type * from './document'
 export type * from './response'
 
-export interface EasyFinBankService {
+export interface EasyFinBankService extends WithPopbillCallOptions<EasyFinBankServiceOperations> {}
+
+interface EasyFinBankServiceOperations {
   /** Compat: `getBankAccountMgtURL` */
   getBankAccountManagementURL(request: Document.EasyFinBankBusinessInput): Promise<Response.EasyFinBankAccessURL>
   /** Compat: `registBankAccount` */

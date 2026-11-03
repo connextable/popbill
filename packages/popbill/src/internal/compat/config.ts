@@ -1,7 +1,10 @@
 import type { CompatConfig } from '@connextable/popbill-compat/factory'
 import { normalizeOptionalString } from '@connextable/popbill-utils'
+import type { RequestContext } from '@connextable/popbill-runtime'
 
 export interface CreateCompatServiceInput {
+  fetch?: typeof globalThis.fetch
+  requestContext?: RequestContext
   linkId: string
   secretKey: string
   isTest?: boolean
@@ -20,6 +23,8 @@ export function resolveCompatConfiguration(input: CreateCompatServiceInput): Com
   const cached = configurations.get(input)
   if (cached) return cached
   const resolved: CompatConfig = {
+    fetch: input.fetch,
+    requestContext: input.requestContext,
     LinkID: input.linkId,
     SecretKey: input.secretKey,
     IsTest: input.isTest ?? false,
