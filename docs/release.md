@@ -38,7 +38,9 @@ GitHub Actions의 `Release`를 `main`에서 수동 실행한다. Releaseway가 G
 
 [Releaseway 설정](../.github/releaseway.yml)이 `main`과 `v` 접두사의 source tag를 기준으로 다음 버전을 계산한다. 일반 변경은 patch, `feat`는 minor, `BREAKING CHANGE`나 `!`가 있는 변경은 major 증가 대상이다.
 
-기준 태그가 없으면 [Releaseway 설정](../.github/releaseway.yml)의 `initial-version`을 사용하고, 이후에는 태그와 커밋 이력으로 버전을 결정한다. 확정된 버전은 Release 실행 요약과 각 패키지의 npm 페이지에서 확인한다. 저장소의 `package.json` 버전은 빌드용 원본이며 발행 버전은 Git 태그를 따른다. Releaseway가 발행 작업 안에서 패키지 버전과 내부 의존성을 맞추므로 버전 변경 커밋을 만들지 않는다.
+`initial-version`은 기준 태그가 없을 때 최초 릴리스 버전을 정하는 설정이다. 릴리스마다 목표 버전에 맞춰 변경하지 않는다. 첫 기준 태그가 생긴 뒤에는 같은 설정을 유지하고, `bump: auto`가 마지막 기준 태그 이후의 커밋으로 다음 버전을 계산한다.
+
+확정된 버전은 Release 실행 요약과 각 패키지의 npm 페이지에서 확인한다. 저장소의 `package.json` 버전은 빌드용 원본이며 발행 버전은 Git 태그를 따른다. Releaseway가 발행 작업 안에서 패키지 버전과 내부 의존성을 맞추므로 버전 변경 커밋을 만들지 않는다.
 
 ## 검증과 발행
 
