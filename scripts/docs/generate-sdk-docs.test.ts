@@ -21,8 +21,11 @@ function createFixture() {
     cpSync(path.join(repoRoot, 'packages', packageName, 'package.json'), path.join(packageDirectory, 'package.json'))
     cpSync(path.join(repoRoot, 'packages', packageName, 'src/services'), path.join(packageDirectory, 'src/services'), { recursive: true })
     cpSync(path.join(repoRoot, 'packages', packageName, 'src/internal'), path.join(packageDirectory, 'src/internal'), { recursive: true })
+    if (packageName === 'popbill')
+      cpSync(path.join(repoRoot, 'packages/popbill/src/webhook'), path.join(packageDirectory, 'src/webhook'), { recursive: true })
   }
   cpSync(path.join(repoRoot, 'packages/popbill-utils/src'), path.join(directory, 'packages/popbill-utils/src'), { recursive: true })
+  cpSync(path.join(repoRoot, 'packages/popbill-runtime/src'), path.join(directory, 'packages/popbill-runtime/src'), { recursive: true })
 
   return {
     directory,
@@ -38,6 +41,28 @@ function createFixture() {
 
 afterEach(() => {
   for (const directory of directories.splice(0)) rmSync(directory, { recursive: true, force: true })
+})
+
+test('documents standalone webhook signatures and imported DTOs without fabricating compat mappings', () => {
+  const fixture = createFixture()
+  const result = fixture.run()
+  expect({ status: result.status, stderr: result.stderr }).toEqual({ status: 0, stderr: '' })
+  expect(fixture.read('popbill/webhook/index.md')).toContain(
+    'createPopbillWebhookReceiver(config: PopbillWebhookReceiverConfig): PopbillWebhookReceiver'
+  )
+  expect(fixture.read('popbill/webhook/methods/parse.md')).toContain('PopbillWebhookMessage')
+  const schema = JSON.parse(fixture.read('generated/schemas/popbill/webhook/types/popbill-webhook-message.json')) as {
+    properties: { name: string }[]
+  }
+  expect(schema.properties.map((field) => field.name)).toEqual(
+    expect.arrayContaining(['messageId', 'businessNumber', 'webhookType', 'events', 'rawBody'])
+  )
+  const index = JSON.parse(fixture.read('generated/method-index.json')) as { methods: { service: string; methodName: string }[] }
+  expect(index.methods.filter((method) => method.service === 'webhook').map((method) => method.methodName)).toEqual([
+    'parse',
+    'createSuccessResponse',
+  ])
+  expect(fixture.read('generated/compat-map.json')).not.toContain('webhook')
 })
 
 test('generates every service without losing shared method names or unrelated service output', () => {
@@ -177,7 +202,7 @@ test('includes all service methods and supports mapped services, imported callba
     ['bizInfoCheck', 'BizInfoCheckService', 3, 3],
     ['accountCheck', 'AccountCheckService', 4, 4],
   ]
-  expect(new Set(index.methods.map((method) => `${method.sdk}.${method.service}`)).size).toBe(expectedServices.length * 2)
+  expect(new Set(index.methods.map((method) => `${method.sdk}.${method.service}`)).size).toBe(expectedServices.length * 2 + 1)
   for (const [modern, compat, modernCount, compatCount] of expectedServices) {
     expect(index.methods.filter((method) => method.sdk === 'popbill' && method.service === modern)).toHaveLength(modernCount)
     const compatMethods = index.methods.filter((method) => method.sdk === 'popbill-compat' && method.service === compat)

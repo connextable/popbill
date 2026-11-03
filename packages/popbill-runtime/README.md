@@ -55,6 +55,7 @@ const requestClient = createPopbillRequestClient({
 - `createLinkhubRequestClient`: Linkhub API 요청
 - `createPopbillRequestClient`: Popbill 인증 헤더·HTTP 요청
 - 서비스 ID·인증 범위·기본 URL 상수
+- `createPopbillWebhookParser`: 별도 Basic/API Key 인증·JSON/배치 해석·성공 응답 구성. 상품별 DTO는 `@connextable/popbill/webhook`에서 제공합니다.
 
 ## 관련 문서
 

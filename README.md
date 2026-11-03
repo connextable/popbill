@@ -59,6 +59,10 @@ try {
 
 서비스별 공개 위치와 사용법은 [modern SDK](./packages/popbill/README.md#서비스), [레거시 호환 SDK](./packages/popbill-compat/README.md#지원-서비스)를 확인합니다. 서비스 흐름·계약 차이·API 레퍼런스는 [문서 안내](./docs/README.md)에서 찾을 수 있습니다.
 
+## 웹훅
+
+`@connextable/popbill/webhook`으로 8개 상품의 이벤트를 수신합니다. API 호출용 인증과 별도로 Basic/API Key를 검증하고, 단건·배치 본문을 타입이 있는 이벤트 배열로 파싱합니다. [수신 가이드](./docs/webhook.md)에서 설정·응답·중복 처리와 실행 예제를 확인합니다.
+
 ## 전자명세서
 
 거래명세서·청구서·견적서·발주서·입금표·영수증은 [전자명세서 가이드](./docs/services/statement.md)에서 문서유형 선택과 발행 흐름을 확인합니다.

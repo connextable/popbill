@@ -110,7 +110,7 @@ interface WriteRootReadmeInput {
 }
 
 interface WritePopbillDocsInput {
-  config: ServiceConfig
+  config: ModernServiceConfig
   methodGroups: MethodGroupItem[]
   groupedMethods: Map<string, MethodGroupItem[]>
   methodByName: Map<string, MethodSignatureInfo>
@@ -146,10 +146,14 @@ interface WriteGeneratedJsonInput {
 
 const rootDir = process.cwd()
 
-interface ServiceConfig {
+interface ModernServiceConfig {
   modernDirectory: string
   modernService: string
   modernInterface: string
+  compatDirectory?: string
+}
+
+interface ServiceConfig extends ModernServiceConfig {
   modernMethodsConstant: string
   compatDirectory: string
   compatService: string
@@ -373,12 +377,13 @@ function main() {
     })
   }
 
+  const webhookMethods = writeWebhookDocs()
   writeRootReadme({
     popbillVersion: popbillPackage.version,
     compatVersion: compatPackage.version,
     services: generatedInputs,
   })
-  writeGeneratedJson(generatedInputs)
+  writeGeneratedJson(generatedInputs, webhookMethods)
 
   process.stdout.write('SDK docs generated at docs/sdk\n')
 }
@@ -425,12 +430,17 @@ function writeRootReadme({ popbillVersion, compatVersion, services }: WriteRootR
     ),
     `| Total | ${services.reduce((total, service) => total + service.popbillMethodGroups.length, 0)} | | ${services.reduce((total, service) => total + service.compatMethodGroups.length, 0)} |`,
     '',
+    '## Webhook',
+    '',
+    '[독립 웹훅 수신 API](./popbill/webhook/index.md) · [수신 가이드](../webhook.md). API 클라이언트와 별도로 생성합니다.',
+    '',
     '## JSON indexes and schemas',
     '',
     '- indexes',
     '  - [method-index.json](./generated/method-index.json)',
     '  - [compat-map.json](./generated/compat-map.json)',
     '- schema indexes',
+    '  - [popbill webhook type schemas](./generated/schemas/popbill/webhook/types/index.json)',
     ...serviceConfigs.flatMap((config) => [
       `  - [popbill ${config.modernDirectory} type schemas](./generated/schemas/popbill/${config.modernDirectory}/types/index.json)`,
       `  - [popbill-compat ${config.compatDirectory} method schemas](./generated/schemas/popbill-compat/${config.compatDirectory}/methods/index.json)`,
@@ -453,7 +463,7 @@ function writePopbillDocs({ config, methodGroups, groupedMethods, methodByName, 
 
     const inputType = method.parameters[0]?.typeText ?? null
     const inputSchema = inputType ? createSchemaForType(typeCatalog, inputType) : null
-    const returnSchema = method.promiseReturnType ? createSchemaForType(typeCatalog, method.promiseReturnType) : null
+    const returnSchema = createSchemaForType(typeCatalog, method.promiseReturnType ?? method.returnTypeText)
 
     const lines = []
     lines.push(`---`)
@@ -697,7 +707,81 @@ function writeCompatDocs({
   writeFile(indexPath, indexLines.join('\n'))
 }
 
-function writeGeneratedJson(inputs: WriteGeneratedJsonInput[]): void {
+function writeWebhookDocs() {
+  const config: ModernServiceConfig = {
+    modernDirectory: 'webhook',
+    modernService: 'webhook',
+    modernInterface: 'PopbillWebhookReceiver',
+  }
+  const sourceRoot = path.join(rootDir, 'packages/popbill/src/webhook')
+  const visited = new Set<string>()
+  const sources = readTypeSources(sourceRoot).flatMap((source) => readLocalTypeDependencies(source, visited))
+  const typeCatalog = buildTypeCatalog(sources)
+  const source = sources.find((candidate) => findTypeDeclaration(candidate, config.modernInterface))
+  if (!source) throw new Error('Public PopbillWebhookReceiver interface not found')
+  const methods = parseMethodSignatures(source, config.modernInterface)
+  const methodByName = buildMethodByName(methods)
+  const methodGroups = methods.map(({ name }) => ({ name, group: 'Webhook' }))
+  for (const target of [path.join(docsRoot, 'popbill/webhook'), path.join(generatedRoot, 'schemas/popbill/webhook')]) {
+    fs.rmSync(target, { recursive: true, force: true })
+  }
+  writePopbillDocs({
+    config,
+    methodGroups,
+    groupedMethods: groupBy(methodGroups, (method) => method.group),
+    methodByName,
+    serviceDescription: parseInterfaceDescription(source, config.modernInterface),
+    typeCatalog,
+  })
+  const entry = readSourceFile(path.join(sourceRoot, 'index.ts'))
+  const factory = entry.ast.statements.find(
+    (statement): statement is ts.FunctionDeclaration => ts.isFunctionDeclaration(statement) && statement.name?.text === 'createPopbillWebhookReceiver'
+  )
+  if (!factory) throw new Error('Public createPopbillWebhookReceiver factory not found')
+  const signature = `${factory.name!.text}(${factory.parameters.map((parameter) => parameter.getText(entry.ast)).join(', ')}): ${factory.type?.getText(entry.ast) ?? 'unknown'}`
+  const indexPath = path.join(docsRoot, 'popbill/webhook/index.md')
+  writeFile(
+    indexPath,
+    fs.readFileSync(indexPath, 'utf8') + `\n## Factory\n\n\`\`\`ts\n${signature}\n\`\`\`\n\nImport: \`@connextable/popbill/webhook\`\n`
+  )
+  writeTypeSchemas(config, typeCatalog)
+  return modernMethodEntries(config, methodGroups, methodByName)
+}
+
+function modernMethodEntries(config: ModernServiceConfig, groups: MethodGroupItem[], methods: Map<string, MethodSignatureInfo>) {
+  return groups.flatMap(({ name, group }) => {
+    const method = methods.get(name)
+    return method
+      ? [
+          {
+            sdk: 'popbill',
+            service: config.modernService,
+            group,
+            methodName: name,
+            summary: method.summary,
+            signature: method.signature,
+            inputType: method.parameters[0]?.typeText ?? null,
+            outputType: method.promiseReturnType ?? method.returnTypeText,
+            compatMethodName: method.compatMethodName ?? null,
+          },
+        ]
+      : []
+  })
+}
+
+function writeTypeSchemas(config: ModernServiceConfig, catalog: TypeCatalog): void {
+  const schemaRoot = path.join(generatedRoot, 'schemas/popbill', config.modernDirectory, 'types')
+  const types = [...catalog.types.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([typeName, definition]) => {
+      const file = `./${toKebabCase(typeName)}.json`
+      writeJson(path.join(schemaRoot, file), createSchemaForType(catalog, typeName))
+      return { typeName, kind: definition.kind, file }
+    })
+  writeJson(path.join(schemaRoot, 'index.json'), { schemaVersion: 1, service: config.modernService, types })
+}
+
+function writeGeneratedJson(inputs: WriteGeneratedJsonInput[], webhookMethods: ReturnType<typeof modernMethodEntries>): void {
   const first = inputs[0]
   if (!first) {
     throw new Error('At least one service is required to generate SDK documentation')
@@ -711,7 +795,7 @@ function writeGeneratedJson(inputs: WriteGeneratedJsonInput[]): void {
       popbill: first.popbillVersion,
       popbillCompat: first.compatVersion,
     },
-    methods: services.flatMap((service) => service.methods),
+    methods: [...services.flatMap((service) => service.methods), ...webhookMethods],
   })
   writeJson(path.join(generatedRoot, 'compat-map.json'), {
     schemaVersion: 1,
@@ -742,26 +826,7 @@ function writeServiceGeneratedJson({
       popbillCompat: compatVersion,
     },
     methods: [
-      ...popbillMethodGroups
-        .map(({ name, group }) => {
-          const method = popbillMethodByName.get(name)
-          if (!method) {
-            return null
-          }
-
-          return {
-            sdk: 'popbill',
-            service: config.modernService,
-            group,
-            methodName: name,
-            summary: method.summary,
-            signature: method.signature,
-            inputType: method.parameters[0]?.typeText ?? null,
-            outputType: method.promiseReturnType ?? method.returnTypeText,
-            compatMethodName: method.compatMethodName ?? null,
-          }
-        })
-        .filter(Boolean),
+      ...modernMethodEntries(config, popbillMethodGroups, popbillMethodByName),
       ...compatMethodGroups
         .map(({ name, group }) => {
           const method = compatMethodByName.get(name)
@@ -787,24 +852,7 @@ function writeServiceGeneratedJson({
     ],
   }
 
-  const popbillSchemaRoot = path.join(generatedRoot, 'schemas/popbill', config.modernDirectory, 'types')
-  const popbillTypesIndex = []
-
-  for (const [typeName, typeDef] of [...popbillTypeCatalog.types.entries()].sort(([a], [b]) => a.localeCompare(b))) {
-    const schema = createSchemaForType(popbillTypeCatalog, typeName)
-    popbillTypesIndex.push({
-      typeName,
-      kind: typeDef.kind,
-      file: `./${toKebabCase(typeName)}.json`,
-    })
-    writeJson(path.join(popbillSchemaRoot, `${toKebabCase(typeName)}.json`), schema)
-  }
-
-  writeJson(path.join(popbillSchemaRoot, 'index.json'), {
-    schemaVersion: 1,
-    service: config.modernService,
-    types: popbillTypesIndex,
-  })
+  writeTypeSchemas(config, popbillTypeCatalog)
 
   const compatMethodSchemas = []
   for (const { name: methodName } of compatMethodGroups) {
@@ -1511,7 +1559,9 @@ function readLocalTypeDependencies(source: SourceWithAst, visited = new Set<stri
         ? path.join(packageSource!, 'src', specifier.slice(2))
         : specifier === '@connextable/popbill-utils'
           ? path.join(rootDir, 'packages/popbill-utils/src/index')
-          : undefined
+          : specifier === '@connextable/popbill-runtime'
+            ? path.join(rootDir, 'packages/popbill-runtime/src/index')
+            : undefined
     if (!target) continue
     const filePath = [`${target}.ts`, path.join(target, 'index.ts')].find((filePath) => fs.existsSync(filePath))
     if (filePath) sources.push(...readLocalTypeDependencies(readSourceFile(filePath), visited))

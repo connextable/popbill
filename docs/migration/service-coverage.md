@@ -34,6 +34,8 @@ modern과 compat의 메서드 수 차이는 같은 기능의 레거시 wrapper�
 
 ## 문서와 레거시의 차이
 
+웹훅은 `@connextable/popbill/webhook` 독립 진입점에서 전자문서 3종·홈택스 수집 2종·카카오톡·문자·팩스를 지원한다. API 호출용 클라이언트와 레거시 wrapper를 만들지 않으며, 기존 도메인 DTO 매퍼와 공용 정규화 함수를 재사용한다. 원본은 spec, 인증·본문·배치 처리는 runtime, 상품별 분류와 DTO 조합은 modern에서 담당한다. [웹훅 수신 계약](../webhook.md)
+
 - **공통:** 회원·포인트 API는 modern의 `common`과 compat 도메인 서비스의 상속 메서드에서 제공한다. 범용 `getPopbillURL`은 compat에 유지한다. [회원·포인트 계약](../services/common.md)
 - **세금계산서:** 과금정보·문자열 단가·PDF 다운로드와 공식 SDK의 전송·전송취소·승인·거부·구 인쇄·메일 공개키 API를 compat와 modern에 제공한다. PDF는 매출·매입·위수탁 문서번호 유형을 받고 `printCopy`로 공급자·공급받는자 사본을 선택한다. 공개 스키마가 없는 메일 공개키 응답은 compat의 `unknown`, modern의 `{ publicKeys: unknown }`으로 보존한다. [세금계산서 계약 기록](../services/tax-invoice.md)
 - **현금영수증:** 대량 처리 응답의 접수·발행 시각을 임의로 바꾸지 않고 보존한다. [현금영수증 계약](../services/cashbill.md)

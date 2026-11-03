@@ -10,6 +10,18 @@ const require = createRequire(import.meta.url)
 const jitiCli = path.join(path.dirname(require.resolve('jiti/package.json')), 'lib/jiti-cli.mjs')
 const directories: string[] = []
 
+const webhookDeclaration = `
+  export declare class PopbillWebhookError extends Error { constructor(code: 'AUTHENTICATION_FAILED', message: string) }
+  export declare function createPopbillWebhookReceiver(config: { authentication: { type: 'apiKey'; apiKey: string } | { type: 'none' } }): {
+    parse(input: { headers: Record<string, string>; body: unknown }): { events: ({ kind: 'taxInvoice.state'; data: { stateCode?: number | string | null } } | { kind: 'unknown'; data: unknown })[] }
+    createSuccessResponse(): { status: 200; body: string; headers: Record<string, string> }
+  }
+`
+const webhookRuntime = `export function createPopbillWebhookReceiver() {
+  return { parse() { return { events: [{ kind: 'taxInvoice.state', data: { stateCode: 300 } }] } },
+    createSuccessResponse() { return { status: 200, headers: {}, body: '{"result":"OK"}' } } }
+}`
+
 const declarations: Record<string, string> = {
   popbill: `export declare function createPopbillClient(): {
     services: { common: { getMemberPointBalance(input: { businessNumber: string }): Promise<{ remainingPoints: string }> } }
@@ -26,7 +38,9 @@ const declarations: Record<string, string> = {
   'popbill-utils': 'export declare function sha1Base64(value: Uint8Array): string',
 }
 
-function createFixture(options: { missingDeclaration?: boolean; anyDeclaration?: boolean; brokenCommonJsEntry?: boolean } = {}) {
+function createFixture(
+  options: { missingDeclaration?: boolean; anyDeclaration?: boolean; brokenCommonJsEntry?: boolean; brokenWebhookEntry?: boolean } = {}
+) {
   const directory = mkdtempSync(path.join(tmpdir(), 'popbill-package-check-'))
   directories.push(directory)
   const tarballs = path.join(directory, 'tarballs')
@@ -41,6 +55,18 @@ function createFixture(options: { missingDeclaration?: boolean; anyDeclaration?:
       'index.d.mts': alias === 'popbill-utils' && options.anyDeclaration ? 'export declare const sha1Base64: any' : declaration,
     }
     const exports: Record<string, unknown> = { '.': './index.mjs' }
+
+    if (alias === 'popbill' || alias === 'popbill-spec') {
+      exports['./webhook'] = './webhook.mjs'
+      files['webhook.mjs'] = alias === 'popbill' ? (options.brokenWebhookEntry ? 'export {}' : webhookRuntime) : 'export {}'
+      files['webhook.d.mts'] =
+        alias === 'popbill'
+          ? webhookDeclaration
+          : `
+        export declare const PopbillWebhookTypes: { readonly TaxInvoice: 'TAXINVOICE.STATE' }
+        export interface TaxInvoiceStateWebhookBody { eventType?: string; itemKey?: string }
+      `
+    }
 
     if (alias === 'popbill-compat') {
       for (const entry of ['index', 'factory', 'errors']) {
@@ -102,4 +128,10 @@ test('checks CommonJS subpaths before another entrypoint can initialize their mo
   const result = createFixture({ brokenCommonJsEntry: true })()
   expect(result.status).not.toBe(0)
   expect(result.stderr).toContain('isolated CJS entry is broken')
+})
+
+test('rejects a webhook runtime export that differs from its declarations', () => {
+  const result = createFixture({ brokenWebhookEntry: true })()
+  expect(result.status).not.toBe(0)
+  expect(result.stderr).toContain('createPopbillWebhookReceiver')
 })

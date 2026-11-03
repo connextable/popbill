@@ -21,6 +21,31 @@ Popbill 예제는 `POPBILL_LINK_ID`, `POPBILL_SECRET_KEY`, `POPBILL_USER_ID`, `P
 
 API를 호출하지 않고 사용법을 보려면 각 절에 제시한 `-- --help` 명령을 실행합니다. 인증정보 없이 도움말을 확인할 수 있습니다. 서비스별 실행 플래그와 필요한 입력은 아래에서 확인합니다.
 
+## 웹훅 수신 예제
+
+`examples/.env`에 팝빌 웹훅 설정과 같은 `POPBILL_WEBHOOK_API_KEY`를 지정합니다. API 호출용 LinkID·SecretKey는 사용하지 않습니다.
+
+```sh
+pnpm -C examples webhook -- --help
+pnpm -C examples webhook
+```
+
+기본 주소는 `http://127.0.0.1:9854/webhook/popbill`입니다. 수신 메시지는 `POPBILL_WEBHOOK_INBOX_DIR`의 JSON 파일에 저장한 뒤 `200 {"result":"OK"}`로 응답합니다. 기본 저장 경로는 실행 디렉터리의 `.temp/webhook-inbox`이며, 기본 본문 제한은 1 MiB입니다. 같은 회원·MID의 같은 내용은 중복 저장하지 않고, 다른 내용이면 HTTP 503으로 응답합니다. 저장 내용과 수신 파일의 JSON 표현·필드 순서가 같아야 중복으로 판단하는 개발용 예제입니다. 프로덕션의 중복 판정·동시 처리·업무 반영은 DB/큐 트랜잭션으로 구성합니다.
+
+로컬에서 API 호출 없이 확인할 수 있습니다.
+
+```sh
+curl -i http://127.0.0.1:9854/webhook/popbill \
+  -H 'Content-Type: application/json' \
+  -H "X-Api-Key: $POPBILL_WEBHOOK_API_KEY" \
+  -H 'Pb-Webhook-Type: TAXINVOICE.STATE' \
+  -H 'Pb-Webhook-MID: local-example-1' \
+  -H 'Pb-Webhook-Corpnum: 1234567890' \
+  --data '{"eventType":"Issue","itemKey":"local-document","stateCode":300}'
+```
+
+`curl`을 실행하는 셸에도 같은 API Key를 설정합니다. 외부 팝빌 콜백을 받으려면 HTTPS 프록시 등으로 서버에 도달할 수 있게 구성하고 팝빌에 상품별 URL을 등록합니다. 인증·지원 이벤트·오류 처리 전체는 [웹훅 가이드](../docs/webhook.md)를 확인합니다.
+
 ## 회원·포인트 예제
 
 회원·기업정보·잔액을 조회하려면 `POPBILL_RUN_COMMON_EXAMPLES=true`를 설정합니다. 회원가입·결제·환불은 실행하지 않습니다.

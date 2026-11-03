@@ -11,6 +11,8 @@ const compilerPath = path.join(path.dirname(require.resolve('typescript/package.
 // Explicit any checks catch declarations that silently degrade when dependencies were not built.
 const consumerSource = `
 import { createPopbillClient } from '@connextable/popbill'
+import { createPopbillWebhookReceiver, PopbillWebhookError } from '@connextable/popbill/webhook'
+import { PopbillWebhookTypes, type TaxInvoiceStateWebhookBody } from '@connextable/popbill-spec/webhook'
 import { createTaxinvoicePromiseService } from '@connextable/popbill-compat/factory'
 import { createJusoLinkClient } from '@connextable/popbill-juso'
 import { LinkhubAuthScope } from '@connextable/popbill-runtime'
@@ -22,8 +24,11 @@ type RejectAny<T extends false> = T
 type ModernClient = ReturnType<typeof createPopbillClient>
 type LegacyService = ReturnType<typeof createTaxinvoicePromiseService>
 type JusoClient = ReturnType<typeof createJusoLinkClient>
+type WebhookReceiver = ReturnType<typeof createPopbillWebhookReceiver>
 
 export type PublicContractsRemainTyped = [
+  RejectAny<IsAny<WebhookReceiver>>,
+  RejectAny<IsAny<ReturnType<WebhookReceiver['parse']>['events'][number]>>,
   RejectAny<IsAny<typeof LinkhubAuthScope>>,
   RejectAny<IsAny<typeof JusoLinkAuthScopes>>,
   RejectAny<IsAny<ModernClient>>,
@@ -62,7 +67,47 @@ juso.services.juso.searchAddresses({ searchKeyword: '삼성동', pageSize: 20 })
 juso.services.juso.searchAddresses({ searchKeyword: '삼성동', pageSize: '20' })
 const digest: string = sha1Base64(new Uint8Array([97, 98, 99]))
 void digest
+const webhook = createPopbillWebhookReceiver({ authentication: { type: 'apiKey', apiKey: 'example' } })
+const original: TaxInvoiceStateWebhookBody = { eventType: 'Issue', itemKey: 'document' }
+const delivery = webhook.parse({ headers: { 'Pb-Webhook-Type': PopbillWebhookTypes.TaxInvoice, 'Pb-Webhook-MID': 'id', 'Pb-Webhook-Corpnum': '1234567890', 'X-Api-Key': 'example' }, body: original })
+for (const event of delivery.events) {
+  if (event.kind === 'taxInvoice.state') {
+    const state: number | string | null | undefined = event.data.stateCode
+    void state
+    // @ts-expect-error Domain narrowing excludes messaging fields.
+    event.data.receiptNumber
+  }
+  if (event.kind === 'unknown') {
+    // @ts-expect-error Unknown provider events require application inspection.
+    event.data.stateCode
+  }
+}
+const response: Response = new Response(webhook.createSuccessResponse().body, webhook.createSuccessResponse())
+void response
+const authError = new PopbillWebhookError('AUTHENTICATION_FAILED', 'example')
+void authError
+// @ts-expect-error Authentication must be explicitly configured.
+createPopbillWebhookReceiver({})
 `
+
+/** Exercise the bundled subpath without workspace aliases or API credentials. */
+export function verifyTarballConsumerRuntime(consumerDir: string): void {
+  const source = `
+    import assert from 'node:assert/strict'
+    import { createPopbillWebhookReceiver } from '@connextable/popbill/webhook'
+    const receiver = createPopbillWebhookReceiver({ authentication: { type: 'none' } })
+    const message = receiver.parse({
+      headers: { 'Pb-Webhook-Type': 'TAXINVOICE.STATE', 'Pb-Webhook-MID': 'packaged', 'Pb-Webhook-Corpnum': '1234567890' },
+      body: { eventType: 'Issue', itemKey: 'item', stateCode: '300' },
+    })
+    assert.equal(message.events[0].kind, 'taxInvoice.state')
+    assert.equal(message.events[0].data.stateCode, 300)
+    const acknowledgement = receiver.createSuccessResponse()
+    assert.equal(acknowledgement.status, 200)
+    assert.deepEqual(JSON.parse(acknowledgement.body), { result: 'OK' })
+  `
+  execFileSync(process.execPath, ['--input-type=module', '--eval', source], { cwd: consumerDir, timeout: 10_000, env: {}, stdio: 'inherit' })
+}
 
 export function verifyTarballConsumerTypes(consumerDir: string): void {
   const consumerFilePath = path.join(consumerDir, 'consumer-contracts.mts')

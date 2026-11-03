@@ -34,6 +34,7 @@
     "kakao": "dotenvx run -- jiti ./src/kakao/run-kakao.ts",
     "message": "dotenvx run -- jiti ./src/message/run-message.ts",
     "fax": "dotenvx run -- jiti ./src/fax/run-fax.ts",
+    "webhook": "dotenvx run -- jiti ./src/webhook/receive-webhook.ts",
     "juso:search": "dotenvx run -- jiti ./src/juso/run-search.ts",
     "juso": "pnpm run juso:search --",
     "typecheck": "tsc -p tsconfig.json --noEmit"

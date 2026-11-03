@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { verifyTarballConsumerTypes } from './tarball-consumer'
+import { verifyTarballConsumerTypes, verifyTarballConsumerRuntime } from './tarball-consumer'
 import { assertCondition, collectExportPaths, readJson, repoRoot } from './manifest-utils'
 import type { PackageManifest } from './manifest-utils'
 
@@ -55,6 +55,7 @@ function verifyPackages(tarballDirPath: string): number {
     }
 
     verifyTarballConsumerTypes(consumerDir)
+    verifyTarballConsumerRuntime(consumerDir)
     return packages.length
   } finally {
     fs.rmSync(consumerDir, { recursive: true, force: true })
