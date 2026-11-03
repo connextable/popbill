@@ -1,7 +1,11 @@
+import { createRequire } from 'node:module'
+import { createCommonPromiseService } from '@/factory'
 import {
   POPBILL_ERROR_CODE_COUNTS_BY_CATEGORY,
   createApiResponseError,
   createNetworkError,
+  createUnknownError,
+  createInputValidationError,
   getPopbillErrorCodeDefinitionsByCategory,
   getPopbillErrorCodeDefinition,
   isKnownPopbillApiError,
@@ -11,8 +15,27 @@ import {
   PopbillErrorDomain,
   PopbillErrorType,
 } from '@/errors'
+import { RequestAbortError } from '@connextable/popbill-runtime'
 
 describe('popbill error catalog integration', () => {
+  test('retains SDK input validation across CJS and ESM entry points', async () => {
+    const require = createRequire(import.meta.url)
+    const cjsFactory = require('@connextable/popbill-compat/factory') as { createCommonPromiseService: typeof createCommonPromiseService }
+    const cjsErrors = require('@connextable/popbill-compat/errors') as { normalizePopbillError: typeof normalizePopbillError }
+    const fetch = vi.fn<typeof globalThis.fetch>()
+    const config = { LinkID: 'LINK', SecretKey: Buffer.from('secret').toString('base64'), fetch }
+    const cjsFailure: unknown = await cjsFactory
+      .createCommonPromiseService(config)
+      .getCorpInfo('')
+      .catch((error: unknown) => error)
+    const esmFailure: unknown = await createCommonPromiseService(config)
+      .getCorpInfo('')
+      .catch((error: unknown) => error)
+    expect(normalizePopbillError(cjsFailure)).toMatchObject({ type: 'input_validation', stage: 'validate_input' })
+    expect(cjsErrors.normalizePopbillError(esmFailure)).toMatchObject({ type: 'input_validation', stage: 'validate_input' })
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
   test('createApiResponseError enriches known code metadata', () => {
     const code = -11000000
     const apiError = createApiResponseError(code, '사용자 지정 메시지')
@@ -142,9 +165,69 @@ describe('popbill error catalog integration', () => {
     expect(normalizePopbillError(error).raw).toBe(original)
   })
 
-  test('does not classify local argument errors with string codes as network failures', () => {
-    const original = Object.assign(new TypeError('invalid argument'), { code: 'ERR_INVALID_ARG_TYPE' })
-    expect(normalizePopbillError(original)).toMatchObject({ type: PopbillErrorType.Unknown, retriable: false, raw: original })
+  test('uses explicit error type before the legacy generic code when inferring stage', () => {
+    for (const type of ['unknown', 'network', 'timeout', 'api_response'] as const) {
+      expect(normalizePopbillError({ code: -99999999, message: 'failure', type })).toMatchObject({ type, stage: 'unknown' })
+    }
+    expect(normalizePopbillError({ code: -99999999, message: 'legacy validation' })).toMatchObject({
+      type: 'input_validation',
+      stage: 'validate_input',
+    })
+    expect(normalizePopbillError({ code: -1, message: 'explicit validation', type: 'input_validation' })).toMatchObject({ stage: 'validate_input' })
+  })
+
+  test.each([undefined, 'unknown', 'issue_token', 'request_api'] as const)(
+    'keeps unknown errors distinct from input validation at stage %s',
+    (stage) => {
+      const context = { stage }
+      const original = new Error('response mapping failed')
+      expect(createUnknownError(original, context)).toMatchObject({ type: 'unknown', stage: stage ?? 'unknown', raw: original })
+      expect(createInputValidationError('invalid input', context)).toMatchObject({ type: 'input_validation', stage: stage ?? 'validate_input' })
+      expect(createApiResponseError(-99999999, 'remote error', context)).toMatchObject({ type: 'api_response', stage: stage ?? 'unknown' })
+    }
+  )
+
+  test.each([undefined, 'unknown', 'issue_token', 'request_api'] as const)(
+    'preserves cancellation metadata through repeated normalization at stage %s',
+    (stage) => {
+      for (const source of ['signal', 'request_timeout'] as const) {
+        const reason = { code: -11000000, message: 'cancelled' }
+        const first = normalizePopbillError(new RequestAbortError({ source, reason }), { stage })
+        const second = normalizePopbillError(Object.assign(new Error(first.message), first), { operation: 'outer' })
+        expect(second).toMatchObject({ stage: stage ?? 'unknown', type: source === 'signal' ? 'unknown' : 'timeout', retriable: false })
+        expect(second.raw).toBe(reason)
+        expect(second.abort).toBe(first.abort)
+      }
+    }
+  )
+
+  test.each([
+    new TypeError('transport.fetch is not a function'),
+    Object.assign(new TypeError('invalid fetch configuration'), { code: 'ERR_INVALID_ARG_TYPE' }),
+    Object.assign(new TypeError('fetch failed'), { code: 403 }),
+    new TypeError('fetch failed', { cause: Object.assign(new TypeError('invalid URL'), { code: 'ERR_INVALID_URL' }) }),
+    new SyntaxError('fetch failed'),
+  ])('does not classify local errors as network failures: %s', (original) => {
+    expect(normalizePopbillError(original)).toMatchObject({ type: PopbillErrorType.Unknown, stage: 'unknown', retriable: false, raw: original })
+  })
+
+  test('does not classify an invalid native header containing fetch as a network failure', () => {
+    let original: unknown
+    try {
+      new Headers({ 'Accept-Language': 'fetch\nko-KR' })
+    } catch (error) {
+      original = error
+    }
+    expect(original).toBeInstanceOf(TypeError)
+    expect(normalizePopbillError(original)).toMatchObject({ type: 'unknown', stage: 'unknown', retriable: false, raw: original })
+  })
+
+  test.each([
+    new TypeError('fetch failed'),
+    new TypeError('fetch failed', { cause: Object.assign(new Error('socket closed'), { code: 'UND_ERR_SOCKET' }) }),
+    Object.assign(new Error('connection refused'), { code: 'ECONNREFUSED' }),
+  ])('retains supported native network failures: %s', (original) => {
+    expect(normalizePopbillError(original, { stage: 'request_api' })).toMatchObject({ type: 'network', stage: 'request_api', raw: original })
   })
 
   test('error definitions are structured by category', () => {

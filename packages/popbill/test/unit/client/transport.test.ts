@@ -91,11 +91,90 @@ describe('client transport and call options', () => {
     const error: unknown = await client.services.common
       .getCompanyInfo(business, { signal: AbortSignal.abort(reason) })
       .catch((failure: unknown) => failure)
-    expect(error).toMatchObject({ type: 'unknown', retriable: false, abort: { source: 'signal', reason } })
+    expect(error).toMatchObject({ type: 'unknown', stage: 'unknown', retriable: false, abort: { source: 'signal', reason } })
     expect((error as PopbillApiError).abort?.reason).toBe(reason)
     expect((error as PopbillApiError).raw).toBe(reason)
     expect(fetch).not.toHaveBeenCalled()
     expect(onError).toHaveBeenCalledExactlyOnceWith(error)
+  })
+
+  test.each([Object.create(null) as unknown, Symbol('cancelled'), null, 42])('retains non-Error cancellation reasons', async (reason) => {
+    const fetch = vi.fn<typeof globalThis.fetch>()
+    const onError = vi.fn<(error: PopbillApiError) => void>()
+    const client = createPopbillClient({ ...config, fetch, onError })
+    const error = await client.services.common
+      .getCompanyInfo(business, { signal: AbortSignal.abort(reason) })
+      .catch((failure: unknown) => failure as PopbillApiError)
+    expect(error).toMatchObject({ type: 'unknown', stage: 'unknown', retriable: false })
+    expect((error as PopbillApiError).raw).toBe(reason)
+    expect((error as PopbillApiError).abort?.reason).toBe(reason)
+    expect(fetch).not.toHaveBeenCalled()
+    expect(onError).toHaveBeenCalledExactlyOnceWith(error)
+  })
+
+  test.each([
+    { method: 'getCompanyInfo', response: null },
+    { method: 'listContacts', response: {} },
+  ] as const)('does not label invalid $method responses as caller input errors', async ({ method, response }) => {
+    const fetch = vi
+      .fn<typeof globalThis.fetch>()
+      .mockImplementation(async (target) => (urlOf(target).pathname.endsWith('/Token') ? tokenResponse() : Response.json(response)))
+    const client = createPopbillClient({ ...config, fetch })
+    const error: unknown = await client.services.common[method](business).catch((failure: unknown) => failure)
+    expect(error).toMatchObject({ type: 'unknown', stage: 'unknown', retriable: false, raw: expect.any(TypeError) })
+    expect(fetch).toHaveBeenCalledTimes(2)
+  })
+
+  test('retains actual input validation without starting HTTP', async () => {
+    const fetch = vi.fn<typeof globalThis.fetch>()
+    const client = createPopbillClient({ ...config, fetch })
+    await expect(client.services.common.getCompanyInfo({ businessNumber: '' })).rejects.toMatchObject({
+      type: 'input_validation',
+      stage: 'validate_input',
+    })
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  test.each([
+    { label: 'policy code', reason: { code: 403, message: 'egress blocked' } },
+    { label: 'catalog code', reason: { code: -11000000, message: 'egress blocked' } },
+    {
+      label: 'HTTP and stage shape',
+      reason: { status: 503, body: { code: -11000000, message: 'fake response' }, requestStage: 'issue_token', cause: 'local failure' },
+    },
+    { label: 'local TypeError', reason: new TypeError('transport.fetch is not a function') },
+    { label: 'non-stringifiable object', reason: Object.create(null) as unknown },
+  ])('preserves the transport origin of $label failures', async ({ reason }) => {
+    for (const stage of ['issue_token', 'request_api'] as const) {
+      const onError = vi.fn<(error: PopbillApiError) => void>()
+      const fetch = vi.fn<typeof globalThis.fetch>().mockImplementation(async (target) => {
+        if (stage === 'request_api' && urlOf(target).pathname.endsWith('/Token')) return tokenResponse()
+        throw reason
+      })
+      const client = createPopbillClient({ ...config, fetch, onError })
+      const error = await client.services.common.getCompanyInfo(business).catch((failure: unknown) => failure as PopbillApiError)
+      expect(error).toMatchObject({ code: -99999999, type: 'unknown', stage, knownCode: false, retriable: false })
+      expect((error as PopbillApiError).raw).toBe(reason)
+      expect((error as PopbillApiError).status).toBeUndefined()
+      expect(onError).toHaveBeenCalledExactlyOnceWith(error)
+      expect(fetch).toHaveBeenCalledTimes(stage === 'issue_token' ? 1 : 2)
+    }
+  })
+
+  test('retains actual HTTP API errors and their body', async () => {
+    const body = { code: -11000000, message: 'remote error' }
+    const client = createPopbillClient({
+      ...config,
+      fetch: async (target) => (urlOf(target).pathname.endsWith('/Token') ? tokenResponse() : Response.json(body, { status: 400 })),
+    })
+    await expect(client.services.common.getCompanyInfo(business)).rejects.toMatchObject({
+      code: body.code,
+      type: 'api_response',
+      stage: 'request_api',
+      knownCode: true,
+      status: 400,
+      raw: body,
+    })
   })
 
   test('cancels one token waiter while an unsignalled call and its cache continue', async () => {

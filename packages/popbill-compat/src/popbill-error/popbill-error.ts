@@ -3,7 +3,7 @@ import { getPopbillErrorCodeDefinition, POPBILL_ERROR_CATEGORIES } from './code-
 import { getPopbillErrorDomainLabel, resolvePopbillErrorDomainFromCategory } from './domains'
 import { PopbillErrorDomain, PopbillErrorStage, PopbillErrorType } from './enums'
 import type { PopbillApiError, PopbillApiErrorInput } from './types'
-import { isRequestAbortError, isResponseBodyError } from '@connextable/popbill-runtime'
+import { isFetchRequestError, isRequestAbortError, isResponseBodyError } from '@connextable/popbill-runtime'
 import { isLegacyValidationError } from './legacy-validation'
 
 const UNKNOWN_ERROR_CODE = -99999999
@@ -124,6 +124,9 @@ export function createUnknownError(error: unknown, context?: PopbillErrorContext
 }
 
 export function normalizePopbillError(error: unknown, context?: PopbillErrorContext): PopbillApiError {
+  if (isFetchRequestError(error)) {
+    return isNetworkError(error.cause) ? createNetworkError(error.cause, context) : createUnknownError(error.cause, context)
+  }
   if (isRequestAbortError(error)) {
     const normalized =
       error.abort.source === 'request_timeout' ? createTimeoutError(error.abort.reason, context) : createUnknownError(error.abort.reason, context)
@@ -145,7 +148,7 @@ export function normalizePopbillError(error: unknown, context?: PopbillErrorCont
   if (parsedError) {
     const payload = error as PopbillApiErrorInput
     const inferredType = payload.type ?? inferErrorTypeFromCode(parsedError.code)
-    const inferredStage = context?.stage ?? payload.stage ?? inferErrorStageFromCode(parsedError.code)
+    const inferredStage = context?.stage ?? payload.stage ?? inferErrorStageFromType(inferredType)
 
     return createError({
       ...payload,
@@ -260,14 +263,19 @@ function isNetworkError(error: unknown): error is Error {
 
   const visited = new Set<unknown>()
   let current: unknown = error
+  let hasErrorCode = false
   while (current instanceof Error && !visited.has(current)) {
     visited.add(current)
     const code = (current as NodeJS.ErrnoException).code
-    if (typeof code === 'string' && NETWORK_ERROR_CODES.has(code)) return true
+    if (code !== undefined && code !== null) {
+      if (typeof code === 'string' && NETWORK_ERROR_CODES.has(code)) return true
+      hasErrorCode = true
+    }
     current = current.cause
   }
 
-  return error.name === 'TypeError' && /fetch/i.test(error.message)
+  // Retain Node fetch's unadorned failure without treating arbitrary local errors as network failures.
+  return !hasErrorCode && error.name === 'TypeError' && error.message === 'fetch failed'
 }
 
 function createError(error: PopbillApiErrorInput): PopbillApiError {
@@ -280,7 +288,7 @@ function createError(error: PopbillApiErrorInput): PopbillApiError {
 
   const domain = error.domain ?? resolvePopbillErrorDomainFromCategory(resolvedCategory)
   const type = error.type ?? inferErrorTypeFromCode(error.code)
-  const stage = error.stage ?? inferErrorStageFromCode(error.code)
+  const stage = error.stage ?? inferErrorStageFromType(type)
   const retriable = error.retriable ?? inferRetriable(error.status)
   const message = resolveApiErrorMessage(error.message, knownCode ? resolvedCanonicalMessage : undefined)
   const userMessage =
@@ -391,8 +399,8 @@ function inferErrorTypeFromCode(code: number): PopbillErrorType {
   return PopbillErrorType.Unknown
 }
 
-function inferErrorStageFromCode(code: number): PopbillErrorStage {
-  if (code === UNKNOWN_ERROR_CODE) {
+function inferErrorStageFromType(type: PopbillErrorType): PopbillErrorStage {
+  if (type === PopbillErrorType.InputValidation) {
     return PopbillErrorStage.ValidateInput
   }
 
