@@ -1,0 +1,5 @@
+strategy: source-tag
+branch: main
+tag-prefix: v
+initial-version: 2.0.1
+bump: auto

@@ -6,15 +6,10 @@ const currentFilePath = fileURLToPath(import.meta.url)
 const currentDir = path.dirname(currentFilePath)
 
 export const repoRoot = path.resolve(currentDir, '..', '..')
-export const rootManifestPath = path.join(repoRoot, 'package.json')
 
 export interface PackageManifest {
   name: string
   version: string
-  private?: boolean
-  publishConfig?: {
-    access?: string
-  }
   types?: string
   exports?: unknown
   engines?: {
@@ -22,76 +17,14 @@ export interface PackageManifest {
   }
 }
 
-export interface PublishPackageTarget {
-  name: string
-  alias: string
-  manifestPath: string
-}
-
-export interface PublishPackageTargetWithManifest extends PublishPackageTarget {
-  manifest: PackageManifest
-}
-
-export const publishPackages: PublishPackageTarget[] = [
-  {
-    name: '@connextable/popbill-spec',
-    alias: 'popbill_spec',
-    manifestPath: path.join(repoRoot, 'packages/popbill-spec/package.json'),
-  },
-  {
-    name: '@connextable/popbill-utils',
-    alias: 'popbill_utils',
-    manifestPath: path.join(repoRoot, 'packages/popbill-utils/package.json'),
-  },
-  {
-    name: '@connextable/popbill-runtime',
-    alias: 'popbill_runtime',
-    manifestPath: path.join(repoRoot, 'packages/popbill-runtime/package.json'),
-  },
-  {
-    name: '@connextable/popbill-juso',
-    alias: 'popbill_juso',
-    manifestPath: path.join(repoRoot, 'packages/popbill-juso/package.json'),
-  },
-  {
-    name: '@connextable/popbill-compat',
-    alias: 'popbill_compat',
-    manifestPath: path.join(repoRoot, 'packages/popbill-compat/package.json'),
-  },
-  {
-    name: '@connextable/popbill',
-    alias: 'popbill',
-    manifestPath: path.join(repoRoot, 'packages/popbill/package.json'),
-  },
-]
-
 export function readJson<T>(filePath: string): T {
   return JSON.parse(fs.readFileSync(filePath, 'utf8')) as T
-}
-
-export function loadRootManifest(): PackageManifest {
-  return readJson<PackageManifest>(rootManifestPath)
-}
-
-export function loadPublishManifests(): PublishPackageTargetWithManifest[] {
-  return publishPackages.map((target) => ({
-    ...target,
-    manifest: readJson<PackageManifest>(target.manifestPath),
-  }))
 }
 
 export function assertCondition(condition: boolean, message: string): asserts condition {
   if (!condition) {
     throw new Error(message)
   }
-}
-
-export function getLockstepVersion(targets: ReadonlyArray<Pick<PublishPackageTargetWithManifest, 'manifest'>>): string {
-  const firstTarget = targets[0]
-  assertCondition(firstTarget !== undefined, 'Publish target list is empty')
-  const versions = new Set(targets.map((target) => target.manifest.version))
-  assertCondition(versions.size === 1, `Lockstep version mismatch: ${JSON.stringify([...versions])}`)
-  return firstTarget.manifest.version
 }
 
 export function collectExportPaths(exportsField: unknown): string[] {
@@ -116,9 +49,4 @@ export function collectExportPaths(exportsField: unknown): string[] {
 
   collect(exportsField)
   return paths
-}
-
-export function tarballNameFromPackage(packageName: string, version: string): string {
-  const normalized = packageName.replace(/^@/, '').replaceAll('/', '-')
-  return `${normalized}-${version}.tgz`
 }

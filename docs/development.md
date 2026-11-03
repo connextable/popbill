@@ -17,14 +17,12 @@
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm build
-pnpm typecheck
-pnpm lint
-pnpm fmt:check
-pnpm test
+pnpm check
 ```
 
-`pnpm test`는 릴리스 도구·문서 생성기·패키지 테스트를 포함합니다. 실서버 테스트는 기본적으로 건너뜁니다. 실행 조건과 플래그는 [루트 환경변수 예시](../.env.example)에 있습니다. 로컬 HTTP mock 통과와 실제 서비스 계정·권한·발행·발송 검증은 구분합니다.
+`pnpm check`는 CI와 릴리스 검증의 공통 명령입니다. 빌드·타입 검사·린트·테스트·포맷 검사 후 `pnpm check:packages`로 임시 pack한 SDK의 진입점·선언 파일·소비자 타입을 확인합니다. 각 검사는 `pnpm build`, `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm fmt:check`로 따로 실행할 수 있습니다.
+
+`pnpm test`는 패키지 발행 검사·문서 생성기·패키지 테스트를 포함합니다. `pnpm test:release`는 tarball 검사와 GitHub Packages 미러 로직을 검증합니다. 실서버 테스트는 기본적으로 건너뜁니다. 실행 조건과 플래그는 [루트 환경변수 예시](../.env.example)에 있습니다. 로컬 HTTP mock 통과와 실제 서비스 계정·권한·발행·발송 검증은 구분합니다.
 
 ## SDK 레퍼런스 생성
 
@@ -41,4 +39,4 @@ pnpm test:docs
 
 [예제 가이드](../examples/README.md)에서 환경변수와 실행 모드를 확인합니다. `--help` 검사는 실제 API 실행을 대신하지 않습니다. 발행·발송·결제·실계좌 조회 등의 실제 실행 여부는 검증 결과에 별도로 기록합니다.
 
-릴리스 절차와 실패 복구는 [패키지 릴리스](./release.md)를 확인합니다. 검증 명령과 발행·푸시 명령은 구분해서 실행합니다.
+릴리스는 `main`의 `Release` Actions를 수동 실행합니다. Releaseway가 버전·태그·npm 발행을 맡습니다. 로컬 tarball 검사와 실행·복구 절차는 [패키지 릴리스](./release.md)를 확인합니다.

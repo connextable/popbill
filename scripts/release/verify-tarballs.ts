@@ -2,37 +2,37 @@ import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { createNpmArtifactsManifest } from './artifacts-manifest'
 import { verifyTarballConsumerTypes } from './tarball-consumer'
-import {
-  assertCondition,
-  collectExportPaths,
-  getLockstepVersion,
-  loadPublishManifests,
-  readJson,
-  repoRoot,
-  tarballNameFromPackage,
-} from './manifest-utils'
-import type { PackageManifest, PublishPackageTargetWithManifest } from './manifest-utils'
+import { assertCondition, collectExportPaths, readJson, repoRoot } from './manifest-utils'
+import type { PackageManifest } from './manifest-utils'
 
-function verifyPackages(targets: PublishPackageTargetWithManifest[], version: string, tarballDirPath: string): void {
+function verifyPackages(tarballDirPath: string): number {
+  const tarballs = fs
+    .readdirSync(tarballDirPath)
+    .filter((entry) => entry.endsWith('.tgz'))
+    .sort()
+  assertCondition(tarballs.length > 0, `No package tarballs found in ${tarballDirPath}`)
   const consumerDir = fs.mkdtempSync(path.join(tmpdir(), 'popbill-consumer-'))
 
   try {
-    const packages = targets.map((target) => {
-      const packageDir = path.join(consumerDir, 'node_modules', target.name)
-      fs.mkdirSync(packageDir, { recursive: true })
-      execFileSync('tar', ['-xf', path.join(tarballDirPath, tarballNameFromPackage(target.name, version)), '-C', packageDir, '--strip-components=1'])
-
+    const packages = tarballs.map((tarball, index) => {
+      const packageDir = path.join(consumerDir, `package-${index}`)
+      fs.mkdirSync(packageDir)
+      execFileSync('tar', ['-xf', path.join(tarballDirPath, tarball), '-C', packageDir, '--strip-components=1'])
       const manifest = readJson<PackageManifest>(path.join(packageDir, 'package.json'))
-      assertCondition(manifest.name === target.name, `${target.name} tarball name mismatch: ${manifest.name}`)
-      assertCondition(manifest.version === version, `${target.name} tarball version mismatch: ${manifest.version}`)
+      const { name } = manifest
+      assertCondition(/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/.test(name), `Invalid package name in ${tarball}`)
+      assertCondition(manifest.engines?.node === '>=20', `${name} engines.node must be >=20`)
       const declarations = new Set(collectExportPaths(manifest.exports).filter((entry) => /\.d\.(?:ts|mts|cts)$/.test(entry)))
       if (manifest.types) declarations.add(manifest.types)
-      assertCondition(declarations.size > 0, `${target.name} must ship TypeScript declarations`)
+      assertCondition(declarations.size > 0, `${name} must ship TypeScript declarations`)
       for (const entry of declarations) {
-        assertCondition(fs.existsSync(path.join(packageDir, entry)), `${target.name} tarball is missing ${entry}`)
+        assertCondition(fs.existsSync(path.join(packageDir, entry)), `${name} tarball is missing ${entry}`)
       }
+      const installedPackageDir = path.join(consumerDir, 'node_modules', name)
+      assertCondition(!fs.existsSync(installedPackageDir), `Duplicate package tarballs for ${name}`)
+      fs.mkdirSync(path.dirname(installedPackageDir), { recursive: true })
+      fs.renameSync(packageDir, installedPackageDir)
       return manifest
     })
 
@@ -55,6 +55,7 @@ function verifyPackages(targets: PublishPackageTargetWithManifest[], version: st
     }
 
     verifyTarballConsumerTypes(consumerDir)
+    return packages.length
   } finally {
     fs.rmSync(consumerDir, { recursive: true, force: true })
   }
@@ -62,36 +63,25 @@ function verifyPackages(targets: PublishPackageTargetWithManifest[], version: st
 
 function main(): void {
   const cliArgs = process.argv.slice(2).filter((arg) => arg !== '--')
-  const positionalArgs = cliArgs.filter((arg) => arg !== '--artifacts-manifest')
-  assertCondition(
-    positionalArgs.length <= 1 && !positionalArgs.some((arg) => arg.startsWith('--')),
-    'Expected [tarball-directory] [--artifacts-manifest]'
-  )
-  const tarballDirPath = path.resolve(positionalArgs[0] ?? path.join(process.cwd(), '.tmp/release-pack'))
-  assertCondition(fs.existsSync(tarballDirPath), `Tarball directory does not exist: ${tarballDirPath}`)
+  assertCondition(cliArgs.length <= 1 && !cliArgs[0]?.startsWith('--'), 'Usage: pnpm check:packages [tarball-directory]')
+  const providedDirectory = cliArgs[0]
+  const tarballDirPath = providedDirectory === undefined ? fs.mkdtempSync(path.join(tmpdir(), 'popbill-pack-')) : path.resolve(providedDirectory)
 
-  const targets = loadPublishManifests()
-  const version = getLockstepVersion(targets)
-
-  verifyPackages(targets, version, tarballDirPath)
-
-  if (cliArgs.includes('--artifacts-manifest')) {
-    const checkoutCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, encoding: 'utf8' }).trim()
-    const manifest = createNpmArtifactsManifest(
-      tarballDirPath,
-      targets.map((target) => ({ name: target.name, version })),
-      { repository: process.env['GITHUB_REPOSITORY'] ?? '', commit: process.env['GITHUB_SHA'] ?? '' },
-      checkoutCommit
-    )
-    fs.writeFileSync(path.join(tarballDirPath, 'artifacts.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
+  try {
+    if (providedDirectory === undefined) {
+      execFileSync('pnpm', ['-r', '--filter', './packages/*', 'pack', '--pack-destination', tarballDirPath], { cwd: repoRoot, stdio: 'inherit' })
+    }
+    assertCondition(fs.existsSync(tarballDirPath), `Tarball directory does not exist: ${tarballDirPath}`)
+    const packageCount = verifyPackages(tarballDirPath)
+    console.log(`check:packages passed (packages=${packageCount}, dir=${tarballDirPath})`)
+  } finally {
+    if (providedDirectory === undefined) fs.rmSync(tarballDirPath, { recursive: true, force: true })
   }
-
-  console.log(`release:verify-tarballs passed (version=${version}, dir=${tarballDirPath})`)
 }
 
 try {
   main()
 } catch (error) {
-  console.error(`release:verify-tarballs failed: ${error instanceof Error ? error.message : String(error)}`)
+  console.error(`check:packages failed: ${error instanceof Error ? error.message : String(error)}`)
   process.exit(1)
 }
